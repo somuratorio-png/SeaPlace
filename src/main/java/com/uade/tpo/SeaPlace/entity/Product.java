@@ -5,20 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import lombok.Data;
 
 @Data
 @Entity
-public class Category {
-
-    public Category() {
-    }
-
-    public Category(String description) {
-        this.description = description;
-    }
-
+public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -26,6 +19,7 @@ public class Category {
     @Column
     private String description;
 
-    @OneToOne(mappedBy = "category")
-    private Product product;
+    @OneToOne
+    @JoinColumn(name = "category_id", referencedColumnName = "id")
+    private Category category;
 }
