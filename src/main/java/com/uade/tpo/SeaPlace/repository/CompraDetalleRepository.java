@@ -11,4 +11,6 @@ import com.uade.tpo.SeaPlace.entity.CompraDetalle;
 @Repository
 public interface CompraDetalleRepository extends JpaRepository<CompraDetalle, Long> {
     List<CompraDetalle> findByCompra_IdCompra(Long idCompra);
+
+    List<CompraDetalle> findByAnimal_IdAnimal(Long idAnimal);
 }

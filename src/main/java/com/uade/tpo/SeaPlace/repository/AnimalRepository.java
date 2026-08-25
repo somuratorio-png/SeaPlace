@@ -19,4 +19,13 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
     List<Animal> findByRefugio_IdRefugio(Long idRefugio);
 
     List<Animal> findByCuposDisponiblesGreaterThan(Integer cupos);
+
+    // Filtros combinados con paginacion para el catalogo
+    Page<Animal> findByEstadoAndCategoria_IdCategoria(String estado, Long idCategoria, Pageable pageable);
+
+    Page<Animal> findByEstadoAndCuotaApadrinamientoBetween(String estado, Double cuotaMin, Double cuotaMax, Pageable pageable);
+
+    Page<Animal> findByEstadoAndNombreAnimalContainingIgnoreCase(String estado, String nombre, Pageable pageable);
+
+    Page<Animal> findByEstadoAndCuposDisponiblesGreaterThan(String estado, Integer cupos, Pageable pageable);
 }

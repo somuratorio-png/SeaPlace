@@ -11,4 +11,6 @@ import com.uade.tpo.SeaPlace.entity.Compra;
 @Repository
 public interface CompraRepository extends JpaRepository<Compra, Long> {
     Page<Compra> findByUsuario_IdUsuario(Long idUsuario, Pageable pageable);
+
+    Page<Compra> findByUsuario_IdUsuarioAndEstado(Long idUsuario, String estado, Pageable pageable);
 }
