@@ -8,20 +8,23 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.Data;
 
+@Data
 @Entity
-public class Role {
+@Table(name = "permiso")
+public class Permiso {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long idPermiso;
+
+    @Column(nullable = false)
+    private String nombrePermiso;
 
     @Column
-    private String description;
+    private String descripcion;
 
-    @ManyToMany(mappedBy = "roles")
-    private List<User> users;
-
-    // @OneToOne
-    // private User user;
+    @ManyToMany(mappedBy = "permisos")
+    private List<Rol> roles;
 }

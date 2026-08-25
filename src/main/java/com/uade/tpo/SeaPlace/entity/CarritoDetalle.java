@@ -10,18 +10,25 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-@Entity
 @Data
-@Table(name = "orders")
-public class Order {
+@Entity
+@Table(name = "carrito_detalle")
+public class CarritoDetalle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column
-    private Long count;
+    private Long idCarritoDetalle;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "id_animal", nullable = false)
+    private Animal animal;
+
+    @ManyToOne
+    @JoinColumn(name = "id_carrito", nullable = false)
+    private Carrito carrito;
+
+    @Column(nullable = false)
+    private Double precioUnitario;
+
+    @Column(nullable = false)
+    private Integer cantidad;
 }
