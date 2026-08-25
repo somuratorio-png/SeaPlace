@@ -5,11 +5,12 @@ import java.util.Optional;
 
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.dto.CategoriaRequest;
+import com.uade.tpo.SeaPlace.exceptions.CategoryDuplicateException;
 
 public interface CategoriaService {
     List<Categoria> getCategorias();
 
     Optional<Categoria> getCategoriaById(Long categoriaId);
 
-    Categoria createCategoria(CategoriaRequest request);
+    Categoria createCategoria(CategoriaRequest request) throws CategoryDuplicateException;
 }

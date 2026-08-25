@@ -4,11 +4,10 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Categoria;
+import com.uade.tpo.SeaPlace.entity.dto.CategoriaRequest;
 import com.uade.tpo.SeaPlace.exceptions.CategoryDuplicateException;
 import com.uade.tpo.SeaPlace.repository.CategoriaRepository;
 
@@ -18,18 +17,24 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
-    public Page<Categoria> getCategories(PageRequest pageable) {
-        return categoriaRepository.findAll(pageable);
+    @Override
+    public List<Categoria> getCategorias() {
+        return categoriaRepository.findAll();
     }
 
-    public Optional<Categoria> getCategoryById(Long categoryId) {
-        return categoriaRepository.findById(categoryId);
+    @Override
+    public Optional<Categoria> getCategoriaById(Long categoriaId) {
+        return categoriaRepository.findById(categoriaId);
     }
 
-    public Categoria createCategory(String description) throws CategoryDuplicateException {
-        List<Categoria> categories = categoriaRepository.findByDescription(description);
-        if (categories.isEmpty())
-            return categoriaRepository.save(new Categoria(description));
-        throw new CategoryDuplicateException();
+    @Override
+    public Categoria createCategoria(CategoriaRequest request) throws CategoryDuplicateException {
+        Optional<Categoria> existente = categoriaRepository.findByNombreCategoria(request.getNombreCategoria());
+        if (existente.isPresent())
+            throw new CategoryDuplicateException();
+        Categoria categoria = new Categoria();
+        categoria.setNombreCategoria(request.getNombreCategoria());
+        categoria.setDescripcion(request.getDescripcion());
+        return categoriaRepository.save(categoria);
     }
 }

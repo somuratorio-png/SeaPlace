@@ -6,11 +6,13 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.dto.CategoriaRequest;
+import com.uade.tpo.SeaPlace.exceptions.CategoryDuplicateException;
 import com.uade.tpo.SeaPlace.service.CategoriaService;
 
 @RestController
@@ -33,7 +35,11 @@ public class CategoriaController {
 
     @PostMapping
     public ResponseEntity<Categoria> createCategoria(@RequestBody CategoriaRequest request) {
-        Categoria result = categoriaService.createCategoria(request);
-        return ResponseEntity.created(URI.create("/categorias/" + result.getIdCategoria())).body(result);
+        try {
+            Categoria result = categoriaService.createCategoria(request);
+            return ResponseEntity.created(URI.create("/categorias/" + result.getIdCategoria())).body(result);
+        } catch (CategoryDuplicateException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).build();
+        }
     }
 }
