@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
+import com.uade.tpo.SeaPlace.entity.dto.AnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
 import com.uade.tpo.SeaPlace.service.AnimalService;
 
@@ -22,31 +23,31 @@ public class AnimalesController {
     private AnimalService animalService;
 
     @GetMapping
-    public ResponseEntity<Page<Animal>> getAnimales(
+    public ResponseEntity<Page<AnimalResponse>> getAnimales(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String estado) {
         PageRequest pageRequest = (page == null || size == null)
                 ? PageRequest.of(0, Integer.MAX_VALUE)
                 : PageRequest.of(page, size);
-        return ResponseEntity.ok(animalService.getAnimales(estado, pageRequest));
+        return ResponseEntity.ok(animalService.getAnimales(estado, pageRequest).map(AnimalResponse::fromEntity));
     }
 
     @GetMapping("/{animalId}")
-    public ResponseEntity<Animal> getAnimalById(@PathVariable Long animalId) {
+    public ResponseEntity<AnimalResponse> getAnimalById(@PathVariable Long animalId) {
         Optional<Animal> result = animalService.getAnimalById(animalId);
-        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return result.map(a -> ResponseEntity.ok(AnimalResponse.fromEntity(a))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Animal> createAnimal(@RequestBody AnimalRequest request) {
+    public ResponseEntity<AnimalResponse> createAnimal(@RequestBody AnimalRequest request) {
         Animal result = animalService.createAnimal(request);
-        return ResponseEntity.created(URI.create("/animales/" + result.getIdAnimal())).body(result);
+        return ResponseEntity.created(URI.create("/animales/" + result.getIdAnimal())).body(AnimalResponse.fromEntity(result));
     }
 
     @PutMapping("/{animalId}")
-    public ResponseEntity<Animal> updateAnimal(@PathVariable Long animalId, @RequestBody AnimalUpdateRequest request) {
-        return ResponseEntity.ok(animalService.updateAnimal(animalId, request));
+    public ResponseEntity<AnimalResponse> updateAnimal(@PathVariable Long animalId, @RequestBody AnimalUpdateRequest request) {
+        return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.updateAnimal(animalId, request)));
     }
 
     @DeleteMapping("/{animalId}")

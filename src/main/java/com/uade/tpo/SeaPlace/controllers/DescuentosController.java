@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Descuento;
 import com.uade.tpo.SeaPlace.entity.dto.DescuentoRequest;
+import com.uade.tpo.SeaPlace.entity.dto.DescuentoResponse;
 import com.uade.tpo.SeaPlace.service.DescuentoService;
 
 @RestController
@@ -19,14 +20,14 @@ public class DescuentosController {
     private DescuentoService descuentoService;
 
     @GetMapping
-    public ResponseEntity<List<Descuento>> getDescuentosActivos(@PathVariable Long animalId) {
-        return ResponseEntity.ok(descuentoService.getDescuentosActivos(animalId));
+    public ResponseEntity<List<DescuentoResponse>> getDescuentosActivos(@PathVariable Long animalId) {
+        return ResponseEntity.ok(descuentoService.getDescuentosActivos(animalId).stream().map(DescuentoResponse::fromEntity).toList());
     }
 
     @PostMapping
-    public ResponseEntity<Descuento> createDescuento(@PathVariable Long animalId, @RequestBody DescuentoRequest request) {
+    public ResponseEntity<DescuentoResponse> createDescuento(@PathVariable Long animalId, @RequestBody DescuentoRequest request) {
         request.setIdAnimal(animalId);
         Descuento result = descuentoService.createDescuento(request);
-        return ResponseEntity.created(URI.create("/animales/" + animalId + "/descuentos/" + result.getIdDescuento())).body(result);
+        return ResponseEntity.created(URI.create("/animales/" + animalId + "/descuentos/" + result.getIdDescuento())).body(DescuentoResponse.fromEntity(result));
     }
 }

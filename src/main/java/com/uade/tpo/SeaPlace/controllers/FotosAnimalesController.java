@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.FotoAnimal;
 import com.uade.tpo.SeaPlace.entity.dto.FotoAnimalRequest;
+import com.uade.tpo.SeaPlace.entity.dto.FotoAnimalResponse;
 import com.uade.tpo.SeaPlace.service.FotoAnimalService;
 
 @RestController
@@ -19,14 +20,14 @@ public class FotosAnimalesController {
     private FotoAnimalService fotoAnimalService;
 
     @GetMapping
-    public ResponseEntity<List<FotoAnimal>> getFotos(@PathVariable Long animalId) {
-        return ResponseEntity.ok(fotoAnimalService.getFotosByAnimal(animalId));
+    public ResponseEntity<List<FotoAnimalResponse>> getFotos(@PathVariable Long animalId) {
+        return ResponseEntity.ok(fotoAnimalService.getFotosByAnimal(animalId).stream().map(FotoAnimalResponse::fromEntity).toList());
     }
 
     @PostMapping
-    public ResponseEntity<FotoAnimal> addFoto(@PathVariable Long animalId, @RequestBody FotoAnimalRequest request) {
+    public ResponseEntity<FotoAnimalResponse> addFoto(@PathVariable Long animalId, @RequestBody FotoAnimalRequest request) {
         request.setIdAnimal(animalId);
         FotoAnimal result = fotoAnimalService.createFoto(request);
-        return ResponseEntity.created(URI.create("/animales/" + animalId + "/fotos/" + result.getIdFoto())).body(result);
+        return ResponseEntity.created(URI.create("/animales/" + animalId + "/fotos/" + result.getIdFoto())).body(FotoAnimalResponse.fromEntity(result));
     }
 }

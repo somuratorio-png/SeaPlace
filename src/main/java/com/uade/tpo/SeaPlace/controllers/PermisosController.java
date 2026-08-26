@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Permiso;
 import com.uade.tpo.SeaPlace.entity.dto.PermisoRequest;
+import com.uade.tpo.SeaPlace.entity.dto.PermisoResponse;
+import com.uade.tpo.SeaPlace.entity.dto.RolResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AsignarPermisosRequest;
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.service.PermisoService;
@@ -25,26 +27,26 @@ public class PermisosController {
     private RolService rolService;
 
     @GetMapping("permisos")
-    public ResponseEntity<List<Permiso>> getPermisos() {
-        return ResponseEntity.ok(permisoService.getPermisos());
+    public ResponseEntity<List<PermisoResponse>> getPermisos() {
+        return ResponseEntity.ok(permisoService.getPermisos().stream().map(PermisoResponse::fromEntity).toList());
     }
 
     @GetMapping("permisos/{permisoId}")
-    public ResponseEntity<Permiso> getPermisoById(@PathVariable Long permisoId) {
+    public ResponseEntity<PermisoResponse> getPermisoById(@PathVariable Long permisoId) {
         Optional<Permiso> result = permisoService.getPermisoById(permisoId);
-        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return result.map(p -> ResponseEntity.ok(PermisoResponse.fromEntity(p))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("permisos")
-    public ResponseEntity<Permiso> createPermiso(@RequestBody PermisoRequest request) {
+    public ResponseEntity<PermisoResponse> createPermiso(@RequestBody PermisoRequest request) {
         Permiso result = permisoService.createPermiso(request);
-        return ResponseEntity.created(URI.create("/permisos/" + result.getIdPermiso())).body(result);
+        return ResponseEntity.created(URI.create("/permisos/" + result.getIdPermiso())).body(PermisoResponse.fromEntity(result));
     }
 
     // asigna permisos a un rol (reemplaza a RolPermiso)
     @PostMapping("roles/{rolId}/permisos")
-    public ResponseEntity<Rol> asignarPermisos(@PathVariable Long rolId, @RequestBody AsignarPermisosRequest request) {
+    public ResponseEntity<RolResponse> asignarPermisos(@PathVariable Long rolId, @RequestBody AsignarPermisosRequest request) {
         Rol result = rolService.asignarPermisos(rolId, request);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(RolResponse.fromEntity(result));
     }
 }

@@ -3,6 +3,7 @@ package com.uade.tpo.SeaPlace.service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -125,6 +126,7 @@ public class CompraServiceImpl implements CompraService {
         // SEGUNDA PASADA: con todo validado, se arma el detalle y se descuenta el stock.
         double totalCompra = 0.0;
         LocalDate hoy = LocalDate.now();
+        List<CompraDetalle> detallesCreados = new ArrayList<>();
 
         for (CarritoDetalle detalleCarrito : detallesDelCarrito) {
             Animal animal = detalleCarrito.getAnimal();
@@ -144,7 +146,7 @@ public class CompraServiceImpl implements CompraService {
             detalleCompra.setCantidad(cantidad);
             detalleCompra.setPrecioUnitario(precioFinal);
             detalleCompra.setSubtotal(subtotal);
-            compraDetalleRepository.save(detalleCompra);
+            detallesCreados.add(compraDetalleRepository.save(detalleCompra));
 
             totalCompra += subtotal;
         }
@@ -158,6 +160,7 @@ public class CompraServiceImpl implements CompraService {
         carrito.setEstado(ESTADO_CARRITO_CONFIRMADO);
         carritoRepository.save(carrito);
 
+        compra.setDetalles(detallesCreados);
         return compra;
     }
 

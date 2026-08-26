@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioRequest;
+import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
 import com.uade.tpo.SeaPlace.service.UsuarioService;
 
 @RestController
@@ -21,23 +22,23 @@ public class UsuariosController {
     private UsuarioService usuarioService;
 
     @GetMapping
-    public ResponseEntity<Page<Usuario>> getUsuarios(
+    public ResponseEntity<Page<UsuarioResponse>> getUsuarios(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         if (page == null || size == null)
-            return ResponseEntity.ok(usuarioService.getUsuarios(PageRequest.of(0, Integer.MAX_VALUE)));
-        return ResponseEntity.ok(usuarioService.getUsuarios(PageRequest.of(page, size)));
+            return ResponseEntity.ok(usuarioService.getUsuarios(PageRequest.of(0, Integer.MAX_VALUE)).map(UsuarioResponse::fromEntity));
+        return ResponseEntity.ok(usuarioService.getUsuarios(PageRequest.of(page, size)).map(UsuarioResponse::fromEntity));
     }
 
     @GetMapping("/{usuarioId}")
-    public ResponseEntity<Usuario> getUsuarioById(@PathVariable Long usuarioId) {
+    public ResponseEntity<UsuarioResponse> getUsuarioById(@PathVariable Long usuarioId) {
         Optional<Usuario> result = usuarioService.getUsuarioById(usuarioId);
-        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return result.map(u -> ResponseEntity.ok(UsuarioResponse.fromEntity(u))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Usuario> createUsuario(@RequestBody UsuarioRequest request) {
+    public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest request) {
         Usuario result = usuarioService.createUsuario(request);
-        return ResponseEntity.created(URI.create("/usuarios/" + result.getIdUsuario())).body(result);
+        return ResponseEntity.created(URI.create("/usuarios/" + result.getIdUsuario())).body(UsuarioResponse.fromEntity(result));
     }
 }

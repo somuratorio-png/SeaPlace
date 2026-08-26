@@ -6,9 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import com.uade.tpo.SeaPlace.entity.Carrito;
 import com.uade.tpo.SeaPlace.entity.CarritoDetalle;
 import com.uade.tpo.SeaPlace.entity.dto.CarritoDetalleRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CarritoDetalleResponse;
+import com.uade.tpo.SeaPlace.entity.dto.CarritoResponse;
 import com.uade.tpo.SeaPlace.service.CarritoService;
 
 @RestController
@@ -20,19 +21,19 @@ public class CarritosController {
 
     // carrito activo del usuario logueado (o el que se pase por param, mientras no haya login)
     @GetMapping
-    public ResponseEntity<Carrito> getCarritoActivo(@RequestParam Long idUsuario) {
-        return ResponseEntity.ok(carritoService.getOrCreateCarritoActivo(idUsuario));
+    public ResponseEntity<CarritoResponse> getCarritoActivo(@RequestParam Long idUsuario) {
+        return ResponseEntity.ok(CarritoResponse.fromEntity(carritoService.getOrCreateCarritoActivo(idUsuario)));
     }
 
     @PostMapping("/items")
-    public ResponseEntity<CarritoDetalle> agregarItem(@RequestBody CarritoDetalleRequest request) {
+    public ResponseEntity<CarritoDetalleResponse> agregarItem(@RequestBody CarritoDetalleRequest request) {
         CarritoDetalle result = carritoService.agregarItem(request);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(CarritoDetalleResponse.fromEntity(result));
     }
 
     @PutMapping("/{carritoId}/items/{animalId}")
-    public ResponseEntity<CarritoDetalle> modificarCantidad(@PathVariable Long carritoId, @PathVariable Long animalId, @RequestBody CarritoDetalleRequest request) {
-        return ResponseEntity.ok(carritoService.modificarCantidad(carritoId, animalId, request.getCantidad()));
+    public ResponseEntity<CarritoDetalleResponse> modificarCantidad(@PathVariable Long carritoId, @PathVariable Long animalId, @RequestBody CarritoDetalleRequest request) {
+        return ResponseEntity.ok(CarritoDetalleResponse.fromEntity(carritoService.modificarCantidad(carritoId, animalId, request.getCantidad())));
     }
 
     @DeleteMapping("/{carritoId}/items/{animalId}")
@@ -42,7 +43,7 @@ public class CarritosController {
     }
 
     @GetMapping("/{carritoId}/items")
-    public ResponseEntity<List<CarritoDetalle>> getItems(@PathVariable Long carritoId) {
-        return ResponseEntity.ok(carritoService.getItems(carritoId));
+    public ResponseEntity<List<CarritoDetalleResponse>> getItems(@PathVariable Long carritoId) {
+        return ResponseEntity.ok(carritoService.getItems(carritoId).stream().map(CarritoDetalleResponse::fromEntity).toList());
     }
 }

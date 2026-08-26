@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.dto.RefugioRequest;
+import com.uade.tpo.SeaPlace.entity.dto.RefugioResponse;
 import com.uade.tpo.SeaPlace.service.RefugioService;
 
 @RestController
@@ -20,19 +21,19 @@ public class RefugiosController {
     private RefugioService refugioService;
 
     @GetMapping
-    public ResponseEntity<List<Refugio>> getRefugios() {
-        return ResponseEntity.ok(refugioService.getRefugios());
+    public ResponseEntity<List<RefugioResponse>> getRefugios() {
+        return ResponseEntity.ok(refugioService.getRefugios().stream().map(RefugioResponse::fromEntity).toList());
     }
 
     @GetMapping("/{refugioId}")
-    public ResponseEntity<Refugio> getRefugioById(@PathVariable Long refugioId) {
+    public ResponseEntity<RefugioResponse> getRefugioById(@PathVariable Long refugioId) {
         Optional<Refugio> result = refugioService.getRefugioById(refugioId);
-        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return result.map(r -> ResponseEntity.ok(RefugioResponse.fromEntity(r))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Refugio> createRefugio(@RequestBody RefugioRequest request) {
+    public ResponseEntity<RefugioResponse> createRefugio(@RequestBody RefugioRequest request) {
         Refugio result = refugioService.createRefugio(request);
-        return ResponseEntity.created(URI.create("/refugios/" + result.getIdRefugio())).body(result);
+        return ResponseEntity.created(URI.create("/refugios/" + result.getIdRefugio())).body(RefugioResponse.fromEntity(result));
     }
 }

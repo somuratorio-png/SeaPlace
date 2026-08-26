@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.dto.RolRequest;
+import com.uade.tpo.SeaPlace.entity.dto.RolResponse;
 import com.uade.tpo.SeaPlace.service.RolService;
 
 @RestController
@@ -20,19 +21,19 @@ public class RolesController {
     private RolService rolService;
 
     @GetMapping
-    public ResponseEntity<List<Rol>> getRoles() {
-        return ResponseEntity.ok(rolService.getRoles());
+    public ResponseEntity<List<RolResponse>> getRoles() {
+        return ResponseEntity.ok(rolService.getRoles().stream().map(RolResponse::fromEntity).toList());
     }
 
     @GetMapping("/{rolId}")
-    public ResponseEntity<Rol> getRolById(@PathVariable Long rolId) {
+    public ResponseEntity<RolResponse> getRolById(@PathVariable Long rolId) {
         Optional<Rol> result = rolService.getRolById(rolId);
-        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return result.map(r -> ResponseEntity.ok(RolResponse.fromEntity(r))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Rol> createRol(@RequestBody RolRequest request) {
+    public ResponseEntity<RolResponse> createRol(@RequestBody RolRequest request) {
         Rol result = rolService.createRol(request);
-        return ResponseEntity.created(URI.create("/roles/" + result.getIdRol())).body(result);
+        return ResponseEntity.created(URI.create("/roles/" + result.getIdRol())).body(RolResponse.fromEntity(result));
     }
 }

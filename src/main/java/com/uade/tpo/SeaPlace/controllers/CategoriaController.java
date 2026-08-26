@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.dto.CategoriaRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CategoriaResponse;
 import com.uade.tpo.SeaPlace.service.CategoriaService;
 
 @RestController
@@ -20,19 +21,19 @@ public class CategoriaController {
     private CategoriaService categoriaService;
 
     @GetMapping
-    public ResponseEntity<List<Categoria>> getCategorias() {
-        return ResponseEntity.ok(categoriaService.getCategorias());
+    public ResponseEntity<List<CategoriaResponse>> getCategorias() {
+        return ResponseEntity.ok(categoriaService.getCategorias().stream().map(CategoriaResponse::fromEntity).toList());
     }
 
     @GetMapping("/{categoriaId}")
-    public ResponseEntity<Categoria> getCategoriaById(@PathVariable Long categoriaId) {
+    public ResponseEntity<CategoriaResponse> getCategoriaById(@PathVariable Long categoriaId) {
         Optional<Categoria> result = categoriaService.getCategoriaById(categoriaId);
-        return result.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
+        return result.map(c -> ResponseEntity.ok(CategoriaResponse.fromEntity(c))).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<Categoria> createCategoria(@RequestBody CategoriaRequest request) {
+    public ResponseEntity<CategoriaResponse> createCategoria(@RequestBody CategoriaRequest request) {
         Categoria result = categoriaService.createCategoria(request);
-        return ResponseEntity.created(URI.create("/categorias/" + result.getIdCategoria())).body(result);
+        return ResponseEntity.created(URI.create("/categorias/" + result.getIdCategoria())).body(CategoriaResponse.fromEntity(result));
     }
 }

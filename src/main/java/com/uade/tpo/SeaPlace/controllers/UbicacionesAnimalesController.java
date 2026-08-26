@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.UbicacionAnimal;
 import com.uade.tpo.SeaPlace.entity.dto.UbicacionAnimalRequest;
+import com.uade.tpo.SeaPlace.entity.dto.UbicacionAnimalResponse;
 import com.uade.tpo.SeaPlace.service.UbicacionAnimalService;
 
 @RestController
@@ -18,21 +19,21 @@ public class UbicacionesAnimalesController {
     private UbicacionAnimalService ubicacionAnimalService;
 
     @GetMapping
-    public ResponseEntity<List<UbicacionAnimal>> getHistorial(@PathVariable Long animalId) {
-        return ResponseEntity.ok(ubicacionAnimalService.getHistorial(animalId));
+    public ResponseEntity<List<UbicacionAnimalResponse>> getHistorial(@PathVariable Long animalId) {
+        return ResponseEntity.ok(ubicacionAnimalService.getHistorial(animalId).stream().map(UbicacionAnimalResponse::fromEntity).toList());
     }
 
     @GetMapping("/ultima")
-    public ResponseEntity<UbicacionAnimal> getUltimaUbicacion(@PathVariable Long animalId) {
+    public ResponseEntity<UbicacionAnimalResponse> getUltimaUbicacion(@PathVariable Long animalId) {
         return ubicacionAnimalService.getUltimaUbicacion(animalId)
-                .map(ResponseEntity::ok)
+                .map(u -> ResponseEntity.ok(UbicacionAnimalResponse.fromEntity(u)))
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
-    public ResponseEntity<UbicacionAnimal> registrarUbicacion(@PathVariable Long animalId, @RequestBody UbicacionAnimalRequest request) {
+    public ResponseEntity<UbicacionAnimalResponse> registrarUbicacion(@PathVariable Long animalId, @RequestBody UbicacionAnimalRequest request) {
         request.setIdAnimal(animalId);
         UbicacionAnimal result = ubicacionAnimalService.registrarUbicacion(request);
-        return ResponseEntity.ok(result);
+        return ResponseEntity.ok(UbicacionAnimalResponse.fromEntity(result));
     }
 }
