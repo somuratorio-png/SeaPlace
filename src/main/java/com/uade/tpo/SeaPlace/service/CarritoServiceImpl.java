@@ -111,6 +111,39 @@ public class CarritoServiceImpl implements CarritoService {
     }
 
     @Override
+    public CarritoDetalle modificarCantidad(Long carritoId, Long animalId, Integer cantidad) {
+        // Para sacar el animal del carrito esta el DELETE; no se modifica a cero.
+        if (cantidad == null || cantidad <= 0) {
+            throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
+        }
+
+        CarritoDetalle detalle = carritoDetalleRepository
+                .findByCarrito_IdCarritoAndAnimal_IdAnimal(carritoId, animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("El animal no esta en el carrito"));
+
+        Animal animal = detalle.getAnimal();
+
+        // Solo se puede apadrinar un animal cuya publicacion sigue activa; si se pauso o elimino
+        // mientras estaba en el carrito, tampoco se puede aumentar la cantidad.
+        if (!ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
+            throw new ReglaDeNegocioException(
+                    "La publicacion del animal " + animal.getNombreAnimal() + " no esta activa");
+        }
+
+        // Misma regla que agregarItem: la nueva cantidad reemplaza a la anterior (no se suma),
+        // y no puede superar los cupos que quedan libres.
+        if (cantidad > animal.getCuposDisponibles()) {
+            throw new ReglaDeNegocioException(
+                    "No hay cupos suficientes para " + animal.getNombreAnimal()
+                            + ": quedan " + animal.getCuposDisponibles()
+                            + " y se intentan reservar " + cantidad);
+        }
+
+        detalle.setCantidad(cantidad);
+        return carritoDetalleRepository.save(detalle);
+    }
+
+    @Override
     @Transactional
     public void quitarItem(Long carritoId, Long animalId) {
         carritoDetalleRepository.deleteByCarrito_IdCarritoAndAnimal_IdAnimal(carritoId, animalId);

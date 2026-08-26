@@ -30,6 +30,11 @@ public class CarritosController {
         return ResponseEntity.ok(result);
     }
 
+    @PutMapping("/{carritoId}/items/{animalId}")
+    public ResponseEntity<CarritoDetalle> modificarCantidad(@PathVariable Long carritoId, @PathVariable Long animalId, @RequestBody CarritoDetalleRequest request) {
+        return ResponseEntity.ok(carritoService.modificarCantidad(carritoId, animalId, request.getCantidad()));
+    }
+
     @DeleteMapping("/{carritoId}/items/{animalId}")
     public ResponseEntity<Void> quitarItem(@PathVariable Long carritoId, @PathVariable Long animalId) {
         carritoService.quitarItem(carritoId, animalId);

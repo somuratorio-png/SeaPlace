@@ -11,6 +11,8 @@ public interface CarritoService {
 
     CarritoDetalle agregarItem(CarritoDetalleRequest request);
 
+    CarritoDetalle modificarCantidad(Long carritoId, Long animalId, Integer cantidad);
+
     void quitarItem(Long carritoId, Long animalId);
 
     List<CarritoDetalle> getItems(Long carritoId);

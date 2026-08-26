@@ -12,6 +12,7 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
+import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
@@ -22,6 +23,8 @@ import com.uade.tpo.SeaPlace.repository.RefugioRepository;
 public class AnimalServiceImpl implements AnimalService {
 
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
+    private static final String ESTADO_PUBLICACION_PAUSADA = "PAUSADA";
+    private static final String ESTADO_PUBLICACION_ELIMINADA = "ELIMINADA";
 
     @Autowired
     private AnimalRepository animalRepository;
@@ -79,5 +82,81 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setFechaPublicacion(LocalDateTime.now());
 
         return animalRepository.save(animal);
+    }
+
+    @Override
+    public Animal updateAnimal(Long animalId, AnimalUpdateRequest request) {
+        Animal animal = animalRepository.findById(animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el animal con id " + animalId));
+
+        if (ESTADO_PUBLICACION_ELIMINADA.equals(animal.getEstado())) {
+            throw new ReglaDeNegocioException("No se puede modificar una publicacion eliminada");
+        }
+
+        if (request.getNombreAnimal() != null) {
+            if (request.getNombreAnimal().isBlank()) {
+                throw new ReglaDeNegocioException("El nombre del animal no puede estar vacio");
+            }
+            animal.setNombreAnimal(request.getNombreAnimal());
+        }
+
+        if (request.getDescripcion() != null) {
+            animal.setDescripcion(request.getDescripcion());
+        }
+
+        if (request.getCuotaApadrinamiento() != null) {
+            if (request.getCuotaApadrinamiento() <= 0) {
+                throw new ReglaDeNegocioException("La cuota de apadrinamiento debe ser un monto mayor a 0");
+            }
+            animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
+        }
+
+        if (request.getEstado() != null) {
+            // La eliminacion tiene su propio endpoint (DELETE), no se elimina por update.
+            if (!ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())
+                    && !ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
+                throw new ReglaDeNegocioException("Estado invalido: solo ACTIVA o PAUSADA");
+            }
+            animal.setEstado(request.getEstado());
+        }
+
+        if (request.getCuposTotales() != null) {
+            if (request.getCuposTotales() <= 0) {
+                throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
+            }
+
+            // Manejo del stock: los cupos ocupados son los padrinos que ya apadrinaron
+            // (total - disponibles). El refugio puede cambiar el total, pero nunca por debajo de
+            // los ocupados, porque esos padrinos ya pagaron su lugar. Los disponibles se ajustan
+            // para mantener los ocupados. Ejemplo: total 10 con 3 disponibles = 7 ocupados; si el
+            // refugio sube el total a 12, disponibles pasa a 5.
+            int cuposOcupados = animal.getCuposTotales() - animal.getCuposDisponibles();
+            if (request.getCuposTotales() < cuposOcupados) {
+                throw new ReglaDeNegocioException(
+                        "No se pueden reducir los cupos totales a " + request.getCuposTotales()
+                                + ": ya hay " + cuposOcupados + " cupos ocupados por padrinos");
+            }
+            animal.setCuposDisponibles(request.getCuposTotales() - cuposOcupados);
+            animal.setCuposTotales(request.getCuposTotales());
+        }
+
+        return animalRepository.save(animal);
+    }
+
+    @Override
+    public void deleteAnimal(Long animalId) {
+        Animal animal = animalRepository.findById(animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el animal con id " + animalId));
+
+        if (ESTADO_PUBLICACION_ELIMINADA.equals(animal.getEstado())) {
+            throw new ReglaDeNegocioException("La publicacion ya fue eliminada");
+        }
+
+        // Borrado logico: no se borra la fila porque las compras historicas referencian al animal;
+        // se marca ELIMINADA y el catalogo deja de mostrarla.
+        animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
+        animalRepository.save(animal);
     }
 }
