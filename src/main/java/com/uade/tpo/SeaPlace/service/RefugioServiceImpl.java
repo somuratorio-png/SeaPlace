@@ -9,6 +9,8 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.RefugioRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
 import com.uade.tpo.SeaPlace.repository.RefugioRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
 
@@ -34,13 +36,13 @@ public class RefugioServiceImpl implements RefugioService {
     @Override
     public Refugio createRefugio(RefugioRequest request) {
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + request.getIdUsuario()));
 
         // Un usuario puede administrar a lo sumo un refugio: la cuenta del refugio es la
         // identidad con la que publica sus animales.
         if (refugioRepository.findByUsuario_IdUsuario(usuario.getIdUsuario()).isPresent()) {
-            throw new IllegalArgumentException(
+            throw new RecursoDuplicadoException(
                     "El usuario con id " + usuario.getIdUsuario() + " ya tiene un refugio asociado");
         }
 

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.FotoAnimal;
 import com.uade.tpo.SeaPlace.entity.dto.FotoAnimalRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.repository.FotoAnimalRepository;
 
@@ -28,7 +29,7 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
     @Override
     public FotoAnimal createFoto(FotoAnimalRequest request) {
         Animal animal = animalRepository.findById(request.getIdAnimal())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
         Integer orden = request.getOrden();

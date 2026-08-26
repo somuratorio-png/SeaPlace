@@ -13,6 +13,8 @@ import com.uade.tpo.SeaPlace.entity.Carrito;
 import com.uade.tpo.SeaPlace.entity.CarritoDetalle;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.CarritoDetalleRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.repository.CarritoDetalleRepository;
 import com.uade.tpo.SeaPlace.repository.CarritoRepository;
@@ -39,7 +41,7 @@ public class CarritoServiceImpl implements CarritoService {
     @Override
     public Carrito getOrCreateCarritoActivo(Long idUsuario) {
         Usuario usuario = usuarioRepository.findById(idUsuario)
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
 
         // Un usuario tiene a lo sumo un carrito activo a la vez; si no lo tiene, se le abre uno.
@@ -56,21 +58,21 @@ public class CarritoServiceImpl implements CarritoService {
     @Override
     public CarritoDetalle agregarItem(CarritoDetalleRequest request) {
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
-            throw new IllegalArgumentException("La cantidad debe ser un numero mayor a 0");
+            throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
 
         Carrito carrito = carritoRepository.findById(request.getIdCarrito())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el carrito con id " + request.getIdCarrito()));
 
         Animal animal = animalRepository.findById(request.getIdAnimal())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
         // Solo se puede apadrinar un animal cuya publicacion sigue activa; las pausadas o
         // finalizadas ya no aceptan nuevos padrinos.
         if (!ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
-            throw new IllegalArgumentException(
+            throw new ReglaDeNegocioException(
                     "La publicacion del animal " + animal.getNombreAnimal() + " no esta activa");
         }
 
@@ -83,7 +85,7 @@ public class CarritoServiceImpl implements CarritoService {
         // Requisito de la consigna: sin cupos no se puede agregar al carrito. Cada cupo es un
         // lugar de padrino, y el total acumulado en el carrito no puede superar los que quedan libres.
         if (cantidadFinal > animal.getCuposDisponibles()) {
-            throw new IllegalArgumentException(
+            throw new ReglaDeNegocioException(
                     "No hay cupos suficientes para " + animal.getNombreAnimal()
                             + ": quedan " + animal.getCuposDisponibles()
                             + " y se intentan reservar " + cantidadFinal);

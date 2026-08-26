@@ -10,6 +10,9 @@ import com.uade.tpo.SeaPlace.entity.Permiso;
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.dto.AsignarPermisosRequest;
 import com.uade.tpo.SeaPlace.entity.dto.RolRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
+import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.PermisoRepository;
 import com.uade.tpo.SeaPlace.repository.RolRepository;
 
@@ -36,7 +39,7 @@ public class RolServiceImpl implements RolService {
     public Rol createRol(RolRequest request) {
         // El nombre identifica al rol en toda la app, por eso no puede repetirse.
         if (rolRepository.findByNombreRol(request.getNombreRol()).isPresent()) {
-            throw new IllegalArgumentException("Ya existe un rol con el nombre " + request.getNombreRol());
+            throw new RecursoDuplicadoException("Ya existe un rol con el nombre " + request.getNombreRol());
         }
 
         Rol rol = new Rol();
@@ -48,10 +51,10 @@ public class RolServiceImpl implements RolService {
     @Override
     public Rol asignarPermisos(Long rolId, AsignarPermisosRequest request) {
         Rol rol = rolRepository.findById(rolId)
-                .orElseThrow(() -> new IllegalArgumentException("No existe el rol con id " + rolId));
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el rol con id " + rolId));
 
         if (request.getIdPermisos() == null || request.getIdPermisos().isEmpty()) {
-            throw new IllegalArgumentException("Debe indicar al menos un permiso para asignar");
+            throw new ReglaDeNegocioException("Debe indicar al menos un permiso para asignar");
         }
 
         List<Permiso> permisos = permisoRepository.findAllById(request.getIdPermisos());
@@ -59,7 +62,7 @@ public class RolServiceImpl implements RolService {
         // Si algun id no corresponde a un permiso existente, no se asigna nada: asignar un
         // conjunto parcial dejaria al rol con permisos distintos a los pedidos.
         if (permisos.size() != request.getIdPermisos().size()) {
-            throw new IllegalArgumentException("Uno o mas ids de permiso no existen");
+            throw new RecursoNoEncontradoException("Uno o mas ids de permiso no existen");
         }
 
         // La asignacion reemplaza el conjunto completo de permisos del rol.

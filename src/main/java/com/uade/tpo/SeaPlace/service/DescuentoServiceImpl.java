@@ -8,6 +8,8 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Descuento;
 import com.uade.tpo.SeaPlace.entity.dto.DescuentoRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.repository.DescuentoRepository;
 
@@ -28,22 +30,22 @@ public class DescuentoServiceImpl implements DescuentoService {
     @Override
     public Descuento createDescuento(DescuentoRequest request) {
         Animal animal = animalRepository.findById(request.getIdAnimal())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
         // Un descuento de 0% no descuenta nada y uno mayor a 100% dejaria la cuota negativa:
         // solo tiene sentido en el rango (0, 100].
         if (request.getPorcentaje() == null || request.getPorcentaje() <= 0 || request.getPorcentaje() > 100) {
-            throw new IllegalArgumentException("El porcentaje debe ser mayor a 0 y hasta 100");
+            throw new ReglaDeNegocioException("El porcentaje debe ser mayor a 0 y hasta 100");
         }
 
         if (request.getFechaInicio() == null || request.getFechaFin() == null) {
-            throw new IllegalArgumentException("La fecha de inicio y la fecha de fin son obligatorias");
+            throw new ReglaDeNegocioException("La fecha de inicio y la fecha de fin son obligatorias");
         }
 
         // Una campania no puede terminar antes de empezar; nunca estaria vigente.
         if (request.getFechaFin().isBefore(request.getFechaInicio())) {
-            throw new IllegalArgumentException("La fecha de fin no puede ser anterior a la fecha de inicio");
+            throw new ReglaDeNegocioException("La fecha de fin no puede ser anterior a la fecha de inicio");
         }
 
         Descuento descuento = new Descuento();

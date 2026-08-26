@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -13,6 +15,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
 
     @ExceptionHandler(RecursoNoEncontradoException.class)
     public ResponseEntity<Object> handleNoEncontrado(RecursoNoEncontradoException ex) {
@@ -49,6 +53,7 @@ public class GlobalExceptionHandler {
     // Catch-all: cualquier excepcion no contemplada no debe filtrar el stack trace al cliente.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenerica(Exception ex) {
+        log.error("Error inesperado", ex);
         return construirRespuesta(HttpStatus.INTERNAL_SERVER_ERROR, "Ocurrio un error inesperado");
     }
 

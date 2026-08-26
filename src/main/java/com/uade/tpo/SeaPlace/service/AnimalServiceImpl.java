@@ -12,6 +12,8 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.repository.CategoriaRepository;
 import com.uade.tpo.SeaPlace.repository.RefugioRepository;
@@ -46,19 +48,19 @@ public class AnimalServiceImpl implements AnimalService {
     @Override
     public Animal createAnimal(AnimalRequest request) {
         Categoria categoria = categoriaRepository.findById(request.getIdCategoria())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe la categoria con id " + request.getIdCategoria()));
 
         Refugio refugio = refugioRepository.findById(request.getIdRefugio())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el refugio con id " + request.getIdRefugio()));
 
         if (request.getCuposTotales() == null || request.getCuposTotales() <= 0) {
-            throw new IllegalArgumentException("Los cupos totales deben ser un numero mayor a 0");
+            throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
         }
 
         if (request.getCuotaApadrinamiento() == null || request.getCuotaApadrinamiento() <= 0) {
-            throw new IllegalArgumentException("La cuota de apadrinamiento debe ser un monto mayor a 0");
+            throw new ReglaDeNegocioException("La cuota de apadrinamiento debe ser un monto mayor a 0");
         }
 
         Animal animal = new Animal();

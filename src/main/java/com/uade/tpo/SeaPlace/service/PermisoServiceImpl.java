@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Permiso;
 import com.uade.tpo.SeaPlace.entity.dto.PermisoRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
 import com.uade.tpo.SeaPlace.repository.PermisoRepository;
 
 @Service
@@ -30,7 +31,7 @@ public class PermisoServiceImpl implements PermisoService {
     public Permiso createPermiso(PermisoRequest request) {
         // El nombre identifica al permiso al momento de autorizar, por eso no puede repetirse.
         if (permisoRepository.findByNombrePermiso(request.getNombrePermiso()).isPresent()) {
-            throw new IllegalArgumentException(
+            throw new RecursoDuplicadoException(
                     "Ya existe un permiso con el nombre " + request.getNombrePermiso());
         }
 
