@@ -20,6 +20,8 @@ import com.uade.tpo.SeaPlace.entity.CompraDetalle;
 import com.uade.tpo.SeaPlace.entity.Descuento;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.CompraRequest;
+import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.repository.CarritoDetalleRepository;
 import com.uade.tpo.SeaPlace.repository.CarritoRepository;
@@ -73,26 +75,26 @@ public class CompraServiceImpl implements CompraService {
     @Transactional
     public Compra confirmarCompra(CompraRequest request) {
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + request.getIdUsuario()));
 
         Carrito carrito = carritoRepository.findById(request.getIdCarrito())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el carrito con id " + request.getIdCarrito()));
 
         if (!carrito.getUsuario().getIdUsuario().equals(usuario.getIdUsuario())) {
-            throw new IllegalArgumentException("El carrito no pertenece al usuario");
+            throw new ReglaDeNegocioException("El carrito no pertenece al usuario");
         }
 
         if (!ESTADO_CARRITO_ACTIVO.equals(carrito.getEstado())) {
-            throw new IllegalArgumentException("El carrito ya fue confirmado o no esta activo");
+            throw new ReglaDeNegocioException("El carrito ya fue confirmado o no esta activo");
         }
 
         List<CarritoDetalle> detallesDelCarrito = carritoDetalleRepository
                 .findByCarrito_IdCarrito(carrito.getIdCarrito());
 
         if (detallesDelCarrito.isEmpty()) {
-            throw new IllegalArgumentException("El carrito esta vacio");
+            throw new ReglaDeNegocioException("El carrito esta vacio");
         }
 
         // PRIMERA PASADA: la consigna exige validar el stock antes de descontar. Se valida el
@@ -101,12 +103,12 @@ public class CompraServiceImpl implements CompraService {
             Animal animal = detalleCarrito.getAnimal();
 
             if (!ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
-                throw new IllegalArgumentException(
+                throw new ReglaDeNegocioException(
                         "La publicacion del animal " + animal.getNombreAnimal() + " ya no esta activa");
             }
 
             if (detalleCarrito.getCantidad() > animal.getCuposDisponibles()) {
-                throw new IllegalArgumentException(
+                throw new ReglaDeNegocioException(
                         "No hay cupos suficientes para " + animal.getNombreAnimal()
                                 + ": quedan " + animal.getCuposDisponibles()
                                 + " y el carrito pide " + detalleCarrito.getCantidad());

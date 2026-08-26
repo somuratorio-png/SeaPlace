@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.repository.RolRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
 
@@ -36,16 +38,16 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     public Usuario createUsuario(UsuarioRequest request) {
         Rol rol = rolRepository.findById(request.getIdRol())
-                .orElseThrow(() -> new IllegalArgumentException(
+                .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el rol con id " + request.getIdRol()));
 
         // El mail y el nombre de usuario identifican a la persona en el sistema, por eso no
         // pueden repetirse entre cuentas.
         if (usuarioRepository.existsByMail(request.getMail())) {
-            throw new IllegalArgumentException("Ya existe un usuario con el mail " + request.getMail());
+            throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + request.getMail());
         }
         if (usuarioRepository.existsByNombreUsuario(request.getNombreUsuario())) {
-            throw new IllegalArgumentException(
+            throw new RecursoDuplicadoException(
                     "Ya existe un usuario con el nombre de usuario " + request.getNombreUsuario());
         }
 
