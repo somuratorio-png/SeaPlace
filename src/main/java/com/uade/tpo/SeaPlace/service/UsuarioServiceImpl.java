@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Rol;
@@ -25,6 +26,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Autowired
     private RolRepository rolRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     @Override
     public Page<Usuario> getUsuarios(PageRequest pageRequest) {
         return usuarioRepository.findAll(pageRequest);
@@ -41,8 +45,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el rol con id " + request.getIdRol()));
 
-        // El mail y el nombre de usuario identifican a la persona en el sistema, por eso no
-        // pueden repetirse entre cuentas.
         if (usuarioRepository.existsByMail(request.getMail())) {
             throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + request.getMail());
         }
@@ -57,7 +59,7 @@ public class UsuarioServiceImpl implements UsuarioService {
         usuario.setApellido(request.getApellido());
         usuario.setMail(request.getMail());
         usuario.setNombreUsuario(request.getNombreUsuario());
-        usuario.setContrasenia(request.getContrasenia());
+        usuario.setContrasenia(passwordEncoder.encode(request.getContrasenia()));
         usuario.setFechaRegistro(LocalDateTime.now());
 
         return usuarioRepository.save(usuario);
