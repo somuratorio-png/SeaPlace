@@ -27,7 +27,7 @@ La conexión a la base y el secreto JWT están en `src/main/resources/applicatio
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/seaplace?createDatabaseIfNotExist=true
 spring.datasource.username=root
-spring.datasource.password=****
+spring.datasource.password=*****
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.defer-datasource-initialization=true
@@ -62,7 +62,7 @@ INSERT IGNORE INTO rol (nombre_rol) VALUES ('administrador');
 
 14 entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Ubicacion_Animal`, `Descuento`, `Carrito`, `Carrito_Detalle`, `Compra`, `Compra_Detalle` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
 
-Regla clave: cada `Animal` es un individuo único, apadrinable **una sola vez** — se modela con un booleano `disponible`, no hay campos de stock/cupo.
+Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela con `cuposTotales` y `cuposDisponibles` (Integer), no con un booleano de disponibilidad única. Los cupos se reservan al agregar al carrito (validado contra lo ya reservado) y se descuentan recién al confirmar la compra.
 
 ## Autenticación y roles
 
