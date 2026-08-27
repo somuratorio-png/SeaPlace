@@ -64,4 +64,18 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         return usuarioRepository.save(usuario);
     }
+
+    @Override
+    public Usuario cambiarRol(Long usuarioId, Long idRol) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con id " + usuarioId));
+
+        Rol rol = rolRepository.findById(idRol)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el rol con id " + idRol));
+
+        usuario.setRol(rol);
+        return usuarioRepository.save(usuario);
+    }
 }

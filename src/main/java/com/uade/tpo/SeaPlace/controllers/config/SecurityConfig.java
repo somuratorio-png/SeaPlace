@@ -34,6 +34,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/animales/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.PUT, "/animales/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.DELETE, "/animales/**").hasRole("ADMINISTRADOR")
+                        .requestMatchers(HttpMethod.PUT, "/usuarios/*/rol").hasRole("ADMINISTRADOR")
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)

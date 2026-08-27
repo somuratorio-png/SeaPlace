@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Usuario;
+import com.uade.tpo.SeaPlace.entity.dto.CambiarRolRequest;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioRequest;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
 import com.uade.tpo.SeaPlace.service.UsuarioService;
@@ -40,5 +41,11 @@ public class UsuariosController {
     public ResponseEntity<UsuarioResponse> createUsuario(@RequestBody UsuarioRequest request) {
         Usuario result = usuarioService.createUsuario(request);
         return ResponseEntity.created(URI.create("/usuarios/" + result.getIdUsuario())).body(UsuarioResponse.fromEntity(result));
+    }
+
+    @PutMapping("/{usuarioId}/rol")
+    public ResponseEntity<UsuarioResponse> cambiarRol(@PathVariable Long usuarioId, @RequestBody CambiarRolRequest request) {
+        Usuario result = usuarioService.cambiarRol(usuarioId, request.getIdRol());
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
 }
