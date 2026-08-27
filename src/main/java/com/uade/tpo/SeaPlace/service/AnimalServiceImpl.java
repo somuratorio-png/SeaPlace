@@ -35,12 +35,29 @@ public class AnimalServiceImpl implements AnimalService {
     @Autowired
     private RefugioRepository refugioRepository;
 
-    @Override
-    public Page<Animal> getAnimales(String estado, PageRequest pageRequest) {
-        if (estado == null || estado.isBlank()) {
+        @Override
+    public Page<Animal> getAnimales(String estado, Long idCategoria, Double precioMin, Double precioMax, PageRequest pageRequest) {
+        // Si se filtra por categoria o precio y no se aclaro el estado, se asume ACTIVA:
+        // es el comportamiento esperado de un catalogo publico (no mostrar pausadas/eliminadas).
+        String estadoFiltro = estado;
+        if ((estadoFiltro == null || estadoFiltro.isBlank()) && (idCategoria != null || precioMin != null || precioMax != null)) {
+            estadoFiltro = ESTADO_PUBLICACION_ACTIVA;
+        }
+
+        if (idCategoria != null) {
+            return animalRepository.findByEstadoAndCategoria_IdCategoria(estadoFiltro, idCategoria, pageRequest);
+        }
+
+        if (precioMin != null || precioMax != null) {
+            double min = precioMin != null ? precioMin : 0;
+            double max = precioMax != null ? precioMax : Double.MAX_VALUE;
+            return animalRepository.findByEstadoAndCuotaApadrinamientoBetween(estadoFiltro, min, max, pageRequest);
+        }
+
+        if (estadoFiltro == null || estadoFiltro.isBlank()) {
             return animalRepository.findAll(pageRequest);
         }
-        return animalRepository.findByEstado(estado, pageRequest);
+        return animalRepository.findByEstado(estadoFiltro, pageRequest);
     }
 
     @Override

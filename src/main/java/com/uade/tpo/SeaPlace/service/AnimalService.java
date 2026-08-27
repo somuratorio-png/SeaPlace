@@ -10,7 +10,7 @@ import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
 
 public interface AnimalService {
-    Page<Animal> getAnimales(String estado, PageRequest pageRequest);
+    Page<Animal> getAnimales(String estado, Long idCategoria, Double precioMin, Double precioMax, PageRequest pageRequest);
 
     Optional<Animal> getAnimalById(Long animalId);
 

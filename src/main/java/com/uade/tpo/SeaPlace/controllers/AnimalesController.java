@@ -26,11 +26,14 @@ public class AnimalesController {
     public ResponseEntity<Page<AnimalResponse>> getAnimales(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size,
-            @RequestParam(required = false) String estado) {
+            @RequestParam(required = false) String estado,
+            @RequestParam(required = false) Long idCategoria,
+            @RequestParam(required = false) Double precioMin,
+            @RequestParam(required = false) Double precioMax) {
         PageRequest pageRequest = (page == null || size == null)
                 ? PageRequest.of(0, Integer.MAX_VALUE)
                 : PageRequest.of(page, size);
-        return ResponseEntity.ok(animalService.getAnimales(estado, pageRequest).map(AnimalResponse::fromEntity));
+        return ResponseEntity.ok(animalService.getAnimales(estado, idCategoria, precioMin, precioMax, pageRequest).map(AnimalResponse::fromEntity));
     }
 
     @GetMapping("/{animalId}")
