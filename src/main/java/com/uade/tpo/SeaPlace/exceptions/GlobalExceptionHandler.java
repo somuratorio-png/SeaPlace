@@ -64,4 +64,9 @@ public class GlobalExceptionHandler {
         body.put("mensaje", mensaje);
         return ResponseEntity.status(status).body(body);
     }
+
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccesoDenegado(org.springframework.security.access.AccessDeniedException ex) {
+        return construirRespuesta(HttpStatus.FORBIDDEN, ex.getMessage());
+    }
 }

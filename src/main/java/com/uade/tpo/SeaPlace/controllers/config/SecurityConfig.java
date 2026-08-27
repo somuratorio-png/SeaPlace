@@ -31,10 +31,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/animales/**", "/refugios/**", "/categorias/**").permitAll()
                         .requestMatchers("/permisos/**", "/roles/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.POST, "/refugios/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.POST, "/animales/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.PUT, "/animales/**").hasRole("ADMINISTRADOR")
-                        .requestMatchers(HttpMethod.DELETE, "/animales/**").hasRole("ADMINISTRADOR")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/rol").hasRole("ADMINISTRADOR")
+                        // Crear/editar/borrar animales ya no es exclusivo de ADMINISTRADOR: cualquier
+                        // usuario autenticado puede intentarlo, pero AnimalServiceImpl valida que sea
+                        // el dueno del refugio (o admin). Asi el refugio gestiona sus propios animales.
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)

@@ -6,11 +6,14 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.Refugio;
+import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
@@ -35,10 +38,8 @@ public class AnimalServiceImpl implements AnimalService {
     @Autowired
     private RefugioRepository refugioRepository;
 
-        @Override
+    @Override
     public Page<Animal> getAnimales(String estado, Long idCategoria, Double precioMin, Double precioMax, PageRequest pageRequest) {
-        // Si se filtra por categoria o precio y no se aclaro el estado, se asume ACTIVA:
-        // es el comportamiento esperado de un catalogo publico (no mostrar pausadas/eliminadas).
         String estadoFiltro = estado;
         if ((estadoFiltro == null || estadoFiltro.isBlank()) && (idCategoria != null || precioMin != null || precioMax != null)) {
             estadoFiltro = ESTADO_PUBLICACION_ACTIVA;
@@ -75,6 +76,8 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el refugio con id " + request.getIdRefugio()));
 
+        validarPermisoSobreRefugio(refugio.getIdRefugio());
+
         if (request.getCuposTotales() == null || request.getCuposTotales() <= 0) {
             throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
         }
@@ -90,11 +93,7 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setDescripcion(request.getDescripcion());
         animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
         animal.setCuposTotales(request.getCuposTotales());
-
-        // Al publicar, ningun padrino ocupo lugar todavia: todos los cupos estan libres.
         animal.setCuposDisponibles(request.getCuposTotales());
-
-        // Una publicacion nace activa para aparecer en el catalogo desde el primer momento.
         animal.setEstado(ESTADO_PUBLICACION_ACTIVA);
         animal.setFechaPublicacion(LocalDateTime.now());
 
@@ -106,6 +105,8 @@ public class AnimalServiceImpl implements AnimalService {
         Animal animal = animalRepository.findById(animalId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + animalId));
+
+        validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         if (ESTADO_PUBLICACION_ELIMINADA.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException("No se puede modificar una publicacion eliminada");
@@ -130,7 +131,6 @@ public class AnimalServiceImpl implements AnimalService {
         }
 
         if (request.getEstado() != null) {
-            // La eliminacion tiene su propio endpoint (DELETE), no se elimina por update.
             if (!ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())
                     && !ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
                 throw new ReglaDeNegocioException("Estado invalido: solo ACTIVA o PAUSADA");
@@ -143,11 +143,6 @@ public class AnimalServiceImpl implements AnimalService {
                 throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
             }
 
-            // Manejo del stock: los cupos ocupados son los padrinos que ya apadrinaron
-            // (total - disponibles). El refugio puede cambiar el total, pero nunca por debajo de
-            // los ocupados, porque esos padrinos ya pagaron su lugar. Los disponibles se ajustan
-            // para mantener los ocupados. Ejemplo: total 10 con 3 disponibles = 7 ocupados; si el
-            // refugio sube el total a 12, disponibles pasa a 5.
             int cuposOcupados = animal.getCuposTotales() - animal.getCuposDisponibles();
             if (request.getCuposTotales() < cuposOcupados) {
                 throw new ReglaDeNegocioException(
@@ -167,13 +162,29 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + animalId));
 
+        validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
+
         if (ESTADO_PUBLICACION_ELIMINADA.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException("La publicacion ya fue eliminada");
         }
 
-        // Borrado logico: no se borra la fila porque las compras historicas referencian al animal;
-        // se marca ELIMINADA y el catalogo deja de mostrarla.
         animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
         animalRepository.save(animal);
+    }
+
+    // Un ADMINISTRADOR puede gestionar cualquier animal. Un refugio (no admin) solo puede
+    // gestionar los animales de su propio refugio, segun el vinculo 1 a 1 Usuario-Refugio.
+    private void validarPermisoSobreRefugio(Long idRefugio) {
+        Usuario usuarioActual = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        boolean esAdmin = usuarioActual.getRol().getNombreRol().equalsIgnoreCase("administrador");
+        if (esAdmin) {
+            return;
+        }
+
+        Refugio refugioPropio = usuarioActual.getRefugio();
+        if (refugioPropio == null || !refugioPropio.getIdRefugio().equals(idRefugio)) {
+            throw new AccessDeniedException("No tenes permiso para gestionar animales de este refugio");
+        }
     }
 }
