@@ -1,6 +1,7 @@
 package com.uade.tpo.SeaPlace.entity;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -63,7 +64,19 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of(new SimpleGrantedAuthority("ROLE_" + rol.getNombreRol().toUpperCase()));
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        authorities.add(new SimpleGrantedAuthority("ROLE_" + rol.getNombreRol().toUpperCase()));
+
+        // Ademas del rol, cada permiso asignado al rol (tabla rol_permiso) se suma como su
+        // propia autoridad, para poder proteger rutas con hasAuthority("NOMBRE_PERMISO") sin
+        // depender solo del nombre del rol.
+        if (rol.getPermisos() != null) {
+            for (Permiso permiso : rol.getPermisos()) {
+                authorities.add(new SimpleGrantedAuthority(permiso.getNombrePermiso().toUpperCase()));
+            }
+        }
+
+        return authorities;
     }
 
     @Override

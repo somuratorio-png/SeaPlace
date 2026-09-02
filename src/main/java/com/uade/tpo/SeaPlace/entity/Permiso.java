@@ -19,7 +19,7 @@ public class Permiso {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPermiso;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String nombrePermiso;
 
     @Column
