@@ -60,21 +60,30 @@ public class CompraServiceImpl implements CompraService {
     @Autowired
     private DescuentoRepository descuentoRepository;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     @Override
     public Page<Compra> getComprasByUsuario(Long idUsuario, PageRequest pageRequest) {
+        // Un usuario solo puede ver sus propias compras (o un admin, cualquiera).
+        autorizacionService.validarPropietarioOAdmin(idUsuario);
         return compraRepository.findByUsuario_IdUsuario(idUsuario, pageRequest);
     }
 
     @Override
     public Optional<Compra> getCompraById(Long compraId) {
-        return compraRepository.findById(compraId);
+        Optional<Compra> compra = compraRepository.findById(compraId);
+        compra.ifPresent(c -> autorizacionService.validarPropietarioOAdmin(c.getUsuario().getIdUsuario()));
+        return compra;
     }
 
-    // El checkout es todo-o-nada: si falla la validacion de cualquier item, no se confirma
-    // nada ni se descuenta ningun cupo. La transaccion revierte todo ante una excepcion.
     @Override
     @Transactional
     public Compra confirmarCompra(CompraRequest request) {
+        // El usuario solo puede confirmar compras a su propio nombre (o un admin, en nombre
+        // de cualquiera).
+        autorizacionService.validarPropietarioOAdmin(request.getIdUsuario());
+
         Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + request.getIdUsuario()));
@@ -98,8 +107,6 @@ public class CompraServiceImpl implements CompraService {
             throw new ReglaDeNegocioException("El carrito esta vacio");
         }
 
-        // PRIMERA PASADA: la consigna exige validar el stock antes de descontar. Se valida el
-        // carrito completo antes de modificar nada para no dejar compras a medias.
         for (CarritoDetalle detalleCarrito : detallesDelCarrito) {
             Animal animal = detalleCarrito.getAnimal();
 
@@ -123,7 +130,6 @@ public class CompraServiceImpl implements CompraService {
         compra.setTotal(0.0);
         compra = compraRepository.save(compra);
 
-        // SEGUNDA PASADA: con todo validado, se arma el detalle y se descuenta el stock.
         double totalCompra = 0.0;
         LocalDate hoy = LocalDate.now();
         List<CompraDetalle> detallesCreados = new ArrayList<>();
@@ -135,8 +141,6 @@ public class CompraServiceImpl implements CompraService {
             double precioFinal = calcularPrecioFinal(animal, hoy);
             double subtotal = redondearADosDecimales(precioFinal * cantidad);
 
-            // Requisito de la consigna: el stock se descuenta recien en el checkout, no al
-            // agregar al carrito.
             animal.setCuposDisponibles(animal.getCuposDisponibles() - cantidad);
             animalRepository.save(animal);
 
@@ -154,8 +158,6 @@ public class CompraServiceImpl implements CompraService {
         compra.setTotal(redondearADosDecimales(totalCompra));
         compra = compraRepository.save(compra);
 
-        // El carrito confirmado se marca CONFIRMADO y deja de ser el activo; el proximo
-        // getOrCreateCarritoActivo abrira uno nuevo para el usuario.
         carritoDetalleRepository.deleteAll(detallesDelCarrito);
         carrito.setEstado(ESTADO_CARRITO_CONFIRMADO);
         carritoRepository.save(carrito);
@@ -165,15 +167,11 @@ public class CompraServiceImpl implements CompraService {
     }
 
     private double calcularPrecioFinal(Animal animal, LocalDate fecha) {
-        // Se usa la cuota vigente del animal al momento de confirmar, no la guardada en el
-        // carrito, porque el precio vinculante es el del checkout.
         double cuota = animal.getCuotaApadrinamiento();
 
         List<Descuento> descuentosVigentes = descuentoRepository
                 .findVigentesByAnimal(animal.getIdAnimal(), fecha);
 
-        // Si hay campanias de descuento solapadas, se aplica solo la de mayor porcentaje:
-        // la mas beneficiosa para el padrino.
         double porcentajeDescuento = descuentosVigentes.stream()
                 .map(Descuento::getPorcentaje)
                 .max(Comparator.naturalOrder())

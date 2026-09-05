@@ -21,6 +21,9 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
     @Autowired
     private AnimalRepository animalRepository;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     @Override
     public List<FotoAnimal> getFotosByAnimal(Long animalId) {
         return fotoAnimalRepository.findByAnimal_IdAnimalOrderByOrdenAsc(animalId);
@@ -31,6 +34,9 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
         Animal animal = animalRepository.findById(request.getIdAnimal())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
+
+        // Solo el refugio dueño del animal (o un admin) puede cargarle fotos.
+        autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         Integer orden = request.getOrden();
 

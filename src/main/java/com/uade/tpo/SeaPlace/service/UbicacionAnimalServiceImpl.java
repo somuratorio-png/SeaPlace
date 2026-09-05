@@ -29,6 +29,9 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
     @Autowired
     private AnimalRepository animalRepository;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     @Override
     public List<UbicacionAnimal> getHistorial(Long animalId) {
         return ubicacionAnimalRepository.findByAnimal_IdAnimalOrderByFechaHoraDesc(animalId);
@@ -45,11 +48,12 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
+        // Solo el refugio dueño del animal (o un admin) puede registrarle ubicaciones.
+        autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
+
         Double latitud = request.getLatitud();
         Double longitud = request.getLongitud();
 
-        // Son los rangos validos de coordenadas geograficas: latitud de -90 a 90 y longitud
-        // de -180 a 180. Fuera de eso el punto no existe en el mapa.
         if (latitud == null || latitud < LATITUD_MINIMA || latitud > LATITUD_MAXIMA) {
             throw new ReglaDeNegocioException("La latitud debe estar entre -90 y 90");
         }

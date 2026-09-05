@@ -38,13 +38,18 @@ public class CarritoServiceImpl implements CarritoService {
     @Autowired
     private AnimalRepository animalRepository;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     @Override
     public Carrito getOrCreateCarritoActivo(Long idUsuario) {
+        // Un usuario solo puede pedir su propio carrito (o un admin, cualquiera).
+        autorizacionService.validarPropietarioOAdmin(idUsuario);
+
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
 
-        // Un usuario tiene a lo sumo un carrito activo a la vez; si no lo tiene, se le abre uno.
         return carritoRepository.findByUsuario_IdUsuarioAndEstado(idUsuario, ESTADO_CARRITO_ACTIVO)
                 .orElseGet(() -> {
                     Carrito carritoNuevo = new Carrito();
@@ -65,12 +70,13 @@ public class CarritoServiceImpl implements CarritoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el carrito con id " + request.getIdCarrito()));
 
+        // Solo el dueño del carrito (o un admin) puede agregarle items.
+        autorizacionService.validarPropietarioOAdmin(carrito.getUsuario().getIdUsuario());
+
         Animal animal = animalRepository.findById(request.getIdAnimal())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
-        // Solo se puede apadrinar un animal cuya publicacion sigue activa; las pausadas o
-        // finalizadas ya no aceptan nuevos padrinos.
         if (!ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException(
                     "La publicacion del animal " + animal.getNombreAnimal() + " no esta activa");
@@ -82,8 +88,6 @@ public class CarritoServiceImpl implements CarritoService {
         int cantidadYaEnCarrito = detalleExistente.map(CarritoDetalle::getCantidad).orElse(0);
         int cantidadFinal = cantidadYaEnCarrito + request.getCantidad();
 
-        // Requisito de la consigna: sin cupos no se puede agregar al carrito. Cada cupo es un
-        // lugar de padrino, y el total acumulado en el carrito no puede superar los que quedan libres.
         if (cantidadFinal > animal.getCuposDisponibles()) {
             throw new ReglaDeNegocioException(
                     "No hay cupos suficientes para " + animal.getNombreAnimal()
@@ -100,19 +104,14 @@ public class CarritoServiceImpl implements CarritoService {
             detalle.setCarrito(carrito);
             detalle.setAnimal(animal);
             detalle.setCantidad(cantidadFinal);
-            // Se congela la cuota vigente al momento de agregar, para que el precio del carrito
-            // no cambie si el refugio actualiza la cuota despues.
             detalle.setPrecioUnitario(animal.getCuotaApadrinamiento());
         }
 
-        // Los cupos NO se descuentan aca: el carrito es solo una intencion de compra. Segun la
-        // consigna del TPO, los cupos se descuentan recien al confirmar la compra.
         return carritoDetalleRepository.save(detalle);
     }
 
     @Override
     public CarritoDetalle modificarCantidad(Long carritoId, Long animalId, Integer cantidad) {
-        // Para sacar el animal del carrito esta el DELETE; no se modifica a cero.
         if (cantidad == null || cantidad <= 0) {
             throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
@@ -121,17 +120,16 @@ public class CarritoServiceImpl implements CarritoService {
                 .findByCarrito_IdCarritoAndAnimal_IdAnimal(carritoId, animalId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("El animal no esta en el carrito"));
 
+        // Solo el dueño del carrito (o un admin) puede modificarlo.
+        autorizacionService.validarPropietarioOAdmin(detalle.getCarrito().getUsuario().getIdUsuario());
+
         Animal animal = detalle.getAnimal();
 
-        // Solo se puede apadrinar un animal cuya publicacion sigue activa; si se pauso o elimino
-        // mientras estaba en el carrito, tampoco se puede aumentar la cantidad.
         if (!ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException(
                     "La publicacion del animal " + animal.getNombreAnimal() + " no esta activa");
         }
 
-        // Misma regla que agregarItem: la nueva cantidad reemplaza a la anterior (no se suma),
-        // y no puede superar los cupos que quedan libres.
         if (cantidad > animal.getCuposDisponibles()) {
             throw new ReglaDeNegocioException(
                     "No hay cupos suficientes para " + animal.getNombreAnimal()
@@ -146,11 +144,25 @@ public class CarritoServiceImpl implements CarritoService {
     @Override
     @Transactional
     public void quitarItem(Long carritoId, Long animalId) {
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el carrito con id " + carritoId));
+
+        // Solo el dueño del carrito (o un admin) puede sacarle items.
+        autorizacionService.validarPropietarioOAdmin(carrito.getUsuario().getIdUsuario());
+
         carritoDetalleRepository.deleteByCarrito_IdCarritoAndAnimal_IdAnimal(carritoId, animalId);
     }
 
     @Override
     public List<CarritoDetalle> getItems(Long carritoId) {
+        Carrito carrito = carritoRepository.findById(carritoId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el carrito con id " + carritoId));
+
+        // Solo el dueño del carrito (o un admin) puede ver sus items.
+        autorizacionService.validarPropietarioOAdmin(carrito.getUsuario().getIdUsuario());
+
         return carritoDetalleRepository.findByCarrito_IdCarrito(carritoId);
     }
 }

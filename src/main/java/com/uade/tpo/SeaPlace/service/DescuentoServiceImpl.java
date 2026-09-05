@@ -22,6 +22,9 @@ public class DescuentoServiceImpl implements DescuentoService {
     @Autowired
     private AnimalRepository animalRepository;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     @Override
     public List<Descuento> getDescuentosActivos(Long animalId) {
         return descuentoRepository.findByAnimal_IdAnimalAndActivoTrue(animalId);
@@ -33,8 +36,9 @@ public class DescuentoServiceImpl implements DescuentoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
-        // Un descuento de 0% no descuenta nada y uno mayor a 100% dejaria la cuota negativa:
-        // solo tiene sentido en el rango (0, 100].
+        // Solo el refugio dueño del animal (o un admin) puede crearle descuentos.
+        autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
+
         if (request.getPorcentaje() == null || request.getPorcentaje() <= 0 || request.getPorcentaje() > 100) {
             throw new ReglaDeNegocioException("El porcentaje debe ser mayor a 0 y hasta 100");
         }
@@ -43,7 +47,6 @@ public class DescuentoServiceImpl implements DescuentoService {
             throw new ReglaDeNegocioException("La fecha de inicio y la fecha de fin son obligatorias");
         }
 
-        // Una campania no puede terminar antes de empezar; nunca estaria vigente.
         if (request.getFechaFin().isBefore(request.getFechaInicio())) {
             throw new ReglaDeNegocioException("La fecha de fin no puede ser anterior a la fecha de inicio");
         }
@@ -53,9 +56,6 @@ public class DescuentoServiceImpl implements DescuentoService {
         descuento.setPorcentaje(request.getPorcentaje());
         descuento.setFechaInicio(request.getFechaInicio());
         descuento.setFechaFin(request.getFechaFin());
-
-        // Un descuento nace activo: si el refugio lo carga es para que aplique de inmediato
-        // dentro de su rango de fechas.
         descuento.setActivo(true);
 
         return descuentoRepository.save(descuento);

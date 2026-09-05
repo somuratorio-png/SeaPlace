@@ -6,14 +6,11 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.Refugio;
-import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
@@ -37,6 +34,9 @@ public class AnimalServiceImpl implements AnimalService {
 
     @Autowired
     private RefugioRepository refugioRepository;
+
+    @Autowired
+    private AutorizacionService autorizacionService;
 
     @Override
     public Page<Animal> getAnimales(String estado, Long idCategoria, Double precioMin, Double precioMax, PageRequest pageRequest) {
@@ -76,7 +76,7 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el refugio con id " + request.getIdRefugio()));
 
-        validarPermisoSobreRefugio(refugio.getIdRefugio());
+        autorizacionService.validarPermisoSobreRefugio(refugio.getIdRefugio());
 
         if (request.getCuposTotales() == null || request.getCuposTotales() <= 0) {
             throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
@@ -106,7 +106,7 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + animalId));
 
-        validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
+        autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         if (ESTADO_PUBLICACION_ELIMINADA.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException("No se puede modificar una publicacion eliminada");
@@ -162,7 +162,7 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + animalId));
 
-        validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
+        autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         if (ESTADO_PUBLICACION_ELIMINADA.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException("La publicacion ya fue eliminada");
@@ -170,21 +170,5 @@ public class AnimalServiceImpl implements AnimalService {
 
         animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
         animalRepository.save(animal);
-    }
-
-    // Un ADMINISTRADOR puede gestionar cualquier animal. Un refugio (no admin) solo puede
-    // gestionar los animales de su propio refugio, segun el vinculo 1 a 1 Usuario-Refugio.
-    private void validarPermisoSobreRefugio(Long idRefugio) {
-        Usuario usuarioActual = (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        boolean esAdmin = usuarioActual.getRol().getNombreRol().equalsIgnoreCase("administrador");
-        if (esAdmin) {
-            return;
-        }
-
-        Refugio refugioPropio = usuarioActual.getRefugio();
-        if (refugioPropio == null || !refugioPropio.getIdRefugio().equals(idRefugio)) {
-            throw new AccessDeniedException("No tenes permiso para gestionar animales de este refugio");
-        }
     }
 }
