@@ -1,0 +1,61 @@
+RESUMEN DE LA SESION - FRONTEND SEAPLACE
+==========================================
+
+1. BAJAMOS LA DENSIDAD DE DATOS (dashboard, catalogo, detalle de Nori)
+------------------------------------------------------------------
+- Recorte de parrafos largos y sub-metricas duplicadas en el dashboard.
+- Saque los "$X recaudados" redundantes de las tarjetas del catalogo
+  (el % + la barra de progreso ya comunicaban lo mismo).
+- Convertio el FAQ del detalle de Nori en acordeon real (antes las 4
+  respuestas estaban todas abiertas al mismo tiempo).
+
+2. FILTRO Y BUSCADOR REALES EN EL CATALOGO
+------------------------------------------------------------------
+Antes los pills de categoria, el buscador y el select de urgencia
+eran puro adorno visual, no filtraban nada. Ahora:
+- Los pills de categoria filtran las tarjetas de verdad.
+- El buscador filtra en vivo por nombre, especie o ubicacion.
+- El select de urgencia medica tambien filtra.
+- Contador dinamico "Mostrando X de 28" + mensaje de "sin resultados".
+
+3. BRANDING UNIFICADO
+------------------------------------------------------------------
+La pagina se llamaba distinto segun donde estabas parado:
+"Hocico Salado", "Pacifico Silvestre", "Santuario Marino",
+"Foquita & Co.". Ahora es SeaPlace en todos lados: header, footer
+y login.
+
+4. CARRITO CON LOCALSTORAGE (lo mas grueso de la sesion)
+------------------------------------------------------------------
+- Se creo frontend/comun/cart.js, compartido por las 6 paginas.
+- Catalogo, detalle de Nori e inicio ahora guardan de verdad el
+  animal que elegiste (antes el catalogo no hacia nada y el inicio
+  solo mostraba un toast falso).
+- carrito.html dejo de mostrar siempre a "Nori" hardcodeada: ahora
+  muestra el animal, plan y precio que realmente elegiste, o un
+  estado vacio con link al catalogo si todavia no elegiste nada.
+- El badge del header (antes decia "2" fijo siempre) ahora refleja
+  el estado real del carrito (0 o 1).
+- Se arreglo el link "Carrito de Apadrinamiento" del header, que
+  antes era un href="#" muerto y no navegaba a ningun lado.
+- Se corrigio un <div> sin cerrar que ya venia de fabrica en
+  detalle-nori.html.
+
+5. FECHAS ACTUALIZADAS
+------------------------------------------------------------------
+Se actualizaron todos los "2024" a 2026 en copyrights y textos de
+fecha (footer de las 5 paginas, "Ejemplares bajo cuidado en...",
+y "Valido 2024-2025" -> "Valido 2026-2027" del certificado).
+
+PENDIENTE PARA LA PROXIMA
+------------------------------------------------------------------
+- Terminar de conectar el select "Ordenar" del catalogo (quedo sin
+  logica real, igual que estaban los filtros antes de esta sesion).
+- Accesibilidad: varias imagenes usan el atributo data-alt en vez
+  de alt, asi que un lector de pantalla no lee nada.
+
+NOTA
+------------------------------------------------------------------
+Todo esto es front puro, sin tocar el backend. Cuando conecten la
+API real, la logica de cart.js (guardada en localStorage) va a
+tener que migrarse a llamadas reales al servidor.
