@@ -14,7 +14,7 @@ const STORAGE_KEY_VIEJA = 'seaplace_sponsorship'
 // Identifica a cada animal dentro del muelle (los items muy viejos no tenían animalId)
 const claveDe = (item) => item.animalId ?? item.name
 
-function leerGuardado() {
+const leerGuardado = () => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw)
@@ -25,7 +25,7 @@ function leerGuardado() {
   }
 }
 
-export function MuelleProvider({ children }) {
+export const MuelleProvider = ({ children }) => {
   // items = [{ animalId, name, species, price, frequency, plan, image, gift }, ...]
   const [items, setItems] = useState(leerGuardado)
 
@@ -40,14 +40,14 @@ export function MuelleProvider({ children }) {
   }, [items])
 
   // Si el animal ya estaba en el muelle, se actualiza (ej. cambió de plan); si no, se agrega al final
-  function agregar(item) {
+  const agregar = (item) => {
     setItems((actuales) => {
       const existe = actuales.some((i) => claveDe(i) === claveDe(item))
       return existe ? actuales.map((i) => (claveDe(i) === claveDe(item) ? item : i)) : [...actuales, item]
     })
   }
 
-  function quitar(item) {
+  const quitar = (item) => {
     setItems((actuales) => actuales.filter((i) => claveDe(i) !== claveDe(item)))
   }
 
@@ -63,6 +63,6 @@ export function MuelleProvider({ children }) {
 }
 
 // oxlint-disable-next-line react/only-export-components -- el hook vive junto a su Provider a propósito
-export function useMuelle() {
+export const useMuelle = () => {
   return useContext(MuelleContext)
 }

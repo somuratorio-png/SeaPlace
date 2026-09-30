@@ -9,16 +9,16 @@ import { esperar, guardarStorage, leerStorage } from './mock'
 
 const KEY = 'seaplace_usuarios_mock'
 
-function leerUsuarios() {
+const leerUsuarios = () => {
   return leerStorage(KEY, usuariosIniciales)
 }
 
 // Nunca devolvemos la contraseña a las páginas
-function sinContrasenia({ contrasenia: _omitida, ...usuario }) {
+const sinContrasenia = ({ contrasenia: _omitida, ...usuario }) => {
   return usuario
 }
 
-export async function login(nombreUsuario, contrasenia) {
+export const login = async (nombreUsuario, contrasenia) => {
   await esperar()
   const usuario = leerUsuarios().find(
     (u) => u.nombreUsuario === nombreUsuario.trim() && u.contrasenia === contrasenia,
@@ -27,7 +27,7 @@ export async function login(nombreUsuario, contrasenia) {
   return sinContrasenia(usuario)
 }
 
-export async function register({ nombre, apellido, mail, nombreUsuario, contrasenia }) {
+export const register = async ({ nombre, apellido, mail, nombreUsuario, contrasenia }) => {
   await esperar()
   const usuarios = leerUsuarios()
   const nuevo = {

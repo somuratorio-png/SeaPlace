@@ -16,7 +16,7 @@ import Login from './pages/Login'
 //   /muelle           Muelle (carrito) (antes pacifico/carrito.html)
 //   /panel            Panel protector  (antes comun/dashboard.html, ahora requiere login)
 //   /login            Login/Registro   (antes comun/login.html)
-export default function App() {
+const App = () => {
   return (
     <Routes>
       {/* Todas estas comparten header y footer (Layout) */}
@@ -44,7 +44,7 @@ export default function App() {
   )
 }
 
-function NoEncontrada() {
+const NoEncontrada = () => {
   return (
     <div className="max-w-2xl mx-auto text-center py-space-xl px-margin-mobile">
       <h1 className="font-headline-lg text-headline-lg text-primary">Esta página se la llevó la marea</h1>
@@ -58,3 +58,5 @@ function NoEncontrada() {
     </div>
   )
 }
+
+export default App

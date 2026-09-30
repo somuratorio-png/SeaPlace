@@ -10,11 +10,11 @@ const linkActivo = `${linkBase} bg-primary-container text-on-primary font-title-
 
 // NavLink sabe solo si su ruta es la actual y nos pasa isActive.
 // Antes cada HTML tenía el aria-current="page" puesto a mano en un link distinto.
-function navClass({ isActive }) {
+const navClass = ({ isActive }) => {
   return isActive ? linkActivo : linkInactivo
 }
 
-export default function Header() {
+const Header = () => {
   const { count } = useMuelle()
   const { usuario, logout } = useAuth()
 
@@ -80,3 +80,5 @@ export default function Header() {
     </header>
   )
 }
+
+export default Header

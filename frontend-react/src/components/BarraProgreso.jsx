@@ -1,5 +1,5 @@
 // Barra de progreso reutilizable (se repetía en inicio, catálogo, detalle y carrito).
-export default function BarraProgreso({ valor, alto = 'h-2', fondo = 'bg-surface-container-high' }) {
+const BarraProgreso = ({ valor, alto = 'h-2', fondo = 'bg-surface-container-high' }) => {
   return (
     <div
       className={`w-full ${alto} ${fondo} rounded-full overflow-hidden`}
@@ -12,3 +12,5 @@ export default function BarraProgreso({ valor, alto = 'h-2', fondo = 'bg-surface
     </div>
   )
 }
+
+export default BarraProgreso

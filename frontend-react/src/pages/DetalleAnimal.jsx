@@ -9,7 +9,7 @@ import { getAnimal } from '../services/animalesService'
 
 // Los 3 niveles de custodia se calculan a partir de la cuota del animal
 // (con Nori, cuota $24, dan exactamente los precios del diseño original: 12 / 24 / 45).
-function armarPlanes(precio) {
+const armarPlanes = (precio) => {
   const niveles = [
     { id: 'brisa', nombre: 'Brisa Marina', factor: 0.5, texto: 'Certificado digital y bitácora mensual de evolución por correo.' },
     { id: 'guardian', nombre: 'Guardián de la Bahía', factor: 1, recomendado: true, texto: 'Todo lo anterior + webcam 24/7 y kit de bienvenida con parche.' },
@@ -34,7 +34,7 @@ const FRECUENCIAS = [
   { id: 'once', label: 'Aporte Único', sufijo: '' },
 ]
 
-export default function DetalleAnimal() {
+const DetalleAnimal = () => {
   // useParams lee la parte variable de la URL: en /animales/nori, id = "nori"
   const { id } = useParams()
   const navigate = useNavigate()
@@ -67,7 +67,7 @@ export default function DetalleAnimal() {
   return <Ficha key={animal.id} animal={animal} onApadrinar={(item) => { agregar(item); navigate('/muelle') }} />
 }
 
-function Ficha({ animal, onApadrinar }) {
+const Ficha = ({ animal, onApadrinar }) => {
   const detalle = animal.detalle
   const galeria = detalle?.galeria ?? [{ src: animal.imagen, alt: animal.alt }]
   const planes = armarPlanes(animal.precio)
@@ -82,7 +82,7 @@ function Ficha({ animal, onApadrinar }) {
   const sufijo = FRECUENCIAS.find((f) => f.id === frecuencia).sufijo
   const categoriaLabel = CATEGORIAS[animal.categoria]?.label ?? animal.categoria
 
-  function apadrinar() {
+  const apadrinar = () => {
     onApadrinar({
       animalId: animal.id,
       name: animal.nombre,
@@ -326,7 +326,7 @@ function Ficha({ animal, onApadrinar }) {
 
 // ---- Bloques que solo tiene Nori (datos del diseño original) ----
 
-function FichaClinica() {
+const FichaClinica = () => {
   const datos = [
     { titulo: 'Peso Actual', valor: '11.2 kg', clase: 'font-headline-md text-headline-md text-primary', nota: <><Icon name="arrow_upward" className="text-[14px]" /> +850g esta semana</>, notaClase: 'text-secondary' },
     { titulo: 'Edad Estimada', valor: '4 meses', clase: 'font-headline-md text-headline-md text-primary', nota: 'Nacimiento: Noviembre' },
@@ -370,7 +370,7 @@ function FichaClinica() {
   )
 }
 
-function MapaRescate() {
+const MapaRescate = () => {
   return (
     <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-[0_12px_32px_-4px_rgba(140,106,82,0.06)] flex flex-col gap-space-md">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-space-xs">
@@ -404,7 +404,7 @@ function MapaRescate() {
   )
 }
 
-function Webcam({ nombre }) {
+const Webcam = ({ nombre }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-12 gap-space-lg items-center bg-surface-container-lowest rounded-xl p-space-lg shadow-sm">
       <div className="md:col-span-6 relative aspect-video rounded-lg overflow-hidden bg-inverse-surface group">
@@ -435,7 +435,7 @@ function Webcam({ nombre }) {
 
 // ---- Preguntas frecuentes: acordeón donde se abre de a una ----
 
-function Preguntas({ nombre }) {
+const Preguntas = ({ nombre }) => {
   const preguntas = [
     { p: `¿Puedo visitar a ${nombre} en el centro?`, r: 'Para evitar el acostumbramiento humano, el acceso está restringido a personal médico. Los reportes en video te mantienen conectado.' },
     { p: `¿Qué ocurre cuando ${nombre} sea liberado/a?`, r: 'Seguís en directo su liberación y tu apadrinamiento se transfiere a otra cría o se pausa cuando quieras.' },
@@ -476,7 +476,7 @@ function Preguntas({ nombre }) {
   )
 }
 
-function Aviso({ titulo, texto }) {
+const Aviso = ({ titulo, texto }) => {
   return (
     <div className="max-w-2xl mx-auto text-center py-space-xl px-margin-mobile">
       <h1 className="font-headline-md text-headline-md text-primary">{titulo}</h1>
@@ -487,3 +487,5 @@ function Aviso({ titulo, texto }) {
     </div>
   )
 }
+
+export default DetalleAnimal

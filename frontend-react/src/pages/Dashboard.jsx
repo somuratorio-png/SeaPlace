@@ -19,7 +19,7 @@ const hitos = [
   { icon: 'rocket_launch', color: 'text-tertiary', titulo: 'Ventana de Liberación', texto: 'En 18 días, Reserva Marina Islas Coronados.' },
 ]
 
-export default function Dashboard() {
+const Dashboard = () => {
   const { usuario } = useAuth()
 
   return (
@@ -72,7 +72,7 @@ export default function Dashboard() {
                 </div>
               </div>
               <div className={`font-headline-md text-headline-md font-bold ${m.valorClase ?? 'text-on-surface'}`}>{m.valor}</div>
-              {m.progreso != null && (
+              {m.progreso !== undefined && (
                 <div className="w-full bg-surface-container-high rounded-full h-1.5 mt-2 overflow-hidden">
                   <div className="bg-secondary h-full rounded-full" style={{ width: `${m.progreso}%` }} />
                 </div>
@@ -322,7 +322,7 @@ export default function Dashboard() {
   )
 }
 
-function Leyenda({ punto, children }) {
+const Leyenda = ({ punto, children }) => {
   return (
     <div className="flex items-center gap-2">
       <span className={punto} />
@@ -330,3 +330,5 @@ function Leyenda({ punto, children }) {
     </div>
   )
 }
+
+export default Dashboard

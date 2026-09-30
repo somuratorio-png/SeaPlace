@@ -9,7 +9,7 @@ const AuthContext = createContext(null)
 // (sobrevive a cerrar el navegador); si no, a sessionStorage (se borra al cerrar la pestaña).
 const KEY = 'seaplace_sesion'
 
-function leerSesion() {
+const leerSesion = () => {
   try {
     const raw = localStorage.getItem(KEY) ?? sessionStorage.getItem(KEY)
     return raw ? JSON.parse(raw) : null
@@ -18,7 +18,7 @@ function leerSesion() {
   }
 }
 
-function guardarSesion(usuario, recordar) {
+const guardarSesion = (usuario, recordar) => {
   try {
     borrarSesion()
     ;(recordar ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(usuario))
@@ -27,7 +27,7 @@ function guardarSesion(usuario, recordar) {
   }
 }
 
-function borrarSesion() {
+const borrarSesion = () => {
   try {
     localStorage.removeItem(KEY)
     sessionStorage.removeItem(KEY)
@@ -36,23 +36,23 @@ function borrarSesion() {
   }
 }
 
-export function AuthProvider({ children }) {
+export const AuthProvider = ({ children }) => {
   // Al cargar la página, si había una sesión guardada, el usuario sigue logueado.
   const [usuario, setUsuario] = useState(leerSesion)
 
-  async function login(nombreUsuario, contrasenia, recordar) {
+  const login = async (nombreUsuario, contrasenia, recordar) => {
     const u = await authService.login(nombreUsuario, contrasenia)
     guardarSesion(u, recordar)
     setUsuario(u)
   }
 
-  async function register(datos) {
+  const register = async (datos) => {
     const u = await authService.register(datos)
     guardarSesion(u, true)
     setUsuario(u)
   }
 
-  function logout() {
+  const logout = () => {
     borrarSesion()
     setUsuario(null)
   }
@@ -66,6 +66,6 @@ export function AuthProvider({ children }) {
 
 // Hook para usar la sesión desde cualquier componente: const { usuario } = useAuth()
 // oxlint-disable-next-line react/only-export-components -- el hook vive junto a su Provider a propósito
-export function useAuth() {
+export const useAuth = () => {
   return useContext(AuthContext)
 }

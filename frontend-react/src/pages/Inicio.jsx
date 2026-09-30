@@ -26,7 +26,7 @@ const testimonios = [
   { iniciales: 'ES', avatar: 'bg-tertiary-fixed text-tertiary', nombre: 'Elena Solís', rol: 'Educadora Marina • Ensenada, México', texto: 'Apadriné en nombre de mi clase escolar. Los reportes sobre la ruta migratoria de la tortuga laúd en el Pacífico mexicano inspiraron a mis alumnos a limpiar las playas locales.' },
 ]
 
-export default function Inicio() {
+const Inicio = () => {
   const { agregar } = useMuelle()
   // toast = null (oculto) o { nombre, precio } (visible)
   const [toast, setToast] = useState(null)
@@ -35,7 +35,7 @@ export default function Inicio() {
   // Si el usuario se va de la página con el toast abierto, cancelamos el timeout
   useEffect(() => () => clearTimeout(timer.current), [])
 
-  function apadrinar(animal) {
+  const apadrinar = (animal) => {
     agregar({
       animalId: animal.id,
       name: animal.nombre,
@@ -334,7 +334,7 @@ export default function Inicio() {
   )
 }
 
-function Burbuja({ icon, clase }) {
+const Burbuja = ({ icon, clase }) => {
   return (
     <div className={`h-10 w-10 rounded-full ring-2 ring-surface flex items-center justify-center ${clase}`}>
       <Icon name={icon} className="text-[18px]" />
@@ -344,7 +344,7 @@ function Burbuja({ icon, clase }) {
 
 // Un componente = una tarjeta. Antes había 4 bloques HTML casi idénticos copiados;
 // ahora hay uno solo que recibe el animal por "props".
-function TarjetaDestacada({ animal, onApadrinar }) {
+const TarjetaDestacada = ({ animal, onApadrinar }) => {
   const { badge, edad } = animal.destacado
   return (
     <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col justify-between group hover:shadow-xl transition-all duration-300">
@@ -395,3 +395,5 @@ function TarjetaDestacada({ animal, onApadrinar }) {
     </div>
   )
 }
+
+export default Inicio

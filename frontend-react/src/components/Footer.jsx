@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import Icon from './Icon'
 
-export default function Footer() {
+const Footer = () => {
   const [suscripto, setSuscripto] = useState(false)
 
   return (
@@ -79,7 +79,7 @@ export default function Footer() {
   )
 }
 
-function Sello({ icon, color, children }) {
+const Sello = ({ icon, color, children }) => {
   return (
     <span className={`inline-flex items-center gap-1 font-label-md text-label-md bg-surface-container px-space-sm py-1 rounded-full ${color}`}>
       <Icon name={icon} className="text-sm" />
@@ -87,3 +87,5 @@ function Sello({ icon, color, children }) {
     </span>
   )
 }
+
+export default Footer

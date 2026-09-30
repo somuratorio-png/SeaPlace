@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext'
 
 // Envuelve páginas que requieren estar logueado.
 // Si no hay sesión, redirige a /login y recuerda a dónde quería ir el usuario.
-export default function RutaProtegida({ children }) {
+const RutaProtegida = ({ children }) => {
   const { usuario } = useAuth()
   const location = useLocation()
 
@@ -12,3 +12,5 @@ export default function RutaProtegida({ children }) {
   }
   return children
 }
+
+export default RutaProtegida

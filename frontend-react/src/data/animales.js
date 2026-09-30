@@ -228,19 +228,19 @@ export const animalesEjemplo = [
 
 export const destacados = animalesEjemplo.filter((a) => a.destacado)
 
-export function buscarEjemplo(id) {
+export const buscarEjemplo = (id) => {
   return animalesEjemplo.find((a) => a.id === id) ?? null
 }
 
 // Arma la lista de "pills" de categoría a partir de los animales que hay,
 // con la cantidad de cada una (antes esos números estaban escritos a mano).
-export function categoriasDe(animales) {
-  const conteo = new Map()
-  for (const a of animales) conteo.set(a.categoria, (conteo.get(a.categoria) ?? 0) + 1)
-  return [...conteo.entries()].map(([key, cantidad]) => ({
+export const categoriasDe = (animales) => {
+  // Categorías sin repetir, en el orden en que aparecen; después se cuenta cada una con .filter()
+  const keys = [...new Set(animales.map((a) => a.categoria))]
+  return keys.map((key) => ({
     key,
     label: CATEGORIAS[key]?.label ?? key,
     icon: CATEGORIAS[key]?.icon ?? 'pets',
-    cantidad,
+    cantidad: animales.filter((a) => a.categoria === key).length,
   }))
 }

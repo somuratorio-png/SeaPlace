@@ -1,7 +1,7 @@
 // Ícono de Google Material Symbols.
 // Antes: <span class="material-symbols-outlined text-lg">pets</span>
 // Ahora: <Icon name="pets" className="text-lg" />
-export default function Icon({ name, className = '', filled = false }) {
+const Icon = ({ name, className = '', filled = false }) => {
   return (
     <span
       className={`material-symbols-outlined ${className}`}
@@ -12,3 +12,5 @@ export default function Icon({ name, className = '', filled = false }) {
     </span>
   )
 }
+
+export default Icon

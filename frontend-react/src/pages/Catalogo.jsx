@@ -16,7 +16,7 @@ const ORDENAMIENTOS = {
   recientes: { label: 'Recientes ingresos', fn: (a, b) => String(b.ingreso).localeCompare(String(a.ingreso)) },
 }
 
-export default function Catalogo() {
+const Catalogo = () => {
   const navigate = useNavigate()
   const { agregar } = useMuelle()
 
@@ -61,7 +61,7 @@ export default function Catalogo() {
       .toSorted(ORDENAMIENTOS[orden].fn)
   }, [animales, categoria, urgencia, busqueda, orden])
 
-  function apadrinar(animal) {
+  const apadrinar = (animal) => {
     agregar({
       animalId: animal.id,
       name: animal.nombre,
@@ -212,7 +212,7 @@ export default function Catalogo() {
   )
 }
 
-function PillCategoria({ activa, onClick, icon, label, cantidad }) {
+const PillCategoria = ({ activa, onClick, icon, label, cantidad }) => {
   const clases = activa
     ? 'bg-primary text-on-primary shadow-sm'
     : 'bg-surface-container-lowest/80 backdrop-blur-sm text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high border border-outline-variant/30'
@@ -231,7 +231,7 @@ function PillCategoria({ activa, onClick, icon, label, cantidad }) {
   )
 }
 
-function Select({ value, onChange, icon, label, children }) {
+const Select = ({ value, onChange, icon, label, children }) => {
   return (
     <div className="relative w-full">
       <select
@@ -247,7 +247,7 @@ function Select({ value, onChange, icon, label, children }) {
   )
 }
 
-function TarjetaCatalogo({ animal, onApadrinar }) {
+const TarjetaCatalogo = ({ animal, onApadrinar }) => {
   const { estado, ubicacion, fondo } = animal
   const cubierto = fondo.progreso >= 100
   return (
@@ -317,3 +317,5 @@ function TarjetaCatalogo({ animal, onApadrinar }) {
     </article>
   )
 }
+
+export default Catalogo

@@ -13,7 +13,7 @@ const SUFIJOS = { monthly: { corto: '/mes', largo: 'USD / mensual' }, yearly: { 
 const precioDe = (item) => parseFloat(item.price) || 0
 const sufijoDe = (item) => SUFIJOS[item.frequency] ?? SUFIJOS.monthly
 
-export default function Muelle() {
+const Muelle = () => {
   const { items, quitar, vaciar } = useMuelle()
   const [confirmados, setConfirmados] = useState(null) // los items confirmados, para mostrar el mensaje final
 
@@ -32,7 +32,7 @@ export default function Muelle() {
   )
 }
 
-function Checkout({ items, onRetirar, onConfirmado }) {
+const Checkout = ({ items, onRetirar, onConfirmado }) => {
   const { usuario } = useAuth()
 
   const [botiquin, setBotiquin] = useState(true)
@@ -49,7 +49,7 @@ function Checkout({ items, onRetirar, onConfirmado }) {
   const total = subtotal + (botiquin ? BOTIQUIN : 0)
   const nombres = items.map((i) => i.name).join(', ')
 
-  function confirmar() {
+  const confirmar = () => {
     setEnviando(true)
     // Mock: el pago se simula con una demora (como en el HTML original); no se envía nada a ningún servidor.
     setTimeout(onConfirmado, 1200)
@@ -263,7 +263,7 @@ function Checkout({ items, onRetirar, onConfirmado }) {
 }
 
 // Un animal dentro del muelle
-function ItemMuelle({ item, onRetirar }) {
+const ItemMuelle = ({ item, onRetirar }) => {
   const sufijo = sufijoDe(item)
   return (
     <li className="py-space-md first:pt-0 last:pb-0 flex flex-col sm:flex-row gap-space-md items-start">
@@ -309,7 +309,7 @@ function ItemMuelle({ item, onRetirar }) {
   )
 }
 
-function Pasos({ actual }) {
+const Pasos = ({ actual }) => {
   const pasos = ['Resumen de Apadrinamiento', 'Datos del Protector', 'Certificado & Paz']
   return (
     <div className="w-full max-w-3xl mx-auto mb-space-xl">
@@ -333,7 +333,7 @@ function Pasos({ actual }) {
   )
 }
 
-function Opciones({ titulo, valor, onChange, opciones, activo = 'bg-primary text-on-primary shadow-sm' }) {
+const Opciones = ({ titulo, valor, onChange, opciones, activo = 'bg-primary text-on-primary shadow-sm' }) => {
   return (
     <div>
       <span className="block font-label-lg text-label-lg text-on-surface mb-space-xs">{titulo}</span>
@@ -356,7 +356,7 @@ function Opciones({ titulo, valor, onChange, opciones, activo = 'bg-primary text
   )
 }
 
-function Linea({ label, valor, gratis = false }) {
+const Linea = ({ label, valor, gratis = false }) => {
   return (
     <div className="flex justify-between gap-space-sm text-on-surface-variant">
       <span>{label}</span>
@@ -365,7 +365,7 @@ function Linea({ label, valor, gratis = false }) {
   )
 }
 
-function Campo({ label, icon, ...inputProps }) {
+const Campo = ({ label, icon, ...inputProps }) => {
   return (
     <label className="block">
       <span className="block font-label-md text-label-md text-on-surface-variant mb-1">{label}</span>
@@ -381,7 +381,7 @@ function Campo({ label, icon, ...inputProps }) {
   )
 }
 
-function MuelleVacio() {
+const MuelleVacio = () => {
   return (
     <div className="max-w-2xl text-center bg-surface-container-lowest rounded-xl p-space-xl shadow-sm my-space-xl mx-margin-mobile sm:mx-auto">
       <Icon name="shopping_cart" className="text-5xl text-outline" />
@@ -397,7 +397,7 @@ function MuelleVacio() {
   )
 }
 
-function Confirmacion({ items }) {
+const Confirmacion = ({ items }) => {
   return (
     <div className="max-w-2xl mx-auto text-center bg-surface-container-lowest rounded-xl p-space-xl shadow-sm my-space-xl">
       <div className="w-16 h-16 mx-auto rounded-full bg-secondary-container text-secondary flex items-center justify-center">
@@ -418,3 +418,5 @@ function Confirmacion({ items }) {
     </div>
   )
 }
+
+export default Muelle

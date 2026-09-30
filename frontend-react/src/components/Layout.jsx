@@ -5,7 +5,7 @@ import Header from './Header'
 
 // Esqueleto común de todas las páginas con header y footer.
 // En el medio (<Outlet />) React Router dibuja la página que corresponda a la URL.
-export default function Layout() {
+const Layout = () => {
   const { pathname, hash } = useLocation()
 
   // En una SPA el navegador no vuelve arriba solo al cambiar de página, ni salta
@@ -28,3 +28,5 @@ export default function Layout() {
     </div>
   )
 }
+
+export default Layout

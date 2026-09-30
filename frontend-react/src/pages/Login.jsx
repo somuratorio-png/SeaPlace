@@ -6,7 +6,7 @@ import { emblema, loginFondo } from '../data/imagenes'
 
 const VACIO = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
-export default function Login() {
+const Login = () => {
   const { usuario, login, register } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
@@ -23,16 +23,16 @@ export default function Login() {
   if (usuario) return <Navigate to={destino} replace />
 
   // Un solo handler para todos los inputs: usa el atributo name para saber qué campo cambió
-  function cambiar(e) {
+  const cambiar = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  function cambiarModo(registro) {
+  const cambiarModo = (registro) => {
     setModoRegistro(registro)
     setError(null)
   }
 
-  async function enviar(e) {
+  const enviar = async (e) => {
     e.preventDefault() // evita que el navegador recargue la página (comportamiento por defecto de un <form>)
     setError(null)
     setEnviando(true)
@@ -229,7 +229,7 @@ export default function Login() {
   )
 }
 
-function CampoTexto({ label, name, icon, type = 'text', ...resto }) {
+const CampoTexto = ({ label, name, icon, type = 'text', ...resto }) => {
   return (
     <div className="flex flex-col gap-1.5">
       <label className="font-label-lg text-on-surface" htmlFor={name}>{label}</label>
@@ -248,7 +248,7 @@ function CampoTexto({ label, name, icon, type = 'text', ...resto }) {
   )
 }
 
-function Beneficio({ icon, color, titulo, texto }) {
+const Beneficio = ({ icon, color, titulo, texto }) => {
   return (
     <div className="flex flex-col items-center text-center p-space-sm bg-surface-container-low rounded-lg">
       <Icon name={icon} className={`${color} mb-1 text-xl`} />
@@ -257,3 +257,5 @@ function Beneficio({ icon, color, titulo, texto }) {
     </div>
   )
 }
+
+export default Login
