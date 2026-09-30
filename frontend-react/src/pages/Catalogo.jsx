@@ -18,7 +18,7 @@ const ORDENAMIENTOS = {
 
 export default function Catalogo() {
   const navigate = useNavigate()
-  const { setSponsorship } = useMuelle()
+  const { agregar } = useMuelle()
 
   // --- Datos ---
   const [animales, setAnimales] = useState([])
@@ -62,7 +62,7 @@ export default function Catalogo() {
   }, [animales, categoria, urgencia, busqueda, orden])
 
   function apadrinar(animal) {
-    setSponsorship({
+    agregar({
       animalId: animal.id,
       name: animal.nombre,
       species: animal.especie,

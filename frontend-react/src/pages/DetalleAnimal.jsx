@@ -38,7 +38,7 @@ export default function DetalleAnimal() {
   // useParams lee la parte variable de la URL: en /animales/nori, id = "nori"
   const { id } = useParams()
   const navigate = useNavigate()
-  const { setSponsorship } = useMuelle()
+  const { agregar } = useMuelle()
 
   // Guardamos también de qué id es la respuesta: si el usuario navega a otro animal,
   // la respuesta vieja deja de coincidir y se muestra "Cargando..." sin tener que resetear nada.
@@ -64,7 +64,7 @@ export default function DetalleAnimal() {
   }
   // key={animal.id} hace que, al pasar de un animal a otro, la ficha arranque de cero
   // (foto, plan y frecuencia elegidos vuelven a sus valores iniciales)
-  return <Ficha key={animal.id} animal={animal} onApadrinar={(item) => { setSponsorship(item); navigate('/muelle') }} />
+  return <Ficha key={animal.id} animal={animal} onApadrinar={(item) => { agregar(item); navigate('/muelle') }} />
 }
 
 function Ficha({ animal, onApadrinar }) {

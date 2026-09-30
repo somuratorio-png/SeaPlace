@@ -1,4 +1,4 @@
-import { Link, Route, Routes } from 'react-router-dom'
+import { Link, Navigate, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import RutaProtegida from './components/RutaProtegida'
 import Muelle from './pages/Muelle'
@@ -25,6 +25,8 @@ export default function App() {
         <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/animales/:id" element={<DetalleAnimal />} />
         <Route path="/muelle" element={<Muelle />} />
+        {/* La URL vieja del carrito sigue funcionando */}
+        <Route path="/carrito" element={<Navigate to="/muelle" replace />} />
         <Route
           path="/panel"
           element={

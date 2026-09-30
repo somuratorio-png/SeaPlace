@@ -27,7 +27,7 @@ const testimonios = [
 ]
 
 export default function Inicio() {
-  const { setSponsorship } = useMuelle()
+  const { agregar } = useMuelle()
   // toast = null (oculto) o { nombre, precio } (visible)
   const [toast, setToast] = useState(null)
   const timer = useRef(null)
@@ -36,7 +36,7 @@ export default function Inicio() {
   useEffect(() => () => clearTimeout(timer.current), [])
 
   function apadrinar(animal) {
-    setSponsorship({
+    agregar({
       animalId: animal.id,
       name: animal.nombre,
       species: animal.especie,

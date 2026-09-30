@@ -9,40 +9,45 @@ import { muelleDefault } from '../data/imagenes'
 const BOTIQUIN = 5
 const SUFIJOS = { monthly: { corto: '/mes', largo: 'USD / mensual' }, yearly: { corto: '/año', largo: 'USD / anual' }, once: { corto: '', largo: 'USD / pago único' } }
 
-export default function Muelle() {
-  const { item, clearSponsorship } = useMuelle()
-  const [confirmado, setConfirmado] = useState(null) // guarda el item confirmado para mostrar el mensaje final
+// Los items viejos de cart.js guardaban el precio como texto: parseFloat lo cubre
+const precioDe = (item) => parseFloat(item.price) || 0
+const sufijoDe = (item) => SUFIJOS[item.frequency] ?? SUFIJOS.monthly
 
-  if (confirmado) return <Confirmacion item={confirmado} />
-  if (!item) return <MuelleVacio />
+export default function Muelle() {
+  const { items, quitar, vaciar } = useMuelle()
+  const [confirmados, setConfirmados] = useState(null) // los items confirmados, para mostrar el mensaje final
+
+  if (confirmados) return <Confirmacion items={confirmados} />
+  if (items.length === 0) return <MuelleVacio />
 
   return (
     <Checkout
-      item={item}
-      onRetirar={clearSponsorship}
+      items={items}
+      onRetirar={quitar}
       onConfirmado={() => {
-        setConfirmado(item)
-        clearSponsorship()
+        setConfirmados(items)
+        vaciar()
       }}
     />
   )
 }
 
-function Checkout({ item, onRetirar, onConfirmado }) {
+function Checkout({ items, onRetirar, onConfirmado }) {
   const { usuario } = useAuth()
-  // Los items viejos de cart.js guardaban el precio como texto: parseFloat lo cubre
-  const base = parseFloat(item.price) || 0
-  const sufijo = SUFIJOS[item.frequency] ?? SUFIJOS.monthly
 
   const [botiquin, setBotiquin] = useState(true)
-  const [nombreCertificado, setNombreCertificado] = useState(item.gift?.nombre || usuario?.nombreUsuario || '')
+  const [nombreCertificado, setNombreCertificado] = useState(
+    items.find((i) => i.gift?.nombre)?.gift.nombre || usuario?.nombre || usuario?.nombreUsuario || '',
+  )
   const [idioma, setIdioma] = useState('es')
   const [entrega, setEntrega] = useState('digital')
   const [metodo, setMetodo] = useState('tarjeta')
   const [enviando, setEnviando] = useState(false)
 
-  // El total ya no se recalcula a mano en un listener: se deriva del estado en cada render
-  const total = base + (botiquin ? BOTIQUIN : 0)
+  // El total se deriva del estado en cada render: suma de todos los animales + botiquín
+  const subtotal = items.reduce((suma, item) => suma + precioDe(item), 0)
+  const total = subtotal + (botiquin ? BOTIQUIN : 0)
+  const nombres = items.map((i) => i.name).join(', ')
 
   function confirmar() {
     setEnviando(true)
@@ -56,61 +61,31 @@ function Checkout({ item, onRetirar, onConfirmado }) {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
         <div className="lg:col-span-7 space-y-space-lg">
-          {/* Animal elegido */}
+          {/* Animales elegidos */}
           <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 w-32 h-32 bg-secondary-container/30 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none" />
-            <div className="flex items-center justify-between pb-space-md mb-space-md gap-space-sm">
+            <div className="flex items-center justify-between pb-space-md gap-space-sm">
               <div className="flex items-center gap-space-sm">
                 <Icon name="water_drop" filled className="text-secondary text-2xl" />
-                <h2 className="font-headline-sm text-headline-sm text-primary">Mamífero Marino Seleccionado</h2>
+                <h2 className="font-headline-sm text-headline-sm text-primary">
+                  {items.length === 1 ? 'Mamífero Marino Seleccionado' : `${items.length} Animales Seleccionados`}
+                </h2>
               </div>
               <span className="font-label-md text-label-md bg-secondary-container text-on-secondary-container px-3 py-1 rounded-full flex items-center gap-1 font-medium">
                 <span className="w-1.5 h-1.5 rounded-full bg-secondary animate-pulse" /> Telemetría Activa
               </span>
             </div>
-            <div className="flex flex-col sm:flex-row gap-space-md items-start">
-              <div className="relative w-full sm:w-36 h-36 rounded-lg overflow-hidden bg-surface-container-high shrink-0">
-                <img className="w-full h-full object-cover" alt={`Foto de ${item.name}`} src={item.image || muelleDefault} />
-              </div>
-              <div className="flex-1 space-y-space-xs min-w-0">
-                <div className="flex items-start justify-between gap-space-sm">
-                  <div>
-                    <h3 className="font-headline-sm text-headline-sm text-on-surface">
-                      {item.name}
-                      {item.species && ` • ${item.species}`}
-                    </h3>
-                    {item.gift?.nombre && (
-                      <p className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
-                        <Icon name="featured_seasonal_and_gifts" className="text-sm text-tertiary" /> Regalo para {item.gift.nombre}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right">
-                    <div className="font-headline-sm text-headline-sm text-primary">${base.toFixed(2)}</div>
-                    <span className="font-label-md text-label-md text-outline">{sufijo.largo}</span>
-                  </div>
-                </div>
-                <div className="bg-surface-container-low p-space-sm rounded-lg mt-space-sm flex items-start gap-space-sm">
-                  <Icon name="check_circle" className="text-secondary text-lg mt-0.5" />
-                  <p className="font-body-sm text-body-sm text-on-surface-variant">
-                    <strong className="text-primary font-title-lg text-body-sm">{item.plan || 'Apadrinamiento Estándar'}:</strong> cubre
-                    alimentación de grado biológico, rehabilitación y monitoreo satelital en tiempo real.
-                  </p>
-                </div>
-                <div className="flex flex-wrap items-center justify-end gap-space-sm pt-space-sm">
-                  {item.animalId && (
-                    <>
-                      <Link to={`/animales/${item.animalId}`} className="font-label-md text-label-md text-tertiary hover:text-primary transition-colors flex items-center gap-0.5">
-                        <Icon name="tune" className="text-base" /> Cambiar Plan
-                      </Link>
-                      <span className="text-surface-container-highest">•</span>
-                    </>
-                  )}
-                  <button type="button" onClick={onRetirar} className="font-label-md text-label-md text-error hover:text-on-error-container transition-colors flex items-center gap-0.5">
-                    <Icon name="delete" className="text-base" /> Retirar
-                  </button>
-                </div>
-              </div>
+
+            <ul className="divide-y divide-outline-variant/40">
+              {items.map((item) => (
+                <ItemMuelle key={item.animalId ?? item.name} item={item} onRetirar={() => onRetirar(item)} />
+              ))}
+            </ul>
+
+            <div className="pt-space-md flex justify-end">
+              <Link to="/catalogo" className="font-label-lg text-label-lg text-secondary hover:underline inline-flex items-center gap-1">
+                <Icon name="add" className="text-[18px]" /> Apadrinar otro animal
+              </Link>
             </div>
           </div>
 
@@ -152,7 +127,7 @@ function Checkout({ item, onRetirar, onConfirmado }) {
               <span className="font-label-md text-label-md text-secondary bg-secondary-container px-2 py-0.5 rounded-full font-medium">Firma Biológica Sellada</span>
             </div>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Se emitirá un documento de tutela avalado con coordenadas de inserción oceánica y folio único de conservación costera.
+              Se emitirá un documento de tutela por cada animal, avalado con coordenadas de inserción oceánica y folio único de conservación costera.
             </p>
             <label className="block">
               <span className="block font-label-lg text-label-lg text-on-surface mb-space-xs">Nombre del Protector o Homenajeado en el Diploma</span>
@@ -193,15 +168,24 @@ function Checkout({ item, onRetirar, onConfirmado }) {
               <span className="font-label-md text-label-md text-secondary bg-secondary-container px-2.5 py-0.5 rounded-full font-semibold">Suscripción Segura</span>
             </div>
             <div className="space-y-space-sm text-body-sm font-body-sm">
-              <Linea label={`Apadrinamiento ${item.name}${item.plan ? ` (${item.plan})` : ''}`} valor={`$${base.toFixed(2)}`} />
+              {items.map((item) => (
+                <Linea
+                  key={item.animalId ?? item.name}
+                  label={`Apadrinamiento ${item.name}${item.plan ? ` (${item.plan})` : ''}`}
+                  valor={`$${precioDe(item).toFixed(2)}${sufijoDe(item).corto}`}
+                />
+              ))}
               {botiquin && <Linea label="Botiquín de Rescate Costero" valor={`$${BOTIQUIN.toFixed(2)}`} />}
               <Linea label="Custodia Telemetría & Actualizaciones" valor="Gratuito" gratis />
-              <Linea label="Emisión de Certificado Oficial" valor="Incluido" gratis />
+              <Linea label="Emisión de Certificados Oficiales" valor="Incluido" gratis />
               <div className="pt-space-sm mt-space-sm flex items-baseline justify-between">
-                <span className="font-title-lg text-title-lg text-on-surface">Total Aportación</span>
+                <div>
+                  <span className="font-title-lg text-title-lg text-on-surface block">Total a pagar hoy</span>
+                  <span className="font-label-md text-label-md text-outline">Primer cobro de cada apadrinamiento</span>
+                </div>
                 <div className="text-right">
                   <div className="font-display-lg-mobile text-display-lg-mobile text-primary leading-tight font-bold">${total.toFixed(2)}</div>
-                  <span className="font-label-md text-label-md text-tertiary">{sufijo.largo}</span>
+                  <span className="font-label-md text-label-md text-tertiary">USD</span>
                 </div>
               </div>
             </div>
@@ -212,7 +196,7 @@ function Checkout({ item, onRetirar, onConfirmado }) {
                 <span>Impacto Garantizado</span>
               </div>
               <p className="font-body-sm text-body-sm text-on-surface-variant leading-relaxed">
-                Tu aporte cubre la bioseguridad, el filtrado de piscinas de agua salada y revisiones ecográficas para {item.name}.
+                Tu aporte cubre la bioseguridad, el filtrado de piscinas de agua salada y revisiones ecográficas para {nombres}.
               </p>
               <BarraProgreso valor={82} fondo="bg-surface-container-highest" />
             </div>
@@ -264,7 +248,7 @@ function Checkout({ item, onRetirar, onConfirmado }) {
               ) : (
                 <>
                   <Icon name="shield" className="text-secondary-fixed-dim group-hover:scale-110 transition-transform" />
-                  <span>Confirmar (${total.toFixed(2)}{sufijo.corto})</span>
+                  <span>Confirmar (${total.toFixed(2)})</span>
                 </>
               )}
             </button>
@@ -275,6 +259,53 @@ function Checkout({ item, onRetirar, onConfirmado }) {
         </div>
       </div>
     </section>
+  )
+}
+
+// Un animal dentro del muelle
+function ItemMuelle({ item, onRetirar }) {
+  const sufijo = sufijoDe(item)
+  return (
+    <li className="py-space-md first:pt-0 last:pb-0 flex flex-col sm:flex-row gap-space-md items-start">
+      <div className="relative w-full sm:w-28 h-28 rounded-lg overflow-hidden bg-surface-container-high shrink-0">
+        <img className="w-full h-full object-cover" alt={`Foto de ${item.name}`} src={item.image || muelleDefault} />
+      </div>
+      <div className="flex-1 space-y-space-xs min-w-0 w-full">
+        <div className="flex items-start justify-between gap-space-sm">
+          <div className="min-w-0">
+            <h3 className="font-title-lg text-title-lg text-on-surface">
+              {item.name}
+              {item.species && <span className="text-on-surface-variant font-normal"> • {item.species}</span>}
+            </h3>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">
+              <strong className="text-primary">{item.plan || 'Apadrinamiento Estándar'}</strong>
+            </p>
+            {item.gift?.nombre && (
+              <p className="font-body-sm text-body-sm text-on-surface-variant flex items-center gap-1">
+                <Icon name="featured_seasonal_and_gifts" className="text-sm text-tertiary" /> Regalo para {item.gift.nombre}
+              </p>
+            )}
+          </div>
+          <div className="text-right shrink-0">
+            <div className="font-headline-sm text-headline-sm text-primary">${precioDe(item).toFixed(2)}</div>
+            <span className="font-label-md text-label-md text-outline">{sufijo.largo}</span>
+          </div>
+        </div>
+        <div className="flex flex-wrap items-center justify-end gap-space-sm">
+          {item.animalId && (
+            <>
+              <Link to={`/animales/${item.animalId}`} className="font-label-md text-label-md text-tertiary hover:text-primary transition-colors flex items-center gap-0.5">
+                <Icon name="tune" className="text-base" /> Cambiar Plan
+              </Link>
+              <span className="text-surface-container-highest">•</span>
+            </>
+          )}
+          <button type="button" onClick={onRetirar} className="font-label-md text-label-md text-error hover:text-on-error-container transition-colors flex items-center gap-0.5">
+            <Icon name="delete" className="text-base" /> Retirar
+          </button>
+        </div>
+      </div>
+    </li>
   )
 }
 
@@ -366,7 +397,7 @@ function MuelleVacio() {
   )
 }
 
-function Confirmacion({ item }) {
+function Confirmacion({ items }) {
   return (
     <div className="max-w-2xl mx-auto text-center bg-surface-container-lowest rounded-xl p-space-xl shadow-sm my-space-xl">
       <div className="w-16 h-16 mx-auto rounded-full bg-secondary-container text-secondary flex items-center justify-center">
@@ -374,7 +405,7 @@ function Confirmacion({ item }) {
       </div>
       <h2 className="font-headline-md text-headline-md text-primary mt-space-md">¡Apadrinamiento exitoso!</h2>
       <p className="font-body-md text-body-md text-on-surface-variant mt-space-xs">
-        Gracias por sumarte a la custodia de {item.name}. Te vamos a enviar el certificado y las primeras novedades.
+        Gracias por sumarte a la custodia de {items.map((i) => i.name).join(", ")}. Te vamos a enviar {items.length === 1 ? "el certificado" : "los certificados"} y las primeras novedades.
       </p>
       <div className="flex flex-wrap justify-center gap-space-sm mt-space-md">
         <Link className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-surface-tint" to="/panel">
