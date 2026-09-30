@@ -6,10 +6,10 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.uade.tpo.SeaPlace.entity.Carrito;
+import com.uade.tpo.SeaPlace.entity.Muelle;
 
 @Repository
-public interface CarritoRepository extends JpaRepository<Carrito, Long> {
+public interface MuelleRepository extends JpaRepository<Muelle, Long> {
     // carrito activo de un usuario
-    Optional<Carrito> findByUsuario_IdUsuarioAndEstado(Long idUsuario, String estado);
+    Optional<Muelle> findByUsuario_IdUsuarioAndEstado(Long idUsuario, String estado);
 }

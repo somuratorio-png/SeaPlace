@@ -16,22 +16,25 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "carrito")
-public class Carrito {
+@Table(name = "zarpar")
+public class Zarpar {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCarrito;
+    private Long idZarpar;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario", nullable = false)
     private Usuario usuario;
 
     @Column(nullable = false)
-    private LocalDateTime fechaCreacion;
+    private LocalDateTime fechaZarpar;
+
+    @Column(nullable = false)
+    private Double total;
 
     @Column(nullable = false)
     private String estado;
 
-    @OneToMany(mappedBy = "carrito")
-    private List<CarritoDetalle> detalles;
+    @OneToMany(mappedBy = "zarpar")
+    private List<ZarparDetalle> detalles;
 }

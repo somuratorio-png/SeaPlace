@@ -29,20 +29,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/animales/**", "/refugios/**", "/categorias/**").permitAll()
-                        // Estas rutas no chequean el rol a lo bruto: chequean el permiso
-                        // puntual que la tabla rol_permiso le haya asignado al rol del usuario
-                        // (ver Usuario.getAuthorities()). Hoy solo "administrador" tiene los tres
-                        // permisos (data.sql), pero cualquier rol nuevo podria tener uno sin tener
-                        // los otros dos.
                         .requestMatchers("/permisos/**", "/roles/**").hasAuthority("GESTIONAR_ROLES")
                         .requestMatchers(HttpMethod.POST, "/refugios/**").hasAuthority("GESTIONAR_REFUGIOS")
-                        // Listar o consultar usuarios expone mails y roles de todos: solo quien
-                        // gestiona usuarios. (PUT .../rol ya estaba protegido con el mismo permiso.)
                         .requestMatchers(HttpMethod.GET, "/usuarios/**").hasAuthority("GESTIONAR_USUARIOS")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/rol").hasAuthority("GESTIONAR_USUARIOS")
-                        // Crear/editar/borrar animales ya no es exclusivo de ADMINISTRADOR: cualquier
-                        // usuario autenticado puede intentarlo, pero AnimalServiceImpl valida que sea
-                        // el dueno del refugio (o admin). Asi el refugio gestiona sus propios animales.
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
                 .authenticationProvider(authenticationProvider)
