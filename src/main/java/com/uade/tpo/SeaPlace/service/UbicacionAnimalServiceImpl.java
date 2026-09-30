@@ -32,8 +32,11 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
     @Autowired
     private AutorizacionService autorizacionService;
 
-    @Override
+      @Override
     public List<UbicacionAnimal> getHistorial(Long animalId) {
+        if (!animalRepository.existsById(animalId)) {
+            throw new RecursoNoEncontradoException("No existe el animal con id " + animalId);
+        }
         return ubicacionAnimalRepository.findByAnimal_IdAnimalOrderByFechaHoraDesc(animalId);
     }
 
@@ -44,6 +47,10 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
 
     @Override
     public UbicacionAnimal registrarUbicacion(UbicacionAnimalRequest request) {
+        if (request.getIdAnimal() == null) {
+            throw new ReglaDeNegocioException("Debe indicar el animal al que pertenece la ubicacion");
+        }
+
         Animal animal = animalRepository.findById(request.getIdAnimal())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
@@ -54,10 +61,18 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
         Double latitud = request.getLatitud();
         Double longitud = request.getLongitud();
 
-        if (latitud == null || latitud < LATITUD_MINIMA || latitud > LATITUD_MAXIMA) {
+        if (latitud == null) {
+            throw new ReglaDeNegocioException("La latitud es obligatoria");
+        }
+        if (longitud == null) {
+            throw new ReglaDeNegocioException("La longitud es obligatoria");
+        }
+
+        // NaN e infinito pasan los "<" y ">" sin quejarse, por eso se chequean aparte.
+        if (latitud.isNaN() || latitud.isInfinite() || latitud < LATITUD_MINIMA || latitud > LATITUD_MAXIMA) {
             throw new ReglaDeNegocioException("La latitud debe estar entre -90 y 90");
         }
-        if (longitud == null || longitud < LONGITUD_MINIMA || longitud > LONGITUD_MAXIMA) {
+        if (longitud.isNaN() || longitud.isInfinite() || longitud < LONGITUD_MINIMA || longitud > LONGITUD_MAXIMA) {
             throw new ReglaDeNegocioException("La longitud debe estar entre -180 y 180");
         }
 

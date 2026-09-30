@@ -8,10 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -33,6 +38,30 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    // Login fallido (BadCredentialsException y demas): 401, sin detalles de cual dato fallo.
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<Object> handleAutenticacion(AuthenticationException ex) {
+        return construirRespuesta(HttpStatus.UNAUTHORIZED, "Usuario o contrasenia incorrectos");
+    }
+
+    // JSON mal formado, body vacio o un tipo que no coincide (ej: "idAnimal": "abc"),
+    // y ids de la url que no son numericos (ej: /animales/abc/fotos).
+    @ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
+    public ResponseEntity<Object> handleRequestInvalido(Exception ex) {
+        return construirRespuesta(HttpStatus.BAD_REQUEST,
+                "Solicitud invalida: revisa el formato del JSON y los parametros");
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public ResponseEntity<Object> handleMetodoNoSoportado(HttpRequestMethodNotSupportedException ex) {
+        return construirRespuesta(HttpStatus.METHOD_NOT_ALLOWED, "Metodo HTTP no soportado para esta ruta");
+    }
+
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Object> handleRutaInexistente(NoResourceFoundException ex) {
+        return construirRespuesta(HttpStatus.NOT_FOUND, "La ruta solicitada no existe");
+    }
+
     // Se dispara cuando falla la validacion de un DTO anotado con @Valid (@NotNull, @NotBlank, etc).
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidacion(MethodArgumentNotValidException ex) {
@@ -46,7 +75,6 @@ public class GlobalExceptionHandler {
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("mensaje", "Error de validacion");
         body.put("errores", errores);
-
         return ResponseEntity.badRequest().body(body);
     }
 

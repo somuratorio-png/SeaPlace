@@ -15,6 +15,7 @@ import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
+import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.RolRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
 
@@ -33,12 +34,18 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
 
     public AuthenticationResponse register(RegisterRequest request) {
-        if (usuarioRepository.existsByMail(request.getMail())) {
-            throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + request.getMail());
+        String nombre = ValidadorUsuarioService.textoObligatorio(request.getNombre(), "nombre");
+        String apellido = ValidadorUsuarioService.textoObligatorio(request.getApellido(), "apellido");
+        String mail = ValidadorUsuarioService.mailValido(request.getMail());
+        String nombreUsuario = ValidadorUsuarioService.nombreUsuarioValido(request.getNombreUsuario());
+        ValidadorUsuarioService.validarContrasenia(request.getContrasenia());
+
+        if (usuarioRepository.existsByMail(mail)) {
+            throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + mail);
         }
-        if (usuarioRepository.existsByNombreUsuario(request.getNombreUsuario())) {
+        if (usuarioRepository.existsByNombreUsuario(nombreUsuario)) {
             throw new RecursoDuplicadoException(
-                    "Ya existe un usuario con el nombre de usuario " + request.getNombreUsuario());
+                    "Ya existe un usuario con el nombre de usuario " + nombreUsuario);
         }
 
         Rol rolComprador = rolRepository.findByNombreRol(ROL_POR_DEFECTO)
@@ -46,10 +53,10 @@ public class AuthenticationService {
                         "No existe el rol por defecto '" + ROL_POR_DEFECTO + "'"));
 
         Usuario usuario = new Usuario();
-        usuario.setNombre(request.getNombre());
-        usuario.setApellido(request.getApellido());
-        usuario.setMail(request.getMail());
-        usuario.setNombreUsuario(request.getNombreUsuario());
+        usuario.setNombre(nombre);
+        usuario.setApellido(apellido);
+        usuario.setMail(mail);
+        usuario.setNombreUsuario(nombreUsuario);
         usuario.setContrasenia(passwordEncoder.encode(request.getContrasenia()));
         usuario.setFechaRegistro(LocalDateTime.now());
         usuario.setRol(rolComprador);
@@ -61,12 +68,17 @@ public class AuthenticationService {
     }
 
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
+        String nombreUsuario = request.getNombreUsuario() == null ? "" : request.getNombreUsuario().trim();
+        if (nombreUsuario.isEmpty() || request.getContrasenia() == null || request.getContrasenia().isEmpty()) {
+            throw new ReglaDeNegocioException("Debe indicar nombreUsuario y contrasenia");
+        }
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        request.getNombreUsuario(),
+                        nombreUsuario,
                         request.getContrasenia()));
 
-        Usuario usuario = usuarioRepository.findByNombreUsuario(request.getNombreUsuario())
+        Usuario usuario = usuarioRepository.findByNombreUsuario(nombreUsuario)
                 .orElseThrow();
 
         var jwtToken = jwtService.generateToken(usuario);

@@ -9,6 +9,7 @@ import com.uade.tpo.SeaPlace.entity.Usuario;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
+
     Optional<Usuario> findByMail(String mail);
 
     Optional<Usuario> findByNombreUsuario(String nombreUsuario);
@@ -16,4 +17,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     boolean existsByMail(String mail);
 
     boolean existsByNombreUsuario(String nombreUsuario);
+
+    long countByRol_NombreRol(String nombreRol);
 }
