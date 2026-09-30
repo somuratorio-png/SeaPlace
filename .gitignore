@@ -34,3 +34,6 @@ build/
 
 ### macOS ###
 .DS_Store
+
+# Guía de la migración a React (queda solo local)
+Guia-React-Vite-SeaPlace.pdf

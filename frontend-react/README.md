@@ -1,7 +1,7 @@
 # SeaPlace — Frontend (React + Vite)
 
 Frontend de SeaPlace. Reemplaza a los HTML sueltos de `../frontend/`.
-La guía completa (qué se hizo, cómo y por qué) está en `../Guia-React-Vite-SeaPlace.pdf`.
+La guía completa (qué se hizo, cómo y por qué) está en un PDF aparte, fuera del repo.
 
 ## Cómo correrlo
 
@@ -28,6 +28,6 @@ Si el backend está apagado o no tiene animales cargados, el catálogo muestra d
 - `src/pages/` — una pantalla por URL (las rutas están en `src/App.jsx`)
 - `src/components/` — piezas compartidas (Header, Footer, Layout…)
 - `src/api/` — única capa que habla con Spring (`apiFetch` agrega el JWT y maneja errores)
-- `src/context/` — sesión (`AuthContext`) y carrito (`CartContext`)
+- `src/context/` — sesión (`AuthContext`) y muelle/carrito (`MuelleContext`)
 - `src/data/` — imágenes y animales de ejemplo
 - `src/index.css` — Tailwind v4 y el tema del diseño (`@theme`)

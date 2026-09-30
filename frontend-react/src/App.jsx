@@ -1,7 +1,7 @@
 import { Link, Route, Routes } from 'react-router-dom'
 import Layout from './components/Layout'
 import RutaProtegida from './components/RutaProtegida'
-import Carrito from './pages/Carrito'
+import Muelle from './pages/Muelle'
 import Catalogo from './pages/Catalogo'
 import Dashboard from './pages/Dashboard'
 import DetalleAnimal from './pages/DetalleAnimal'
@@ -13,7 +13,7 @@ import Login from './pages/Login'
 //   /                 Inicio           (antes pacifico/inicio.html)
 //   /catalogo         Catálogo         (antes pacifico/catalogo.html)
 //   /animales/:id     Detalle          (antes pacifico/detalle-nori.html, ahora sirve para cualquier animal)
-//   /carrito          Carrito          (antes pacifico/carrito.html)
+//   /muelle           Muelle (carrito) (antes pacifico/carrito.html)
 //   /panel            Panel protector  (antes comun/dashboard.html, ahora requiere login)
 //   /login            Login/Registro   (antes comun/login.html)
 export default function App() {
@@ -24,7 +24,7 @@ export default function App() {
         <Route path="/" element={<Inicio />} />
         <Route path="/catalogo" element={<Catalogo />} />
         <Route path="/animales/:id" element={<DetalleAnimal />} />
-        <Route path="/carrito" element={<Carrito />} />
+        <Route path="/muelle" element={<Muelle />} />
         <Route
           path="/panel"
           element={

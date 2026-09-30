@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { getAnimales } from '../api/animales'
 import BarraProgreso from '../components/BarraProgreso'
 import Icon from '../components/Icon'
-import { useCart } from '../context/CartContext'
+import { useMuelle } from '../context/MuelleContext'
 import { animalesEjemplo, categoriasDe, desdeApi } from '../data/animales'
 
 const ORDEN_URGENCIA = { critical: 0, recovering: 1, ready: 2 }
@@ -18,7 +18,7 @@ const ORDENAMIENTOS = {
 
 export default function Catalogo() {
   const navigate = useNavigate()
-  const { setSponsorship } = useCart()
+  const { setSponsorship } = useMuelle()
 
   // --- Datos ---
   const [animales, setAnimales] = useState(animalesEjemplo)
@@ -77,7 +77,7 @@ export default function Catalogo() {
       plan: 'Apadrinamiento Estándar',
       image: animal.imagen,
     })
-    navigate('/carrito')
+    navigate('/muelle')
   }
 
   return (

@@ -1,6 +1,6 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { useCart } from '../context/CartContext'
+import { useMuelle } from '../context/MuelleContext'
 import { logo } from '../data/imagenes'
 import Icon from './Icon'
 
@@ -15,7 +15,7 @@ function navClass({ isActive }) {
 }
 
 export default function Header() {
-  const { count } = useCart()
+  const { count } = useMuelle()
   const { usuario, logout } = useAuth()
 
   return (
@@ -39,7 +39,7 @@ export default function Header() {
           <Link to="/#kit-protector" className={linkInactivo}>
             Nuestra Misión
           </Link>
-          <NavLink to="/carrito" className={(estado) => `${navClass(estado)} relative flex items-center gap-space-xs`}>
+          <NavLink to="/muelle" className={(estado) => `${navClass(estado)} relative flex items-center gap-space-xs`}>
             <span>Carrito de Apadrinamiento</span>
             {/* El badge se actualiza solo cuando cambia el carrito: no hay que tocar el DOM a mano */}
             {count > 0 && (

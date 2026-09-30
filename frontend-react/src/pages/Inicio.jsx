@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router-dom'
 import BarraProgreso from '../components/BarraProgreso'
 import Icon from '../components/Icon'
-import { useCart } from '../context/CartContext'
+import { useMuelle } from '../context/MuelleContext'
 import { destacados } from '../data/animales'
 import { heroFoca } from '../data/imagenes'
 
@@ -27,7 +27,7 @@ const testimonios = [
 ]
 
 export default function Inicio() {
-  const { setSponsorship } = useCart()
+  const { setSponsorship } = useMuelle()
   // toast = null (oculto) o { nombre, precio } (visible)
   const [toast, setToast] = useState(null)
   const timer = useRef(null)
@@ -324,7 +324,7 @@ export default function Inicio() {
           </div>
           <Link
             className="bg-secondary-container text-on-secondary-container px-space-md py-1.5 rounded-md font-label-md text-label-md hover:bg-secondary hover:text-on-secondary transition-colors"
-            to="/carrito"
+            to="/muelle"
           >
             Finalizar
           </Link>

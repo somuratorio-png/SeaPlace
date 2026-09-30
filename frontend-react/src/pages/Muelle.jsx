@@ -3,18 +3,18 @@ import { Link } from 'react-router-dom'
 import BarraProgreso from '../components/BarraProgreso'
 import Icon from '../components/Icon'
 import { useAuth } from '../context/AuthContext'
-import { useCart } from '../context/CartContext'
-import { carritoDefault } from '../data/imagenes'
+import { useMuelle } from '../context/MuelleContext'
+import { muelleDefault } from '../data/imagenes'
 
 const BOTIQUIN = 5
 const SUFIJOS = { monthly: { corto: '/mes', largo: 'USD / mensual' }, yearly: { corto: '/año', largo: 'USD / anual' }, once: { corto: '', largo: 'USD / pago único' } }
 
-export default function Carrito() {
-  const { item, clearSponsorship } = useCart()
+export default function Muelle() {
+  const { item, clearSponsorship } = useMuelle()
   const [confirmado, setConfirmado] = useState(null) // guarda el item confirmado para mostrar el mensaje final
 
   if (confirmado) return <Confirmacion item={confirmado} />
-  if (!item) return <CarritoVacio />
+  if (!item) return <MuelleVacio />
 
   return (
     <Checkout
@@ -47,7 +47,7 @@ function Checkout({ item, onRetirar, onConfirmado }) {
   function confirmar() {
     setEnviando(true)
     // TODO backend: cuando exista GET /usuarios/me, acá va
-    //   POST /carritos/items  y después  POST /compras  (ver CarritosController y ComprasController).
+    //   POST /muelles/items  y después  POST /zarpar  (ver MuellesController y ZarparsController).
     // Por ahora se simula la demora del pago, igual que en el HTML original.
     setTimeout(onConfirmado, 1200)
   }
@@ -72,7 +72,7 @@ function Checkout({ item, onRetirar, onConfirmado }) {
             </div>
             <div className="flex flex-col sm:flex-row gap-space-md items-start">
               <div className="relative w-full sm:w-36 h-36 rounded-lg overflow-hidden bg-surface-container-high shrink-0">
-                <img className="w-full h-full object-cover" alt={`Foto de ${item.name}`} src={item.image || carritoDefault} />
+                <img className="w-full h-full object-cover" alt={`Foto de ${item.name}`} src={item.image || muelleDefault} />
               </div>
               <div className="flex-1 space-y-space-xs min-w-0">
                 <div className="flex items-start justify-between gap-space-sm">
@@ -352,7 +352,7 @@ function Campo({ label, icon, ...inputProps }) {
   )
 }
 
-function CarritoVacio() {
+function MuelleVacio() {
   return (
     <div className="max-w-2xl text-center bg-surface-container-lowest rounded-xl p-space-xl shadow-sm my-space-xl mx-margin-mobile sm:mx-auto">
       <Icon name="shopping_cart" className="text-5xl text-outline" />

@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from 'react'
 // Antes: funciones globales (window.SeaPlaceCart) + document.querySelectorAll para
 // actualizar el badge a mano. Ahora: un estado de React; cuando cambia, cada componente
 // que lo usa (el badge del header, la página del carrito) se vuelve a dibujar solo.
-const CartContext = createContext(null)
+const MuelleContext = createContext(null)
 
 // Misma clave que usaba cart.js, así no se pierde lo que ya estaba guardado
 const STORAGE_KEY = 'seaplace_sponsorship'
@@ -18,7 +18,7 @@ function leerGuardado() {
   }
 }
 
-export function CartProvider({ children }) {
+export function MuelleProvider({ children }) {
   // item = { animalId, name, species, price, plan, image } o null si está vacío
   const [item, setItem] = useState(leerGuardado)
 
@@ -39,10 +39,10 @@ export function CartProvider({ children }) {
     clearSponsorship: () => setItem(null),
   }
 
-  return <CartContext.Provider value={value}>{children}</CartContext.Provider>
+  return <MuelleContext.Provider value={value}>{children}</MuelleContext.Provider>
 }
 
 // oxlint-disable-next-line react/only-export-components -- el hook vive junto a su Provider a propósito
-export function useCart() {
-  return useContext(CartContext)
+export function useMuelle() {
+  return useContext(MuelleContext)
 }

@@ -5,7 +5,7 @@ import { emblema, noriAsomandose, noriPrincipal } from '../data/imagenes'
 
 // Panel del protector (antes comun/dashboard.html). Solo se ve logueado (ver RutaProtegida en App.jsx).
 // Los datos de seguimiento siguen siendo de ejemplo: el backend todavía no expone
-// "mis apadrinamientos" (haría falta GET /compras?idUsuario=... con el id del usuario logueado).
+// "mis apadrinamientos" (haría falta GET /zarpar?idUsuario=... con el id del usuario logueado).
 
 const metricas = [
   { titulo: 'Ahijados Activos', icon: 'pets', iconBg: 'bg-surface-container text-primary', valor: '2 Focas Protegidas', valorClase: 'text-primary', nota: <><Icon name="favorite" className="text-sm" /> Nori y Pelusa (Gorditas &amp; seguras)</>, notaClase: 'text-secondary' },
