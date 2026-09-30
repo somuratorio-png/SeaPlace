@@ -55,10 +55,10 @@ public class Usuario implements UserDetails {
     private Refugio refugio;
 
     @OneToMany(mappedBy = "usuario")
-    private List<Carrito> carritos;
+    private List<Muelle> muelles;
 
     @OneToMany(mappedBy = "usuario")
-    private List<Compra> compras;
+    private List<Zarpar> zarpars;
 
     // --- Métodos de UserDetails (Spring Security) ---
 

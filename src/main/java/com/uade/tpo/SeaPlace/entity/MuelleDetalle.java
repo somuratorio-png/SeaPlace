@@ -12,26 +12,23 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "compra_detalle")
-public class CompraDetalle {
+@Table(name = "muelle_detalle")
+public class MuelleDetalle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCompraDetalle;
+    private Long idMuelleDetalle;
 
     @ManyToOne
     @JoinColumn(name = "id_animal", nullable = false)
     private Animal animal;
 
     @ManyToOne
-    @JoinColumn(name = "id_compra", nullable = false)
-    private Compra compra;
+    @JoinColumn(name = "id_muelle", nullable = false)
+    private Muelle muelle;
 
     @Column(nullable = false)
     private Double precioUnitario;
 
     @Column(nullable = false)
     private Integer cantidad;
-
-    @Column(nullable = false)
-    private Double subtotal;
 }

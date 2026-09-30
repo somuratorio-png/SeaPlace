@@ -9,28 +9,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
-import com.uade.tpo.SeaPlace.entity.Carrito;
-import com.uade.tpo.SeaPlace.entity.CarritoDetalle;
+import com.uade.tpo.SeaPlace.entity.Muelle;
+import com.uade.tpo.SeaPlace.entity.MuelleDetalle;
 import com.uade.tpo.SeaPlace.entity.Usuario;
-import com.uade.tpo.SeaPlace.entity.dto.CarritoDetalleRequest;
+import com.uade.tpo.SeaPlace.entity.dto.MuelleDetalleRequest;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
-import com.uade.tpo.SeaPlace.repository.CarritoDetalleRepository;
-import com.uade.tpo.SeaPlace.repository.CarritoRepository;
+import com.uade.tpo.SeaPlace.repository.MuelleDetalleRepository;
+import com.uade.tpo.SeaPlace.repository.MuelleRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
 
 @Service
-public class CarritoServiceImpl implements CarritoService {
+public class MuelleServiceImpl implements MuelleService {
 
-    private static final String ESTADO_CARRITO_ACTIVO = "ACTIVO";
+    private static final String ESTADO_MUELLE_ACTIVO = "ACTIVO";
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
 
     @Autowired
-    private CarritoRepository carritoRepository;
+    private MuelleRepository muelleRepository;
 
     @Autowired
-    private CarritoDetalleRepository carritoDetalleRepository;
+    private MuelleDetalleRepository muelleDetalleRepository;
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -42,7 +42,7 @@ public class CarritoServiceImpl implements CarritoService {
     private AutorizacionService autorizacionService;
 
     @Override
-    public Carrito getOrCreateCarritoActivo(Long idUsuario) {
+    public Muelle getOrCreateMuelleActivo(Long idUsuario) {
         // Un usuario solo puede pedir su propio carrito (o un admin, cualquiera).
         autorizacionService.validarPropietarioOAdmin(idUsuario);
 
@@ -50,28 +50,28 @@ public class CarritoServiceImpl implements CarritoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
 
-        return carritoRepository.findByUsuario_IdUsuarioAndEstado(idUsuario, ESTADO_CARRITO_ACTIVO)
+        return muelleRepository.findByUsuario_IdUsuarioAndEstado(idUsuario, ESTADO_MUELLE_ACTIVO)
                 .orElseGet(() -> {
-                    Carrito carritoNuevo = new Carrito();
-                    carritoNuevo.setUsuario(usuario);
-                    carritoNuevo.setFechaCreacion(LocalDateTime.now());
-                    carritoNuevo.setEstado(ESTADO_CARRITO_ACTIVO);
-                    return carritoRepository.save(carritoNuevo);
+                    Muelle muelleNuevo = new Muelle();
+                    muelleNuevo.setUsuario(usuario);
+                    muelleNuevo.setFechaCreacion(LocalDateTime.now());
+                    muelleNuevo.setEstado(ESTADO_MUELLE_ACTIVO);
+                    return muelleRepository.save(muelleNuevo);
                 });
     }
 
     @Override
-    public CarritoDetalle agregarItem(CarritoDetalleRequest request) {
+    public MuelleDetalle agregarItem(MuelleDetalleRequest request) {
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
 
-        Carrito carrito = carritoRepository.findById(request.getIdCarrito())
+        Muelle muelle = muelleRepository.findById(request.getIdMuelle())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe el carrito con id " + request.getIdCarrito()));
+                        "No existe el muelle con id " + request.getIdMuelle()));
 
         // Solo el dueño del carrito (o un admin) puede agregarle items.
-        autorizacionService.validarPropietarioOAdmin(carrito.getUsuario().getIdUsuario());
+        autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
 
         Animal animal = animalRepository.findById(request.getIdAnimal())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
@@ -82,11 +82,11 @@ public class CarritoServiceImpl implements CarritoService {
                     "La publicacion del animal " + animal.getNombreAnimal() + " no esta activa");
         }
 
-        Optional<CarritoDetalle> detalleExistente = carritoDetalleRepository
-                .findByCarrito_IdCarritoAndAnimal_IdAnimal(carrito.getIdCarrito(), animal.getIdAnimal());
+        Optional<MuelleDetalle> detalleExistente = muelleDetalleRepository
+                .findByMuelle_IdMuelleAndAnimal_IdAnimal(muelle.getIdMuelle(), animal.getIdAnimal());
 
-        int cantidadYaEnCarrito = detalleExistente.map(CarritoDetalle::getCantidad).orElse(0);
-        int cantidadFinal = cantidadYaEnCarrito + request.getCantidad();
+        int cantidadYaEnMuelle = detalleExistente.map(MuelleDetalle::getCantidad).orElse(0);
+        int cantidadFinal = cantidadYaEnMuelle + request.getCantidad();
 
         if (cantidadFinal > animal.getCuposDisponibles()) {
             throw new ReglaDeNegocioException(
@@ -95,33 +95,33 @@ public class CarritoServiceImpl implements CarritoService {
                             + " y se intentan reservar " + cantidadFinal);
         }
 
-        CarritoDetalle detalle;
+        MuelleDetalle detalle;
         if (detalleExistente.isPresent()) {
             detalle = detalleExistente.get();
             detalle.setCantidad(cantidadFinal);
         } else {
-            detalle = new CarritoDetalle();
-            detalle.setCarrito(carrito);
+            detalle = new MuelleDetalle();
+            detalle.setMuelle(muelle);
             detalle.setAnimal(animal);
             detalle.setCantidad(cantidadFinal);
             detalle.setPrecioUnitario(animal.getCuotaApadrinamiento());
         }
 
-        return carritoDetalleRepository.save(detalle);
+        return muelleDetalleRepository.save(detalle);
     }
 
     @Override
-    public CarritoDetalle modificarCantidad(Long carritoId, Long animalId, Integer cantidad) {
+    public MuelleDetalle modificarCantidad(Long muelleId, Long animalId, Integer cantidad) {
         if (cantidad == null || cantidad <= 0) {
             throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
 
-        CarritoDetalle detalle = carritoDetalleRepository
-                .findByCarrito_IdCarritoAndAnimal_IdAnimal(carritoId, animalId)
-                .orElseThrow(() -> new RecursoNoEncontradoException("El animal no esta en el carrito"));
+        MuelleDetalle detalle = muelleDetalleRepository
+                .findByMuelle_IdMuelleAndAnimal_IdAnimal(muelleId, animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("El animal no esta en el muelle"));
 
         // Solo el dueño del carrito (o un admin) puede modificarlo.
-        autorizacionService.validarPropietarioOAdmin(detalle.getCarrito().getUsuario().getIdUsuario());
+        autorizacionService.validarPropietarioOAdmin(detalle.getMuelle().getUsuario().getIdUsuario());
 
         Animal animal = detalle.getAnimal();
 
@@ -138,31 +138,31 @@ public class CarritoServiceImpl implements CarritoService {
         }
 
         detalle.setCantidad(cantidad);
-        return carritoDetalleRepository.save(detalle);
+        return muelleDetalleRepository.save(detalle);
     }
 
     @Override
     @Transactional
-    public void quitarItem(Long carritoId, Long animalId) {
-        Carrito carrito = carritoRepository.findById(carritoId)
+    public void quitarItem(Long muelleId, Long animalId) {
+        Muelle muelle = muelleRepository.findById(muelleId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe el carrito con id " + carritoId));
+                        "No existe el muelle con id " + muelleId));
 
         // Solo el dueño del carrito (o un admin) puede sacarle items.
-        autorizacionService.validarPropietarioOAdmin(carrito.getUsuario().getIdUsuario());
+        autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
 
-        carritoDetalleRepository.deleteByCarrito_IdCarritoAndAnimal_IdAnimal(carritoId, animalId);
+        muelleDetalleRepository.deleteByMuelle_IdMuelleAndAnimal_IdAnimal(muelleId, animalId);
     }
 
     @Override
-    public List<CarritoDetalle> getItems(Long carritoId) {
-        Carrito carrito = carritoRepository.findById(carritoId)
+    public List<MuelleDetalle> getItems(Long muelleId) {
+        Muelle muelle = muelleRepository.findById(muelleId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe el carrito con id " + carritoId));
+                        "No existe el muelle con id " + muelleId));
 
         // Solo el dueño del carrito (o un admin) puede ver sus items.
-        autorizacionService.validarPropietarioOAdmin(carrito.getUsuario().getIdUsuario());
+        autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
 
-        return carritoDetalleRepository.findByCarrito_IdCarrito(carritoId);
+        return muelleDetalleRepository.findByMuelle_IdMuelle(muelleId);
     }
 }

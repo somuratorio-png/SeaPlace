@@ -4,8 +4,8 @@ package com.uade.tpo.SeaPlace.entity.dto;
 import lombok.Data;
 
 @Data
-public class CompraRequest {
+public class ZarparRequest {
     private Long idUsuario;
-    private Long idCarrito;
+    private Long idMuelle;
     // fechaCompra, total, estado y el detalle los arma el service en base al Carrito
 }

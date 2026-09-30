@@ -61,8 +61,8 @@ public class Animal {
     private List<Descuento> descuentos;
 
     @OneToMany(mappedBy = "animal")
-    private List<CarritoDetalle> carritoDetalles;
+    private List<MuelleDetalle> muelleDetalles;
 
     @OneToMany(mappedBy = "animal")
-    private List<CompraDetalle> compraDetalles;
+    private List<ZarparDetalle> puertoDetalles;
 }

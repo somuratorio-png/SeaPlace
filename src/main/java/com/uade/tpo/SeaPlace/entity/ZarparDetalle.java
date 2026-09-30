@@ -1,8 +1,5 @@
 package com.uade.tpo.SeaPlace.entity;
 
-import java.time.LocalDateTime;
-import java.util.List;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -10,31 +7,31 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "compra")
-public class Compra {
+@Table(name = "zarpar_detalle")
+public class ZarparDetalle {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idCompra;
+    private Long idZarparDetalle;
 
     @ManyToOne
-    @JoinColumn(name = "id_usuario", nullable = false)
-    private Usuario usuario;
+    @JoinColumn(name = "id_animal", nullable = false)
+    private Animal animal;
+
+    @ManyToOne
+    @JoinColumn(name = "id_zarpar", nullable = false)
+    private Zarpar zarpar;
 
     @Column(nullable = false)
-    private LocalDateTime fechaCompra;
+    private Double precioUnitario;
 
     @Column(nullable = false)
-    private Double total;
+    private Integer cantidad;
 
     @Column(nullable = false)
-    private String estado;
-
-    @OneToMany(mappedBy = "compra")
-    private List<CompraDetalle> detalles;
+    private Double subtotal;
 }
