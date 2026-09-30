@@ -1,8 +1,6 @@
-// Usuarios de ejemplo para el login mockeado.
-// Sirven para entrar directo en una demo sin tener que registrarse.
-// Los usuarios que se registran desde la pantalla de login se suman a esta lista
-// y se guardan en el localStorage del navegador (ver services/authService.js).
-export const usuariosIniciales = [
+// Usuarios de ejemplo para el login (mock: no hay servidor).
+// Los usuarios que se registran se agregan a esta lista mientras la página esté abierta.
+export const usuariosDeDemo = [
   {
     nombre: 'Marina',
     apellido: 'Delgado',

@@ -1,22 +1,11 @@
 import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
-import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
-import { AuthProvider } from './context/AuthContext.jsx'
-import { MuelleProvider } from './context/MuelleContext.jsx'
 
-// Punto de entrada: monta <App /> dentro del <div id="root"> de index.html.
-// Los "Providers" envuelven toda la app para que cualquier página pueda leer
-// la sesión (AuthContext) y el carrito (MuelleContext).
+// Punto de entrada: dibuja <App /> dentro del <div id="root"> de index.html
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <MuelleProvider>
-          <App />
-        </MuelleProvider>
-      </AuthProvider>
-    </BrowserRouter>
+    <App />
   </StrictMode>,
 )

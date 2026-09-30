@@ -1,60 +1,84 @@
-import { Link, Navigate, Route, Routes } from 'react-router-dom'
-import Layout from './components/Layout'
-import RutaProtegida from './components/RutaProtegida'
-import Muelle from './pages/Muelle'
+import { useState } from 'react'
+import Footer from './components/comunes/Footer'
+import Header from './components/comunes/Header'
+import { usuariosDeDemo } from './data/usuarios'
+import Carrito from './pages/Carrito'
 import Catalogo from './pages/Catalogo'
-import Dashboard from './pages/Dashboard'
-import DetalleAnimal from './pages/DetalleAnimal'
+import Detalle from './pages/Detalle'
 import Inicio from './pages/Inicio'
 import Login from './pages/Login'
+import Panel from './pages/Panel'
 
-// Mapa de URLs -> páginas. Reemplaza a tener un archivo .html por página.
-//
-//   /                 Inicio           (antes pacifico/inicio.html)
-//   /catalogo         Catálogo         (antes pacifico/catalogo.html)
-//   /animales/:id     Detalle          (antes pacifico/detalle-nori.html, ahora sirve para cualquier animal)
-//   /muelle           Muelle (carrito) (antes pacifico/carrito.html)
-//   /panel            Panel protector  (antes comun/dashboard.html, ahora requiere login)
-//   /login            Login/Registro   (antes comun/login.html)
+// App es el componente principal. Guarda el estado que comparten varias páginas
+// y se lo pasa a cada una por props.
 const App = () => {
-  return (
-    <Routes>
-      {/* Todas estas comparten header y footer (Layout) */}
-      <Route element={<Layout />}>
-        <Route path="/" element={<Inicio />} />
-        <Route path="/catalogo" element={<Catalogo />} />
-        <Route path="/animales/:id" element={<DetalleAnimal />} />
-        <Route path="/muelle" element={<Muelle />} />
-        {/* La URL vieja del carrito sigue funcionando */}
-        <Route path="/carrito" element={<Navigate to="/muelle" replace />} />
-        <Route
-          path="/panel"
-          element={
-            <RutaProtegida>
-              <Dashboard />
-            </RutaProtegida>
-          }
-        />
-        <Route path="*" element={<NoEncontrada />} />
-      </Route>
+  const [pagina, setPagina] = useState('inicio') // 'inicio' | 'catalogo' | 'detalle' | 'carrito' | 'panel'
+  const [animalElegido, setAnimalElegido] = useState(null)
+  const [carrito, setCarrito] = useState([]) // [{ animal, plan }]
+  const [apadrinados, setApadrinados] = useState([]) // lo que ya se confirmó
+  const [usuarios, setUsuarios] = useState(usuariosDeDemo)
+  const [usuario, setUsuario] = useState(null) // null = nadie logueado
 
-      {/* El login es de pantalla completa, sin header ni footer (como en el diseño original) */}
-      <Route path="/login" element={<Login />} />
-    </Routes>
-  )
-}
+  const irA = (nuevaPagina) => {
+    setPagina(nuevaPagina)
+    window.scrollTo(0, 0)
+  }
 
-const NoEncontrada = () => {
+  const verAnimal = (animal) => {
+    setAnimalElegido(animal)
+    irA('detalle')
+  }
+
+  // Si el animal ya estaba en el carrito, se reemplaza (por si cambió de plan)
+  const agregarAlCarrito = (animal, plan) => {
+    const sinEseAnimal = carrito.filter((item) => item.animal.id !== animal.id)
+    setCarrito([...sinEseAnimal, { animal, plan }])
+    irA('carrito')
+  }
+
+  const quitarDelCarrito = (idAnimal) => {
+    setCarrito(carrito.filter((item) => item.animal.id !== idAnimal))
+  }
+
+  // Pasa todo el carrito a "apadrinados" (sin repetir animales) y lo vacía
+  const confirmarCarrito = () => {
+    const anteriores = apadrinados.filter((item) => !carrito.some((nuevo) => nuevo.animal.id === item.animal.id))
+    setApadrinados([...anteriores, ...carrito])
+    setCarrito([])
+    irA('panel')
+  }
+
+  const registrar = (nuevoUsuario) => {
+    setUsuarios([...usuarios, nuevoUsuario])
+    setUsuario(nuevoUsuario)
+  }
+
+  const salir = () => {
+    setUsuario(null)
+    irA('inicio')
+  }
+
   return (
-    <div className="max-w-2xl mx-auto text-center py-space-xl px-margin-mobile">
-      <h1 className="font-headline-lg text-headline-lg text-primary">Esta página se la llevó la marea</h1>
-      <p className="font-body-md text-body-md text-on-surface-variant mt-space-sm">La dirección no existe.</p>
-      <Link
-        to="/"
-        className="inline-block mt-space-md bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg"
-      >
-        Volver al inicio
-      </Link>
+    <div className="min-h-screen bg-surface font-body-md text-on-surface">
+      <Header paginaActual={pagina} cantidadCarrito={carrito.length} usuario={usuario} onNavegar={irA} onSalir={salir} />
+
+      <main>
+        {pagina === 'inicio' && <Inicio onVerCatalogo={() => irA('catalogo')} onVerAnimal={verAnimal} />}
+        {pagina === 'catalogo' && <Catalogo onVerAnimal={verAnimal} />}
+        {pagina === 'detalle' && (
+          <Detalle animal={animalElegido} onAgregar={agregarAlCarrito} onVolver={() => irA('catalogo')} />
+        )}
+        {pagina === 'carrito' && (
+          <Carrito carrito={carrito} onQuitar={quitarDelCarrito} onConfirmar={confirmarCarrito} onVerCatalogo={() => irA('catalogo')} />
+        )}
+        {/* El panel es solo para usuarios logueados: si no hay nadie, se muestra el login */}
+        {pagina === 'panel' && usuario && (
+          <Panel usuario={usuario} apadrinados={apadrinados} onVerCatalogo={() => irA('catalogo')} />
+        )}
+        {pagina === 'panel' && !usuario && <Login usuarios={usuarios} onIngresar={setUsuario} onRegistrar={registrar} />}
+      </main>
+
+      <Footer />
     </div>
   )
 }
