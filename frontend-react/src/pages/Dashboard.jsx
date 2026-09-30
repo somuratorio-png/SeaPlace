@@ -4,8 +4,7 @@ import { useAuth } from '../context/AuthContext'
 import { emblema, noriAsomandose, noriPrincipal } from '../data/imagenes'
 
 // Panel del protector (antes comun/dashboard.html). Solo se ve logueado (ver RutaProtegida en App.jsx).
-// Los datos de seguimiento siguen siendo de ejemplo: el backend todavía no expone
-// "mis apadrinamientos" (haría falta GET /zarpar?idUsuario=... con el id del usuario logueado).
+// Los datos de seguimiento son de ejemplo (mock), igual que el resto del front.
 
 const metricas = [
   { titulo: 'Ahijados Activos', icon: 'pets', iconBg: 'bg-surface-container text-primary', valor: '2 Focas Protegidas', valorClase: 'text-primary', nota: <><Icon name="favorite" className="text-sm" /> Nori y Pelusa (Gorditas &amp; seguras)</>, notaClase: 'text-secondary' },
@@ -42,9 +41,9 @@ export default function Dashboard() {
                 <span className="inline-block font-label-md text-label-md bg-secondary-container text-on-secondary-container px-2.5 py-0.5 rounded-full uppercase tracking-wider mb-1">
                   Custodio de Agua Salada
                 </span>
-                {/* El nombre sale del token JWT (campo "sub") */}
+                {/* El nombre sale de la sesión (AuthContext) */}
                 <h1 className="font-headline-lg text-headline-lg-mobile sm:text-headline-lg text-primary leading-tight">
-                  ¡Hola de nuevo, {usuario.nombreUsuario}!
+                  ¡Hola de nuevo, {usuario.nombre ?? usuario.nombreUsuario}!
                 </h1>
                 <p className="font-body-md text-body-md text-on-surface-variant">Tus protegidas están tranquilas hoy en Ensenada.</p>
               </div>

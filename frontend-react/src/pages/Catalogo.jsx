@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { getAnimales } from '../api/animales'
 import BarraProgreso from '../components/BarraProgreso'
 import Icon from '../components/Icon'
 import { useMuelle } from '../context/MuelleContext'
-import { animalesEjemplo, categoriasDe, desdeApi } from '../data/animales'
+import { categoriasDe } from '../data/animales'
+import { getAnimales } from '../services/animalesService'
 
 const ORDEN_URGENCIA = { critical: 0, recovering: 1, ready: 2 }
 
@@ -21,25 +21,18 @@ export default function Catalogo() {
   const { setSponsorship } = useMuelle()
 
   // --- Datos ---
-  const [animales, setAnimales] = useState(animalesEjemplo)
-  const [origen, setOrigen] = useState('cargando') // 'cargando' | 'api' | 'ejemplo'
+  const [animales, setAnimales] = useState([])
+  const [cargando, setCargando] = useState(true)
 
-  // useEffect con [] se ejecuta una sola vez, cuando la página aparece: ahí pedimos los datos.
+  // useEffect con [] se ejecuta una sola vez, cuando la página aparece: ahí pedimos los datos
+  // al servicio (mockeado: responde con datos locales después de una pequeña demora).
   useEffect(() => {
     let cancelado = false
-    getAnimales()
-      .then((lista) => {
-        if (cancelado) return
-        if (lista.length > 0) {
-          setAnimales(lista.map(desdeApi))
-          setOrigen('api')
-        } else {
-          setOrigen('ejemplo') // el backend respondió pero no hay animales cargados
-        }
-      })
-      .catch(() => {
-        if (!cancelado) setOrigen('ejemplo') // backend apagado o error
-      })
+    getAnimales().then((lista) => {
+      if (cancelado) return
+      setAnimales(lista)
+      setCargando(false)
+    })
     // Si el usuario se va antes de que llegue la respuesta, no tocamos el estado
     return () => {
       cancelado = true
@@ -112,13 +105,6 @@ export default function Catalogo() {
           </div>
         </div>
 
-        {origen === 'ejemplo' && (
-          <p className="font-body-sm text-body-sm text-on-surface-variant bg-tertiary-fixed/30 rounded-lg px-space-md py-space-sm flex items-center gap-2">
-            <Icon name="info" className="text-tertiary text-[18px]" />
-            Mostrando animales de ejemplo: el backend no respondió o todavía no tiene animales cargados.
-          </p>
-        )}
-
         <div className="pt-space-xs flex items-center gap-space-xs overflow-x-auto pb-2">
           <PillCategoria activa={categoria === 'all'} onClick={() => setCategoria('all')} icon="grid_view" label="Todas las especies" cantidad={animales.length} />
           {categorias.map((c) => (
@@ -171,7 +157,7 @@ export default function Catalogo() {
       </section>
 
       {/* Grilla */}
-      {origen === 'cargando' ? (
+      {cargando ? (
         <p className="font-body-sm text-body-sm text-on-surface-variant text-center">Cargando animales...</p>
       ) : visibles.length === 0 ? (
         <p className="font-body-sm text-body-sm text-on-surface-variant bg-surface-container-lowest/70 border border-outline-variant/30 rounded-lg p-space-md text-center">
@@ -263,7 +249,7 @@ function Select({ value, onChange, icon, label, children }) {
 
 function TarjetaCatalogo({ animal, onApadrinar }) {
   const { estado, ubicacion, fondo } = animal
-  const cubierto = animal.agotado ?? fondo.progreso >= 100
+  const cubierto = fondo.progreso >= 100
   return (
     <article className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300 flex flex-col group border border-outline-variant/30">
       <div className="relative w-full h-64 overflow-hidden bg-surface-container">

@@ -46,9 +46,7 @@ function Checkout({ item, onRetirar, onConfirmado }) {
 
   function confirmar() {
     setEnviando(true)
-    // TODO backend: cuando exista GET /usuarios/me, acá va
-    //   POST /muelles/items  y después  POST /zarpar  (ver MuellesController y ZarparsController).
-    // Por ahora se simula la demora del pago, igual que en el HTML original.
+    // Mock: el pago se simula con una demora (como en el HTML original); no se envía nada a ningún servidor.
     setTimeout(onConfirmado, 1200)
   }
 

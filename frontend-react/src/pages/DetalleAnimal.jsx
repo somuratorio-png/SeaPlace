@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { getAnimal, getFotos } from '../api/animales'
 import BarraProgreso from '../components/BarraProgreso'
 import Icon from '../components/Icon'
 import { useMuelle } from '../context/MuelleContext'
-import { buscarEjemplo, CATEGORIAS, desdeApi } from '../data/animales'
+import { CATEGORIAS } from '../data/animales'
 import { mapaRescate, webcam } from '../data/imagenes'
+import { getAnimal } from '../services/animalesService'
 
 // Los 3 niveles de custodia se calculan a partir de la cuota del animal
 // (con Nori, cuota $24, dan exactamente los precios del diseño original: 12 / 24 / 45).
@@ -40,36 +40,24 @@ export default function DetalleAnimal() {
   const navigate = useNavigate()
   const { setSponsorship } = useMuelle()
 
-  // Si el id es de un animal de ejemplo lo tenemos al instante; si no, hay que pedirlo a la API
-  const ejemplo = buscarEjemplo(id)
   // Guardamos también de qué id es la respuesta: si el usuario navega a otro animal,
   // la respuesta vieja deja de coincidir y se muestra "Cargando..." sin tener que resetear nada.
   const [respuesta, setRespuesta] = useState({ id: null, animal: null, error: null })
 
+  // Pedimos el animal al servicio (mockeado) cada vez que cambia el id de la URL
   useEffect(() => {
-    if (ejemplo) return
     let cancelado = false
-    // Pedimos el animal y sus fotos en paralelo
-    Promise.all([getAnimal(id), getFotos(id).catch(() => [])])
-      .then(([dto, fotos]) => {
-        if (cancelado) return
-        const a = desdeApi(dto)
-        const galeria = fotos
-          .toSorted((x, y) => (x.orden ?? 0) - (y.orden ?? 0))
-          .map((f) => ({ src: f.urlImagen, alt: `Foto de ${a.nombre}` }))
-        if (galeria.length > 0) a.imagen = galeria[0].src
-        setRespuesta({ id, animal: { ...a, galeria }, error: null })
-      })
+    getAnimal(id)
+      .then((animal) => !cancelado && setRespuesta({ id, animal, error: null }))
       .catch((e) => !cancelado && setRespuesta({ id, animal: null, error: e.message }))
     return () => {
       cancelado = true
     }
-  }, [id, ejemplo])
+  }, [id])
 
-  const actual = respuesta.id === id ? respuesta : { animal: null, error: null }
-  const animal = ejemplo ?? actual.animal
-  if (!ejemplo && actual.error) {
-    return <Aviso titulo="No pudimos encontrar a este animal" texto={actual.error} />
+  const { animal, error } = respuesta.id === id ? respuesta : { animal: null, error: null }
+  if (error) {
+    return <Aviso titulo="No pudimos encontrar a este animal" texto={error} />
   }
   if (!animal) {
     return <Aviso titulo="Cargando..." />
@@ -81,7 +69,7 @@ export default function DetalleAnimal() {
 
 function Ficha({ animal, onApadrinar }) {
   const detalle = animal.detalle
-  const galeria = detalle?.galeria ?? (animal.galeria?.length ? animal.galeria : [{ src: animal.imagen, alt: animal.alt }])
+  const galeria = detalle?.galeria ?? [{ src: animal.imagen, alt: animal.alt }]
   const planes = armarPlanes(animal.precio)
 
   const [fotoActiva, setFotoActiva] = useState(0)

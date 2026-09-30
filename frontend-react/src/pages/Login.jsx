@@ -44,7 +44,7 @@ export default function Login() {
       }
       navigate(destino, { replace: true })
     } catch (err) {
-      // err.message viene del campo "mensaje" que arma el GlobalExceptionHandler de Spring
+      // err.message es el texto del error que lanza services/authService.js
       setError(err.message)
     } finally {
       setEnviando(false)
@@ -122,7 +122,7 @@ export default function Login() {
             </div>
 
             <form className="space-y-space-md" onSubmit={enviar}>
-              {/* Campos que pide RegisterRequest.java: solo se muestran al crear cuenta */}
+              {/* Campos extra que solo se piden al crear cuenta */}
               {modoRegistro && (
                 <>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
@@ -133,7 +133,7 @@ export default function Login() {
                 </>
               )}
 
-              {/* El backend autentica con nombreUsuario (no con mail): ver AuthenticationRequest.java */}
+              {/* Se entra con nombre de usuario (no con mail), igual que en el backend del TP */}
               <CampoTexto label="Nombre de Usuario" name="nombreUsuario" icon="person" placeholder="marina.delgado" value={form.nombreUsuario} onChange={cambiar} autoComplete="username" />
 
               <div className="flex flex-col gap-1.5">
@@ -174,6 +174,13 @@ export default function Login() {
                   {modoRegistro ? 'Acepto el Manifiesto de Protección y Términos' : 'Mantener mi sesión abierta en este equipo'}
                 </span>
               </label>
+
+              {!modoRegistro && (
+                <p className="font-body-sm text-body-sm text-on-surface-variant bg-tertiary-fixed/30 rounded-lg px-space-md py-space-sm flex items-center gap-2">
+                  <Icon name="info" className="text-tertiary text-[18px]" />
+                  Demo: entrá con el usuario <b>marina</b> y la contraseña <b>foquita123</b>, o creá una cuenta.
+                </p>
+              )}
 
               {error && (
                 <p className="font-body-sm text-body-sm text-on-error-container bg-error-container rounded-lg px-space-md py-space-sm flex items-center gap-2" role="alert">

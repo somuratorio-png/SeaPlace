@@ -1,8 +1,8 @@
 import * as img from './imagenes'
 
 // Datos de ejemplo (los que antes estaban escritos a mano dentro de cada <article>).
-// Se usan cuando el backend no responde o todavía no tiene animales cargados.
-// Cuando haya datos reales, el catálogo usa los de la API (ver desdeApi más abajo).
+// Es la "base de datos" mock del front: el catálogo, el inicio y el detalle salen de acá
+// (a través de services/animalesService.js).
 
 export const CATEGORIAS = {
   focas: { label: 'Focas y Leones Marinos', icon: 'pets' },
@@ -230,33 +230,6 @@ export const destacados = animalesEjemplo.filter((a) => a.destacado)
 
 export function buscarEjemplo(id) {
   return animalesEjemplo.find((a) => a.id === id) ?? null
-}
-
-// Convierte un AnimalResponse de Spring al mismo formato que usan los datos de ejemplo,
-// así los componentes no necesitan saber de dónde vino el animal.
-export function desdeApi(a) {
-  const total = a.cuposTotales ?? 0
-  const ocupados = total - (a.cuposDisponibles ?? 0)
-  const progreso = total > 0 ? Math.round((ocupados / total) * 100) : 0
-  const categoria = a.nombreCategoria ?? 'Sin categoría'
-  return {
-    id: String(a.idAnimal),
-    idBackend: a.idAnimal,
-    nombre: a.nombreAnimal,
-    especie: categoria,
-    categoria,
-    urgencia: null,
-    edadMeses: null,
-    ingreso: a.fechaPublicacion,
-    estado: { label: a.estado ?? 'Disponible', ...ESTADO.secundario },
-    ubicacion: { label: a.nombreRefugio ?? 'Refugio', icon: 'home_health', destacada: false },
-    descripcion: a.descripcion ?? '',
-    fondo: { label: 'Cupos de apadrinamiento cubiertos', progreso },
-    precio: a.cuotaApadrinamiento ?? 0,
-    imagen: img.heroFoca,
-    alt: `Foto de ${a.nombreAnimal}`,
-    agotado: (a.cuposDisponibles ?? 0) <= 0,
-  }
 }
 
 // Arma la lista de "pills" de categoría a partir de los animales que hay,

@@ -1,44 +1,59 @@
 import { createContext, useContext, useState } from 'react'
-import * as authApi from '../api/auth'
-import { clearToken, decodeToken, getToken, saveToken } from '../api/tokenStorage'
+import * as authService from '../services/authService'
 
 // Un "Context" es una forma de compartir datos con TODOS los componentes
 // sin tener que pasarlos a mano de padre a hijo. Acá guardamos quién está logueado.
 const AuthContext = createContext(null)
 
-function usuarioDesdeToken(token) {
-  const payload = token ? decodeToken(token) : null
-  if (!payload) return null
-  // exp viene en segundos; Date.now() en milisegundos
-  if (payload.exp && payload.exp * 1000 < Date.now()) return null
-  return { nombreUsuario: payload.sub }
+// Si el usuario tildó "Mantener mi sesión abierta" la sesión va a localStorage
+// (sobrevive a cerrar el navegador); si no, a sessionStorage (se borra al cerrar la pestaña).
+const KEY = 'seaplace_sesion'
+
+function leerSesion() {
+  try {
+    const raw = localStorage.getItem(KEY) ?? sessionStorage.getItem(KEY)
+    return raw ? JSON.parse(raw) : null
+  } catch {
+    return null
+  }
+}
+
+function guardarSesion(usuario, recordar) {
+  try {
+    borrarSesion()
+    ;(recordar ? localStorage : sessionStorage).setItem(KEY, JSON.stringify(usuario))
+  } catch {
+    // sin storage, la sesión dura hasta recargar la página
+  }
+}
+
+function borrarSesion() {
+  try {
+    localStorage.removeItem(KEY)
+    sessionStorage.removeItem(KEY)
+  } catch {
+    // nada que borrar
+  }
 }
 
 export function AuthProvider({ children }) {
-  // Al cargar la página, si había un token guardado y no venció, el usuario sigue logueado.
-  const [usuario, setUsuario] = useState(() => {
-    const u = usuarioDesdeToken(getToken())
-    if (!u) clearToken()
-    return u
-  })
-
-  function guardarSesion(token, recordar) {
-    saveToken(token, recordar)
-    setUsuario(usuarioDesdeToken(token))
-  }
+  // Al cargar la página, si había una sesión guardada, el usuario sigue logueado.
+  const [usuario, setUsuario] = useState(leerSesion)
 
   async function login(nombreUsuario, contrasenia, recordar) {
-    const { access_token } = await authApi.login(nombreUsuario, contrasenia)
-    guardarSesion(access_token, recordar)
+    const u = await authService.login(nombreUsuario, contrasenia)
+    guardarSesion(u, recordar)
+    setUsuario(u)
   }
 
   async function register(datos) {
-    const { access_token } = await authApi.register(datos)
-    guardarSesion(access_token, true)
+    const u = await authService.register(datos)
+    guardarSesion(u, true)
+    setUsuario(u)
   }
 
   function logout() {
-    clearToken()
+    borrarSesion()
     setUsuario(null)
   }
 

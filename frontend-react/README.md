@@ -10,9 +10,11 @@ npm install      # solo la primera vez
 npm run dev      # http://localhost:5173
 ```
 
-El backend (Spring Boot, puerto 8080) se levanta aparte. Vite reenvía todo lo que empieza con `/api`
-a `http://localhost:8080` (ver `vite.config.js`), así que no hace falta configurar CORS.
-Si el backend está apagado o no tiene animales cargados, el catálogo muestra datos de ejemplo.
+El front está **100% mockeado**: no se conecta al backend ni necesita Spring o MySQL corriendo.
+Los datos salen de `src/data/` a través de los servicios de `src/services/`, que simulan una API
+(responden con una pequeña demora). El login, el registro y el carrito se guardan en el `localStorage` del navegador.
+
+Usuario de demo: `marina` / `foquita123` (definido en `src/data/usuarios.js`).
 
 ## Scripts
 
@@ -27,7 +29,7 @@ Si el backend está apagado o no tiene animales cargados, el catálogo muestra d
 
 - `src/pages/` — una pantalla por URL (las rutas están en `src/App.jsx`)
 - `src/components/` — piezas compartidas (Header, Footer, Layout…)
-- `src/api/` — única capa que habla con Spring (`apiFetch` agrega el JWT y maneja errores)
+- `src/services/` — servicios mock (auth y animales): la única capa que las páginas usan para pedir datos
 - `src/context/` — sesión (`AuthContext`) y muelle/carrito (`MuelleContext`)
-- `src/data/` — imágenes y animales de ejemplo
+- `src/data/` — datos mock: animales, usuarios de demo e imágenes
 - `src/index.css` — Tailwind v4 y el tema del diseño (`@theme`)
