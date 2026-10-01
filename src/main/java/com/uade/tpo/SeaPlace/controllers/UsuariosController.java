@@ -45,4 +45,9 @@ public class UsuariosController {
         Usuario result = usuarioService.cambiarRol(usuarioId, request.getIdRol());
         return ResponseEntity.ok(UsuarioResponse.fromEntity(result));
     }
+
+    @DeleteMapping("/{usuarioId}") //se llama darDeBaja porque no se elimina el usuario, solo se desactiva
+    public ResponseEntity<UsuarioResponse> darDeBaja(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.darDeBaja(usuarioId)));
+    }
 }

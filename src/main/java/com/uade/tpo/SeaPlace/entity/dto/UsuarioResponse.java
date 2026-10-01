@@ -17,6 +17,7 @@ public class UsuarioResponse {
     private LocalDateTime fechaRegistro;
     private Long idRol;
     private String nombreRol;
+    private boolean activo;
 
     public static UsuarioResponse fromEntity(Usuario usuario) {
         UsuarioResponse r = new UsuarioResponse();
@@ -30,6 +31,7 @@ public class UsuarioResponse {
             r.setIdRol(usuario.getRol().getIdRol());
             r.setNombreRol(usuario.getRol().getNombreRol());
         }
+        r.setActivo(usuario.isActivo());
         return r;
     }
 }

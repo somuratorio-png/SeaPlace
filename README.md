@@ -60,9 +60,9 @@ INSERT IGNORE INTO rol (nombre_rol) VALUES ('administrador');
 
 ## Modelo de dominio
 
-14 entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Ubicacion_Animal`, `Descuento`, `Carrito`, `Carrito_Detalle`, `Compra`, `Compra_Detalle` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
+14 entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Ubicacion_Animal`, `Descuento`, `Muelle`, `Muelle_Detalle`, `Zarpar`, `Zarpar_Detalle` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
 
-Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela con `cuposTotales` y `cuposDisponibles` (Integer), no con un booleano de disponibilidad única. Los cupos se reservan al agregar al carrito (validado contra lo ya reservado) y se descuentan recién al confirmar la compra.
+Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela con `cuposTotales` y `cuposDisponibles` (Integer), no con un booleano de disponibilidad única. Al agregar al muelle se valida que la cantidad no supere los cupos disponibles, pero no se reservan; se descuentan recién al confirmar el zarpar, donde se vuelve a validar.
 
 ## Autenticación y roles
 
@@ -93,8 +93,8 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Fotos de animal | `/animales/{animalId}/fotos` | — |
 | Ubicaciones de animal | `/animales/{animalId}/ubicaciones` | incluye `/ultima` |
 | Descuentos | `/animales/{animalId}/descuentos` | — |
-| Carrito | `/carritos` | agregar/editar/quitar items |
-| Compras | `/compras` | genera la compra a partir del carrito |
+| Muelle | `/muelles` | agregar/editar/quitar items |
+| Zarpar | `/zarpar` | genera el zarpar a partir del muelle |
 | Usuarios | `/usuarios` | — |
 | Roles | `/roles` | solo admin |
 | Permisos | `/permisos` | solo admin |

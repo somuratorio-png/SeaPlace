@@ -24,16 +24,30 @@ public class RefugioServiceImpl implements RefugioService {
     @Autowired
     private UsuarioRepository usuarioRepository;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     private static final int LARGO_MAXIMO = 255;
 
     @Override
     public List<Refugio> getRefugios() {
-        return refugioRepository.findAll();
+        return refugioRepository.findAll().stream()
+                .filter(this::puedeVer)
+                .toList();
     }
 
     @Override
     public Optional<Refugio> getRefugioById(Long refugioId) {
-        return refugioRepository.findById(refugioId);
+        return refugioRepository.findById(refugioId).filter(this::puedeVer);
+    }
+
+    // Un refugio cuyo usuario esta dado de baja solo lo ve un admin;
+    // para el resto es como si no existiera (404 en el detalle).
+    private boolean puedeVer(Refugio refugio) {
+        if (refugio.getUsuario().isActivo()) {
+            return true;
+        }
+        return autorizacionService.usuarioActualONull() != null && autorizacionService.esAdmin();
     }
 
     @Override

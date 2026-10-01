@@ -32,6 +32,7 @@ public class AuthenticationService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final CuentaBajaService cuentaBajaService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         String nombre = ValidadorUsuarioService.textoObligatorio(request.getNombre(), "nombre");
@@ -39,6 +40,8 @@ public class AuthenticationService {
         String mail = ValidadorUsuarioService.mailValido(request.getMail());
         String nombreUsuario = ValidadorUsuarioService.nombreUsuarioValido(request.getNombreUsuario());
         ValidadorUsuarioService.validarContrasenia(request.getContrasenia());
+       
+        cuentaBajaService.liberarSiVencida(mail, nombreUsuario);
 
         if (usuarioRepository.existsByMail(mail)) {
             throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + mail);
@@ -73,6 +76,8 @@ public class AuthenticationService {
             throw new ReglaDeNegocioException("Debe indicar nombreUsuario y contrasenia");
         }
 
+        reactivarSiCorresponde(nombreUsuario, request.getContrasenia());
+
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         nombreUsuario,
@@ -83,5 +88,19 @@ public class AuthenticationService {
 
         var jwtToken = jwtService.generateToken(usuario);
         return AuthenticationResponse.builder().accessToken(jwtToken).build();
+    }
+
+
+    // Si la cuenta esta de baja pero dentro del plazo, entrar con la contrasenia
+    // correcta la reactiva. Con contrasenia incorrecta no cambia nada.
+    private void reactivarSiCorresponde(String nombreUsuario, String contrasenia) {
+        usuarioRepository.findByNombreUsuario(nombreUsuario).ifPresent(usuario -> {
+            if (!usuario.isActivo() && !usuario.bajaVencida()
+                    && passwordEncoder.matches(contrasenia, usuario.getContrasenia())) {
+                usuario.setActivo(true);
+                usuario.setFechaBaja(null);
+                usuarioRepository.save(usuario);
+            }
+        });
     }
 }

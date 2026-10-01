@@ -16,4 +16,6 @@ public interface UsuarioService {
     Usuario createUsuario(UsuarioRequest request);
 
     Usuario cambiarRol(Long usuarioId, Long idRol);
+
+    Usuario darDeBaja(Long usuarioId);
 }

@@ -2,6 +2,7 @@ package com.uade.tpo.SeaPlace.service;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -9,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.Usuario;
@@ -18,11 +20,15 @@ import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.repository.RolRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
 import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
+import com.uade.tpo.SeaPlace.entity.Animal;
+import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
     private static final String ROL_ADMINISTRADOR = "administrador";
+    private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
+    private static final String ESTADO_PUBLICACION_PAUSADA = "PAUSADA"; 
 
     @Autowired
     private UsuarioRepository usuarioRepository;
@@ -35,6 +41,12 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private AutorizacionService autorizacionService;
+
+    @Autowired
+    private AnimalRepository animalRepository;
+
+    @Autowired
+    private CuentaBajaService cuentaBajaService;
 
     @Override
     public Page<Usuario> getUsuarios(PageRequest pageRequest) {
@@ -65,7 +77,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         Rol rol = rolRepository.findById(request.getIdRol())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el rol con id " + request.getIdRol()));
-
+        
+        cuentaBajaService.liberarSiVencida(mail, nombreUsuario);
+        
         if (usuarioRepository.existsByMail(mail)) {
             throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + mail);
         }
@@ -111,5 +125,44 @@ public class UsuarioServiceImpl implements UsuarioService {
 
         usuario.setRol(rol);
         return usuarioRepository.save(usuario);
+    }
+
+    @Override
+    @Transactional
+    public Usuario darDeBaja(Long usuarioId) {
+        // Solo el propio usuario (o un admin) puede darlo de baja.
+        autorizacionService.validarPropietarioOAdmin(usuarioId);
+
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con id " + usuarioId));
+
+        if (usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_ADMINISTRADOR)) {
+            throw new ReglaDeNegocioException("No se puede dar de baja a un administrador");
+        }
+        if (!usuario.isActivo()) {
+            throw new ReglaDeNegocioException("El usuario ya esta dado de baja");
+        }
+
+        usuario.setFechaBaja(LocalDateTime.now());
+        usuario.setActivo(false);
+        pausarPublicaciones(usuario);
+        return usuarioRepository.save(usuario);
+    }
+
+    // Si el usuario administraba un refugio, sus publicaciones activas se pausan
+    // para que dejen de verse en el catalogo.
+    private void pausarPublicaciones(Usuario usuario) {
+        if (usuario.getRefugio() == null) {
+            return;
+        }
+
+        List<Animal> animales = animalRepository.findByRefugio_IdRefugio(usuario.getRefugio().getIdRefugio());
+        for (Animal animal : animales) {
+            if (ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
+                animal.setEstado(ESTADO_PUBLICACION_PAUSADA);
+            }
+        }
+        animalRepository.saveAll(animales);
     }
 }

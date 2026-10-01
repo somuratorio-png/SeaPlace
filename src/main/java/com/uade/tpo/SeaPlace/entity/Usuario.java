@@ -51,6 +51,12 @@ public class Usuario implements UserDetails {
     @Column(nullable = false)
     private LocalDateTime fechaRegistro;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    private boolean activo = true;
+
+    // Fecha de la baja: de ahi se cuenta el plazo para poder reactivar la cuenta.
+    private LocalDateTime fechaBaja;
+
     @OneToOne(mappedBy = "usuario")
     private Refugio refugio;
 
@@ -61,6 +67,14 @@ public class Usuario implements UserDetails {
     private List<Zarpar> zarpars;
 
     // --- Métodos de UserDetails (Spring Security) ---
+    
+    public static final int DIAS_PARA_REACTIVAR = 30;
+
+    // Cuenta de baja cuyo plazo para reactivarse ya paso.
+    public boolean bajaVencida() {
+        return !activo && fechaBaja != null
+                && fechaBaja.plusDays(DIAS_PARA_REACTIVAR).isBefore(LocalDateTime.now());
+    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -106,6 +120,6 @@ public class Usuario implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return activo;
     }
 }
