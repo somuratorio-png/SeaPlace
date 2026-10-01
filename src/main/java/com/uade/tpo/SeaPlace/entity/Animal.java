@@ -64,5 +64,5 @@ public class Animal {
     private List<MuelleDetalle> muelleDetalles;
 
     @OneToMany(mappedBy = "animal")
-    private List<ZarparDetalle> puertoDetalles;
+    private List<ZarparDetalle> zarparDetalles;
 }

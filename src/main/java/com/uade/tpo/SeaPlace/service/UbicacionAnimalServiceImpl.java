@@ -32,16 +32,19 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
     @Autowired
     private AutorizacionService autorizacionService;
 
-      @Override
+    @Override
     public List<UbicacionAnimal> getHistorial(Long animalId) {
-        if (!animalRepository.existsById(animalId)) {
-            throw new RecursoNoEncontradoException("No existe el animal con id " + animalId);
-        }
+        animalRepository.findById(animalId)
+            .filter(autorizacionService::puedeVerAnimal)
+            .orElseThrow(() -> new RecursoNoEncontradoException("No existe el animal con id " + animalId));
         return ubicacionAnimalRepository.findByAnimal_IdAnimalOrderByFechaHoraDesc(animalId);
     }
 
     @Override
     public Optional<UbicacionAnimal> getUltimaUbicacion(Long animalId) {
+        animalRepository.findById(animalId)
+                .filter(autorizacionService::puedeVerAnimal)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el animal con id " + animalId));
         return ubicacionAnimalRepository.findTopByAnimal_IdAnimalOrderByFechaHoraDesc(animalId);
     }
 

@@ -1,4 +1,4 @@
-// repository/CompraDetalleRepository.java
+
 package com.uade.tpo.SeaPlace.repository;
 
 import java.util.List;
@@ -10,6 +10,7 @@ import com.uade.tpo.SeaPlace.entity.ZarparDetalle;
 
 @Repository
 public interface ZarparDetalleRepository extends JpaRepository<ZarparDetalle, Long> {
+    //sirve para "mis ventas" del refugio(?
     List<ZarparDetalle> findByZarpar_IdZarpar(Long idZarpar);
 
     List<ZarparDetalle> findByAnimal_IdAnimal(Long idAnimal);

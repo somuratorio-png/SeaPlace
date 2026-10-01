@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -46,7 +47,8 @@ public class GlobalExceptionHandler {
 
     // JSON mal formado, body vacio o un tipo que no coincide (ej: "idAnimal": "abc"),
     // y ids de la url que no son numericos (ej: /animales/abc/fotos).
-    @ExceptionHandler({ HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class })
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
+        MissingServletRequestParameterException.class })
     public ResponseEntity<Object> handleRequestInvalido(Exception ex) {
         return construirRespuesta(HttpStatus.BAD_REQUEST,
                 "Solicitud invalida: revisa el formato del JSON y los parametros");

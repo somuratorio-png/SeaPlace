@@ -5,7 +5,6 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,9 +25,7 @@ public class UsuariosController {
     public ResponseEntity<Page<UsuarioResponse>> getUsuarios(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        if (page == null || size == null)
-            return ResponseEntity.ok(usuarioService.getUsuarios(PageRequest.of(0, Integer.MAX_VALUE)).map(UsuarioResponse::fromEntity));
-        return ResponseEntity.ok(usuarioService.getUsuarios(PageRequest.of(page, size)).map(UsuarioResponse::fromEntity));
+       return ResponseEntity.ok(usuarioService.getUsuarios(Paginacion.armar(page, size)).map(UsuarioResponse::fromEntity));
     }
 
     @GetMapping("/{usuarioId}")

@@ -80,6 +80,13 @@ public class ZarparServiceImpl implements ZarparService {
     @Override
     @Transactional
     public Zarpar confirmarZarpar(ZarparRequest request) {
+        if (request.getIdUsuario() == null) {
+            throw new ReglaDeNegocioException("El campo 'idUsuario' es obligatorio");
+        }
+        if (request.getIdMuelle() == null) {
+            throw new ReglaDeNegocioException("El campo 'idMuelle' es obligatorio");
+        }
+
         // El usuario solo puede confirmar compras a su propio nombre (o un admin, en nombre
         // de cualquiera).
         autorizacionService.validarPropietarioOAdmin(request.getIdUsuario());

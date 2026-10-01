@@ -31,9 +31,9 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
 
     @Override
     public List<FotoAnimal> getFotosByAnimal(Long animalId) {
-        if (!animalRepository.existsById(animalId)) {
-            throw new RecursoNoEncontradoException("No existe el animal con id " + animalId);
-        }
+        animalRepository.findById(animalId)
+            .filter(autorizacionService::puedeVerAnimal)
+            .orElseThrow(() -> new RecursoNoEncontradoException("No existe el animal con id " + animalId));
         return fotoAnimalRepository.findByAnimal_IdAnimalOrderByOrdenAsc(animalId);
     }
 

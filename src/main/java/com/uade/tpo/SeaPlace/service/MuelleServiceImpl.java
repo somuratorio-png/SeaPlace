@@ -62,6 +62,12 @@ public class MuelleServiceImpl implements MuelleService {
 
     @Override
     public MuelleDetalle agregarItem(MuelleDetalleRequest request) {
+        if (request.getIdMuelle() == null) {
+            throw new ReglaDeNegocioException("El campo 'idMuelle' es obligatorio");
+        }
+        if (request.getIdAnimal() == null) {
+            throw new ReglaDeNegocioException("El campo 'idAnimal' es obligatorio");
+        }
         if (request.getCantidad() == null || request.getCantidad() <= 0) {
             throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
@@ -72,6 +78,10 @@ public class MuelleServiceImpl implements MuelleService {
 
         // Solo el dueño del carrito (o un admin) puede agregarle items.
         autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
+
+        if (!ESTADO_MUELLE_ACTIVO.equals(muelle.getEstado())) {
+            throw new ReglaDeNegocioException("El muelle ya fue confirmado o no esta activo");
+        }
 
         Animal animal = animalRepository.findById(request.getIdAnimal())
                 .orElseThrow(() -> new RecursoNoEncontradoException(

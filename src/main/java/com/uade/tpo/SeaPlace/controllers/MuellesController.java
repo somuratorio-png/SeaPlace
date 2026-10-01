@@ -19,9 +19,9 @@ public class MuellesController {
     @Autowired
     private MuelleService muelleService;
 
-    // carrito activo del usuario logueado (o el que se pase por param, mientras no haya login)
+    // muelle activo del usuario logueado (o el que se pase por param, mientras no haya login)
     @GetMapping
-    public ResponseEntity<MuelleResponse> getCarritoActivo(@RequestParam Long idUsuario) {
+    public ResponseEntity<MuelleResponse> getMuelleActivo(@RequestParam Long idUsuario) {
         return ResponseEntity.ok(MuelleResponse.fromEntity(muelleService.getOrCreateMuelleActivo(idUsuario)));
     }
 

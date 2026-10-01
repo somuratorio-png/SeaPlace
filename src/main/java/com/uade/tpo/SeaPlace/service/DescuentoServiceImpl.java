@@ -27,11 +27,18 @@ public class DescuentoServiceImpl implements DescuentoService {
 
     @Override
     public List<Descuento> getDescuentosActivos(Long animalId) {
+        animalRepository.findById(animalId)
+                .filter(autorizacionService::puedeVerAnimal)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el animal con id " + animalId));
         return descuentoRepository.findByAnimal_IdAnimalAndActivoTrue(animalId);
     }
 
     @Override
     public Descuento createDescuento(DescuentoRequest request) {
+        if (request.getIdAnimal() == null) {
+            throw new ReglaDeNegocioException("El campo 'idAnimal' es obligatorio");
+        }
+        
         Animal animal = animalRepository.findById(request.getIdAnimal())
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));

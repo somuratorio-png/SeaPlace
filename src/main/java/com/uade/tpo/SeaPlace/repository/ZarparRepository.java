@@ -1,4 +1,3 @@
-// repository/CompraRepository.java
 package com.uade.tpo.SeaPlace.repository;
 
 import org.springframework.data.domain.Page;
@@ -11,6 +10,4 @@ import com.uade.tpo.SeaPlace.entity.Zarpar;
 @Repository
 public interface ZarparRepository extends JpaRepository<Zarpar, Long> {
     Page<Zarpar> findByUsuario_IdUsuario(Long idUsuario, Pageable pageable);
-
-    Page<Zarpar> findByUsuario_IdUsuarioAndEstado(Long idUsuario, String estado, Pageable pageable);
 }

@@ -26,9 +26,7 @@ public class ZarparsController {
             @RequestParam Long idUsuario,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-        PageRequest pageRequest = (page == null || size == null)
-                ? PageRequest.of(0, Integer.MAX_VALUE)
-                : PageRequest.of(page, size);
+        PageRequest pageRequest = Paginacion.armar(page, size);
         return ResponseEntity.ok(zarparService.getZarparsByUsuario(idUsuario, pageRequest).map(ZarparResponse::fromEntity));
     }
 

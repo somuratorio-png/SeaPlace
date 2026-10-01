@@ -6,9 +6,10 @@ import org.springframework.stereotype.Component;
 
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.Usuario;
+import com.uade.tpo.SeaPlace.entity.Animal;
 
 // Centraliza las reglas de "quien puede tocar que": la usan varios services
-// (Animal, FotoAnimal, Descuento, UbicacionAnimal, Carrito, Compra) para no repetir
+// (Animal, FotoAnimal, Descuento, UbicacionAnimal, Muelle, Zarpar) para no repetir
 // la misma logica de admin-vs-dueno en cada uno.
 @Component
 public class AutorizacionService {
@@ -18,9 +19,36 @@ public class AutorizacionService {
     public Usuario usuarioActual() {
         return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
+    
+    // Devuelve el usuario logueado, o null si la request no trae token (rutas publicas).
+    public Usuario usuarioActualONull() {
+        var autenticacion = SecurityContextHolder.getContext().getAuthentication();
+        if (autenticacion != null && autenticacion.getPrincipal() instanceof Usuario usuario) {
+            return usuario;
+        }
+        return null;
+    }
 
     public boolean esAdmin() {
         return usuarioActual().getRol().getNombreRol().equalsIgnoreCase(ROL_ADMINISTRADOR);
+    }
+
+    // Una publicacion ACTIVA la ve cualquiera. Una no activa solo la ve un admin o,
+    // si esta PAUSADA, el dueño de su refugio.
+    public boolean puedeVerAnimal(Animal animal) {
+        if ("ACTIVA".equals(animal.getEstado())) {
+            return true;
+        }
+        Usuario actual = usuarioActualONull();
+        if (actual == null) {
+            return false;
+        }
+        if (esAdmin()) {
+            return true;
+        }
+        return "PAUSADA".equals(animal.getEstado())
+                && actual.getRefugio() != null
+                && actual.getRefugio().getIdRefugio().equals(animal.getRefugio().getIdRefugio());
     }
 
     // Un ADMINISTRADOR puede gestionar cualquier animal. Un refugio (no admin) solo puede

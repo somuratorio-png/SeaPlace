@@ -28,12 +28,12 @@ public class AnimalesController {
             @RequestParam(required = false) Integer size,
             @RequestParam(required = false) String estado,
             @RequestParam(required = false) Long idCategoria,
+            @RequestParam(required = false) Long idRefugio,
             @RequestParam(required = false) Double precioMin,
-            @RequestParam(required = false) Double precioMax) {
-        PageRequest pageRequest = (page == null || size == null)
-                ? PageRequest.of(0, Integer.MAX_VALUE)
-                : PageRequest.of(page, size);
-        return ResponseEntity.ok(animalService.getAnimales(estado, idCategoria, precioMin, precioMax, pageRequest).map(AnimalResponse::fromEntity));
+            @RequestParam(required = false) Double precioMax,
+            @RequestParam(required = false) String nombre) {
+        PageRequest pageRequest = Paginacion.armar(page, size);
+        return ResponseEntity.ok(animalService.getAnimales(estado, idCategoria, idRefugio, precioMin, precioMax, nombre, pageRequest).map(AnimalResponse::fromEntity));
     }
 
     @GetMapping("/{animalId}")
