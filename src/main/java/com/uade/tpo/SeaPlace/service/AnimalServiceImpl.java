@@ -98,9 +98,8 @@ public class AnimalServiceImpl implements AnimalService {
         if (request.getIdCategoria() == null) {
             throw new ReglaDeNegocioException("El campo 'idCategoria' es obligatorio");
         }
-        if (request.getIdRefugio() == null) {
-            throw new ReglaDeNegocioException("El campo 'idRefugio' es obligatorio");
-        }
+
+        Long idRefugio = resolverIdRefugio(request.getIdRefugio());
 
         String nombreAnimal = request.getNombreAnimal() == null ? "" : request.getNombreAnimal().trim();
         if (nombreAnimal.isEmpty()) {
@@ -115,9 +114,9 @@ public class AnimalServiceImpl implements AnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe la categoria con id " + request.getIdCategoria()));
 
-        Refugio refugio = refugioRepository.findById(request.getIdRefugio())
+        Refugio refugio = refugioRepository.findById(idRefugio)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe el refugio con id " + request.getIdRefugio()));
+                        "No existe el refugio con id " + idRefugio));
 
         autorizacionService.validarPermisoSobreRefugio(refugio.getIdRefugio());
 
@@ -141,6 +140,19 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setFechaPublicacion(LocalDateTime.now());
 
         return animalRepository.save(animal);
+    }
+
+    // Un dueño de refugio no manda idRefugio: se usa el de su cuenta (el del token).
+    // Un admin, que no tiene refugio propio, tiene que indicar para cuál publica.
+    private Long resolverIdRefugio(Long idRefugioPedido) {
+        if (idRefugioPedido != null) {
+            return idRefugioPedido;
+        }
+        Refugio refugioPropio = autorizacionService.usuarioActual().getRefugio();
+        if (refugioPropio == null) {
+            throw new ReglaDeNegocioException("El campo 'idRefugio' es obligatorio");
+        }
+        return refugioPropio.getIdRefugio();
     }
 
     @Override

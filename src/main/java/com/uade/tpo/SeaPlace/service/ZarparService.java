@@ -13,5 +13,5 @@ public interface ZarparService {
 
     Optional<Zarpar> getZarparById(Long zarparId);
 
-    Zarpar confirmarZarpar(ZarparRequest request);
+    Zarpar confirmarZarpar(Long idUsuario, ZarparRequest request);
 }

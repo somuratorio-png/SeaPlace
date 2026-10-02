@@ -11,6 +11,7 @@ import com.uade.tpo.SeaPlace.entity.dto.MuelleDetalleRequest;
 import com.uade.tpo.SeaPlace.entity.dto.MuelleDetalleResponse;
 import com.uade.tpo.SeaPlace.entity.dto.MuelleResponse;
 import com.uade.tpo.SeaPlace.service.MuelleService;
+import com.uade.tpo.SeaPlace.service.AutorizacionService;
 
 @RestController
 @RequestMapping("muelles")
@@ -19,10 +20,14 @@ public class MuellesController {
     @Autowired
     private MuelleService muelleService;
 
-    // muelle activo del usuario logueado (o el que se pase por param, mientras no haya login)
+    @Autowired
+    private AutorizacionService autorizacionService;
+
+    // muelle activo del usuario logueado (el del token)
     @GetMapping
-    public ResponseEntity<MuelleResponse> getMuelleActivo(@RequestParam Long idUsuario) {
-        return ResponseEntity.ok(MuelleResponse.fromEntity(muelleService.getOrCreateMuelleActivo(idUsuario)));
+    public ResponseEntity<MuelleResponse> getMuelleActivo() {
+        return ResponseEntity.ok(MuelleResponse.fromEntity(
+                muelleService.getOrCreateMuelleActivo(autorizacionService.idUsuarioActual())));
     }
 
     @PostMapping("/items")

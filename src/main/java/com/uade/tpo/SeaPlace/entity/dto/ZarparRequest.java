@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class ZarparRequest {
-    private Long idUsuario;
     private Long idMuelle;
-    // fechaCompra, total, estado y el detalle los arma el service en base al Carrito
+    // fechaZarpar, total, estado y el detalle los arma el service en base al muelle
 }

@@ -79,21 +79,18 @@ public class ZarparServiceImpl implements ZarparService {
 
     @Override
     @Transactional
-    public Zarpar confirmarZarpar(ZarparRequest request) {
-        if (request.getIdUsuario() == null) {
-            throw new ReglaDeNegocioException("El campo 'idUsuario' es obligatorio");
-        }
+    public Zarpar confirmarZarpar(Long idUsuario, ZarparRequest request) {
         if (request.getIdMuelle() == null) {
             throw new ReglaDeNegocioException("El campo 'idMuelle' es obligatorio");
         }
 
-        // El usuario solo puede confirmar compras a su propio nombre (o un admin, en nombre
+        // El usuario solo puede confirmar zarpar a su propio nombre (o un admin, en nombre
         // de cualquiera).
-        autorizacionService.validarPropietarioOAdmin(request.getIdUsuario());
+        autorizacionService.validarPropietarioOAdmin(idUsuario);
 
-        Usuario usuario = usuarioRepository.findById(request.getIdUsuario())
+        Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
-                        "No existe el usuario con id " + request.getIdUsuario()));
+                        "No existe el usuario con id " + idUsuario));
 
         Muelle muelle = muelleRepository.findById(request.getIdMuelle())
                 .orElseThrow(() -> new RecursoNoEncontradoException(

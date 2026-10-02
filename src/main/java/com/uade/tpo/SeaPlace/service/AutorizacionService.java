@@ -20,6 +20,11 @@ public class AutorizacionService {
         return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
     }
     
+    // Id del usuario logueado (el del token).
+    public Long idUsuarioActual() {
+        return usuarioActual().getIdUsuario();
+    }
+
     // Devuelve el usuario logueado, o null si la request no trae token (rutas publicas).
     public Usuario usuarioActualONull() {
         var autenticacion = SecurityContextHolder.getContext().getAuthentication();

@@ -13,6 +13,7 @@ import com.uade.tpo.SeaPlace.entity.Zarpar;
 import com.uade.tpo.SeaPlace.entity.dto.ZarparRequest;
 import com.uade.tpo.SeaPlace.entity.dto.ZarparResponse;
 import com.uade.tpo.SeaPlace.service.ZarparService;
+import com.uade.tpo.SeaPlace.service.AutorizacionService;
 
 @RestController
 @RequestMapping("zarpar")
@@ -21,13 +22,17 @@ public class ZarparsController {
     @Autowired
     private ZarparService zarparService;
 
+    @Autowired
+    private AutorizacionService autorizacionService;
+
     @GetMapping
     public ResponseEntity<Page<ZarparResponse>> getZarpars(
-            @RequestParam Long idUsuario,
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         PageRequest pageRequest = Paginacion.armar(page, size);
-        return ResponseEntity.ok(zarparService.getZarparsByUsuario(idUsuario, pageRequest).map(ZarparResponse::fromEntity));
+        return ResponseEntity.ok(zarparService
+                .getZarparsByUsuario(autorizacionService.idUsuarioActual(), pageRequest)
+                .map(ZarparResponse::fromEntity));
     }
 
     @GetMapping("/{zarparId}")
@@ -39,7 +44,7 @@ public class ZarparsController {
     // confirma la compra a partir del carrito (acá vive la lógica: valida disponibilidad, aplica descuentos, arma el detalle)
     @PostMapping
     public ResponseEntity<ZarparResponse> confirmarZarpar(@RequestBody ZarparRequest request) {
-        Zarpar result = zarparService.confirmarZarpar(request);
+        Zarpar result = zarparService.confirmarZarpar(autorizacionService.idUsuarioActual(), request);
         return ResponseEntity.created(URI.create("/zarpar/" + result.getIdZarpar())).body(ZarparResponse.fromEntity(result));
     }
 }
