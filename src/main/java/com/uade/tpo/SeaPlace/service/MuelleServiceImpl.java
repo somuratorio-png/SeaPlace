@@ -7,6 +7,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.access.AccessDeniedException;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Muelle;
@@ -25,6 +26,7 @@ public class MuelleServiceImpl implements MuelleService {
 
     private static final String ESTADO_MUELLE_ACTIVO = "ACTIVO";
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
+    private static final String ROL_REFUGIO = "refugio";
 
     @Autowired
     private MuelleRepository muelleRepository;
@@ -49,6 +51,11 @@ public class MuelleServiceImpl implements MuelleService {
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
+        
+        // Una cuenta de refugio administra animales, no los apadrina.
+        if (usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_REFUGIO)) {
+            throw new AccessDeniedException("Una cuenta de refugio no puede apadrinar animales");
+        }           
 
         return muelleRepository.findByUsuario_IdUsuarioAndEstado(idUsuario, ESTADO_MUELLE_ACTIVO)
                 .orElseGet(() -> {

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.AccessDeniedException;   
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Categoria;
@@ -18,6 +19,9 @@ public class CategoriaServiceImpl implements CategoriaService {
     @Autowired
     private CategoriaRepository categoriaRepository;
 
+    @Autowired                                                      
+    private AutorizacionService autorizacionService;                
+
     @Override
     public List<Categoria> getCategorias() {
         return categoriaRepository.findAll();
@@ -30,6 +34,10 @@ public class CategoriaServiceImpl implements CategoriaService {
 
     @Override
     public Categoria createCategoria(CategoriaRequest request) {
+        if (!autorizacionService.esAdmin()) {                                           
+            throw new AccessDeniedException("No tenes permiso para crear categorias");  
+        }                                                                               
+
         String nombreCategoria = request.getNombreCategoria() == null ? "" : request.getNombreCategoria().trim();
         if (nombreCategoria.isEmpty()) {
             throw new ReglaDeNegocioException("El nombre de la categoria es obligatorio");

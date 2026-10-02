@@ -1,5 +1,6 @@
-INSERT IGNORE INTO rol (nombre_rol) VALUES ('comprador');
+INSERT IGNORE INTO rol (nombre_rol) VALUES ('padrino');
 INSERT IGNORE INTO rol (nombre_rol) VALUES ('administrador');
+INSERT IGNORE INTO rol (nombre_rol) VALUES ('duenioRefugio');
 
 INSERT IGNORE INTO permiso (nombre_permiso, descripcion) VALUES ('GESTIONAR_ROLES', 'Crear roles y permisos, y asignar permisos a un rol');
 INSERT IGNORE INTO permiso (nombre_permiso, descripcion) VALUES ('GESTIONAR_REFUGIOS', 'Dar de alta un refugio nuevo');

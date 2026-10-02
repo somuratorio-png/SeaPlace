@@ -54,8 +54,9 @@ La app levanta por defecto en `http://localhost:8080`.
 Al arrancar, `data.sql` siembra los roles base:
 
 ```sql
-INSERT IGNORE INTO rol (nombre_rol) VALUES ('comprador');
+INSERT IGNORE INTO rol (nombre_rol) VALUES ('padrino');
 INSERT IGNORE INTO rol (nombre_rol) VALUES ('administrador');
+INSERT IGNORE INTO rol (nombre_rol) VALUES ('refugio');
 ```
 
 ## Modelo de dominio
@@ -66,27 +67,41 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 
 ## Autenticación y roles
 
-- Login vía JWT. Endpoints públicos: `POST /auth/register` y `POST /auth/authenticate`.
-- Todo usuario registrado por `/auth/register` recibe el rol `comprador` por defecto.
-- Para tener un usuario `administrador` hoy en día hace falta actualizarlo manualmente en la base (no hay endpoint para cambiar de rol todavía).
+- Login vía JWT. Endpoints públicos: `POST /auth/register`, `POST /auth/register-refugio` y `POST /auth/authenticate`.
+- Hay tres roles: `padrino` (apadrina animales), `duenioRefugio` (administra su refugio y publica animales, pero no puede apadrinar) y `administrador`.
+- `/auth/register` crea un usuario con rol `padrino`. `/auth/register-refugio` crea, en un solo paso, un usuario con rol `refugio` junto con su refugio (si algo falla, no se guarda nada).
+- El primer `administrador` hay que asignarlo a mano en la base. A partir de ahí, un administrador puede cambiar el rol de cualquier usuario con `PUT /usuarios/{usuarioId}/rol` (el sistema no deja al último administrador sin su rol).
 - Las autoridades de Spring Security se arman como `ROLE_<NOMBRE_ROL_EN_MAYUSCULAS>` a partir del rol del usuario.
+
+### Baja de usuarios
+
+- `DELETE /usuarios/{usuarioId}` no borra nada: deja la cuenta inactiva. Lo puede hacer el propio usuario o un administrador, y no se puede dar de baja a un administrador.
+- Una cuenta inactiva no puede iniciar sesión y su token deja de servir. Si era dueño de un refugio, sus animales activos pasan a `PAUSADA` y el refugio deja de listarse (solo lo ve un administrador).
+- Durante 30 días, volver a iniciar sesión con la contraseña correcta reactiva la cuenta (los animales pausados se republican a mano).
+- Pasados los 30 días la cuenta ya no se recupera: cuando alguien se registra con ese mail o nombre de usuario, a la cuenta vieja se le cambian por `eliminado-<id>` y quedan libres. Las filas no se borran, así se conserva el historial.
 
 ### Reglas de autorización
 
 | Recurso | Método | Acceso |
 |---|---|---|
 | `/auth/**` | POST | Público |
-| `/animales/**`, `/refugios/**`, `/categorias/**` | GET | Público |
-| `/animales/**` | POST / PUT / DELETE | `ADMINISTRADOR` |
-| `/refugios/**` | POST | `ADMINISTRADOR` |
-| `/permisos/**`, `/roles/**` | Todos | `ADMINISTRADOR` |
+| `/animales/**`, `/refugios/**`, `/categorias/**` | GET | Público (de los animales, solo las publicaciones activas; el dueño del refugio ve además sus pausadas y el administrador ve todas) |
+| `/animales/**` | POST / PUT / DELETE | Autenticado: el administrador o el dueño del refugio del animal (incluye fotos, ubicaciones y descuentos) |
+| `/refugios/**` | POST | `GESTIONAR_REFUGIOS` (administrador) |
+| `/categorias/**` | POST | Administrador |
+| `/permisos/**`, `/roles/**` | Todos | `GESTIONAR_ROLES` (administrador) |
+| `/usuarios/**` | GET | `GESTIONAR_USUARIOS` (administrador) |
+| `/usuarios` | POST | Administrador |
+| `/usuarios/{usuarioId}/rol` | PUT | `GESTIONAR_USUARIOS` (administrador) |
+| `/usuarios/{usuarioId}` | DELETE | El propio usuario o un administrador (no se puede dar de baja a un administrador) |
+| `/muelles/**`, `/zarpar/**` | Todos | Autenticado; cada usuario solo accede a lo suyo y los usuarios con rol `refugio` no pueden usarlos |
 | Cualquier otro endpoint | — | Requiere estar autenticado |
 
 ## Endpoints principales
 
 | Recurso | Base path | Notas |
 |---|---|---|
-| Auth | `/auth` | `register`, `authenticate` |
+| Auth | `/auth` | `register`, `register-refugio`, `authenticate` |
 | Animales | `/animales` | CRUD, GET público |
 | Refugios | `/refugios` | GET público, POST admin |
 | Categorías | `/categorias` | GET público, POST admin |
@@ -95,7 +110,7 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Descuentos | `/animales/{animalId}/descuentos` | — |
 | Muelle | `/muelles` | agregar/editar/quitar items |
 | Zarpar | `/zarpar` | genera el zarpar a partir del muelle |
-| Usuarios | `/usuarios` | — |
+| Usuarios | `/usuarios` | alta (admin), baja (`DELETE`), cambio de rol (admin) |
 | Roles | `/roles` | solo admin |
 | Permisos | `/permisos` | solo admin |
 
