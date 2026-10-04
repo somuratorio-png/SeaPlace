@@ -91,6 +91,8 @@ public class ZarparServiceImpl implements ZarparService {
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
+        
+        autorizacionService.validarPuedeApadrinar(usuario);
 
         Muelle muelle = muelleRepository.findById(request.getIdMuelle())
                 .orElseThrow(() -> new RecursoNoEncontradoException(

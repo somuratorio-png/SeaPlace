@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.Usuario;
@@ -14,6 +15,8 @@ import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
 import com.uade.tpo.SeaPlace.repository.RefugioRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
+import com.uade.tpo.SeaPlace.entity.Rol;
+import com.uade.tpo.SeaPlace.repository.RolRepository;
 
 @Service
 public class RefugioServiceImpl implements RefugioService {
@@ -27,7 +30,12 @@ public class RefugioServiceImpl implements RefugioService {
     @Autowired
     private AutorizacionService autorizacionService;
 
+    @Autowired
+    private RolRepository rolRepository;
+
     private static final int LARGO_MAXIMO = 255;
+    private static final String ROL_PADRINO = "padrino";
+    private static final String ROL_REFUGIO = "refugio";
 
     @Override
     public List<Refugio> getRefugios() {
@@ -51,6 +59,7 @@ public class RefugioServiceImpl implements RefugioService {
     }
 
     @Override
+    @Transactional
     public Refugio createRefugio(RefugioRequest request) {
         if (request.getIdUsuario() == null) {
             throw new ReglaDeNegocioException("Debe indicar el usuario que administra el refugio");
@@ -85,6 +94,16 @@ public class RefugioServiceImpl implements RefugioService {
         // Dos refugios con el mismo nombre se confundirian en el catalogo.
         if (refugioRepository.findByNombreRefugio(nombreRefugio).isPresent()) {
             throw new RecursoDuplicadoException("Ya existe un refugio con el nombre " + nombreRefugio);
+        }
+
+        // Una cuenta de refugio administra animales, no los apadrina: si el usuario era
+        // padrino, pasa a tener el rol refugio (un administrador conserva el suyo).
+        if (usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_PADRINO)) {
+            Rol rolRefugio = rolRepository.findByNombreRol(ROL_REFUGIO)
+                    .orElseThrow(() -> new RecursoNoEncontradoException(
+                            "No existe el rol '" + ROL_REFUGIO + "'"));
+            usuario.setRol(rolRefugio);
+            usuarioRepository.save(usuario);
         }
 
         Refugio refugio = new Refugio();

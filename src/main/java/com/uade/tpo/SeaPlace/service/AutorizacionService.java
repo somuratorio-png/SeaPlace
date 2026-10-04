@@ -15,6 +15,7 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 public class AutorizacionService {
 
     private static final String ROL_ADMINISTRADOR = "administrador";
+    private static final String ROL_REFUGIO = "refugio";
 
     public Usuario usuarioActual() {
         return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -80,6 +81,13 @@ public class AutorizacionService {
 
         if (!usuarioActual().getIdUsuario().equals(idUsuarioDueño)) {
             throw new AccessDeniedException("No tenes permiso para acceder a este recurso");
+        }
+    }
+
+    // Una cuenta de refugio administra animales, no los apadrina.
+    public void validarPuedeApadrinar(Usuario usuario) {
+        if (usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_REFUGIO)) {
+            throw new AccessDeniedException("Una cuenta de refugio no puede apadrinar animales");
         }
     }
 }
