@@ -31,6 +31,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/animales/**", "/refugios/**", "/categorias/**").permitAll()
                         .requestMatchers("/permisos/**", "/roles/**").hasAuthority("GESTIONAR_ROLES")
                         .requestMatchers(HttpMethod.POST, "/refugios/**").hasAuthority("GESTIONAR_REFUGIOS")
+                        .requestMatchers(HttpMethod.GET, "/usuarios/me").authenticated()
                         .requestMatchers(HttpMethod.GET, "/usuarios/**").hasAuthority("GESTIONAR_USUARIOS")
                         .requestMatchers(HttpMethod.PUT, "/usuarios/*/rol").hasAuthority("GESTIONAR_USUARIOS")
                         .anyRequest().authenticated())

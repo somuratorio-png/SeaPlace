@@ -57,6 +57,10 @@ public class Usuario implements UserDetails {
     // Fecha de la baja: de ahi se cuenta el plazo para poder reactivar la cuenta.
     private LocalDateTime fechaBaja;
 
+    // Recuperacion de contrasenia: el codigo se guarda encriptado, junto con hasta cuando sirve.
+    private String codigoRecuperacion;
+    private LocalDateTime codigoRecuperacionVence;
+
     @OneToOne(mappedBy = "usuario")
     private Refugio refugio;
 

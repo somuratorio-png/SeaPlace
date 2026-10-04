@@ -67,7 +67,7 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 
 ## Autenticación y roles
 
-- Login vía JWT. Endpoints públicos: `POST /auth/register`, `POST /auth/register-refugio` y `POST /auth/authenticate`.
+- Login vía JWT. Endpoints públicos: `POST /auth/register`, `POST /auth/register-refugio`, `POST /auth/authenticate`, `POST /auth/olvide-contrasenia` y `POST /auth/restablecer-contrasenia`.
 - Hay tres roles: `padrino` (apadrina animales), `duenioRefugio` (administra su refugio y publica animales, pero no puede apadrinar) y `administrador`.
 - `/auth/register` crea un usuario con rol `padrino`. `/auth/register-refugio` crea, en un solo paso, un usuario con rol `refugio` junto con su refugio (si algo falla, no se guarda nada).
 - El primer `administrador` hay que asignarlo a mano en la base. A partir de ahí, un administrador puede cambiar el rol de cualquier usuario con `PUT /usuarios/{usuarioId}/rol` (el sistema no deja al último administrador sin su rol).
@@ -79,6 +79,14 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 - Una cuenta inactiva no puede iniciar sesión y su token deja de servir. Si era dueño de un refugio, sus animales activos pasan a `PAUSADA` y el refugio deja de listarse (solo lo ve un administrador).
 - Durante 30 días, volver a iniciar sesión con la contraseña correcta reactiva la cuenta (los animales pausados se republican a mano).
 - Pasados los 30 días la cuenta ya no se recupera: cuando alguien se registra con ese mail o nombre de usuario, a la cuenta vieja se le cambian por `eliminado-<id>` y quedan libres. Las filas no se borran, así se conserva el historial.
+
+### Perfil y recuperación de contraseña
+
+- `GET /usuarios/me` devuelve los datos del usuario logueado (sin la contraseña) y `PUT /usuarios/me` modifica su nombre, apellido y mail. El nombre de usuario no se puede cambiar (es el que lleva el token), y el rol y el estado de la cuenta tampoco: eso lo hace un administrador o la baja.
+- `PUT /usuarios/me/contrasenia` cambia la contraseña del usuario logueado: hay que mandar la actual y la nueva (distinta de la actual y con el mínimo de caracteres).
+- Si el usuario olvidó su contraseña: `POST /auth/olvide-contrasenia` con su mail genera un código de un solo uso que vence a los 5 minutos, y `POST /auth/restablecer-contrasenia` con el mail, el código y la contraseña nueva la cambia.
+- El código se guarda encriptado. La respuesta de `olvide-contrasenia` es siempre la misma exista o no el mail, y los errores de `restablecer-contrasenia` usan un solo mensaje, para no revelar qué mails están registrados.
+- El proyecto no envía mails reales: el "mail" con el código se imprime en la consola del servidor.
 
 ### Reglas de autorización
 
@@ -94,6 +102,9 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | `/usuarios` | POST | Administrador |
 | `/usuarios/{usuarioId}/rol` | PUT | `GESTIONAR_USUARIOS` (administrador) |
 | `/usuarios/{usuarioId}` | DELETE | El propio usuario o un administrador (no se puede dar de baja a un administrador) |
+| `/usuarios/me` | GET | Autenticado: devuelve los datos del propio usuario |
+| `/usuarios/me` | PUT | Autenticado: modifica nombre, apellido y mail del propio usuario (no el nombre de usuario, el rol ni el estado de la cuenta) |
+| `/usuarios/me/contrasenia` | PUT | Autenticado: cambia la contraseña del propio usuario (requiere la actual) |
 | `/muelles/**`, `/zarpar/**` | Todos | Autenticado; cada usuario solo accede a lo suyo y los usuarios con rol `refugio` no pueden usarlos |
 | Cualquier otro endpoint | — | Requiere estar autenticado |
 
@@ -101,7 +112,7 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 
 | Recurso | Base path | Notas |
 |---|---|---|
-| Auth | `/auth` | `register`, `register-refugio`, `authenticate` |
+| Auth | `/auth` | `register`, `register-refugio`, `authenticate`, `olvide-contrasenia`, `restablecer-contrasenia` |
 | Animales | `/animales` | CRUD, GET público |
 | Refugios | `/refugios` | GET público, POST admin |
 | Categorías | `/categorias` | GET público, POST admin |
@@ -110,7 +121,7 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Descuentos | `/animales/{animalId}/descuentos` | — |
 | Muelle | `/muelles` | agregar/editar/quitar items |
 | Zarpar | `/zarpar` | genera el zarpar a partir del muelle |
-| Usuarios | `/usuarios` | alta (admin), baja (`DELETE`), cambio de rol (admin) |
+| Usuarios | `/usuarios` | alta (admin), baja (`DELETE`), cambio de rol (admin), ver y modificar el propio perfil (`GET` y `PUT /usuarios/me`), cambiar la propia contraseña (`PUT /usuarios/me/contrasenia`) |
 | Roles | `/roles` | solo admin |
 | Permisos | `/permisos` | solo admin |
 

@@ -7,6 +7,8 @@ import org.springframework.data.domain.PageRequest;
 
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioRequest;
+import com.uade.tpo.SeaPlace.entity.dto.UsuarioPerfilRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CambiarContraseniaRequest;
 
 public interface UsuarioService {
     Page<Usuario> getUsuarios(PageRequest pageRequest);
@@ -18,4 +20,10 @@ public interface UsuarioService {
     Usuario cambiarRol(Long usuarioId, Long idRol);
 
     Usuario darDeBaja(Long usuarioId);
+
+    Usuario modificarMiPerfil(UsuarioPerfilRequest request);
+
+    Usuario getMiPerfil();
+
+    void cambiarMiContrasenia(CambiarContraseniaRequest request);
 }

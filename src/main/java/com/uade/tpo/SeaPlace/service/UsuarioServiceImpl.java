@@ -22,6 +22,8 @@ import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
 import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
+import com.uade.tpo.SeaPlace.entity.dto.UsuarioPerfilRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CambiarContraseniaRequest;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
@@ -164,5 +166,66 @@ public class UsuarioServiceImpl implements UsuarioService {
             }
         }
         animalRepository.saveAll(animales);
+    }
+
+    @Override
+    public Usuario modificarMiPerfil(UsuarioPerfilRequest request) {
+        Long idUsuario = autorizacionService.idUsuarioActual();
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con id " + idUsuario));
+
+        // Solo se cambia lo que viene en el pedido. El nombre de usuario (que es el que lleva
+        // el token), el rol y el estado de la cuenta no se pueden modificar desde aca.
+        if (request.getNombre() != null) {
+            usuario.setNombre(ValidadorUsuarioService.textoObligatorio(request.getNombre(), "nombre"));
+        }
+        if (request.getApellido() != null) {
+            usuario.setApellido(ValidadorUsuarioService.textoObligatorio(request.getApellido(), "apellido"));
+        }
+        if (request.getMail() != null) {
+            String mail = ValidadorUsuarioService.mailValido(request.getMail());
+            if (!mail.equalsIgnoreCase(usuario.getMail())) {
+                // Si el mail era de una cuenta de baja con el plazo vencido, se libera.
+                // (El nombre de usuario que se pasa es el propio: al estar activo, no se toca.)
+                cuentaBajaService.liberarSiVencida(mail, usuario.getNombreUsuario());
+                if (usuarioRepository.existsByMail(mail)) {
+                    throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + mail);
+                }
+                usuario.setMail(mail);
+            }
+        }
+
+        return usuarioRepository.save(usuario);
+    }
+
+    @Override
+    public Usuario getMiPerfil() {
+        Long idUsuario = autorizacionService.idUsuarioActual();
+        return usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con id " + idUsuario));
+    }
+
+    @Override
+    public void cambiarMiContrasenia(CambiarContraseniaRequest request) {
+        Long idUsuario = autorizacionService.idUsuarioActual();
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con id " + idUsuario));
+
+        // Hay que conocer la contrasenia actual: asi nadie con la sesion abierta puede cambiarla.
+        if (request.getContraseniaActual() == null
+                || !passwordEncoder.matches(request.getContraseniaActual(), usuario.getContrasenia())) {
+            throw new ReglaDeNegocioException("La contrasenia actual es incorrecta");
+        }
+
+        ValidadorUsuarioService.validarContrasenia(request.getContraseniaNueva());
+        if (request.getContraseniaNueva().equals(request.getContraseniaActual())) {
+            throw new ReglaDeNegocioException("La contrasenia nueva tiene que ser distinta de la actual");
+        }
+
+        usuario.setContrasenia(passwordEncoder.encode(request.getContraseniaNueva()));
+        usuarioRepository.save(usuario);
     }
 }

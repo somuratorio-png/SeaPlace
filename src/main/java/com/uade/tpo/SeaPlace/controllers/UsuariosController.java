@@ -13,6 +13,8 @@ import com.uade.tpo.SeaPlace.entity.dto.CambiarRolRequest;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioRequest;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
 import com.uade.tpo.SeaPlace.service.UsuarioService;
+import com.uade.tpo.SeaPlace.entity.dto.UsuarioPerfilRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CambiarContraseniaRequest;
 
 @RestController
 @RequestMapping("usuarios")
@@ -49,5 +51,25 @@ public class UsuariosController {
     @DeleteMapping("/{usuarioId}") //se llama darDeBaja porque no se elimina el usuario, solo se desactiva
     public ResponseEntity<UsuarioResponse> darDeBaja(@PathVariable Long usuarioId) {
         return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.darDeBaja(usuarioId)));
+    }
+
+    // Modifica los datos del usuario logueado (el del token). El nombre de usuario, el rol
+    // y el estado de la cuenta no se pueden cambiar por esta ruta.
+    @PutMapping("/me")
+    public ResponseEntity<UsuarioResponse> modificarMiPerfil(@RequestBody UsuarioPerfilRequest request) {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.modificarMiPerfil(request)));
+    }
+
+    // Datos del usuario logueado (el del token).
+    @GetMapping("/me")
+    public ResponseEntity<UsuarioResponse> getMiPerfil() {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.getMiPerfil()));
+    }
+
+    // Cambia la contrasenia del usuario logueado (el del token); hay que mandar la actual.
+    @PutMapping("/me/contrasenia")
+    public ResponseEntity<Void> cambiarMiContrasenia(@RequestBody CambiarContraseniaRequest request) {
+        usuarioService.cambiarMiContrasenia(request);
+        return ResponseEntity.noContent().build();
     }
 }
