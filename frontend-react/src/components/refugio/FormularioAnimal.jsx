@@ -65,7 +65,7 @@ const FormularioAnimal = ({ onGuardar }) => {
 
         <CampoTexto etiqueta="Edad" nombre="edad" valor={datos.edad} onCambiar={cambiar} />
         <CampoTexto etiqueta="Ubicación" nombre="ubicacion" valor={datos.ubicacion} onCambiar={cambiar} />
-        <CampoTexto etiqueta="Cuota mensual ($)" nombre="precio" tipo="number" valor={datos.precio} onCambiar={cambiar} />
+        <CampoTexto etiqueta="Cuota mensual (en US$)" nombre="precio" tipo="number" valor={datos.precio} onCambiar={cambiar} />
       </div>
 
       <label className="flex flex-col gap-1.5">

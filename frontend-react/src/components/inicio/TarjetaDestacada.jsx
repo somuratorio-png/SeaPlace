@@ -1,9 +1,10 @@
+import Precio from '../comunes/Precio'
 import BarraProgreso from '../comunes/BarraProgreso'
 
 // Tarjeta de un animal destacado en el inicio
 const TarjetaDestacada = ({ animal, onVer }) => {
   return (
-    <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md flex flex-col">
+    <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-md flex flex-col transition hover:-translate-y-1 hover:shadow-xl">
       <img src={animal.imagen} alt={`Foto de ${animal.nombre}`} className="w-full aspect-square object-cover" />
       <div className="p-space-md space-y-space-sm flex-1 flex flex-col">
         <div className="flex items-center justify-between">
@@ -16,8 +17,8 @@ const TarjetaDestacada = ({ animal, onVer }) => {
           <span className="text-secondary">{animal.progreso}%</span>
         </div>
         <BarraProgreso porcentaje={animal.progreso} />
-        <button onClick={onVer} className="bg-primary text-on-primary font-label-lg text-label-lg py-2 rounded-lg hover:bg-surface-tint">
-          Conocer a {animal.nombre} · ${animal.precio}/mes
+        <button onClick={onVer} className="bg-primary text-on-primary font-label-lg text-label-lg py-2 rounded-full hover:bg-surface-tint">
+          Conocer a {animal.nombre} · <Precio valor={animal.precio} />/mes
         </button>
       </div>
     </div>

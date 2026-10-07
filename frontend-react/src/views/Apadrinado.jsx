@@ -30,9 +30,6 @@ const Apadrinado = ({ apadrinados, onVolver }) => {
         <div className="lg:col-span-7 space-y-space-lg">
           <Galeria fotos={animal.fotos} nombre={animal.nombre} />
 
-          {/* La ubicación solo se muestra con el plan más alto */}
-          {plan.ubicacionEnVivo ? <Rastreo animal={animal} /> : <RastreoBloqueado nombre={animal.nombre} />}
-
           <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-sm">
             <h2 className="font-headline-sm text-headline-sm text-on-surface">Su historia</h2>
             <p className="font-body-md text-body-md text-on-surface-variant">{animal.descripcion}</p>
@@ -55,6 +52,9 @@ const Apadrinado = ({ apadrinados, onVolver }) => {
           <MiPlan plan={plan} />
         </div>
       </div>
+
+      {/* La ubicación solo se muestra con el plan más alto. Va a todo el ancho para que el mapa luzca. */}
+      {plan.ubicacionEnVivo ? <Rastreo animal={animal} /> : <RastreoBloqueado nombre={animal.nombre} />}
     </div>
   )
 }

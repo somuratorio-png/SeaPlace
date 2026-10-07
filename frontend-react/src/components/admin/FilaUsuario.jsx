@@ -47,11 +47,11 @@ const FilaUsuario = ({ usuario, esUnoMismo, onCambiarRol, onCambiarActivo }) => 
       </td>
       <td className="p-space-sm text-right">
         {esUnoMismo ? (
-          <Chip texto="Sos vos" tono="marron" />
+          <Chip texto="Sos vos" tono="coral" />
         ) : (
           <button
             onClick={() => onCambiarActivo(usuario.nombreUsuario)}
-            className={`font-label-lg text-label-lg px-space-md py-1 rounded-lg ${
+            className={`font-label-lg text-label-lg px-space-md py-1 rounded-full ${
               usuario.activo ? 'bg-error-container text-on-error-container' : 'bg-primary text-on-primary'
             }`}
           >

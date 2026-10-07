@@ -1,8 +1,8 @@
-// Etiqueta redondeada de color. tono: 'verde' | 'azul' | 'marron' | 'rojo'
+// Etiqueta redondeada de color. tono: 'verde' | 'azul' | 'coral' | 'rojo'
 const tonos = {
   verde: 'bg-secondary-container text-on-secondary-fixed-variant',
-  azul: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
-  marron: 'bg-primary-fixed text-on-primary-fixed-variant',
+  azul: 'bg-primary-fixed text-on-primary-fixed-variant',
+  coral: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
   rojo: 'bg-error-container text-on-error-container',
 }
 

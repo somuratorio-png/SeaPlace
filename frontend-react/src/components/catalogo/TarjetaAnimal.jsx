@@ -4,14 +4,14 @@ import BarraProgreso from '../comunes/BarraProgreso'
 const coloresUrgencia = {
   critico: 'bg-error text-on-error',
   recuperacion: 'bg-secondary text-on-secondary',
-  listo: 'bg-tertiary text-on-tertiary',
+  listo: 'bg-primary text-on-primary',
 }
 
 const TarjetaAnimal = ({ animal, onVer }) => {
   const metaCubierta = animal.progreso === 100
 
   return (
-    <article className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm flex flex-col">
+    <article className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm flex flex-col transition hover:-translate-y-1 hover:shadow-xl">
       <div className="relative">
         <img src={animal.imagen} alt={`Foto de ${animal.nombre}`} className="w-full h-64 object-cover" />
         <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full font-label-md text-label-md ${coloresUrgencia[animal.urgencia]}`}>
@@ -34,7 +34,7 @@ const TarjetaAnimal = ({ animal, onVer }) => {
         {metaCubierta ? (
           <p className="text-center font-label-lg text-label-lg text-secondary py-2">¡Meta cubierta! Gracias a todos.</p>
         ) : (
-          <button onClick={onVer} className="bg-primary text-on-primary font-label-lg text-label-lg py-2.5 rounded-lg hover:bg-surface-tint">
+          <button onClick={onVer} className="bg-primary text-on-primary font-label-lg text-label-lg py-2.5 rounded-full hover:bg-surface-tint">
             Ver historia y apadrinar
           </button>
         )}

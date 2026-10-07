@@ -6,69 +6,78 @@
 @import "tailwindcss";
 
 @theme {
-  /* ---------- Colores (mismos valores que el config viejo) ---------- */
-  --color-primary: #71523b;
+  /* ---------- Colores: mar (primary), turquesa (secondary), coral (tertiary) y arena (surface) ---------- */
+  --color-primary: #0b5c7a;
   --color-on-primary: #ffffff;
-  --color-primary-container: #8c6a52;
-  --color-on-primary-container: #fff5f0;
-  --color-primary-fixed: #ffdcc5;
-  --color-primary-fixed-dim: #e8bea2;
-  --color-on-primary-fixed: #2c1605;
-  --color-on-primary-fixed-variant: #5d402b;
-  --color-inverse-primary: #e8bea2;
+  --color-primary-container: #1a7fa3;
+  --color-on-primary-container: #eaf8ff;
+  --color-primary-fixed: #c5ecfb;
+  --color-primary-fixed-dim: #9ad6ee;
+  --color-on-primary-fixed: #001f2a;
+  --color-on-primary-fixed-variant: #064a63;
+  --color-inverse-primary: #9ad6ee;
 
-  --color-secondary: #3a6759;
+  --color-secondary: #0f7f79;
   --color-on-secondary: #ffffff;
-  --color-secondary-container: #bceddc;
-  --color-on-secondary-container: #406d5f;
-  --color-secondary-fixed: #bceddc;
-  --color-secondary-fixed-dim: #a1d0c0;
-  --color-on-secondary-fixed: #002019;
-  --color-on-secondary-fixed-variant: #214f42;
+  --color-secondary-container: #bdf0e9;
+  --color-on-secondary-container: #0b5f5a;
+  --color-secondary-fixed: #bdf0e9;
+  --color-secondary-fixed-dim: #8fdcd2;
+  --color-on-secondary-fixed: #00201d;
+  --color-on-secondary-fixed-variant: #0b5f5a;
 
-  --color-tertiary: #3b5d6c;
+  --color-tertiary: #c2512b;
   --color-on-tertiary: #ffffff;
-  --color-tertiary-container: #537685;
-  --color-on-tertiary-container: #edf8ff;
-  --color-tertiary-fixed: #c4e8f9;
-  --color-tertiary-fixed-dim: #a8ccdd;
-  --color-on-tertiary-fixed: #001f29;
-  --color-on-tertiary-fixed-variant: #284b59;
+  --color-tertiary-container: #a8421f;
+  --color-on-tertiary-container: #fff4ef;
+  --color-tertiary-fixed: #ffdbd0;
+  --color-tertiary-fixed-dim: #ffb59e;
+  --color-on-tertiary-fixed: #3a0b00;
+  --color-on-tertiary-fixed-variant: #8a3620;
 
   --color-error: #ba1a1a;
   --color-on-error: #ffffff;
   --color-error-container: #ffdad6;
   --color-on-error-container: #93000a;
 
-  --color-background: #fcf9f3;
-  --color-on-background: #1c1c18;
-  --color-surface: #fcf9f3;
-  --color-surface-bright: #fcf9f3;
-  --color-surface-dim: #dcdad4;
-  --color-surface-tint: #785841;
-  --color-surface-variant: #e5e2dc;
+  --color-background: #fdf8ef;
+  --color-on-background: #14262e;
+  --color-surface: #fdf8ef;
+  --color-surface-bright: #fdf8ef;
+  --color-surface-dim: #e0d6c0;
+  --color-surface-tint: #0e6d90;
+  --color-surface-variant: #e9dfc9;
   --color-surface-container-lowest: #ffffff;
-  --color-surface-container-low: #f6f3ed;
-  --color-surface-container: #f0eee8;
-  --color-surface-container-high: #ebe8e2;
-  --color-surface-container-highest: #e5e2dc;
-  --color-on-surface: #1c1c18;
-  --color-on-surface-variant: #4f453e;
-  --color-inverse-surface: #31312d;
-  --color-inverse-on-surface: #f3f0ea;
-  --color-outline: #82756d;
-  --color-outline-variant: #d3c3ba;
+  --color-surface-container-low: #f8f1e3;
+  --color-surface-container: #f3ead8;
+  --color-surface-container-high: #ede2cc;
+  --color-surface-container-highest: #e6d9bf;
+  --color-on-surface: #14262e;
+  --color-on-surface-variant: #45565e;
+  --color-inverse-surface: #12303c;
+  --color-inverse-on-surface: #eaf6fa;
+  --color-outline: #7b8a90;
+  --color-outline-variant: #d6dcd6;
 
   /* ---------- Espaciados con nombre (px-margin, gap-space-md, etc.) ---------- */
   --spacing-gutter: 1.5rem;
   --spacing-gutter-mobile: 1rem;
-  --spacing-margin: 3rem;
-  --spacing-margin-mobile: 1.25rem;
+  --spacing-margin: 4rem;
+  --spacing-margin-mobile: 1.5rem;
   --spacing-space-xs: 0.25rem;
-  --spacing-space-sm: 0.5rem;
-  --spacing-space-md: 1rem;
-  --spacing-space-lg: 1.5rem;
-  --spacing-space-xl: 2.5rem;
+  --spacing-space-sm: 0.625rem;
+  --spacing-space-md: 1.25rem;
+  --spacing-space-lg: 2rem;
+  --spacing-space-xl: 4.5rem;
+
+  /* ---------- Bordes más redondeados y sombras suaves con un toque de azul ---------- */
+  --radius-lg: 0.875rem;
+  --radius-xl: 1.25rem;
+  --radius-2xl: 1.75rem;
+  --shadow-sm: 0 1px 2px rgb(11 92 122 / 0.06), 0 4px 14px rgb(11 92 122 / 0.06);
+  --shadow-md: 0 2px 4px rgb(11 92 122 / 0.06), 0 10px 26px rgb(11 92 122 / 0.1);
+  --shadow-lg: 0 4px 8px rgb(11 92 122 / 0.08), 0 18px 40px rgb(11 92 122 / 0.14);
+  --shadow-xl: 0 6px 12px rgb(11 92 122 / 0.08), 0 28px 60px rgb(11 92 122 / 0.18);
 
   /* ---------- Familias tipográficas (font-headline-lg, font-body-md, ...) ---------- */
   --font-display-lg: "Plus Jakarta Sans", sans-serif;
@@ -85,8 +94,8 @@
   --font-label-md: "Be Vietnam Pro", sans-serif;
 
   /* ---------- Tamaños de texto (text-headline-lg, text-body-sm, ...) ---------- */
-  --text-display-lg: 3.5rem;
-  --text-display-lg--line-height: 4rem;
+  --text-display-lg: 4.25rem;
+  --text-display-lg--line-height: 4.6rem;
   --text-display-lg--letter-spacing: -0.03em;
   --text-display-lg--font-weight: 700;
 
@@ -95,8 +104,8 @@
   --text-display-lg-mobile--letter-spacing: -0.02em;
   --text-display-lg-mobile--font-weight: 700;
 
-  --text-headline-lg: 2.25rem;
-  --text-headline-lg--line-height: 2.75rem;
+  --text-headline-lg: 2.75rem;
+  --text-headline-lg--line-height: 3.2rem;
   --text-headline-lg--letter-spacing: -0.02em;
   --text-headline-lg--font-weight: 600;
 
@@ -160,4 +169,63 @@
 
 ::-webkit-scrollbar {
   display: none;
+}
+
+/* Fondos degradados de mar que se repiten en la portada de cada página y en el footer */
+.fondo-mar {
+  background: linear-gradient(135deg, #0b5c7a 0%, #0f7f79 55%, #2aa9a0 100%);
+}
+.fondo-mar-profundo {
+  background: linear-gradient(180deg, #0b5c7a 0%, #06384c 100%);
+}
+
+/* Burbujas decorativas que suben despacio (se apagan si el usuario pidió menos movimiento) */
+@keyframes flotar {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.burbuja {
+  position: absolute;
+  border-radius: 9999px;
+  background: rgb(255 255 255 / 0.12);
+  animation: flotar 7s ease-in-out infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .burbuja {
+    animation: none;
+  }
+}
+
+/* Fondo general: arena con dos manchas suaves de agua y coral que quedan fijas al hacer scroll */
+.fondo-playa {
+  background:
+    radial-gradient(60rem 40rem at 100% 0%, rgb(189 240 233 / 0.55), transparent 60%),
+    radial-gradient(50rem 36rem at 0% 100%, rgb(255 219 208 / 0.45), transparent 60%),
+    var(--color-surface);
+  background-attachment: fixed;
+}
+
+/* Cada página entra subiendo apenas y apareciendo */
+@keyframes aparecer {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+main > * {
+  animation: aparecer 0.6s ease both;
+}
+@media (prefers-reduced-motion: reduce) {
+  main > * {
+    animation: none;
+  }
 }

@@ -1,3 +1,4 @@
+import Precio from '../comunes/Precio'
 import { useState } from 'react'
 
 // Muestra los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal.
@@ -38,7 +39,7 @@ const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
           <div className="flex-1">
             <div className="flex justify-between">
               <span className="font-title-lg text-title-lg text-on-surface">{plan.nombre}</span>
-              <span className="font-headline-sm text-headline-sm text-primary">${plan.precio}/mes</span>
+              <span className="font-headline-sm text-headline-sm text-primary"><Precio valor={plan.precio} />/mes</span>
             </div>
             <p className="font-body-sm text-body-sm text-on-surface-variant">{plan.texto}</p>
           </div>

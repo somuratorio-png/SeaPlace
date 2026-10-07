@@ -1,25 +1,19 @@
-import Icono from '../comunes/Icono'
+import Buscador from '../comunes/Buscador'
 
 // Buscador por texto + filtro por urgencia médica.
 // No guarda estado propio: recibe los valores y avisa los cambios al Catálogo (componente controlado).
 const BarraBusqueda = ({ busqueda, onBusqueda, urgencia, onUrgencia }) => {
   return (
-    <div className="bg-surface-container-lowest p-space-md rounded-xl shadow-sm grid grid-cols-1 md:grid-cols-2 gap-space-md">
-      <label className="relative">
-        <Icono nombre="search" clase="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
-        <input
-          type="text"
-          value={busqueda}
-          onChange={(evento) => onBusqueda(evento.target.value)}
-          placeholder="Buscar por nombre, especie o lugar..."
-          className="w-full bg-surface-container-low pl-10 pr-4 py-2.5 rounded-lg font-body-sm text-body-sm"
-        />
-      </label>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md">
+      <div className="md:col-span-2">
+        <Buscador valor={busqueda} onCambiar={onBusqueda} textoAyuda="Buscar por nombre, especie o lugar..." />
+      </div>
 
       <select
         value={urgencia}
         onChange={(evento) => onUrgencia(evento.target.value)}
-        className="w-full bg-surface-container-low px-3 py-2.5 rounded-lg font-body-sm text-body-sm"
+        aria-label="Filtrar por condición"
+        className="w-full bg-surface-container-lowest px-space-md py-3 rounded-full font-body-sm text-body-sm shadow-sm ring-1 ring-primary-fixed focus:outline-none focus:ring-2 focus:ring-secondary"
       >
         <option value="todas">Todas las condiciones</option>
         <option value="critico">🚨 Crítico</option>

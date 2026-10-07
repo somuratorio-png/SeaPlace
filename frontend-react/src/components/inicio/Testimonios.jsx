@@ -1,3 +1,5 @@
+import Icono from '../comunes/Icono'
+
 const testimonios = [
   { nombre: 'Camila Lagos', rol: 'Madrina de Nori • Santiago, Chile', texto: 'Ver el mapa de telemetría de Nori cada semana con mis hijos fue la lección más hermosa de biología marina.' },
   { nombre: 'Mateo Restrepo', rol: 'Padrino de Kelp • Bogotá, Colombia', texto: 'El respeto con que tratan a las nutrias me conmovió. El certificado es una pequeña obra de arte.' },
@@ -12,7 +14,8 @@ const Testimonios = () => {
       </h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
         {testimonios.map((testimonio) => (
-          <div key={testimonio.nombre} className="bg-surface-container-low rounded-xl p-space-lg space-y-space-sm">
+          <div key={testimonio.nombre} className="bg-surface-container-lowest rounded-2xl p-space-lg space-y-space-sm shadow-sm border-t-4 border-tertiary-fixed-dim">
+            <Icono nombre="format_quote" clase="text-tertiary text-[32px]" />
             <p className="font-body-md text-body-md text-on-surface italic">"{testimonio.texto}"</p>
             <div>
               <span className="font-title-lg text-title-lg text-primary block">{testimonio.nombre}</span>

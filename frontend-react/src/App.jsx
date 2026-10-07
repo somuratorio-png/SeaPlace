@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
+import { ContextoMoneda } from './contexto/Moneda'
 import { animalesDeDemo } from './data/animales'
 import { usuariosDeDemo } from './data/usuarios'
 import Admin from './views/Admin'
@@ -22,6 +23,7 @@ const App = () => {
   const [apadrinados, setApadrinados] = useState([]) // lo que ya se confirmó
   const [usuarios, setUsuarios] = useState(usuariosDeDemo)
   const [usuario, setUsuario] = useState(null) // null = nadie logueado
+  const [moneda, setMoneda] = useState('ARS') // 'ARS' | 'USD': en qué moneda se muestran los precios
 
   const navigate = useNavigate()
   const { pathname } = useLocation() // la ruta actual, por ejemplo '/catalogo'
@@ -97,8 +99,18 @@ const App = () => {
   )
 
   return (
-    <div className="min-h-screen bg-surface font-body-md text-on-surface">
-      <Header rutaActual={pathname} cantidadCarrito={carrito.length} usuario={usuario} onNavegar={irA} onSalir={salir} />
+    // ContextoMoneda comparte la moneda elegida con todos los componentes que muestran precios
+    <ContextoMoneda.Provider value={moneda}>
+    <div className="min-h-screen fondo-playa font-body-md text-on-surface">
+      <Header
+        rutaActual={pathname}
+        cantidadCarrito={carrito.length}
+        usuario={usuario}
+        moneda={moneda}
+        onCambiarMoneda={setMoneda}
+        onNavegar={irA}
+        onSalir={salir}
+      />
 
       <main>
         <Routes>
@@ -158,6 +170,7 @@ const App = () => {
 
       <Footer />
     </div>
+    </ContextoMoneda.Provider>
   )
 }
 

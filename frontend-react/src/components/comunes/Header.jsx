@@ -1,13 +1,15 @@
 import { logo } from '../../data/imagenes'
 import BotonMenu from './BotonMenu'
+import BotonMoneda from './BotonMoneda'
 import Icono from './Icono'
 
-const Header =({ rutaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => {
+const Header =({ rutaActual, cantidadCarrito, usuario, moneda, onCambiarMoneda, onNavegar, onSalir }) => {
   const esAdmin = usuario !== null && usuario.rol === 'administrador'
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-surface/90 backdrop-blur-md shadow-sm">
-      <div className="max-w-7xl mx-auto min-h-20 py-space-sm px-margin-mobile lg:px-margin flex flex-wrap items-center justify-between gap-space-sm">
+    // Barra flotante: queda pegada arriba, separada de los bordes y con fondo de vidrio esmerilado
+    <header className="sticky top-0 z-50 w-full px-space-sm lg:px-margin py-space-sm">
+      <div className="max-w-7xl mx-auto py-space-sm px-space-md lg:px-space-lg flex flex-wrap items-center justify-between gap-space-sm bg-white/75 backdrop-blur-xl rounded-3xl shadow-lg ring-1 ring-white/60">
         <button onClick={() => onNavegar('/')} className="flex items-center gap-space-sm">
           <img src={logo} alt="Logo de SeaPlace" className="h-8" />
           <span className="font-title-lg text-title-lg text-primary">SeaPlace</span>
@@ -29,9 +31,10 @@ const Header =({ rutaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => 
         </nav>
 
         <div className="flex items-center gap-space-sm">
+          <BotonMoneda moneda={moneda} onCambiar={onCambiarMoneda} />
           <button
             onClick={() => onNavegar('/panel')}
-            className="flex items-center gap-1 bg-secondary-container text-on-secondary-container font-label-lg text-label-lg px-space-md py-space-sm rounded-lg"
+            className="flex items-center gap-1 bg-secondary text-on-secondary font-label-lg text-label-lg px-space-md py-space-sm rounded-full shadow-sm transition hover:bg-on-secondary-container"
           >
             <Icono nombre="person" clase="text-[18px]" />
             {usuario ? usuario.nombre : 'Ingresar'}
