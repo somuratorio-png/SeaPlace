@@ -5,6 +5,7 @@ import Icono from './Icono'
 
 const Header =({ rutaActual, cantidadCarrito, usuario, moneda, onCambiarMoneda, onNavegar, onSalir }) => {
   const esAdmin = usuario !== null && usuario.rol === 'administrador'
+  const esRefugio = usuario !== null && usuario.rol === 'refugio'
 
   return (
     // Barra flotante: queda pegada arriba, separada de los bordes y con fondo de vidrio esmerilado
@@ -18,11 +19,11 @@ const Header =({ rutaActual, cantidadCarrito, usuario, moneda, onCambiarMoneda, 
         <nav className="order-last w-full lg:order-none lg:w-auto flex flex-wrap items-center gap-space-xs">
           <BotonMenu texto="Inicio" activo={rutaActual === '/'} onClick={() => onNavegar('/')} />
           <BotonMenu texto="Fauna para Apadrinar" activo={rutaActual === '/catalogo'} onClick={() => onNavegar('/catalogo')} />
-          {/* Un administrador no apadrina, así que no ve el carrito */}
-          {!esAdmin && (
+          {/* Admin y refugio no apadrinan, así que no ven el carrito */}
+          {!esAdmin && !esRefugio && (
             <BotonMenu texto={`Carrito (${cantidadCarrito})`} activo={rutaActual === '/carrito'} onClick={() => onNavegar('/carrito')} />
           )}
-          {usuario && usuario.rol === 'refugio' && (
+          {esRefugio && (
             <BotonMenu texto="Mi refugio" activo={rutaActual === '/refugio'} onClick={() => onNavegar('/refugio')} />
           )}
           {esAdmin && (

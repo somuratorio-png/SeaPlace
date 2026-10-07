@@ -85,6 +85,9 @@ const App = () => {
 
   const esAdmin = usuario !== null && usuario.rol === 'administrador'
   const esRefugio = usuario !== null && usuario.rol === 'refugio'
+  // Solo apadrinan los padrinos (y quien todavía no entró). Admin y refugio tienen su propio panel.
+  const puedeApadrinar = !esAdmin && !esRefugio
+  const panelPropio = esAdmin ? '/admin' : '/refugio'
 
   const salir = () => {
     setUsuario(null)
@@ -118,20 +121,20 @@ const App = () => {
           <Route path="/catalogo" element={<Catalogo animales={animales} onVerAnimal={verAnimal} />} />
           <Route
             path="/animal/:id"
-            element={<Detalle animales={animales} puedeApadrinar={!esAdmin} onAgregar={agregarAlCarrito} onVolver={() => irA('/catalogo')} />}
+            element={<Detalle animales={animales} puedeApadrinar={puedeApadrinar} onAgregar={agregarAlCarrito} onVolver={() => irA('/catalogo')} />}
           />
-          {/* Un administrador no apadrina: no tiene carrito ni panel de padrino, va directo a /admin */}
+          {/* Admin y refugio no apadrinan: no tienen carrito ni panel de padrino, van directo a su panel */}
           <Route
             path="/carrito"
             element={
-              esAdmin ? (
-                <Navigate to="/admin" replace />
-              ) : (
+              puedeApadrinar ? (
                 <Carrito carrito={carrito} onQuitar={quitarDelCarrito} onConfirmar={confirmarCarrito} onVerCatalogo={() => irA('/catalogo')} />
+              ) : (
+                <Navigate to={panelPropio} replace />
               )
             }
           />
-          <Route path="/panel" element={esAdmin ? <Navigate to="/admin" replace /> : paginaPanel} />
+          <Route path="/panel" element={puedeApadrinar ? paginaPanel : <Navigate to={panelPropio} replace />} />
           <Route path="/panel/:id" element={<Apadrinado apadrinados={apadrinados} onVolver={() => irA('/panel')} />} />
           {/* Solo entra un administrador: el resto va al panel (o al login) */}
           <Route

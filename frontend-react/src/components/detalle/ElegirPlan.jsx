@@ -2,7 +2,7 @@ import Precio from '../comunes/Precio'
 import { useState } from 'react'
 
 // Muestra los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal.
-// puedeApadrinar es false para un administrador: ve los planes pero no el botón.
+// puedeApadrinar es false para un administrador o un refugio: ven los planes pero no el botón.
 const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
   const planes = [
     { nombre: 'Brisa Marina', precio: Math.round(animal.precio / 2), texto: 'Certificado digital y bitácora mensual por correo.' },
@@ -52,7 +52,7 @@ const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
         </button>
       ) : (
         <p className="bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-lg px-space-md py-space-sm font-body-sm text-body-sm text-center">
-          Las cuentas de administrador no pueden apadrinar.
+          Las cuentas de administrador y de refugio no pueden apadrinar.
         </p>
       )}
     </div>
