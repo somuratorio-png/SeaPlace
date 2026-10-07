@@ -1,4 +1,6 @@
 import BarraProgreso from '../comunes/BarraProgreso'
+import BotonFavorito from '../comunes/BotonFavorito'
+import PrecioAnimal from '../comunes/PrecioAnimal'
 
 // Color del cartelito de estado según la urgencia del animal
 const coloresUrgencia = {
@@ -7,7 +9,7 @@ const coloresUrgencia = {
   listo: 'bg-primary text-on-primary',
 }
 
-const TarjetaAnimal = ({ animal, onVer }) => {
+const TarjetaAnimal = ({ animal, esFavorito, onFavorito, onVer }) => {
   const metaCubierta = animal.progreso === 100
 
   return (
@@ -17,6 +19,7 @@ const TarjetaAnimal = ({ animal, onVer }) => {
         <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full font-label-md text-label-md ${coloresUrgencia[animal.urgencia]}`}>
           {animal.estado}
         </span>
+        <BotonFavorito esFavorito={esFavorito} onCambiar={onFavorito} clase="absolute top-3 right-3" />
       </div>
 
       <div className="p-space-lg space-y-space-sm flex-1 flex flex-col">
@@ -25,6 +28,7 @@ const TarjetaAnimal = ({ animal, onVer }) => {
           <span className="font-label-md text-label-md text-tertiary">{animal.especie}</span>
         </div>
         <p className="font-body-sm text-body-sm text-on-surface-variant flex-1">{animal.descripcion}</p>
+        <PrecioAnimal animal={animal} />
         <div className="flex justify-between font-label-md text-label-md">
           <span className="text-on-surface-variant">{animal.ubicacion}</span>
           <span className="text-primary">{animal.progreso}% financiado</span>

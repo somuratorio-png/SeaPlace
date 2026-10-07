@@ -2,7 +2,7 @@ import ItemCarrito from '../components/carrito/ItemCarrito'
 import ResumenCarrito from '../components/carrito/ResumenCarrito'
 import Portada from '../components/comunes/Portada'
 
-const Carrito = ({ carrito, onQuitar, onConfirmar, onVerCatalogo }) => {
+const Carrito = ({ carrito, conBotiquin, onBotiquin, onQuitar, onPagar, onVerCatalogo }) => {
   if (carrito.length === 0) {
     return (
       <>
@@ -39,7 +39,7 @@ const Carrito = ({ carrito, onQuitar, onConfirmar, onVerCatalogo }) => {
         </div>
 
         <div className="lg:col-span-5">
-          <ResumenCarrito carrito={carrito} onConfirmar={onConfirmar} />
+          <ResumenCarrito carrito={carrito} conBotiquin={conBotiquin} onBotiquin={onBotiquin} onPagar={onPagar} />
         </div>
       </div>
     </>

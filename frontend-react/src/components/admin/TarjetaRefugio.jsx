@@ -4,7 +4,8 @@ import FilaAnimal from '../refugio/FilaAnimal'
 import Chip from './Chip'
 
 // Un refugio en la lista del administrador. Al tocar "Ver animales" se despliegan los suyos.
-const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onVerAnimal, onQuitarAnimal }) => {
+// Si el refugio todavía no fue aprobado, aparece el botón para aprobarlo.
+const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
   const [abierto, setAbierto] = useState(false)
 
   return (
@@ -21,6 +22,7 @@ const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onVerAnimal, onQui
           <p className="font-body-sm text-body-sm text-on-surface-variant">{refugio.mail}</p>
           <div className="flex flex-wrap gap-space-xs">
             <Chip texto={refugio.activo ? 'Activo' : 'Dado de baja'} tono={refugio.activo ? 'verde' : 'rojo'} />
+            {!refugio.aprobado && <Chip texto="Pendiente de aprobación" tono="coral" />}
             <Chip texto={`${animales.length} ${animales.length === 1 ? 'animal' : 'animales'}`} tono="azul" />
           </div>
         </div>
@@ -38,7 +40,15 @@ const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onVerAnimal, onQui
           ))}
         </div>
 
-        <div className="flex items-center gap-space-sm">
+        <div className="flex flex-wrap items-center gap-space-sm">
+          {!refugio.aprobado && (
+            <button
+              onClick={() => onAprobar(refugio.nombreUsuario)}
+              className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-md py-space-sm rounded-full hover:bg-tertiary-container"
+            >
+              <Icono nombre="check" clase="text-[18px]" /> Aprobar
+            </button>
+          )}
           <button
             onClick={() => setAbierto(!abierto)}
             className="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-fixed-variant font-label-lg text-label-lg px-space-md py-space-sm rounded-full"

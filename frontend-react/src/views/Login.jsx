@@ -7,6 +7,7 @@ const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '',
 // Login y registro (mock: se valida contra la lista de usuarios que recibe por props)
 const Login = ({ usuarios, onIngresar, onRegistrar }) => {
   const [esRegistro, setEsRegistro] = useState(false)
+  const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
 
@@ -44,7 +45,12 @@ const Login = ({ usuarios, onIngresar, onRegistrar }) => {
       setError(`El usuario ${datos.nombreUsuario} ya existe`)
       return
     }
-    onRegistrar(datos)
+    // Un refugio no tiene nombre y apellido: se guarda como "Refugio" + el nombre que escribió
+    if (esRefugio) {
+      onRegistrar({ ...datos, nombre: 'Refugio' }, true)
+    } else {
+      onRegistrar(datos, false)
+    }
   }
 
   const enviar = (evento) => {
@@ -62,13 +68,33 @@ const Login = ({ usuarios, onIngresar, onRegistrar }) => {
 
       <form onSubmit={enviar} className="bg-surface-container-lowest rounded-xl p-space-xl shadow-md space-y-space-md">
         <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface">
-          {esRegistro ? 'Creá tu cuenta de protector' : '¡Hola de nuevo, guardián del mar!'}
+          {esRegistro ? 'Creá tu cuenta' : '¡Hola de nuevo, guardián del mar!'}
         </h1>
 
         {esRegistro && (
           <>
-            <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
-            <CampoTexto etiqueta="Apellido" nombre="apellido" valor={datos.apellido} onCambiar={cambiar} />
+            <div className="grid grid-cols-2 gap-space-xs bg-primary-fixed/70 rounded-full p-1" role="group" aria-label="Tipo de cuenta">
+              <button type="button" onClick={() => setEsRefugio(false)} aria-pressed={!esRefugio} className={`py-space-sm rounded-full font-label-lg text-label-lg transition ${esRefugio ? 'text-on-surface-variant' : 'bg-primary text-on-primary shadow-sm'}`}>
+                Quiero apadrinar
+              </button>
+              <button type="button" onClick={() => setEsRefugio(true)} aria-pressed={esRefugio} className={`py-space-sm rounded-full font-label-lg text-label-lg transition ${esRefugio ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant'}`}>
+                Soy un refugio
+              </button>
+            </div>
+
+            {esRefugio ? (
+              <>
+                <CampoTexto etiqueta="Nombre del refugio" nombre="apellido" valor={datos.apellido} onCambiar={cambiar} />
+                <p className="font-body-sm text-body-sm text-on-surface-variant">
+                  Un administrador va a revisar tu solicitud antes de que puedas publicar animales.
+                </p>
+              </>
+            ) : (
+              <>
+                <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
+                <CampoTexto etiqueta="Apellido" nombre="apellido" valor={datos.apellido} onCambiar={cambiar} />
+              </>
+            )}
             <CampoTexto etiqueta="Correo electrónico" nombre="mail" tipo="email" valor={datos.mail} onCambiar={cambiar} />
           </>
         )}

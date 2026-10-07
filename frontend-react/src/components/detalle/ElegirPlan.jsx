@@ -1,14 +1,12 @@
-import Precio from '../comunes/Precio'
 import { useState } from 'react'
+import { planesDe } from '../../utils/precios'
+import Precio from '../comunes/Precio'
 
-// Muestra los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal.
+// Muestra los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal
+// (con el descuento ya aplicado si está en oferta).
 // puedeApadrinar es false para un administrador o un refugio: ven los planes pero no el botón.
 const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
-  const planes = [
-    { nombre: 'Brisa Marina', precio: Math.round(animal.precio / 2), texto: 'Certificado digital y bitácora mensual por correo.' },
-    { nombre: 'Guardián de la Bahía', precio: animal.precio, texto: 'Todo lo anterior + webcam 24/7 y kit de bienvenida.' },
-    { nombre: 'Marea Profunda', precio: animal.precio * 2, texto: 'Todo lo anterior + ubicación en vivo y charla virtual con los biólogos.', ubicacionEnVivo: true },
-  ]
+  const planes = planesDe(animal)
 
   // Guardamos el nombre del plan elegido; arranca en el del medio
   const [planElegido, setPlanElegido] = useState('Guardián de la Bahía')

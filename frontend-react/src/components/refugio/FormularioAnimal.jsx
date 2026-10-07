@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { categorias, urgencias } from '../../data/animales'
+import { leerFotos } from '../../utils/imagenes'
 import CampoTexto from '../login/CampoTexto'
 
 const formularioVacio = {
@@ -18,18 +19,26 @@ const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 
 // Formulario para cargar un animal nuevo. onGuardar devuelve un mensaje de error, o null si salió bien.
 const FormularioAnimal = ({ onGuardar }) => {
   const [datos, setDatos] = useState(formularioVacio)
+  const [fotos, setFotos] = useState([]) // las fotos elegidas, ya convertidas a texto
   const [error, setError] = useState(null)
 
   const cambiar = (evento) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })
   }
 
+  // Leer las fotos tarda un instante, por eso se espera con "await"
+  const elegirFotos = async (evento) => {
+    setFotos(await leerFotos(evento.target.files))
+  }
+
   const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    const mensaje = onGuardar(datos)
+    const mensaje = onGuardar(datos, fotos)
     setError(mensaje)
     if (mensaje === null) {
       setDatos(formularioVacio)
+      setFotos([])
+      evento.target.reset() // vacía el selector de archivos
     }
   }
 
@@ -72,6 +81,18 @@ const FormularioAnimal = ({ onGuardar }) => {
         <span className="font-label-lg text-label-lg text-on-surface">Su historia</span>
         <textarea name="descripcion" value={datos.descripcion} onChange={cambiar} required rows="3" className={claseCampo} />
       </label>
+
+      <label className="flex flex-col gap-1.5">
+        <span className="font-label-lg text-label-lg text-on-surface">Fotos (opcional, podés elegir varias)</span>
+        <input type="file" accept="image/*" multiple onChange={elegirFotos} className={claseCampo} />
+      </label>
+      {fotos.length > 0 && (
+        <div className="flex flex-wrap gap-space-sm">
+          {fotos.map((foto, indice) => (
+            <img key={foto} src={foto} alt={`Foto elegida ${indice + 1}`} className="w-20 h-20 object-cover rounded-xl" />
+          ))}
+        </div>
+      )}
 
       {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 

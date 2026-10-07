@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { reiniciarDatos } from '../../hooks/useEstadoGuardado'
 import Icono from './Icono'
 import Olas from './Olas'
 
@@ -11,7 +12,7 @@ const Footer = () => {
   }
 
   return (
-    <footer className="w-full mt-space-xl">
+    <footer className="w-full mt-space-xl print:hidden">
       {/* Las olas tienen el mismo color con el que arranca el fondo del footer */}
       <Olas clase="text-primary -mb-px" />
 
@@ -25,6 +26,10 @@ const Footer = () => {
               Custodia científica de mamíferos marinos, tortugas y ecosistemas del Pacífico costero.
             </p>
             <p className="font-body-sm text-body-sm text-primary-fixed-dim">© 2026 SeaPlace. Todos los derechos reservados.</p>
+            {/* Como los datos de prueba quedan guardados en el navegador, este botón los vuelve al estado inicial */}
+            <button onClick={reiniciarDatos} className="font-body-sm text-body-sm text-primary-fixed-dim underline hover:text-on-primary">
+              Reiniciar datos de demo
+            </button>
           </div>
 
           <div className="space-y-space-sm">

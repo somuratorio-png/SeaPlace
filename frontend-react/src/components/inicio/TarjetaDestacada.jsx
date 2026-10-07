@@ -1,5 +1,6 @@
-import Precio from '../comunes/Precio'
+import { precioFinal } from '../../utils/precios'
 import BarraProgreso from '../comunes/BarraProgreso'
+import Precio from '../comunes/Precio'
 
 // Tarjeta de un animal destacado en el inicio
 const TarjetaDestacada = ({ animal, onVer }) => {
@@ -18,7 +19,7 @@ const TarjetaDestacada = ({ animal, onVer }) => {
         </div>
         <BarraProgreso porcentaje={animal.progreso} />
         <button onClick={onVer} className="bg-primary text-on-primary font-label-lg text-label-lg py-2 rounded-full hover:bg-surface-tint">
-          Conocer a {animal.nombre} · <Precio valor={animal.precio} />/mes
+          Conocer a {animal.nombre} · <Precio valor={precioFinal(animal)} />/mes
         </button>
       </div>
     </div>

@@ -1,11 +1,13 @@
 import { Navigate, useParams } from 'react-router-dom'
 import BarraProgreso from '../components/comunes/BarraProgreso'
+import BotonFavorito from '../components/comunes/BotonFavorito'
 import Icono from '../components/comunes/Icono'
+import PrecioAnimal from '../components/comunes/PrecioAnimal'
 import ElegirPlan from '../components/detalle/ElegirPlan'
 import Galeria from '../components/detalle/Galeria'
 import PreguntasFrecuentes from '../components/detalle/PreguntasFrecuentes'
 
-const Detalle = ({ animales, puedeApadrinar, onAgregar, onVolver }) => {
+const Detalle = ({ animales, favoritos, onFavorito, puedeApadrinar, onAgregar, onVolver }) => {
   // El id sale de la URL (/animal/:id) y con eso se busca el animal
   const { id } = useParams()
   const animal = animales.find((a) => a.id === id)
@@ -33,11 +35,15 @@ const Detalle = ({ animales, puedeApadrinar, onAgregar, onVolver }) => {
         </div>
 
         <div className="lg:col-span-5 space-y-space-md">
-          <div>
-            <span className="font-label-md text-label-md text-secondary uppercase tracking-wider">
-              {animal.especie} · {animal.edad} · {animal.ubicacion}
-            </span>
-            <h1 className="font-headline-lg text-headline-lg text-on-surface">{animal.nombre}</h1>
+          <div className="flex items-start justify-between gap-space-md">
+            <div>
+              <span className="font-label-md text-label-md text-secondary uppercase tracking-wider">
+                {animal.especie} · {animal.edad} · {animal.ubicacion}
+              </span>
+              <h1 className="font-headline-lg text-headline-lg text-on-surface">{animal.nombre}</h1>
+              <PrecioAnimal animal={animal} />
+            </div>
+            <BotonFavorito esFavorito={favoritos.includes(animal.id)} onCambiar={() => onFavorito(animal.id)} />
           </div>
           <ElegirPlan animal={animal} puedeApadrinar={puedeApadrinar} onAgregar={onAgregar} />
         </div>

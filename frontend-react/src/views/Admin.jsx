@@ -1,18 +1,30 @@
 import { useState } from 'react'
 import FilaUsuario from '../components/admin/FilaUsuario'
+import GraficoRecaudacion from '../components/admin/GraficoRecaudacion'
 import TarjetaDato from '../components/admin/TarjetaDato'
 import TarjetaRefugio from '../components/admin/TarjetaRefugio'
 import Buscador from '../components/comunes/Buscador'
 import Portada from '../components/comunes/Portada'
+import { recaudacionMensual } from '../utils/precios'
 
 // Panel del administrador: lista los refugios con sus animales, y todos los usuarios
 // para cambiarles el rol o darlos de baja
-const Admin = ({ usuario, usuarios, animales, onCambiarRol, onCambiarActivo, onVerAnimal, onQuitarAnimal }) => {
+const Admin = ({ usuario, usuarios, animales, apadrinamientos, onCambiarRol, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
   const [busquedaRefugios, setBusquedaRefugios] = useState('')
   const [busquedaUsuarios, setBusquedaUsuarios] = useState('')
 
   const dadosDeBaja = usuarios.filter((u) => !u.activo)
-  const refugios = usuarios.filter((u) => u.rol === 'refugio')
+  const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
+  // Los que esperan aprobación van primero en la lista
+  const refugios = [...pendientes, ...usuarios.filter((u) => u.rol === 'refugio' && u.aprobado)]
+
+  // Un renglón del gráfico por cada refugio aprobado
+  const recaudacionPorRefugio = refugios
+    .filter((refugio) => refugio.aprobado)
+    .map((refugio) => {
+      const suyos = apadrinamientos.filter((a) => a.activo && a.animal.refugio === refugio.nombreUsuario)
+      return { nombre: `${refugio.nombre} ${refugio.apellido}`, valor: recaudacionMensual(suyos), padrinos: suyos.length }
+    })
 
   const textoRefugios = busquedaRefugios.toLowerCase()
   const refugiosVisibles = refugios.filter((r) => `${r.nombre} ${r.apellido} ${r.mail}`.toLowerCase().includes(textoRefugios))
@@ -37,6 +49,14 @@ const Admin = ({ usuario, usuarios, animales, onCambiarRol, onCambiarActivo, onV
           <TarjetaDato icono="person_off" valor={dadosDeBaja.length} titulo="Dados de baja" clase="bg-error-container text-on-error-container" />
         </div>
 
+        {pendientes.length > 0 && (
+          <p className="bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-2xl px-space-lg py-space-md font-body-md text-body-md">
+            Hay {pendientes.length} {pendientes.length === 1 ? 'refugio que espera' : 'refugios que esperan'} tu aprobación. Aparecen primero en la lista.
+          </p>
+        )}
+
+        <GraficoRecaudacion datos={recaudacionPorRefugio} />
+
         <section className="space-y-space-md">
           <div className="flex flex-wrap items-end justify-between gap-space-sm">
             <h2 className="font-headline-md text-headline-md text-primary">Refugios</h2>
@@ -57,6 +77,7 @@ const Admin = ({ usuario, usuarios, animales, onCambiarRol, onCambiarActivo, onV
               refugio={refugio}
               animales={animales.filter((animal) => animal.refugio === refugio.nombreUsuario)}
               onCambiarActivo={onCambiarActivo}
+              onAprobar={onAprobar}
               onVerAnimal={onVerAnimal}
               onQuitarAnimal={onQuitarAnimal}
             />

@@ -3,6 +3,7 @@ import * as img from './imagenes'
 // Datos de los animales (mock: no vienen de ningún servidor).
 // urgencia: 'critico' | 'recuperacion' | 'listo'
 // refugio: nombre de usuario del refugio que lo cuida
+// descuento (opcional): { porcentaje, hasta } = oferta que pone el refugio hasta esa fecha
 
 export const categorias = [
   { id: 'focas', nombre: 'Focas y Leones Marinos', icono: 'pets' },
@@ -124,6 +125,7 @@ export const animalesDeDemo = [
   {
     id: 'oceano',
     refugio: 'ensenada',
+    descuento: { porcentaje: 20, hasta: '2026-12-31' },
     nombre: 'Océano',
     especie: 'Foca Moteada',
     categoria: 'focas',

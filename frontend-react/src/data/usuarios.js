@@ -1,6 +1,7 @@
 // Usuarios de ejemplo para el login (mock: no hay servidor).
 // Los usuarios que se registran se agregan a esta lista mientras la página esté abierta.
 // rol: 'padrino' | 'refugio' | 'administrador'. activo: false = dado de baja.
+// aprobado (solo refugios): false = todavía espera que un administrador lo apruebe.
 
 export const roles = ['padrino', 'refugio', 'administrador']
 
@@ -40,6 +41,7 @@ export const usuariosDeDemo = [
     contrasenia: 'refugio123',
     rol: 'refugio',
     activo: true,
+    aprobado: true,
   },
   {
     nombre: 'Refugio',
@@ -49,5 +51,16 @@ export const usuariosDeDemo = [
     contrasenia: 'refugio123',
     rol: 'refugio',
     activo: true,
+    aprobado: true,
+  },
+  {
+    nombre: 'Refugio',
+    apellido: 'Costa Brava',
+    mail: 'costabrava@seaplace.test',
+    nombreUsuario: 'costabrava',
+    contrasenia: 'refugio123',
+    rol: 'refugio',
+    activo: true,
+    aprobado: false,
   },
 ]

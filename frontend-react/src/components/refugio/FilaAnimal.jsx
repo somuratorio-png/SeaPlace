@@ -1,6 +1,7 @@
-import Precio from '../comunes/Precio'
+import { precioFinal, tieneDescuento } from '../../utils/precios'
 import BarraProgreso from '../comunes/BarraProgreso'
 import Icono from '../comunes/Icono'
+import Precio from '../comunes/Precio'
 
 // Un animal del refugio, con el botón para quitarlo del catálogo
 const FilaAnimal = ({ animal, onVer, onQuitar }) => {
@@ -11,7 +12,8 @@ const FilaAnimal = ({ animal, onVer, onQuitar }) => {
       <div className="flex-1 min-w-40 space-y-1">
         <h3 className="font-title-lg text-title-lg text-primary">{animal.nombre}</h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          {animal.especie} · {animal.estado} · <Precio valor={animal.precio} />/mes
+          {animal.especie} · {animal.estado} · <Precio valor={precioFinal(animal)} />/mes
+          {tieneDescuento(animal) && ` (en oferta, -${animal.descuento.porcentaje}%)`}
         </p>
         <BarraProgreso porcentaje={animal.progreso} />
         <p className="font-label-md text-label-md text-secondary">{animal.progreso}% de la meta mensual cubierta</p>
