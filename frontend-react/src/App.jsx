@@ -2,12 +2,12 @@ import { useState } from 'react'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
 import { usuariosDeDemo } from './data/usuarios'
-import Carrito from './pages/Carrito'
-import Catalogo from './pages/Catalogo'
-import Detalle from './pages/Detalle'
-import Inicio from './pages/Inicio'
-import Login from './pages/Login'
-import Panel from './pages/Panel'
+import Carrito from './views/Carrito'
+import Catalogo from './views/Catalogo'
+import Detalle from './views/Detalle'
+import Inicio from './views/Inicio'
+import Login from './views/Login'
+import Panel from './views/Panel'
 
 // App es el componente principal. Guarda el estado que comparten varias páginas
 // y se lo pasa a cada una por props.
@@ -21,7 +21,6 @@ const App = () => {
 
   const irA = (nuevaPagina) => {
     setPagina(nuevaPagina)
-    window.scrollTo(0, 0)
   }
 
   const verAnimal = (animal) => {

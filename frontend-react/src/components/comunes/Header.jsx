@@ -1,19 +1,8 @@
 import { logo } from '../../data/imagenes'
+import BotonMenu from './BotonMenu'
 import Icono from './Icono'
 
-// Un botón del menú. Si es la página actual, se ve resaltado.
-const BotonMenu = ({ texto, activo, onClick }) => {
-  const estilo = activo
-    ? 'bg-primary-container text-on-primary'
-    : 'text-on-surface-variant hover:bg-surface-container-high'
-  return (
-    <button onClick={onClick} className={`px-space-md py-space-sm rounded-lg font-label-lg text-label-lg ${estilo}`}>
-      {texto}
-    </button>
-  )
-}
-
-const Header = ({ paginaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => {
+const Header =({ paginaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => {
   return (
     <header className="sticky top-0 z-50 w-full bg-surface/90 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto min-h-20 py-space-sm px-margin-mobile lg:px-margin flex flex-wrap items-center justify-between gap-space-sm">
