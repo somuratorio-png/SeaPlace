@@ -1,76 +1,65 @@
-import { useEffect, useRef, useState } from 'react'
-import { rutaPorDefecto, rutas } from '../../data/rutas'
-import { armarCamino } from '../../utils/camino'
+import { useEffect, useState } from 'react'
+import { conductas, coordenadasDe, historialInicial, horaDe, HORAS_ENTRE_SENALES, siguienteSenal, zonaDe } from '../../utils/telemetria'
 import Icono from '../comunes/Icono'
 import DatoRastreo from './DatoRastreo'
 import MapaRastreo from './MapaRastreo'
+import RegistroSenales from './RegistroSenales'
 
-const SEGUNDOS_POR_VUELTA = 45
-const KM_POR_VUELTA = 38
+const SEGUNDOS_ENTRE_PULSOS = 5
+const SENALES_EN_EL_MAPA = 24 // las últimas 48 horas
+const SENALES_EN_EL_REGISTRO = 6
 
-// Mapa con la ubicación del animal (mock). El animal nada sin parar por su ruta:
-// en cada cuadro de animación se avanza un poquito y se vuelve a dibujar.
+// Rastreo satelital del animal (mock). Funciona por pulsos, como un transmisor real:
+// cada tanto llega una señal con la posición y el mapa se actualiza; entre una y otra no se sabe nada.
+// La simulación está acelerada: cada pulso representa 2 horas.
 const Rastreo = ({ animal }) => {
-  const ruta = rutas[animal.id] ?? rutaPorDefecto
-  const camino = armarCamino(ruta)
-
-  const refCamino = useRef(null)
-  const refAvance = useRef(0) // el avance "real"; el estado de abajo es la copia que se dibuja
+  // Arranca con un recorrido ya hecho, para que el mapa no esté vacío
+  const [senales, setSenales] = useState(() => historialInicial(animal, SENALES_EN_EL_MAPA))
   const [enMarcha, setEnMarcha] = useState(true)
-  const [avance, setAvance] = useState(0) // de 0 (salida) a 1 (vuelta completa)
-  const [posicion, setPosicion] = useState({ x: ruta[0][0], y: ruta[0][1] })
 
   useEffect(() => {
     if (!enMarcha) {
       return
     }
 
-    let cuadro = null
-    let anterior = null
+    // Cada pulso calcula la señal siguiente a partir de la última y la agrega al final
+    const intervalo = setInterval(() => {
+      setSenales((actuales) => [...actuales, siguienteSenal(actuales[actuales.length - 1], animal)].slice(-60))
+    }, SEGUNDOS_ENTRE_PULSOS * 1000)
 
-    const animar = (ahora) => {
-      const segundos = anterior === null ? 0 : (ahora - anterior) / 1000
-      anterior = ahora
+    // Al pausar o salir de la pantalla se corta el intervalo
+    return () => clearInterval(intervalo)
+  }, [enMarcha, animal])
 
-      const nuevo = (refAvance.current + segundos / SEGUNDOS_POR_VUELTA) % 1
-      refAvance.current = nuevo
+  const zona = zonaDe(animal)
+  const ultima = senales[senales.length - 1] // puede ser una señal perdida
+  const recibidas = senales.filter((senal) => !senal.perdida)
+  const ultimaRecibida = recibidas[recibidas.length - 1]
 
-      // El navegador calcula qué punto del camino corresponde a ese avance
-      const linea = refCamino.current
-      const punto = linea.getPointAtLength(nuevo * linea.getTotalLength())
-      setAvance(nuevo)
-      setPosicion({ x: punto.x, y: punto.y })
-
-      cuadro = requestAnimationFrame(animar)
-    }
-
-    cuadro = requestAnimationFrame(animar)
-
-    // Al pausar o salir de la pantalla se corta la animación
-    return () => cancelAnimationFrame(cuadro)
-  }, [enMarcha])
-
-  // Datos inventados a partir del avance, para que cambien de forma suave
-  const velocidad = enMarcha ? 4.2 + 1.8 * Math.sin(avance * Math.PI * 6) : 0
-  const profundidad = 12 + 9 * Math.sin(avance * Math.PI * 4 + 1)
-  const distancia = avance * KM_POR_VUELTA
-  const latitud = 30 + posicion.y / 10
-  const longitud = 70 + (100 - posicion.x) / 10
+  // Datos calculados a partir de las señales
+  const velocidad = ultimaRecibida.tramo / HORAS_ENTRE_SENALES
+  const kmUltimoDia = senales.slice(-12).reduce((suma, senal) => suma + senal.tramo, 0)
+  const kmAlRefugio = Math.hypot(ultimaRecibida.x - zona.x, ultimaRecibida.y - zona.y)
+  const bateria = Math.max(20, 92 - ultima.n * 0.08)
 
   return (
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-md space-y-space-md">
       <div className="flex flex-wrap items-center justify-between gap-space-sm">
         <div>
-          <h2 className="font-headline-sm text-headline-sm text-primary">Ubicación en vivo</h2>
+          <h2 className="font-headline-sm text-headline-sm text-primary">Rastreo satelital</h2>
           <p className="font-body-sm text-body-sm text-on-surface-variant">
-            Seguí a {animal.nombre} mientras nada cerca de {animal.ubicacion}.
+            El transmisor de {animal.nombre} envía su posición cada {HORAS_ENTRE_SENALES} horas, cuando sale a la superficie.
           </p>
         </div>
 
         <div className="flex items-center gap-space-sm">
-          <span className={`inline-flex items-center gap-1.5 rounded-full px-space-md py-1 font-label-md text-label-md ${enMarcha ? 'bg-secondary-container text-on-secondary-fixed-variant' : 'bg-surface-container-high text-on-surface-variant'}`}>
-            <span className={`w-2 h-2 rounded-full ${enMarcha ? 'bg-secondary animate-pulse' : 'bg-outline'}`} />
-            {enMarcha ? 'En vivo' : 'En pausa'}
+          <span
+            className={`inline-flex items-center gap-1.5 rounded-full px-space-md py-1 font-label-md text-label-md ${
+              ultima.perdida ? 'bg-tertiary-fixed text-on-tertiary-fixed-variant' : 'bg-secondary-container text-on-secondary-fixed-variant'
+            }`}
+          >
+            <Icono nombre={ultima.perdida ? 'signal_disconnected' : 'satellite_alt'} clase="text-[16px]" />
+            {ultima.perdida ? 'Sin señal' : 'Señal recibida'}
           </span>
           <button
             onClick={() => setEnMarcha(!enMarcha)}
@@ -82,14 +71,48 @@ const Rastreo = ({ animal }) => {
         </div>
       </div>
 
-      <MapaRastreo animal={animal} camino={camino} inicio={ruta[0]} avance={avance} posicion={posicion} refCamino={refCamino} />
+      <MapaRastreo animal={animal} senales={recibidas.slice(-SENALES_EN_EL_MAPA)} zona={zona} />
+
+      {/* Barrita que se vacía hasta el próximo pulso. La "key" la reinicia con cada señal. */}
+      <div className="space-y-1">
+        <div className="flex flex-wrap justify-between gap-space-sm font-label-md text-label-md text-on-surface-variant">
+          <span>
+            Última señal: {horaDe(ultimaRecibida)} · {coordenadasDe(ultimaRecibida)}
+          </span>
+          <span>{enMarcha ? 'Esperando la próxima señal…' : 'Rastreo en pausa'}</span>
+        </div>
+        <div className="h-1.5 bg-primary-fixed rounded-full overflow-hidden">
+          {enMarcha && <div key={ultima.n} className="esperar h-full bg-secondary rounded-full" style={{ animationDuration: `${SEGUNDOS_ENTRE_PULSOS}s` }} />}
+        </div>
+      </div>
+
+      {/* Qué significa el color de cada punto del mapa */}
+      <div className="flex flex-wrap gap-x-space-md gap-y-1 font-label-md text-label-md text-on-surface-variant">
+        {Object.values(conductas).map((conducta) => (
+          <span key={conducta.nombre} className="inline-flex items-center gap-1.5">
+            <span className="w-2.5 h-2.5 rounded-full ring-1 ring-outline" style={{ backgroundColor: conducta.color }} />
+            {conducta.nombre}
+          </span>
+        ))}
+        <span>· Círculo punteado: su zona habitual</span>
+      </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-space-sm">
-        <DatoRastreo icono="speed" titulo="Velocidad" valor={`${velocidad.toFixed(1)} km/h`} />
-        <DatoRastreo icono="scuba_diving" titulo="Profundidad" valor={`${profundidad.toFixed(1)} m`} />
-        <DatoRastreo icono="route" titulo="Recorrido" valor={`${distancia.toFixed(1)} km`} />
-        <DatoRastreo icono="my_location" titulo="Coordenadas" valor={`${latitud.toFixed(2)}° S, ${longitud.toFixed(2)}° O`} />
+        <DatoRastreo icono="pets" titulo="Qué está haciendo" valor={ultima.perdida ? 'Buceando' : conductas[ultima.conducta].nombre} />
+        <DatoRastreo icono="speed" titulo="Velocidad media" valor={`${velocidad.toFixed(1)} km/h`} />
+        <DatoRastreo icono="route" titulo="Últimas 24 h" valor={`${kmUltimoDia.toFixed(1)} km`} />
+        <DatoRastreo icono="home_pin" titulo="Del refugio" valor={`${kmAlRefugio.toFixed(1)} km`} />
+        <DatoRastreo icono="scuba_diving" titulo="Profundidad" valor={`${ultimaRecibida.profundidad.toFixed(0)} m`} />
+        <DatoRastreo icono="timeline" titulo="Recorrido total" valor={`${ultima.km.toFixed(0)} km`} />
+        <DatoRastreo icono="cell_tower" titulo="Señales recibidas" valor={`${recibidas.length} de ${senales.length}`} />
+        <DatoRastreo icono="battery_5_bar" titulo="Batería" valor={`${bateria.toFixed(0)} %`} />
       </div>
+
+      <RegistroSenales senales={senales.slice(-SENALES_EN_EL_REGISTRO)} />
+
+      <p className="font-body-sm text-body-sm text-on-surface-variant">
+        Simulación acelerada: cada señal equivale a {HORAS_ENTRE_SENALES} horas reales y llega cada {SEGUNDOS_ENTRE_PULSOS} segundos.
+      </p>
     </div>
   )
 }

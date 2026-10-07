@@ -45,7 +45,7 @@ const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
       ))}
 
       {puedeApadrinar ? (
-        <button onClick={agregar} className="w-full bg-primary text-on-primary font-title-lg text-title-lg py-space-md rounded-lg hover:bg-surface-tint">
+        <button onClick={agregar} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full hover:bg-tertiary-container">
           Apadrinar a {animal.nombre}
         </button>
       ) : (

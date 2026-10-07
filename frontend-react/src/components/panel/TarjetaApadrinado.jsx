@@ -4,8 +4,11 @@ import BarraProgreso from '../comunes/BarraProgreso'
 // Un animal que el usuario ya apadrinó, con su progreso de rehabilitación
 const TarjetaApadrinado = ({ item, onVer }) => {
   return (
-    <div className="bg-surface-container-lowest rounded-2xl overflow-hidden shadow-md transition hover:-translate-y-1 hover:shadow-xl">
-      <img src={item.animal.imagen} alt={`Foto de ${item.animal.nombre}`} className="w-full h-48 object-cover" />
+    <div className="revelar group bg-surface-container-lowest rounded-2xl overflow-hidden shadow-md transition hover:-translate-y-1 hover:shadow-xl">
+      {/* El recuadro corta la foto cuando se agranda al pasar el mouse */}
+      <div className="overflow-hidden">
+        <img src={item.animal.imagen} alt={`Foto de ${item.animal.nombre}`} className="w-full h-48 object-cover transition duration-500 group-hover:scale-105" />
+      </div>
       <div className="p-space-md space-y-space-sm">
         <h3 className="font-headline-sm text-headline-sm text-primary">{item.animal.nombre}</h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
@@ -15,7 +18,7 @@ const TarjetaApadrinado = ({ item, onVer }) => {
           Plan {item.plan.nombre} · <Precio valor={item.plan.precio} />/mes
         </p>
         <BarraProgreso porcentaje={item.animal.progreso} />
-        <button onClick={() => onVer(item)} className="w-full bg-primary text-on-primary font-label-lg text-label-lg py-space-sm rounded-full hover:bg-surface-tint">
+        <button onClick={() => onVer(item)} className="w-full bg-tertiary text-on-tertiary font-label-lg text-label-lg py-space-sm rounded-full hover:bg-tertiary-container">
           Ver detalles
         </button>
       </div>

@@ -5,6 +5,7 @@ import TarjetaDato from '../components/admin/TarjetaDato'
 import TarjetaRefugio from '../components/admin/TarjetaRefugio'
 import Buscador from '../components/comunes/Buscador'
 import Portada from '../components/comunes/Portada'
+import TituloSeccion from '../components/comunes/TituloSeccion'
 import { recaudacionMensual } from '../utils/precios'
 
 // Panel del administrador: lista los refugios con sus animales, y todos los usuarios
@@ -42,7 +43,7 @@ const Admin = ({ usuario, usuarios, animales, apadrinamientos, onCambiarRol, onC
       />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-space-md">
+        <div className="escalonar grid grid-cols-2 lg:grid-cols-4 gap-space-md">
           <TarjetaDato icono="home_health" valor={refugios.length} titulo="Refugios" clase="bg-secondary-container text-on-secondary-fixed-variant" />
           <TarjetaDato icono="pets" valor={animales.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
           <TarjetaDato icono="group" valor={usuarios.length} titulo="Usuarios" clase="bg-tertiary-fixed text-on-tertiary-fixed-variant" />
@@ -59,7 +60,7 @@ const Admin = ({ usuario, usuarios, animales, apadrinamientos, onCambiarRol, onC
 
         <section className="space-y-space-md">
           <div className="flex flex-wrap items-end justify-between gap-space-sm">
-            <h2 className="font-headline-md text-headline-md text-primary">Refugios</h2>
+            <TituloSeccion>Refugios</TituloSeccion>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Mostrando {refugiosVisibles.length} de {refugios.length} refugios
             </p>
@@ -86,7 +87,7 @@ const Admin = ({ usuario, usuarios, animales, apadrinamientos, onCambiarRol, onC
 
         <section className="space-y-space-md">
           <div className="flex flex-wrap items-end justify-between gap-space-sm">
-            <h2 className="font-headline-md text-headline-md text-primary">Usuarios</h2>
+            <TituloSeccion>Usuarios</TituloSeccion>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Mostrando {usuariosVisibles.length} de {usuarios.length} usuarios
             </p>

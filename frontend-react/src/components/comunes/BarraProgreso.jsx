@@ -2,7 +2,7 @@
 const BarraProgreso = ({ porcentaje }) => {
   return (
     <div className="w-full h-2.5 bg-primary-fixed rounded-full overflow-hidden">
-      <div className="h-full bg-linear-to-r from-secondary to-primary-container rounded-full" style={{ width: `${porcentaje}%` }} />
+      <div className="llenar h-full bg-linear-to-r from-secondary to-primary-container rounded-full" style={{ width: `${porcentaje}%` }} />
     </div>
   )
 }

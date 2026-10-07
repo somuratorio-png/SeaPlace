@@ -6,15 +6,15 @@
 @import "tailwindcss";
 
 @theme {
-  /* ---------- Colores: mar (primary), turquesa (secondary), coral (tertiary) y arena (surface) ---------- */
-  --color-primary: #0b5c7a;
+  /* ---------- Colores: azul noche (primary, títulos), turquesa (secondary), coral (tertiary, botones) y arena (surface) ---------- */
+  --color-primary: #12303f;
   --color-on-primary: #ffffff;
-  --color-primary-container: #1a7fa3;
+  --color-primary-container: #24566b;
   --color-on-primary-container: #eaf8ff;
-  --color-primary-fixed: #c5ecfb;
-  --color-primary-fixed-dim: #9ad6ee;
+  --color-primary-fixed: #fbe9d7;
+  --color-primary-fixed-dim: #f3cdb0;
   --color-on-primary-fixed: #001f2a;
-  --color-on-primary-fixed-variant: #064a63;
+  --color-on-primary-fixed-variant: #5b3a2a;
   --color-inverse-primary: #9ad6ee;
 
   --color-secondary: #0f7f79;
@@ -45,7 +45,7 @@
   --color-surface: #fdf8ef;
   --color-surface-bright: #fdf8ef;
   --color-surface-dim: #e0d6c0;
-  --color-surface-tint: #0e6d90;
+  --color-surface-tint: #24566b;
   --color-surface-variant: #e9dfc9;
   --color-surface-container-lowest: #ffffff;
   --color-surface-container-low: #f8f1e3;
@@ -70,14 +70,14 @@
   --spacing-space-lg: 2rem;
   --spacing-space-xl: 4.5rem;
 
-  /* ---------- Bordes más redondeados y sombras suaves con un toque de azul ---------- */
+  /* ---------- Bordes más redondeados y sombras suaves en un tono cálido ---------- */
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
   --radius-2xl: 1.75rem;
-  --shadow-sm: 0 1px 2px rgb(11 92 122 / 0.06), 0 4px 14px rgb(11 92 122 / 0.06);
-  --shadow-md: 0 2px 4px rgb(11 92 122 / 0.06), 0 10px 26px rgb(11 92 122 / 0.1);
-  --shadow-lg: 0 4px 8px rgb(11 92 122 / 0.08), 0 18px 40px rgb(11 92 122 / 0.14);
-  --shadow-xl: 0 6px 12px rgb(11 92 122 / 0.08), 0 28px 60px rgb(11 92 122 / 0.18);
+  --shadow-sm: 0 1px 2px rgb(60 40 25 / 0.06), 0 4px 14px rgb(60 40 25 / 0.06);
+  --shadow-md: 0 2px 4px rgb(60 40 25 / 0.06), 0 10px 26px rgb(60 40 25 / 0.1);
+  --shadow-lg: 0 4px 8px rgb(60 40 25 / 0.08), 0 18px 40px rgb(60 40 25 / 0.14);
+  --shadow-xl: 0 6px 12px rgb(60 40 25 / 0.08), 0 28px 60px rgb(60 40 25 / 0.18);
 
   /* ---------- Familias tipográficas (font-headline-lg, font-body-md, ...) ---------- */
   --font-display-lg: "Plus Jakarta Sans", sans-serif;
@@ -171,12 +171,13 @@
   display: none;
 }
 
-/* Fondos degradados de mar que se repiten en la portada de cada página y en el footer */
+/* fondo-mar: cielo de atardecer sobre el agua, para la portada de cada página.
+   fondo-mar-profundo: el fondo del mar de noche, para el footer. */
 .fondo-mar {
-  background: linear-gradient(135deg, #0b5c7a 0%, #0f7f79 55%, #2aa9a0 100%);
+  background: linear-gradient(135deg, #14304d 0%, #4a3f73 34%, #a8506b 62%, #e0714a 84%, #f4a95c 100%);
 }
 .fondo-mar-profundo {
-  background: linear-gradient(180deg, #0b5c7a 0%, #06384c 100%);
+  background: linear-gradient(180deg, #12303f 0%, #081a24 100%);
 }
 
 /* Burbujas decorativas que suben despacio (se apagan si el usuario pidió menos movimiento) */
@@ -204,8 +205,8 @@
 /* Fondo general: arena con dos manchas suaves de agua y coral que quedan fijas al hacer scroll */
 .fondo-playa {
   background:
-    radial-gradient(60rem 40rem at 100% 0%, rgb(189 240 233 / 0.55), transparent 60%),
-    radial-gradient(50rem 36rem at 0% 100%, rgb(255 219 208 / 0.45), transparent 60%),
+    radial-gradient(60rem 40rem at 100% 0%, rgb(255 214 170 / 0.5), transparent 60%),
+    radial-gradient(50rem 36rem at 0% 100%, rgb(189 240 233 / 0.45), transparent 60%),
     var(--color-surface);
   background-attachment: fixed;
 }
@@ -224,8 +225,268 @@
 main > * {
   animation: aparecer 0.6s ease both;
 }
+
+/* ---------- Animaciones ---------- */
+
+/* .revelar: la tarjeta aparece subiendo cuando entra en pantalla al hacer scroll.
+   En navegadores que no lo soportan, simplemente aparece al cargar la página. */
+.revelar {
+  animation: aparecer 0.7s ease backwards;
+}
+@supports (animation-timeline: view()) {
+  .revelar {
+    animation: aparecer linear backwards;
+    animation-timeline: view();
+    animation-range: entry 0% entry 55%;
+  }
+}
+
+/* .escalonar: los hijos de una grilla entran uno atrás del otro */
+.escalonar > * {
+  animation: aparecer 0.6s ease backwards;
+}
+.escalonar > *:nth-child(2) {
+  animation-delay: 0.08s;
+}
+.escalonar > *:nth-child(3) {
+  animation-delay: 0.16s;
+}
+.escalonar > *:nth-child(4) {
+  animation-delay: 0.24s;
+}
+.escalonar > *:nth-child(n + 5) {
+  animation-delay: 0.32s;
+}
+
+/* .mecer: sube y baja despacio, como algo que flota (la foto de la portada) */
+@keyframes mecer {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(-1deg);
+  }
+}
+.mecer {
+  animation: mecer 6s ease-in-out infinite;
+}
+
+/* Las olas se desplazan hacia el costado sin parar (ver Olas.jsx) */
+@keyframes deslizar {
+  to {
+    transform: translateX(-1440px);
+  }
+}
+.ola-lenta {
+  animation: deslizar 26s linear infinite;
+}
+.ola-rapida {
+  animation: deslizar 14s linear infinite;
+}
+
+/* La barra de progreso se llena desde cero al aparecer */
+@keyframes llenar {
+  from {
+    transform: scaleX(0);
+  }
+}
+.llenar {
+  transform-origin: left;
+  animation: llenar 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
+}
+
+/* .latido: el corazón de favoritos "salta" al tocarlo */
+@keyframes latido {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.45);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+.latido {
+  animation: latido 0.45s ease;
+}
+
+/* Brillo que cruza los botones principales al pasar el mouse */
+.brillo {
+  position: relative;
+  overflow: hidden;
+}
+.brillo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 35%, rgb(255 255 255 / 0.35) 50%, transparent 65%);
+  transform: translateX(-120%);
+  transition: transform 0.7s ease;
+}
+.brillo:hover::after {
+  transform: translateX(120%);
+}
+
+/* Todos los botones se hunden apenas al apretarlos.
+   Va en la capa "base" para que las clases de Tailwind puedan pisarlo cuando haga falta. */
+@layer base {
+  button {
+    transition:
+      scale 0.15s ease,
+      translate 0.2s ease,
+      background-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  button:active {
+    scale: 0.96;
+  }
+}
+
+/* ---------- GPS (ver MapaRastreo.jsx) ---------- */
+
+/* Onda que se expande una sola vez cuando llega una señal nueva */
+@keyframes pulso-gps {
+  from {
+    transform: scale(0.3);
+    opacity: 0.9;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
+.pulso-gps {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pulso-gps 2.2s ease-out both;
+}
+.pulso-gps-tarde {
+  animation-delay: 0.5s;
+}
+
+/* El tramo nuevo del recorrido se dibuja de punta a punta */
+@keyframes trazar {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+.trazar {
+  stroke-dasharray: 1;
+  animation: trazar 1.2s ease-out both;
+}
+
+/* El marcador del animal se desliza hasta la última posición conocida */
+.marcador-gps {
+  transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Barrita que se vacía mientras se espera la próxima señal */
+@keyframes esperar {
+  from {
+    transform: scaleX(1);
+  }
+  to {
+    transform: scaleX(0);
+  }
+}
+.esperar {
+  transform-origin: left;
+  animation: esperar linear both;
+}
+
+/* Si el usuario pidió menos movimiento en su sistema, se apaga todo lo decorativo */
 @media (prefers-reduced-motion: reduce) {
-  main > * {
+  main > *,
+  .revelar,
+  .escalonar > *,
+  .mecer,
+  .ola-lenta,
+  .ola-rapida,
+  .llenar,
+  .latido,
+  .pulso-gps,
+  .trazar,
+  .esperar {
     animation: none;
+  }
+  .marcador-gps {
+    transition: none;
+  }
+}
+/* ---------- Decoración marina (ver components/marino) ---------- */
+
+/* Un pez que cruza de izquierda a derecha y vuelve a empezar */
+@keyframes nadar {
+  from {
+    transform: translateX(-15vw);
+  }
+  to {
+    transform: translateX(115vw);
+  }
+}
+.nadar {
+  position: absolute;
+  left: 0;
+  animation: nadar 38s linear infinite;
+}
+
+/* Las algas se hamacan desde la base, como con la corriente */
+@keyframes ondular {
+  0%,
+  100% {
+    transform: rotate(-4deg);
+  }
+  50% {
+    transform: rotate(5deg);
+  }
+}
+.ondular {
+  transform-box: fill-box;
+  transform-origin: bottom center;
+  animation: ondular 5s ease-in-out infinite;
+}
+
+/* El sol del atardecer late muy despacio */
+@keyframes resplandor {
+  0%,
+  100% {
+    opacity: 0.75;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.resplandor {
+  animation: resplandor 6s ease-in-out infinite;
+}
+
+/* Las gaviotas planean de un lado al otro */
+@keyframes planear {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(14px, -6px);
+  }
+}
+.planear {
+  animation: planear 9s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nadar,
+  .ondular,
+  .resplandor,
+  .planear {
+    animation: none;
+  }
+  .nadar {
+    left: 12%;
   }
 }

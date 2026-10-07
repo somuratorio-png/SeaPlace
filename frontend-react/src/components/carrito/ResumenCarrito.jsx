@@ -31,7 +31,7 @@ const ResumenCarrito = ({ carrito, conBotiquin, onBotiquin, onPagar }) => {
         </span>
       </div>
 
-      <button onClick={onPagar} className="w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full shadow-md hover:bg-tertiary-container">
+      <button onClick={onPagar} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full shadow-md hover:bg-tertiary-container">
         Ir a pagar
       </button>
     </div>

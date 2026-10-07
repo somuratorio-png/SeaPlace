@@ -96,7 +96,7 @@ const FormularioAnimal = ({ onGuardar }) => {
 
       {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 
-      <button type="submit" className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-surface-tint">
+      <button type="submit" className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-tertiary-container">
         Cargar animal
       </button>
     </form>

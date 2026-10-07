@@ -6,7 +6,7 @@ import Precio from '../comunes/Precio'
 // Un animal del refugio, con el botón para quitarlo del catálogo
 const FilaAnimal = ({ animal, onVer, onQuitar }) => {
   return (
-    <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex flex-wrap items-center gap-space-md transition hover:shadow-md">
+    <div className="revelar bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex flex-wrap items-center gap-space-md transition hover:shadow-md">
       <img src={animal.imagen} alt={`Foto de ${animal.nombre}`} className="w-20 h-20 object-cover rounded-xl" />
 
       <div className="flex-1 min-w-40 space-y-1">

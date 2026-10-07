@@ -26,7 +26,7 @@ const Gracias = ({ compra, onVerPanel, onVerCatalogo }) => {
             . Desde tu panel podés ver su bitácora, descargar el certificado y seguir cómo se recupera.
           </p>
           <div className="flex flex-wrap justify-center gap-space-sm">
-            <button onClick={onVerPanel} className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-surface-tint">
+            <button onClick={onVerPanel} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
               Ir a mi panel
             </button>
             <button onClick={onVerCatalogo} className="bg-primary-fixed text-on-primary-fixed-variant font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">

@@ -19,7 +19,7 @@ const Certificado = ({ usuario, apadrinados, onVolver }) => {
         <button onClick={() => onVolver(item)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
           <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a {item.animal.nombre}
         </button>
-        <button onClick={() => window.print()} className="inline-flex items-center gap-1 bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-surface-tint">
+        <button onClick={() => window.print()} className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
           <Icono nombre="print" clase="text-[18px]" /> Imprimir o guardar como PDF
         </button>
       </div>

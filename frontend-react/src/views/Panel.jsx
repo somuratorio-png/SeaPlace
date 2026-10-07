@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Buscador from '../components/comunes/Buscador'
 import Portada from '../components/comunes/Portada'
+import TituloSeccion from '../components/comunes/TituloSeccion'
 import TarjetaApadrinado from '../components/panel/TarjetaApadrinado'
 import TarjetaFavorito from '../components/panel/TarjetaFavorito'
 
@@ -22,7 +23,7 @@ const Panel = ({ usuario, apadrinados, animalesFavoritos, onFavorito, onVerCatal
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
         <section className="space-y-space-md">
-          <h2 className="font-headline-md text-headline-md text-primary">Tus apadrinados</h2>
+          <TituloSeccion>Tus apadrinados</TituloSeccion>
 
           {apadrinados.length === 0 ? (
             <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center space-y-space-md">
@@ -50,7 +51,7 @@ const Panel = ({ usuario, apadrinados, animalesFavoritos, onFavorito, onVerCatal
         </section>
 
         <section className="space-y-space-md">
-          <h2 className="font-headline-md text-headline-md text-primary">Tus favoritos</h2>
+          <TituloSeccion>Tus favoritos</TituloSeccion>
 
           {animalesFavoritos.length === 0 ? (
             <p className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg text-center font-body-md text-body-md text-on-surface-variant">

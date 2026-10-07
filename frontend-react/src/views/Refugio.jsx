@@ -3,6 +3,7 @@ import TarjetaDato from '../components/admin/TarjetaDato'
 import Buscador from '../components/comunes/Buscador'
 import Icono from '../components/comunes/Icono'
 import Portada from '../components/comunes/Portada'
+import TituloSeccion from '../components/comunes/TituloSeccion'
 import FormularioAnimal from '../components/refugio/FormularioAnimal'
 import ListaPadrinos from '../components/refugio/ListaPadrinos'
 import TarjetaMiAnimal from '../components/refugio/TarjetaMiAnimal'
@@ -83,7 +84,7 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
       />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+        <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
           <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
           <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />
           <TarjetaDato
@@ -96,7 +97,7 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
 
         <section className="space-y-space-md">
           <div className="flex flex-wrap items-end justify-between gap-space-sm">
-            <h2 className="font-headline-md text-headline-md text-primary">Mis animales</h2>
+            <TituloSeccion>Mis animales</TituloSeccion>
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Mostrando {visibles.length} de {propios.length}
             </p>
@@ -127,7 +128,7 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
         </section>
 
         <section className="space-y-space-md">
-          <h2 className="font-headline-md text-headline-md text-primary">Padrinos</h2>
+          <TituloSeccion>Padrinos</TituloSeccion>
           <ListaPadrinos apadrinamientos={susApadrinamientos} usuarios={usuarios} />
         </section>
 

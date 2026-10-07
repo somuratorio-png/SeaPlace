@@ -1,12 +1,11 @@
+import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaDestacada from './TarjetaDestacada'
 
 const AnimalesDestacados = ({ animales, onVerAnimal }) => {
   return (
     <section className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-xl space-y-space-lg">
       <div className="max-w-xl space-y-space-xs">
-        <h2 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary">
-          Héroes del Agua Salada para Apadrinar
-        </h2>
+        <TituloSeccion>Héroes del Agua Salada para Apadrinar</TituloSeccion>
         <p className="font-body-md text-body-md text-on-surface-variant">
           Cada habitante tiene un expediente clínico, una personalidad única y un viaje hacia la libertad que podés hacer
           posible con tu aporte mensual.

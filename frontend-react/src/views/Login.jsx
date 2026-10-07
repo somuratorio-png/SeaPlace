@@ -103,7 +103,7 @@ const Login = ({ usuarios, onIngresar, onRegistrar }) => {
 
         {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 
-        <button type="submit" className="w-full bg-primary text-on-primary font-title-lg text-title-lg py-3 rounded-lg hover:bg-primary-container">
+        <button type="submit" className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container">
           {esRegistro ? 'Crear cuenta' : 'Ingresar'}
         </button>
 

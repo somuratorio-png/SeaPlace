@@ -1,5 +1,8 @@
 import Icono from '../comunes/Icono'
 import Olas from '../comunes/Olas'
+import TituloSeccion from '../comunes/TituloSeccion'
+import Concha from '../marino/Concha'
+import Estrella from '../marino/Estrella'
 
 const beneficios = [
   { icono: 'workspace_premium', titulo: 'Certificado Oficial', texto: 'Con la huella de aleta de tu apadrinado, listo para enmarcar.' },
@@ -11,17 +14,19 @@ const beneficios = [
 const KitProtector = () => {
   return (
     <section>
-      {/* Las olas abren una franja celeste, como agua baja sobre la arena */}
+      {/* Las olas abren una franja de arena */}
       <Olas clase="text-primary-fixed -mb-px" />
 
-      <div className="bg-primary-fixed py-space-xl">
-        <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin space-y-space-lg">
-          <h2 className="font-headline-lg text-headline-lg-mobile lg:text-headline-lg text-primary text-center">
-            Tu Kit del Protector del Océano
-          </h2>
+      <div className="bg-primary-fixed py-space-xl relative overflow-hidden">
+        {/* Arena con una estrella y una concha en las esquinas */}
+        <Estrella clase="w-20 absolute -left-4 top-6 rotate-12 opacity-80" />
+        <Concha clase="w-16 absolute right-6 bottom-6 -rotate-12 opacity-90" />
+
+        <div className="relative max-w-7xl mx-auto px-margin-mobile lg:px-margin space-y-space-lg">
+          <TituloSeccion centrado>Tu Kit del Protector del Océano</TituloSeccion>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-md">
             {beneficios.map((beneficio) => (
-              <div key={beneficio.titulo} className="bg-surface-container-lowest rounded-2xl p-space-lg space-y-space-sm shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+              <div key={beneficio.titulo} className="revelar bg-surface-container-lowest rounded-2xl p-space-lg space-y-space-sm shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
                 <div className="w-14 h-14 rounded-full fondo-mar text-on-primary flex items-center justify-center">
                   <Icono nombre={beneficio.icono} clase="text-[28px]" />
                 </div>
