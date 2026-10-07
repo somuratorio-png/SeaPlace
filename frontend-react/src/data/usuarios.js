@@ -41,4 +41,13 @@ export const usuariosDeDemo = [
     rol: 'refugio',
     activo: true,
   },
+  {
+    nombre: 'Refugio',
+    apellido: 'Pacífico Abierto',
+    mail: 'pacifico@seaplace.test',
+    nombreUsuario: 'pacifico',
+    contrasenia: 'refugio123',
+    rol: 'refugio',
+    activo: true,
+  },
 ]

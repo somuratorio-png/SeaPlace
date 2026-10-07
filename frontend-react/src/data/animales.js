@@ -2,6 +2,7 @@ import * as img from './imagenes'
 
 // Datos de los animales (mock: no vienen de ningún servidor).
 // urgencia: 'critico' | 'recuperacion' | 'listo'
+// refugio: nombre de usuario del refugio que lo cuida
 
 export const categorias = [
   { id: 'focas', nombre: 'Focas y Leones Marinos', icono: 'pets' },
@@ -10,9 +11,17 @@ export const categorias = [
   { id: 'tortugas', nombre: 'Tortugas Marinas', icono: 'shield' },
 ]
 
-export const animales = [
+// El "estado" es el texto que se muestra para cada urgencia cuando un refugio carga un animal nuevo
+export const urgencias = [
+  { id: 'critico', estado: 'Peligro Crítico' },
+  { id: 'recuperacion', estado: 'En Recuperación' },
+  { id: 'listo', estado: 'Listo para Liberación' },
+]
+
+export const animalesDeDemo = [
   {
     id: 'jacinta',
+    refugio: 'ensenada',
     nombre: 'Jacinta',
     especie: 'Foca Común',
     categoria: 'focas',
@@ -29,6 +38,7 @@ export const animales = [
   },
   {
     id: 'kelp',
+    refugio: 'pacifico',
     nombre: 'Kelp',
     especie: 'Nutria de Mar',
     categoria: 'nutrias',
@@ -45,6 +55,7 @@ export const animales = [
   },
   {
     id: 'coral',
+    refugio: 'ensenada',
     nombre: 'Coral',
     especie: 'León Marino',
     categoria: 'focas',
@@ -61,6 +72,7 @@ export const animales = [
   },
   {
     id: 'mar',
+    refugio: 'pacifico',
     nombre: 'Mar',
     especie: 'Tortuga Laúd',
     categoria: 'tortugas',
@@ -77,6 +89,7 @@ export const animales = [
   },
   {
     id: 'luna',
+    refugio: 'ensenada',
     nombre: 'Luna',
     especie: 'Foca Monje',
     categoria: 'focas',
@@ -93,6 +106,7 @@ export const animales = [
   },
   {
     id: 'barnaby',
+    refugio: 'pacifico',
     nombre: 'Barnaby',
     especie: 'Nutria Marina',
     categoria: 'nutrias',
@@ -109,6 +123,7 @@ export const animales = [
   },
   {
     id: 'oceano',
+    refugio: 'ensenada',
     nombre: 'Océano',
     especie: 'Foca Moteada',
     categoria: 'focas',
@@ -125,6 +140,7 @@ export const animales = [
   },
   {
     id: 'kailani',
+    refugio: 'pacifico',
     nombre: 'Kailani',
     especie: 'Delfín Mular',
     categoria: 'cetaceos',
@@ -141,6 +157,7 @@ export const animales = [
   },
   {
     id: 'arenita',
+    refugio: 'pacifico',
     nombre: 'Arenita',
     especie: 'Tortuga Golfina',
     categoria: 'tortugas',
@@ -157,6 +174,7 @@ export const animales = [
   },
   {
     id: 'sammy',
+    refugio: 'ensenada',
     nombre: 'Sammy',
     especie: 'León Marino',
     categoria: 'focas',

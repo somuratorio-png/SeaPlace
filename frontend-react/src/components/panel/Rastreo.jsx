@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
-import { rutas } from '../../data/rutas'
+import { rutaPorDefecto, rutas } from '../../data/rutas'
 
 const SEGUNDOS_ENTRE_ACTUALIZACIONES = 3
 
 // Mapa con la ubicación del animal. Cada pocos segundos avanza al siguiente punto de su ruta.
 const Rastreo = ({ animal }) => {
-  const ruta = rutas[animal.id]
+  const ruta = rutas[animal.id] ?? rutaPorDefecto
   const [paso, setPaso] = useState(0)
   const [hora, setHora] = useState(() => new Date())
 

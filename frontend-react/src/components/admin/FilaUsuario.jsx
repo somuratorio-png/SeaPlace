@@ -1,14 +1,31 @@
 import { roles } from '../../data/usuarios'
+import Chip from './Chip'
+
+// Color del círculo con la inicial, según el rol
+const coloresPorRol = {
+  padrino: 'bg-primary-fixed text-on-primary-fixed-variant',
+  refugio: 'bg-secondary-container text-on-secondary-fixed-variant',
+  administrador: 'bg-tertiary-fixed text-on-tertiary-fixed-variant',
+}
 
 // Una fila de la tabla de usuarios. esUnoMismo = es el admin que está logueado,
 // que no puede cambiarse el rol ni darse de baja a sí mismo.
 const FilaUsuario = ({ usuario, esUnoMismo, onCambiarRol, onCambiarActivo }) => {
   return (
-    <tr className="border-t border-outline-variant">
-      <td className="p-space-sm font-body-md text-body-md text-on-surface">
-        {usuario.nombre} {usuario.apellido}
+    <tr className="border-t border-outline-variant hover:bg-surface-container-low">
+      <td className="p-space-sm">
+        <div className="flex items-center gap-space-sm">
+          <span className={`w-9 h-9 shrink-0 rounded-full flex items-center justify-center font-label-lg text-label-lg ${coloresPorRol[usuario.rol]}`}>
+            {usuario.nombre.charAt(0).toUpperCase()}
+          </span>
+          <div>
+            <div className="font-body-md text-body-md text-on-surface">
+              {usuario.nombre} {usuario.apellido}
+            </div>
+            <div className="font-body-sm text-body-sm text-on-surface-variant">@{usuario.nombreUsuario}</div>
+          </div>
+        </div>
       </td>
-      <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">{usuario.nombreUsuario}</td>
       <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">{usuario.mail}</td>
       <td className="p-space-sm">
         <select
@@ -16,7 +33,7 @@ const FilaUsuario = ({ usuario, esUnoMismo, onCambiarRol, onCambiarActivo }) => 
           disabled={esUnoMismo}
           onChange={(evento) => onCambiarRol(usuario.nombreUsuario, evento.target.value)}
           aria-label={`Rol de ${usuario.nombreUsuario}`}
-          className="bg-surface-container-low rounded-lg px-space-sm py-1 font-label-lg text-label-lg text-on-surface disabled:opacity-50"
+          className={`rounded-lg px-space-sm py-1 font-label-lg text-label-lg disabled:opacity-60 ${coloresPorRol[usuario.rol]}`}
         >
           {roles.map((rol) => (
             <option key={rol} value={rol}>
@@ -25,14 +42,19 @@ const FilaUsuario = ({ usuario, esUnoMismo, onCambiarRol, onCambiarActivo }) => 
           ))}
         </select>
       </td>
-      <td className="p-space-sm font-label-lg text-label-lg">
-        {usuario.activo ? <span className="text-secondary">Activo</span> : <span className="text-error">Dado de baja</span>}
+      <td className="p-space-sm">
+        <Chip texto={usuario.activo ? 'Activo' : 'Dado de baja'} tono={usuario.activo ? 'verde' : 'rojo'} />
       </td>
       <td className="p-space-sm text-right">
         {esUnoMismo ? (
-          <span className="font-body-sm text-body-sm text-on-surface-variant">Sos vos</span>
+          <Chip texto="Sos vos" tono="marron" />
         ) : (
-          <button onClick={() => onCambiarActivo(usuario.nombreUsuario)} className="font-label-lg text-label-lg text-primary hover:underline">
+          <button
+            onClick={() => onCambiarActivo(usuario.nombreUsuario)}
+            className={`font-label-lg text-label-lg px-space-md py-1 rounded-lg ${
+              usuario.activo ? 'bg-error-container text-on-error-container' : 'bg-primary text-on-primary'
+            }`}
+          >
             {usuario.activo ? 'Dar de baja' : 'Reactivar'}
           </button>
         )}

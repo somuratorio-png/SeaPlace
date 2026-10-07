@@ -1,6 +1,9 @@
 // Rutas de rastreo de cada animal (mock: no vienen de ningún GPS real).
 // Cada punto es [x, y] dentro de un mapa de 100 x 60. La ruta es un circuito:
 // después del último punto el animal vuelve al primero.
+// La que se usa para un animal que todavía no tiene ruta propia (por ejemplo, uno recién cargado)
+export const rutaPorDefecto = [[40, 22], [52, 20], [60, 28], [56, 38], [44, 40], [36, 32]]
+
 export const rutas = {
   jacinta: [[20, 40], [28, 32], [38, 28], [48, 30], [55, 38], [50, 46], [40, 50], [28, 48]],
   kelp: [[60, 20], [70, 16], [80, 20], [84, 30], [78, 38], [68, 40], [60, 34], [56, 26]],

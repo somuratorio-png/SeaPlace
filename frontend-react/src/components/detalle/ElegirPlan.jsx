@@ -1,7 +1,8 @@
 import { useState } from 'react'
 
 // Muestra los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal.
-const ElegirPlan = ({ animal, onAgregar }) => {
+// puedeApadrinar es false para un administrador: ve los planes pero no el botón.
+const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
   const planes = [
     { nombre: 'Brisa Marina', precio: Math.round(animal.precio / 2), texto: 'Certificado digital y bitácora mensual por correo.' },
     { nombre: 'Guardián de la Bahía', precio: animal.precio, texto: 'Todo lo anterior + webcam 24/7 y kit de bienvenida.' },
@@ -44,9 +45,15 @@ const ElegirPlan = ({ animal, onAgregar }) => {
         </label>
       ))}
 
-      <button onClick={agregar} className="w-full bg-primary text-on-primary font-title-lg text-title-lg py-space-md rounded-lg hover:bg-surface-tint">
-        Apadrinar a {animal.nombre}
-      </button>
+      {puedeApadrinar ? (
+        <button onClick={agregar} className="w-full bg-primary text-on-primary font-title-lg text-title-lg py-space-md rounded-lg hover:bg-surface-tint">
+          Apadrinar a {animal.nombre}
+        </button>
+      ) : (
+        <p className="bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-lg px-space-md py-space-sm font-body-sm text-body-sm text-center">
+          Las cuentas de administrador no pueden apadrinar.
+        </p>
+      )}
     </div>
   )
 }

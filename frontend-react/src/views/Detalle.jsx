@@ -4,9 +4,8 @@ import Icono from '../components/comunes/Icono'
 import ElegirPlan from '../components/detalle/ElegirPlan'
 import Galeria from '../components/detalle/Galeria'
 import PreguntasFrecuentes from '../components/detalle/PreguntasFrecuentes'
-import { animales } from '../data/animales'
 
-const Detalle = ({ onAgregar, onVolver }) => {
+const Detalle = ({ animales, puedeApadrinar, onAgregar, onVolver }) => {
   // El id sale de la URL (/animal/:id) y con eso se busca el animal
   const { id } = useParams()
   const animal = animales.find((a) => a.id === id)
@@ -40,7 +39,7 @@ const Detalle = ({ onAgregar, onVolver }) => {
             </span>
             <h1 className="font-headline-lg text-headline-lg text-on-surface">{animal.nombre}</h1>
           </div>
-          <ElegirPlan animal={animal} onAgregar={onAgregar} />
+          <ElegirPlan animal={animal} puedeApadrinar={puedeApadrinar} onAgregar={onAgregar} />
         </div>
       </div>
 

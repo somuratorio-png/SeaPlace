@@ -2,9 +2,9 @@ import { useState } from 'react'
 import BarraBusqueda from '../components/catalogo/BarraBusqueda'
 import FiltroCategorias from '../components/catalogo/FiltroCategorias'
 import TarjetaAnimal from '../components/catalogo/TarjetaAnimal'
-import { animales, categorias } from '../data/animales'
+import { categorias } from '../data/animales'
 
-const Catalogo = ({ onVerAnimal }) => {
+const Catalogo = ({ animales, onVerAnimal }) => {
   const [categoria, setCategoria] = useState('todas')
   const [busqueda, setBusqueda] = useState('')
   const [urgencia, setUrgencia] = useState('todas')
