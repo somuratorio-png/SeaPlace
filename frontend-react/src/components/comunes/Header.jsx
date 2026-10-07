@@ -15,6 +15,9 @@ const Header =({ rutaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => 
           <BotonMenu texto="Inicio" activo={rutaActual === '/'} onClick={() => onNavegar('/')} />
           <BotonMenu texto="Fauna para Apadrinar" activo={rutaActual === '/catalogo'} onClick={() => onNavegar('/catalogo')} />
           <BotonMenu texto={`Carrito (${cantidadCarrito})`} activo={rutaActual === '/carrito'} onClick={() => onNavegar('/carrito')} />
+          {usuario && usuario.rol === 'administrador' && (
+            <BotonMenu texto="Administración" activo={rutaActual === '/admin'} onClick={() => onNavegar('/admin')} />
+          )}
         </nav>
 
         <div className="flex items-center gap-space-sm">

@@ -3,6 +3,7 @@ import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
 import { usuariosDeDemo } from './data/usuarios'
+import Admin from './views/Admin'
 import Apadrinado from './views/Apadrinado'
 import Carrito from './views/Carrito'
 import Catalogo from './views/Catalogo'
@@ -53,10 +54,23 @@ const App = () => {
     irA('/panel')
   }
 
-  const registrar = (nuevoUsuario) => {
+  // Quien se registra arranca como padrino, igual que en el backend
+  const registrar = (datos) => {
+    const nuevoUsuario = { ...datos, rol: 'padrino', activo: true }
     setUsuarios([...usuarios, nuevoUsuario])
     setUsuario(nuevoUsuario)
   }
+
+  const cambiarRol = (nombreUsuario, rol) => {
+    setUsuarios(usuarios.map((u) => (u.nombreUsuario === nombreUsuario ? { ...u, rol } : u)))
+  }
+
+  // Da de baja a un usuario activo, o reactiva a uno dado de baja
+  const cambiarActivo = (nombreUsuario) => {
+    setUsuarios(usuarios.map((u) => (u.nombreUsuario === nombreUsuario ? { ...u, activo: !u.activo } : u)))
+  }
+
+  const esAdmin = usuario !== null && usuario.rol === 'administrador'
 
   const salir = () => {
     setUsuario(null)
@@ -88,6 +102,17 @@ const App = () => {
             }
           />
           <Route path="/panel/:id" element={<Apadrinado apadrinados={apadrinados} onVolver={() => irA('/panel')} />} />
+          {/* Solo entra un administrador: el resto va al panel (o al login) */}
+          <Route
+            path="/admin"
+            element={
+              esAdmin ? (
+                <Admin usuario={usuario} usuarios={usuarios} onCambiarRol={cambiarRol} onCambiarActivo={cambiarActivo} />
+              ) : (
+                <Navigate to="/panel" replace />
+              )
+            }
+          />
           {/* Cualquier otra dirección vuelve al inicio */}
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
