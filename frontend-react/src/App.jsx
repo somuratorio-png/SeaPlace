@@ -2,6 +2,7 @@ import { useState } from 'react'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
 import { usuariosDeDemo } from './data/usuarios'
+import Apadrinado from './views/Apadrinado'
 import Carrito from './views/Carrito'
 import Catalogo from './views/Catalogo'
 import Detalle from './views/Detalle'
@@ -12,8 +13,9 @@ import Panel from './views/Panel'
 // App es el componente principal. Guarda el estado que comparten varias páginas
 // y se lo pasa a cada una por props.
 const App = () => {
-  const [pagina, setPagina] = useState('inicio') // 'inicio' | 'catalogo' | 'detalle' | 'carrito' | 'panel'
+  const [pagina, setPagina] = useState('inicio') // 'inicio' | 'catalogo' | 'detalle' | 'carrito' | 'panel' | 'apadrinado'
   const [animalElegido, setAnimalElegido] = useState(null)
+  const [apadrinadoElegido, setApadrinadoElegido] = useState(null) // { animal, plan }
   const [carrito, setCarrito] = useState([]) // [{ animal, plan }]
   const [apadrinados, setApadrinados] = useState([]) // lo que ya se confirmó
   const [usuarios, setUsuarios] = useState(usuariosDeDemo)
@@ -26,6 +28,11 @@ const App = () => {
   const verAnimal = (animal) => {
     setAnimalElegido(animal)
     irA('detalle')
+  }
+
+  const verApadrinado = (item) => {
+    setApadrinadoElegido(item)
+    irA('apadrinado')
   }
 
   // Si el animal ya estaba en el carrito, se reemplaza (por si cambió de plan)
@@ -72,8 +79,9 @@ const App = () => {
         )}
         {/* El panel es solo para usuarios logueados: si no hay nadie, se muestra el login */}
         {pagina === 'panel' && usuario && (
-          <Panel usuario={usuario} apadrinados={apadrinados} onVerCatalogo={() => irA('catalogo')} />
+          <Panel usuario={usuario} apadrinados={apadrinados} onVerCatalogo={() => irA('catalogo')} onVerApadrinado={verApadrinado} />
         )}
+        {pagina === 'apadrinado' && <Apadrinado item={apadrinadoElegido} onVolver={() => irA('panel')} />}
         {pagina === 'panel' && !usuario && <Login usuarios={usuarios} onIngresar={setUsuario} onRegistrar={registrar} />}
       </main>
 

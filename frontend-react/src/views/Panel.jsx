@@ -1,7 +1,7 @@
 import TarjetaApadrinado from '../components/panel/TarjetaApadrinado'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó
-const Panel = ({ usuario, apadrinados, onVerCatalogo }) => {
+const Panel = ({ usuario, apadrinados, onVerCatalogo, onVerApadrinado }) => {
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-xl space-y-space-lg">
       <div>
@@ -21,7 +21,7 @@ const Panel = ({ usuario, apadrinados, onVerCatalogo }) => {
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
           {apadrinados.map((item) => (
-            <TarjetaApadrinado key={item.animal.id} item={item} />
+            <TarjetaApadrinado key={item.animal.id} item={item} onVer={onVerApadrinado} />
           ))}
         </div>
       )}

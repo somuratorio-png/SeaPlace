@@ -12,8 +12,8 @@ export const categorias = [
 
 export const animales = [
   {
-    id: 'nori',
-    nombre: 'Nori',
+    id: 'jacinta',
+    nombre: 'Jacinta',
     especie: 'Foca Común',
     categoria: 'focas',
     urgencia: 'recuperacion',

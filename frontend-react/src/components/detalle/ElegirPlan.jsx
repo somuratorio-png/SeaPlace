@@ -5,7 +5,7 @@ const ElegirPlan = ({ animal, onAgregar }) => {
   const planes = [
     { nombre: 'Brisa Marina', precio: Math.round(animal.precio / 2), texto: 'Certificado digital y bitácora mensual por correo.' },
     { nombre: 'Guardián de la Bahía', precio: animal.precio, texto: 'Todo lo anterior + webcam 24/7 y kit de bienvenida.' },
-    { nombre: 'Marea Profunda', precio: animal.precio * 2, texto: 'Todo lo anterior + charla virtual con los biólogos.' },
+    { nombre: 'Marea Profunda', precio: animal.precio * 2, texto: 'Todo lo anterior + ubicación en vivo y charla virtual con los biólogos.', ubicacionEnVivo: true },
   ]
 
   // Guardamos el nombre del plan elegido; arranca en el del medio

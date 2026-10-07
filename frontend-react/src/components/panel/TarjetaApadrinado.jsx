@@ -1,7 +1,7 @@
 import BarraProgreso from '../comunes/BarraProgreso'
 
 // Un animal que el usuario ya apadrinó, con su progreso de rehabilitación
-const TarjetaApadrinado = ({ item }) => {
+const TarjetaApadrinado = ({ item, onVer }) => {
   return (
     <div className="bg-surface-container-lowest rounded-xl overflow-hidden shadow-md">
       <img src={item.animal.imagen} alt={`Foto de ${item.animal.nombre}`} className="w-full h-48 object-cover" />
@@ -14,6 +14,9 @@ const TarjetaApadrinado = ({ item }) => {
           Plan {item.plan.nombre} · ${item.plan.precio}/mes
         </p>
         <BarraProgreso porcentaje={item.animal.progreso} />
+        <button onClick={() => onVer(item)} className="w-full bg-primary text-on-primary font-label-lg text-label-lg py-space-sm rounded-lg hover:bg-surface-tint">
+          Ver detalles
+        </button>
       </div>
     </div>
   )
