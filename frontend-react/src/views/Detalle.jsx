@@ -1,10 +1,20 @@
+import { Navigate, useParams } from 'react-router-dom'
 import BarraProgreso from '../components/comunes/BarraProgreso'
 import Icono from '../components/comunes/Icono'
 import ElegirPlan from '../components/detalle/ElegirPlan'
 import Galeria from '../components/detalle/Galeria'
 import PreguntasFrecuentes from '../components/detalle/PreguntasFrecuentes'
+import { animales } from '../data/animales'
 
-const Detalle = ({ animal, onAgregar, onVolver }) => {
+const Detalle = ({ onAgregar, onVolver }) => {
+  // El id sale de la URL (/animal/:id) y con eso se busca el animal
+  const { id } = useParams()
+  const animal = animales.find((a) => a.id === id)
+
+  if (!animal) {
+    return <Navigate to="/catalogo" replace />
+  }
+
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
       <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">

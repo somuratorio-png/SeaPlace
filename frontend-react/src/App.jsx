@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
 import { usuariosDeDemo } from './data/usuarios'
@@ -11,35 +12,33 @@ import Login from './views/Login'
 import Panel from './views/Panel'
 
 // App es el componente principal. Guarda el estado que comparten varias páginas
-// y se lo pasa a cada una por props.
+// y se lo pasa a cada una por props. La página que se muestra depende de la URL.
 const App = () => {
-  const [pagina, setPagina] = useState('inicio') // 'inicio' | 'catalogo' | 'detalle' | 'carrito' | 'panel' | 'apadrinado'
-  const [animalElegido, setAnimalElegido] = useState(null)
-  const [apadrinadoElegido, setApadrinadoElegido] = useState(null) // { animal, plan }
   const [carrito, setCarrito] = useState([]) // [{ animal, plan }]
   const [apadrinados, setApadrinados] = useState([]) // lo que ya se confirmó
   const [usuarios, setUsuarios] = useState(usuariosDeDemo)
   const [usuario, setUsuario] = useState(null) // null = nadie logueado
 
-  const irA = (nuevaPagina) => {
-    setPagina(nuevaPagina)
+  const navigate = useNavigate()
+  const { pathname } = useLocation() // la ruta actual, por ejemplo '/catalogo'
+
+  const irA = (ruta) => {
+    navigate(ruta)
   }
 
   const verAnimal = (animal) => {
-    setAnimalElegido(animal)
-    irA('detalle')
+    irA(`/animal/${animal.id}`)
   }
 
   const verApadrinado = (item) => {
-    setApadrinadoElegido(item)
-    irA('apadrinado')
+    irA(`/panel/${item.animal.id}`)
   }
 
   // Si el animal ya estaba en el carrito, se reemplaza (por si cambió de plan)
   const agregarAlCarrito = (animal, plan) => {
     const sinEseAnimal = carrito.filter((item) => item.animal.id !== animal.id)
     setCarrito([...sinEseAnimal, { animal, plan }])
-    irA('carrito')
+    irA('/carrito')
   }
 
   const quitarDelCarrito = (idAnimal) => {
@@ -51,7 +50,7 @@ const App = () => {
     const anteriores = apadrinados.filter((item) => !carrito.some((nuevo) => nuevo.animal.id === item.animal.id))
     setApadrinados([...anteriores, ...carrito])
     setCarrito([])
-    irA('panel')
+    irA('/panel')
   }
 
   const registrar = (nuevoUsuario) => {
@@ -61,28 +60,37 @@ const App = () => {
 
   const salir = () => {
     setUsuario(null)
-    irA('inicio')
+    irA('/')
   }
 
   return (
     <div className="min-h-screen bg-surface font-body-md text-on-surface">
-      <Header paginaActual={pagina} cantidadCarrito={carrito.length} usuario={usuario} onNavegar={irA} onSalir={salir} />
+      <Header rutaActual={pathname} cantidadCarrito={carrito.length} usuario={usuario} onNavegar={irA} onSalir={salir} />
 
       <main>
-        {pagina === 'inicio' && <Inicio onVerCatalogo={() => irA('catalogo')} onVerAnimal={verAnimal} />}
-        {pagina === 'catalogo' && <Catalogo onVerAnimal={verAnimal} />}
-        {pagina === 'detalle' && (
-          <Detalle animal={animalElegido} onAgregar={agregarAlCarrito} onVolver={() => irA('catalogo')} />
-        )}
-        {pagina === 'carrito' && (
-          <Carrito carrito={carrito} onQuitar={quitarDelCarrito} onConfirmar={confirmarCarrito} onVerCatalogo={() => irA('catalogo')} />
-        )}
-        {/* El panel es solo para usuarios logueados: si no hay nadie, se muestra el login */}
-        {pagina === 'panel' && usuario && (
-          <Panel usuario={usuario} apadrinados={apadrinados} onVerCatalogo={() => irA('catalogo')} onVerApadrinado={verApadrinado} />
-        )}
-        {pagina === 'apadrinado' && <Apadrinado item={apadrinadoElegido} onVolver={() => irA('panel')} />}
-        {pagina === 'panel' && !usuario && <Login usuarios={usuarios} onIngresar={setUsuario} onRegistrar={registrar} />}
+        <Routes>
+          <Route path="/" element={<Inicio onVerCatalogo={() => irA('/catalogo')} onVerAnimal={verAnimal} />} />
+          <Route path="/catalogo" element={<Catalogo onVerAnimal={verAnimal} />} />
+          <Route path="/animal/:id" element={<Detalle onAgregar={agregarAlCarrito} onVolver={() => irA('/catalogo')} />} />
+          <Route
+            path="/carrito"
+            element={<Carrito carrito={carrito} onQuitar={quitarDelCarrito} onConfirmar={confirmarCarrito} onVerCatalogo={() => irA('/catalogo')} />}
+          />
+          {/* El panel es solo para usuarios logueados: si no hay nadie, se muestra el login */}
+          <Route
+            path="/panel"
+            element={
+              usuario ? (
+                <Panel usuario={usuario} apadrinados={apadrinados} onVerCatalogo={() => irA('/catalogo')} onVerApadrinado={verApadrinado} />
+              ) : (
+                <Login usuarios={usuarios} onIngresar={setUsuario} onRegistrar={registrar} />
+              )
+            }
+          />
+          <Route path="/panel/:id" element={<Apadrinado apadrinados={apadrinados} onVolver={() => irA('/panel')} />} />
+          {/* Cualquier otra dirección vuelve al inicio */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
 
       <Footer />

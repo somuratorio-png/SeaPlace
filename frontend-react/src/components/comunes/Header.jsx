@@ -2,24 +2,24 @@ import { logo } from '../../data/imagenes'
 import BotonMenu from './BotonMenu'
 import Icono from './Icono'
 
-const Header =({ paginaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => {
+const Header =({ rutaActual, cantidadCarrito, usuario, onNavegar, onSalir }) => {
   return (
     <header className="sticky top-0 z-50 w-full bg-surface/90 backdrop-blur-md shadow-sm">
       <div className="max-w-7xl mx-auto min-h-20 py-space-sm px-margin-mobile lg:px-margin flex flex-wrap items-center justify-between gap-space-sm">
-        <button onClick={() => onNavegar('inicio')} className="flex items-center gap-space-sm">
+        <button onClick={() => onNavegar('/')} className="flex items-center gap-space-sm">
           <img src={logo} alt="Logo de SeaPlace" className="h-8" />
           <span className="font-title-lg text-title-lg text-primary">SeaPlace</span>
         </button>
 
         <nav className="order-last w-full lg:order-none lg:w-auto flex flex-wrap items-center gap-space-xs">
-          <BotonMenu texto="Inicio" activo={paginaActual === 'inicio'} onClick={() => onNavegar('inicio')} />
-          <BotonMenu texto="Fauna para Apadrinar" activo={paginaActual === 'catalogo'} onClick={() => onNavegar('catalogo')} />
-          <BotonMenu texto={`Carrito (${cantidadCarrito})`} activo={paginaActual === 'carrito'} onClick={() => onNavegar('carrito')} />
+          <BotonMenu texto="Inicio" activo={rutaActual === '/'} onClick={() => onNavegar('/')} />
+          <BotonMenu texto="Fauna para Apadrinar" activo={rutaActual === '/catalogo'} onClick={() => onNavegar('/catalogo')} />
+          <BotonMenu texto={`Carrito (${cantidadCarrito})`} activo={rutaActual === '/carrito'} onClick={() => onNavegar('/carrito')} />
         </nav>
 
         <div className="flex items-center gap-space-sm">
           <button
-            onClick={() => onNavegar('panel')}
+            onClick={() => onNavegar('/panel')}
             className="flex items-center gap-1 bg-secondary-container text-on-secondary-container font-label-lg text-label-lg px-space-md py-space-sm rounded-lg"
           >
             <Icono nombre="person" clase="text-[18px]" />

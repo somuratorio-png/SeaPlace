@@ -1,3 +1,4 @@
+import { Navigate, useParams } from 'react-router-dom'
 import BarraProgreso from '../components/comunes/BarraProgreso'
 import Icono from '../components/comunes/Icono'
 import Galeria from '../components/detalle/Galeria'
@@ -6,8 +7,17 @@ import MiPlan from '../components/panel/MiPlan'
 import Rastreo from '../components/panel/Rastreo'
 import RastreoBloqueado from '../components/panel/RastreoBloqueado'
 
-// Detalle de un animal que el usuario ya apadrinó. item = { animal, plan }
-const Apadrinado = ({ item, onVolver }) => {
+// Detalle de un animal que el usuario ya apadrinó. apadrinados = [{ animal, plan }]
+const Apadrinado = ({ apadrinados, onVolver }) => {
+  // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
+  const { id } = useParams()
+  const item = apadrinados.find((a) => a.animal.id === id)
+
+  // Si ese animal no está apadrinado (o se recargó la página), se vuelve al panel
+  if (!item) {
+    return <Navigate to="/panel" replace />
+  }
+
   const { animal, plan } = item
 
   return (
