@@ -10,7 +10,8 @@ const coloresUrgencia = {
 }
 
 const TarjetaAnimal = ({ animal, esFavorito, onFavorito, onVer }) => {
-  const metaCubierta = animal.progreso === 100
+  // Si no le quedan cupos, no se puede apadrinar
+  const sinCupos = animal.cuposDisponibles === 0
 
   return (
     <article className="revelar group bg-surface-container-lowest rounded-2xl overflow-hidden shadow-sm flex flex-col transition hover:-translate-y-1 hover:shadow-xl">
@@ -29,14 +30,17 @@ const TarjetaAnimal = ({ animal, esFavorito, onFavorito, onVer }) => {
         </div>
         <p className="font-body-sm text-body-sm text-on-surface-variant flex-1">{animal.descripcion}</p>
         <PrecioAnimal animal={animal} />
+        <p className={`font-label-md text-label-md ${sinCupos ? 'text-error' : 'text-secondary'}`}>
+          {sinCupos ? 'Sin cupos disponibles' : `Quedan ${animal.cuposDisponibles} de ${animal.cuposTotales} cupos`}
+        </p>
         <div className="flex justify-between font-label-md text-label-md">
           <span className="text-on-surface-variant">{animal.ubicacion}</span>
           <span className="text-primary">{animal.progreso}% financiado</span>
         </div>
         <BarraProgreso porcentaje={animal.progreso} />
 
-        {metaCubierta ? (
-          <p className="text-center font-label-lg text-label-lg text-secondary py-2">¡Meta cubierta! Gracias a todos.</p>
+        {sinCupos ? (
+          <p className="text-center font-label-lg text-label-lg text-secondary py-2">¡Cupos completos! Gracias a todos.</p>
         ) : (
           <button onClick={onVer} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg py-2.5 rounded-full hover:bg-tertiary-container">
             Ver historia y apadrinar

@@ -3,6 +3,7 @@ import * as img from './imagenes'
 // Datos de los animales (mock: no vienen de ningún servidor).
 // urgencia: 'critico' | 'recuperacion' | 'listo'
 // refugio: nombre de usuario del refugio que lo cuida
+// cuposTotales / cuposDisponibles: cuántos padrinos admite y cuántos lugares quedan (igual que en el backend)
 // descuento (opcional): { porcentaje, hasta } = oferta que pone el refugio hasta esa fecha
 
 export const categorias = [
@@ -22,6 +23,8 @@ export const urgencias = [
 export const animalesDeDemo = [
   {
     id: 'jacinta',
+    cuposTotales: 8,
+    cuposDisponibles: 6,
     refugio: 'ensenada',
     nombre: 'Jacinta',
     especie: 'Foca Común',
@@ -39,6 +42,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'kelp',
+    cuposTotales: 5,
+    cuposDisponibles: 4,
     refugio: 'pacifico',
     nombre: 'Kelp',
     especie: 'Nutria de Mar',
@@ -56,6 +61,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'coral',
+    cuposTotales: 6,
+    cuposDisponibles: 6,
     refugio: 'ensenada',
     nombre: 'Coral',
     especie: 'León Marino',
@@ -73,6 +80,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'mar',
+    cuposTotales: 4,
+    cuposDisponibles: 3,
     refugio: 'pacifico',
     nombre: 'Mar',
     especie: 'Tortuga Laúd',
@@ -90,6 +99,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'luna',
+    cuposTotales: 6,
+    cuposDisponibles: 5,
     refugio: 'ensenada',
     nombre: 'Luna',
     especie: 'Foca Monje',
@@ -107,6 +118,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'barnaby',
+    cuposTotales: 5,
+    cuposDisponibles: 5,
     refugio: 'pacifico',
     nombre: 'Barnaby',
     especie: 'Nutria Marina',
@@ -124,6 +137,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'oceano',
+    cuposTotales: 10,
+    cuposDisponibles: 10,
     refugio: 'ensenada',
     descuento: { porcentaje: 20, hasta: '2026-12-31' },
     nombre: 'Océano',
@@ -142,6 +157,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'kailani',
+    cuposTotales: 4,
+    cuposDisponibles: 4,
     refugio: 'pacifico',
     nombre: 'Kailani',
     especie: 'Delfín Mular',
@@ -159,6 +176,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'arenita',
+    cuposTotales: 3,
+    cuposDisponibles: 0,
     refugio: 'pacifico',
     nombre: 'Arenita',
     especie: 'Tortuga Golfina',
@@ -176,6 +195,8 @@ export const animalesDeDemo = [
   },
   {
     id: 'sammy',
+    cuposTotales: 6,
+    cuposDisponibles: 6,
     refugio: 'ensenada',
     nombre: 'Sammy',
     especie: 'León Marino',

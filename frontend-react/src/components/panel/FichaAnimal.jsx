@@ -5,6 +5,7 @@ const FichaAnimal = ({ animal }) => {
     { etiqueta: 'Edad', valor: animal.edad },
     { etiqueta: 'Ubicación', valor: animal.ubicacion },
     { etiqueta: 'Estado', valor: animal.estado },
+    { etiqueta: 'Cupos disponibles', valor: `${animal.cuposDisponibles} de ${animal.cuposTotales}` },
   ]
 
   return (

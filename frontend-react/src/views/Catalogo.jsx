@@ -2,9 +2,13 @@ import { useState } from 'react'
 import BarraBusqueda from '../components/catalogo/BarraBusqueda'
 import FiltroCategorias from '../components/catalogo/FiltroCategorias'
 import TarjetaAnimal from '../components/catalogo/TarjetaAnimal'
+import Paginacion from '../components/comunes/Paginacion'
 import Portada from '../components/comunes/Portada'
 import { categorias } from '../data/animales'
+import { paginar } from '../utils/paginar'
 import { precioFinal } from '../utils/precios'
+
+const ANIMALES_POR_PAGINA = 6
 
 // Cuanto más chico el número, más urgente
 const pesoUrgencia = { critico: 0, recuperacion: 1, listo: 2 }
@@ -24,6 +28,13 @@ const Catalogo = ({ animales, favoritos, onFavorito, onVerAnimal }) => {
   const [urgencia, setUrgencia] = useState('todas')
   const [orden, setOrden] = useState('recomendados')
   const [soloFavoritos, setSoloFavoritos] = useState(false)
+  const [pagina, setPagina] = useState(0)
+
+  // Cada vez que cambia un filtro, se guarda el valor nuevo y se vuelve a la primera página
+  const alFiltrar = (guardar) => (valor) => {
+    guardar(valor)
+    setPagina(0)
+  }
 
   // Nos quedamos con los animales que cumplen todos los filtros a la vez
   const texto = busqueda.toLowerCase()
@@ -34,7 +45,10 @@ const Catalogo = ({ animales, favoritos, onFavorito, onVerAnimal }) => {
     .filter((animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`.toLowerCase().includes(texto))
 
   // "Recomendados" deja el orden original. Para el resto se ordena una copia (sort modifica el array)
-  const visibles = orden === 'recomendados' ? filtrados : [...filtrados].sort(comparadores[orden])
+  const ordenados = orden === 'recomendados' ? filtrados : [...filtrados].sort(comparadores[orden])
+
+  // Se muestran de a 6: es lo mismo que le va a pedir el front al backend (?page=0&size=6)
+  const { items: visibles, paginaActual, totalPaginas } = paginar(ordenados, pagina, ANIMALES_POR_PAGINA)
 
   return (
     <>
@@ -46,20 +60,20 @@ const Catalogo = ({ animales, favoritos, onFavorito, onVerAnimal }) => {
       />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
-        <FiltroCategorias categorias={categorias} animales={animales} categoriaActiva={categoria} onCambiar={setCategoria} />
+        <FiltroCategorias categorias={categorias} animales={animales} categoriaActiva={categoria} onCambiar={alFiltrar(setCategoria)} />
         <BarraBusqueda
           busqueda={busqueda}
-          onBusqueda={setBusqueda}
+          onBusqueda={alFiltrar(setBusqueda)}
           urgencia={urgencia}
-          onUrgencia={setUrgencia}
+          onUrgencia={alFiltrar(setUrgencia)}
           orden={orden}
-          onOrden={setOrden}
+          onOrden={alFiltrar(setOrden)}
           soloFavoritos={soloFavoritos}
-          onSoloFavoritos={setSoloFavoritos}
+          onSoloFavoritos={alFiltrar(setSoloFavoritos)}
         />
 
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Mostrando {visibles.length} de {animales.length} animales
+          Mostrando {visibles.length} de {ordenados.length} animales
         </p>
 
         {visibles.length === 0 ? (
@@ -79,6 +93,8 @@ const Catalogo = ({ animales, favoritos, onFavorito, onVerAnimal }) => {
             ))}
           </div>
         )}
+
+        <Paginacion pagina={paginaActual} totalPaginas={totalPaginas} onCambiar={setPagina} />
       </div>
     </>
   )

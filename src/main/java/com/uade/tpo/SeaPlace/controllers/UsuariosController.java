@@ -27,7 +27,12 @@ public class UsuariosController {
     public ResponseEntity<Page<UsuarioResponse>> getUsuarios(
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
-       return ResponseEntity.ok(usuarioService.getUsuarios(Paginacion.armar(page, size)).map(UsuarioResponse::fromEntity));
+        Page<UsuarioResponse> resultado = usuarioService.getUsuarios(Paginacion.armar(page, size)).map(UsuarioResponse::fromEntity);
+        // Si la pagina no trae elementos, se responde 204 (sin cuerpo) en vez de una pagina vacia.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/{usuarioId}")

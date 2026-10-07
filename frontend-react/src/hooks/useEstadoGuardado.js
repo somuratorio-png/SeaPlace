@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react'
 // Igual que useState, pero además guarda el valor en el navegador (localStorage)
 // para que no se pierda al recargar la página. "clave" es el nombre con el que se guarda.
 export const useEstadoGuardado = (clave, valorInicial) => {
-  const nombre = `seaplace-v1-${clave}`
+  const nombre = `seaplace-v3-${clave}`
 
   const [valor, setValor] = useState(() => {
     try {

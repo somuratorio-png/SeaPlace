@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
@@ -8,10 +8,10 @@ import { apadrinamientosDeDemo, novedadesDeDemo } from './data/apadrinamientos'
 import { usuariosDeDemo } from './data/usuarios'
 import { useEstadoGuardado } from './hooks/useEstadoGuardado'
 import { hoy } from './utils/fechas'
-import { totalCarrito } from './utils/precios'
+import { totalMuelle } from './utils/precios'
 import Admin from './views/Admin'
 import Apadrinado from './views/Apadrinado'
-import Carrito from './views/Carrito'
+import Muelle from './views/Muelle'
 import Catalogo from './views/Catalogo'
 import Certificado from './views/Certificado'
 import Detalle from './views/Detalle'
@@ -19,7 +19,7 @@ import Gracias from './views/Gracias'
 import Inicio from './views/Inicio'
 import Login from './views/Login'
 import NoEncontrada from './views/NoEncontrada'
-import Pago from './views/Pago'
+import Zarpar from './views/Zarpar'
 import Panel from './views/Panel'
 import Refugio from './views/Refugio'
 
@@ -31,15 +31,22 @@ const App = () => {
   const [usuarios, setUsuarios] = useEstadoGuardado('usuarios', usuariosDeDemo)
   const [apadrinamientos, setApadrinamientos] = useEstadoGuardado('apadrinamientos', apadrinamientosDeDemo)
   const [novedades, setNovedades] = useEstadoGuardado('novedades', novedadesDeDemo)
-  const [carrito, setCarrito] = useEstadoGuardado('carrito', []) // [{ animal, plan }]
+  const [muelle, setMuelle] = useEstadoGuardado('muelle', []) // [{ animal, plan, cantidad }] cantidad = cupos que se toman
   const [favoritos, setFavoritos] = useEstadoGuardado('favoritos', []) // ids de animales
   const [sesion, setSesion] = useEstadoGuardado('sesion', null) // nombre de usuario de quien entró, o null
   const [moneda, setMoneda] = useEstadoGuardado('moneda', 'ARS') // 'ARS' | 'USD'
   const [conBotiquin, setConBotiquin] = useState(false)
-  const [ultimaCompra, setUltimaCompra] = useState(null) // { cantidad, total } para la página de gracias
+  const [ultimoZarpar, setUltimoZarpar] = useState(null) // { apadrinados, total } para la página de gracias
 
   const navigate = useNavigate()
   const { pathname } = useLocation() // la ruta actual, por ejemplo '/catalogo'
+
+  // Cada vez que se cambia de página (por ejemplo al volver al catálogo), se muestra desde arriba.
+  // refArriba apunta al contenedor principal y scrollIntoView lleva la pantalla hasta su comienzo.
+  const refArriba = useRef(null)
+  useEffect(() => {
+    refArriba.current.scrollIntoView()
+  }, [pathname])
 
   // El usuario logueado se busca siempre en la lista, así se entera si le cambiaron el rol o lo dieron de baja
   const usuario = usuarios.find((u) => u.nombreUsuario === sesion && u.activo) ?? null
@@ -56,6 +63,13 @@ const App = () => {
 
   const animalesFavoritos = animales.filter((animal) => favoritos.includes(animal.id))
 
+  // El muelle con los datos más nuevos de cada animal (sobre todo, cuántos cupos le quedan).
+  // Si a un animal le quedan menos cupos que los pedidos, la cantidad se ajusta; si no le queda ninguno, sale del muelle.
+  const muelleActual = muelle
+    .map((item) => ({ ...item, animal: animales.find((animal) => animal.id === item.animal.id) ?? item.animal }))
+    .filter((item) => item.animal.cuposDisponibles > 0)
+    .map((item) => ({ ...item, cantidad: Math.min(item.cantidad, item.animal.cuposDisponibles) }))
+
   const irA = (ruta) => {
     navigate(ruta)
   }
@@ -68,7 +82,7 @@ const App = () => {
     irA(`/panel/${item.animal.id}`)
   }
 
-  // ---------- Favoritos y carrito ----------
+  // ---------- Favoritos y muelle ----------
 
   const alternarFavorito = (idAnimal) => {
     if (favoritos.includes(idAnimal)) {
@@ -78,34 +92,59 @@ const App = () => {
     }
   }
 
-  // Si el animal ya estaba en el carrito, se reemplaza (por si cambió de plan)
-  const agregarAlCarrito = (animal, plan) => {
-    const sinEseAnimal = carrito.filter((item) => item.animal.id !== animal.id)
-    setCarrito([...sinEseAnimal, { animal, plan }])
-    irA('/carrito')
+  // Si el animal ya estaba en el muelle, se reemplaza (por si cambió de plan)
+  const agregarAlMuelle = (animal, plan) => {
+    const sinEseAnimal = muelle.filter((item) => item.animal.id !== animal.id)
+    setMuelle([...sinEseAnimal, { animal, plan, cantidad: 1 }])
+    irA('/muelle')
   }
 
-  const quitarDelCarrito = (idAnimal) => {
-    setCarrito(carrito.filter((item) => item.animal.id !== idAnimal))
+  // Botones de más y menos: la cantidad son los cupos que se quieren tomar de ese animal.
+  // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
+  const cambiarCantidad = (idAnimal, cantidad) => {
+    const animal = animales.find((a) => a.id === idAnimal)
+    const acotada = Math.min(animal.cuposDisponibles, Math.max(1, cantidad))
+    setMuelle(muelle.map((item) => (item.animal.id === idAnimal ? { ...item, cantidad: acotada } : item)))
   }
 
-  // Se llama cuando el pago salió bien: cada item del carrito pasa a ser un apadrinamiento
-  // del usuario (si ya apadrinaba a ese animal, se reemplaza) y el carrito se vacía
-  const confirmarCarrito = () => {
-    const nuevos = carrito.map((item) => ({
-      id: crypto.randomUUID(),
-      usuario: usuario.nombreUsuario,
-      animal: item.animal,
-      plan: item.plan,
-      desde: hoy(),
-      activo: true,
-      pagos: [{ fecha: hoy(), monto: item.plan.precio }],
-    }))
-    const repetido = (a) => a.usuario === usuario.nombreUsuario && a.activo && carrito.some((item) => item.animal.id === a.animal.id)
+  const quitarDelMuelle = (idAnimal) => {
+    setMuelle(muelle.filter((item) => item.animal.id !== idAnimal))
+  }
 
-    setApadrinamientos([...apadrinamientos.filter((a) => !repetido(a)), ...nuevos])
-    setUltimaCompra({ cantidad: carrito.length, total: totalCarrito(carrito, conBotiquin) })
-    setCarrito([])
+  // Zarpar = confirmar el muelle. Se llama cuando el pago salió bien. Cada item del muelle pasa a ser
+  // un apadrinamiento del usuario, se descuentan los cupos que tomó de cada animal y el muelle se vacía.
+  const zarpar = () => {
+    // El apadrinamiento activo que el usuario ya tenía de ese animal, si tenía alguno
+    const anteriorDe = (item) => apadrinamientos.find((a) => a.usuario === usuario.nombreUsuario && a.activo && a.animal.id === item.animal.id)
+
+    // Si ya lo apadrinaba, se le suman los cupos nuevos al que tenía; si no, se crea uno
+    const resultado = muelleActual.map((item) => {
+      const anterior = anteriorDe(item)
+      const pago = { fecha: hoy(), monto: item.plan.precio * item.cantidad }
+      if (anterior) {
+        return { ...anterior, plan: item.plan, cupos: anterior.cupos + item.cantidad, pagos: [...anterior.pagos, pago] }
+      }
+      return {
+        id: crypto.randomUUID(),
+        usuario: usuario.nombreUsuario,
+        animal: item.animal,
+        plan: item.plan,
+        cupos: item.cantidad,
+        desde: hoy(),
+        activo: true,
+        pagos: [pago],
+      }
+    })
+    const reemplazados = resultado.map((a) => a.id)
+
+    setApadrinamientos([...apadrinamientos.filter((a) => !reemplazados.includes(a.id)), ...resultado])
+
+    // Cada animal pierde tantos cupos disponibles como se tomaron
+    const cuposTomados = (animal) => muelleActual.filter((item) => item.animal.id === animal.id).reduce((suma, item) => suma + item.cantidad, 0)
+    setAnimales(animales.map((animal) => ({ ...animal, cuposDisponibles: animal.cuposDisponibles - cuposTomados(animal) })))
+
+    setUltimoZarpar({ apadrinados: resultado, total: totalMuelle(muelleActual, conBotiquin) })
+    setMuelle([])
     setConBotiquin(false)
     irA('/gracias')
   }
@@ -117,8 +156,13 @@ const App = () => {
   }
 
   // No se borra: queda inactivo, así el historial no se pierde
+  // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
   const cancelarApadrinamiento = (idApadrinamiento) => {
+    const cancelado = apadrinamientos.find((a) => a.id === idApadrinamiento)
     setApadrinamientos(apadrinamientos.map((a) => (a.id === idApadrinamiento ? { ...a, activo: false } : a)))
+    setAnimales(
+      animales.map((animal) => (animal.id === cancelado.animal.id ? { ...animal, cuposDisponibles: animal.cuposDisponibles + cancelado.cupos } : animal)),
+    )
     irA('/panel')
   }
 
@@ -190,24 +234,25 @@ const App = () => {
     login
   )
 
-  // Para pagar hace falta tener algo en el carrito y haber entrado
-  const elegirPaginaPago = () => {
-    if (carrito.length === 0) {
-      return <Navigate to="/carrito" replace />
+  // Para zarpar hace falta tener algo en el muelle y haber entrado
+  const elegirPaginaZarpar = () => {
+    if (muelleActual.length === 0) {
+      return <Navigate to="/muelle" replace />
     }
     if (!usuario) {
       return login
     }
-    return <Pago carrito={carrito} conBotiquin={conBotiquin} onConfirmar={confirmarCarrito} onVolver={() => irA('/carrito')} />
+    return <Zarpar muelle={muelleActual} conBotiquin={conBotiquin} onConfirmar={zarpar} onVolver={() => irA('/muelle')} />
   }
 
   return (
     // ContextoMoneda comparte la moneda elegida con todos los componentes que muestran precios
     <ContextoMoneda.Provider value={moneda}>
-      <div className="min-h-screen fondo-playa font-body-md text-on-surface">
+      {/* flex + min-h-screen + flex-1 en <main>: el footer queda siempre abajo, aunque la página sea corta */}
+      <div ref={refArriba} className="min-h-screen flex flex-col fondo-playa font-body-md text-on-surface">
         <Header
           rutaActual={pathname}
-          cantidadCarrito={carrito.length}
+          cantidadMuelle={muelleActual.length}
           usuario={usuario}
           moneda={moneda}
           onCambiarMoneda={setMoneda}
@@ -215,7 +260,7 @@ const App = () => {
           onSalir={salir}
         />
 
-        <main>
+        <main className="flex-1">
           <Routes>
             <Route path="/" element={<Inicio animales={animales} onVerCatalogo={() => irA('/catalogo')} onVerAnimal={verAnimal} />} />
             <Route
@@ -230,23 +275,24 @@ const App = () => {
                   favoritos={favoritos}
                   onFavorito={alternarFavorito}
                   puedeApadrinar={puedeApadrinar}
-                  onAgregar={agregarAlCarrito}
+                  onAgregar={agregarAlMuelle}
                   onVolver={() => irA('/catalogo')}
                 />
               }
             />
 
-            {/* Admin y refugio no apadrinan: no tienen carrito, pago ni panel de padrino, van directo a su panel */}
+            {/* Admin y refugio no apadrinan: no tienen muelle, zarpar ni panel de padrino, van directo a su panel */}
             <Route
-              path="/carrito"
+              path="/muelle"
               element={
                 puedeApadrinar ? (
-                  <Carrito
-                    carrito={carrito}
+                  <Muelle
+                    muelle={muelleActual}
                     conBotiquin={conBotiquin}
                     onBotiquin={setConBotiquin}
-                    onQuitar={quitarDelCarrito}
-                    onPagar={() => irA('/pago')}
+                    onCantidad={cambiarCantidad}
+                    onQuitar={quitarDelMuelle}
+                    onZarpar={() => irA('/zarpar')}
                     onVerCatalogo={() => irA('/catalogo')}
                   />
                 ) : (
@@ -254,12 +300,17 @@ const App = () => {
                 )
               }
             />
-            <Route path="/pago" element={puedeApadrinar ? elegirPaginaPago() : <Navigate to={panelPropio} replace />} />
+            <Route path="/zarpar" element={puedeApadrinar ? elegirPaginaZarpar() : <Navigate to={panelPropio} replace />} />
             <Route
               path="/gracias"
               element={
-                ultimaCompra ? (
-                  <Gracias compra={ultimaCompra} onVerPanel={() => irA('/panel')} onVerCatalogo={() => irA('/catalogo')} />
+                ultimoZarpar ? (
+                  <Gracias
+                    zarpar={ultimoZarpar}
+                    onVerCertificado={(item) => irA(`/panel/${item.animal.id}/certificado`)}
+                    onVerPanel={() => irA('/panel')}
+                    onVerCatalogo={() => irA('/catalogo')}
+                  />
                 ) : (
                   <Navigate to="/panel" replace />
                 )

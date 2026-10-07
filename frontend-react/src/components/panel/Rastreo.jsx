@@ -52,7 +52,7 @@ const Rastreo = ({ animal }) => {
           </p>
         </div>
 
-        <div className="flex items-center gap-space-sm">
+        <div className="flex flex-wrap items-center gap-space-md">
           <span
             className={`inline-flex items-center gap-1.5 rounded-full px-space-md py-1 font-label-md text-label-md ${
               ultima.perdida ? 'bg-tertiary-fixed text-on-tertiary-fixed-variant' : 'bg-secondary-container text-on-secondary-fixed-variant'

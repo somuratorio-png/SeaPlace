@@ -32,13 +32,13 @@ const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
         </select>
       </label>
       <p className="font-body-sm text-body-sm text-on-surface-variant">
-        Tu próxima cuota: <Precio valor={item.plan.precio} />. El cambio rige desde el próximo pago.
+        Tu próxima cuota: <Precio valor={item.plan.precio * item.cupos} />. El cambio rige desde el próximo pago.
       </p>
 
       {confirmando ? (
         <div className="bg-error-container text-on-error-container rounded-xl p-space-md space-y-space-sm">
           <p className="font-body-sm text-body-sm">¿Seguro? {item.animal.nombre} va a dejar de recibir tu aporte mensual.</p>
-          <div className="flex flex-wrap gap-space-sm">
+          <div className="flex flex-wrap gap-space-md">
             <button onClick={() => onCancelar(item.id)} className="bg-error text-on-error font-label-lg text-label-lg px-space-md py-space-sm rounded-full">
               Sí, cancelar
             </button>

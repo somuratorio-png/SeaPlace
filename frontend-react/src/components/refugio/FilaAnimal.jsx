@@ -13,13 +13,13 @@ const FilaAnimal = ({ animal, onVer, onQuitar }) => {
         <h3 className="font-title-lg text-title-lg text-primary">{animal.nombre}</h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           {animal.especie} · {animal.estado} · <Precio valor={precioFinal(animal)} />/mes
-          {tieneDescuento(animal) && ` (en oferta, -${animal.descuento.porcentaje}%)`}
+          {tieneDescuento(animal) && ` (en oferta, -${animal.descuento.porcentaje}%)`} · cupos: {animal.cuposDisponibles} libres de {animal.cuposTotales}
         </p>
         <BarraProgreso porcentaje={animal.progreso} />
         <p className="font-label-md text-label-md text-secondary">{animal.progreso}% de la meta mensual cubierta</p>
       </div>
 
-      <div className="flex items-center gap-space-sm">
+      <div className="flex flex-wrap items-center gap-space-md">
         <button
           onClick={() => onVer(animal)}
           className="inline-flex items-center gap-1 bg-primary-fixed text-on-primary-fixed-variant font-label-lg text-label-lg px-space-md py-space-sm rounded-full"

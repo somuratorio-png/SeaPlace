@@ -3,7 +3,7 @@ import BotonMenu from './BotonMenu'
 import BotonMoneda from './BotonMoneda'
 import Icono from './Icono'
 
-const Header =({ rutaActual, cantidadCarrito, usuario, moneda, onCambiarMoneda, onNavegar, onSalir }) => {
+const Header =({ rutaActual, cantidadMuelle, usuario, moneda, onCambiarMoneda, onNavegar, onSalir }) => {
   const esAdmin = usuario !== null && usuario.rol === 'administrador'
   const esRefugio = usuario !== null && usuario.rol === 'refugio'
 
@@ -16,12 +16,12 @@ const Header =({ rutaActual, cantidadCarrito, usuario, moneda, onCambiarMoneda, 
           <span className="font-title-lg text-title-lg text-primary">SeaPlace</span>
         </button>
 
-        <nav className="order-last w-full lg:order-none lg:w-auto flex flex-wrap items-center gap-space-xs">
+        <nav className="order-last w-full lg:order-none lg:w-auto flex flex-wrap items-center gap-space-sm">
           <BotonMenu texto="Inicio" activo={rutaActual === '/'} onClick={() => onNavegar('/')} />
           <BotonMenu texto="Fauna para Apadrinar" activo={rutaActual === '/catalogo'} onClick={() => onNavegar('/catalogo')} />
-          {/* Admin y refugio no apadrinan, así que no ven el carrito */}
+          {/* Admin y refugio no apadrinan, así que no ven el muelle */}
           {!esAdmin && !esRefugio && (
-            <BotonMenu texto={`Carrito (${cantidadCarrito})`} activo={rutaActual === '/carrito'} onClick={() => onNavegar('/carrito')} />
+            <BotonMenu texto={`Muelle (${cantidadMuelle})`} activo={rutaActual === '/muelle'} onClick={() => onNavegar('/muelle')} />
           )}
           {esRefugio && (
             <BotonMenu texto="Mi refugio" activo={rutaActual === '/refugio'} onClick={() => onNavegar('/refugio')} />
@@ -31,7 +31,7 @@ const Header =({ rutaActual, cantidadCarrito, usuario, moneda, onCambiarMoneda, 
           )}
         </nav>
 
-        <div className="flex items-center gap-space-sm">
+        <div className="flex flex-wrap items-center gap-space-md">
           <BotonMoneda moneda={moneda} onCambiar={onCambiarMoneda} />
           <button
             onClick={() => onNavegar('/panel')}

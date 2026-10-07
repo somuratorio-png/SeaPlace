@@ -119,33 +119,34 @@
   --text-headline-md--letter-spacing: -0.01em;
   --text-headline-md--font-weight: 600;
 
-  --text-headline-sm: 1.25rem;
-  --text-headline-sm--line-height: 1.75rem;
+  --text-headline-sm: 1.4rem;
+  --text-headline-sm--line-height: 1.9rem;
   --text-headline-sm--font-weight: 600;
 
-  --text-title-lg: 1.125rem;
-  --text-title-lg--line-height: 1.5rem;
+  --text-title-lg: 1.25rem;
+  --text-title-lg--line-height: 1.7rem;
   --text-title-lg--font-weight: 600;
 
-  --text-body-lg: 1.125rem;
-  --text-body-lg--line-height: 1.75rem;
+  /* Textos de lectura: se agrandaron un escalón para que se lean mejor */
+  --text-body-lg: 1.3rem;
+  --text-body-lg--line-height: 2rem;
   --text-body-lg--font-weight: 400;
 
-  --text-body-md: 1rem;
-  --text-body-md--line-height: 1.6rem;
+  --text-body-md: 1.125rem;
+  --text-body-md--line-height: 1.8rem;
   --text-body-md--font-weight: 400;
 
-  --text-body-sm: 0.875rem;
-  --text-body-sm--line-height: 1.375rem;
+  --text-body-sm: 1rem;
+  --text-body-sm--line-height: 1.55rem;
   --text-body-sm--font-weight: 400;
 
-  --text-label-lg: 0.875rem;
-  --text-label-lg--line-height: 1.25rem;
+  --text-label-lg: 1rem;
+  --text-label-lg--line-height: 1.4rem;
   --text-label-lg--letter-spacing: 0.02em;
   --text-label-lg--font-weight: 600;
 
-  --text-label-md: 0.75rem;
-  --text-label-md--line-height: 1rem;
+  --text-label-md: 0.875rem;
+  --text-label-md--line-height: 1.2rem;
   --text-label-md--letter-spacing: 0.04em;
   --text-label-md--font-weight: 600;
 }
@@ -272,19 +273,6 @@ main > * {
   animation: mecer 6s ease-in-out infinite;
 }
 
-/* Las olas se desplazan hacia el costado sin parar (ver Olas.jsx) */
-@keyframes deslizar {
-  to {
-    transform: translateX(-1440px);
-  }
-}
-.ola-lenta {
-  animation: deslizar 26s linear infinite;
-}
-.ola-rapida {
-  animation: deslizar 14s linear infinite;
-}
-
 /* La barra de progreso se llena desde cero al aparecer */
 @keyframes llenar {
   from {
@@ -405,8 +393,6 @@ main > * {
   .revelar,
   .escalonar > *,
   .mecer,
-  .ola-lenta,
-  .ola-rapida,
   .llenar,
   .latido,
   .pulso-gps,

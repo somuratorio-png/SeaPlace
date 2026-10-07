@@ -25,6 +25,7 @@ const ListaPadrinos = ({ apadrinamientos, usuarios }) => {
             <th className="p-space-sm">Padrino</th>
             <th className="p-space-sm">Animal</th>
             <th className="p-space-sm">Plan</th>
+            <th className="p-space-sm">Cupos</th>
             <th className="p-space-sm">Desde</th>
             <th className="p-space-sm text-right">Aporte mensual</th>
           </tr>
@@ -35,9 +36,10 @@ const ListaPadrinos = ({ apadrinamientos, usuarios }) => {
               <td className="p-space-sm font-body-md text-body-md text-on-surface">{nombreDe(a.usuario)}</td>
               <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">{a.animal.nombre}</td>
               <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">{a.plan.nombre}</td>
+              <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant tabular-nums">{a.cupos}</td>
               <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">{formatearFecha(a.desde)}</td>
               <td className="p-space-sm font-label-lg text-label-lg text-primary text-right tabular-nums">
-                <Precio valor={a.plan.precio} />
+                <Precio valor={a.plan.precio * a.cupos} />
               </td>
             </tr>
           ))}

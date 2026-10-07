@@ -21,7 +21,12 @@ public class DescuentosController {
 
     @GetMapping
     public ResponseEntity<List<DescuentoResponse>> getDescuentosActivos(@PathVariable Long animalId) {
-        return ResponseEntity.ok(descuentoService.getDescuentosActivos(animalId).stream().map(DescuentoResponse::fromEntity).toList());
+        List<DescuentoResponse> resultado = descuentoService.getDescuentosActivos(animalId).stream().map(DescuentoResponse::fromEntity).toList();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @PostMapping

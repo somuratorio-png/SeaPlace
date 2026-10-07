@@ -24,11 +24,12 @@ export const planesDe = (animal) => {
   ]
 }
 
-export const totalCarrito = (carrito, conBotiquin) => {
-  const subtotal = carrito.reduce((suma, item) => suma + item.plan.precio, 0)
+export const totalMuelle = (muelle, conBotiquin) => {
+  // Cada item cuesta la cuota del plan por la cantidad de cupos elegida
+  const subtotal = muelle.reduce((suma, item) => suma + item.plan.precio * item.cantidad, 0)
   return conBotiquin ? subtotal + PRECIO_BOTIQUIN : subtotal
 }
 
 // Suma lo que pagan por mes los apadrinamientos activos de una lista
 export const recaudacionMensual = (apadrinamientos) =>
-  apadrinamientos.filter((a) => a.activo).reduce((suma, a) => suma + a.plan.precio, 0)
+  apadrinamientos.filter((a) => a.activo).reduce((suma, a) => suma + a.plan.precio * a.cupos, 0)

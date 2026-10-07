@@ -2,7 +2,7 @@ import { planesDe } from '../utils/precios'
 import { animalesDeDemo } from './animales'
 
 // Apadrinamientos y novedades de ejemplo (mock), para que los paneles no arranquen vacíos.
-// Un apadrinamiento guarda quién apadrina, una copia del animal, el plan y los pagos hechos.
+// Un apadrinamiento guarda quién apadrina, una copia del animal, el plan, cuántos cupos tomó y los pagos hechos.
 
 const crear = (id, usuario, idAnimal, indicePlan, fechasDePago) => {
   const animal = animalesDeDemo.find((a) => a.id === idAnimal)
@@ -12,6 +12,7 @@ const crear = (id, usuario, idAnimal, indicePlan, fechasDePago) => {
     usuario,
     animal,
     plan,
+    cupos: 1,
     desde: fechasDePago[0],
     activo: true,
     pagos: fechasDePago.map((fecha) => ({ fecha, monto: plan.precio })),

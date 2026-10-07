@@ -20,7 +20,12 @@ public class UbicacionesAnimalesController {
 
     @GetMapping
     public ResponseEntity<List<UbicacionAnimalResponse>> getHistorial(@PathVariable Long animalId) {
-        return ResponseEntity.ok(ubicacionAnimalService.getHistorial(animalId).stream().map(UbicacionAnimalResponse::fromEntity).toList());
+        List<UbicacionAnimalResponse> resultado = ubicacionAnimalService.getHistorial(animalId).stream().map(UbicacionAnimalResponse::fromEntity).toList();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/ultima")

@@ -15,7 +15,7 @@ const TarjetaApadrinado = ({ item, onVer }) => {
           {item.animal.estado} · {item.animal.ubicacion}
         </p>
         <p className="font-label-md text-label-md text-secondary">
-          Plan {item.plan.nombre} · <Precio valor={item.plan.precio} />/mes
+          Plan {item.plan.nombre} · {item.cupos} {item.cupos === 1 ? 'cupo' : 'cupos'} · <Precio valor={item.plan.precio * item.cupos} />/mes
         </p>
         <BarraProgreso porcentaje={item.animal.progreso} />
         <button onClick={() => onVer(item)} className="w-full bg-tertiary text-on-tertiary font-label-lg text-label-lg py-space-sm rounded-full hover:bg-tertiary-container">

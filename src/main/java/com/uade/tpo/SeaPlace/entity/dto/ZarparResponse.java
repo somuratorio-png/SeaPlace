@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uade.tpo.SeaPlace.entity.Zarpar;
 
 import lombok.Data;
@@ -15,6 +16,8 @@ public class ZarparResponse {
     private LocalDateTime fechaZarpar;
     private Double total;
     private String estado;
+    // Si la lista esta vacia, el campo directamente no se incluye en el JSON.
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ZarparDetalleResponse> detalles;
 
     public static ZarparResponse fromEntity(Zarpar zarpar) {

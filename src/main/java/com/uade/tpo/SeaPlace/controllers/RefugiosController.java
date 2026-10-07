@@ -22,7 +22,12 @@ public class RefugiosController {
 
     @GetMapping
     public ResponseEntity<List<RefugioResponse>> getRefugios() {
-        return ResponseEntity.ok(refugioService.getRefugios().stream().map(RefugioResponse::fromEntity).toList());
+        List<RefugioResponse> resultado = refugioService.getRefugios().stream().map(RefugioResponse::fromEntity).toList();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/{refugioId}")

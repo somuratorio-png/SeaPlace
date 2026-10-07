@@ -56,7 +56,7 @@ const Footer = () => {
             {suscripto ? (
               <p className="font-label-lg text-label-lg text-secondary-fixed">¡Listo! Te vamos a escribir pronto.</p>
             ) : (
-              <form onSubmit={suscribirse} className="flex gap-space-xs">
+              <form onSubmit={suscribirse} className="flex gap-space-sm">
                 <input
                   type="email"
                   required

@@ -23,7 +23,7 @@ const FormularioNovedad = ({ animal, onPublicar }) => {
         placeholder={`¿Cómo está ${animal.nombre} hoy?`}
         className="w-full bg-surface-container-lowest rounded-lg px-space-md py-2 font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/40"
       />
-      <div className="flex flex-wrap items-center gap-space-sm">
+      <div className="flex flex-wrap items-center gap-space-md">
         <button type="submit" className="bg-secondary text-on-secondary font-label-lg text-label-lg px-space-md py-space-sm rounded-full">
           Publicar
         </button>

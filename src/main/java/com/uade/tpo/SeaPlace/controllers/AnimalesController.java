@@ -33,7 +33,12 @@ public class AnimalesController {
             @RequestParam(required = false) Double precioMax,
             @RequestParam(required = false) String nombre) {
         PageRequest pageRequest = Paginacion.armar(page, size);
-        return ResponseEntity.ok(animalService.getAnimales(estado, idCategoria, idRefugio, precioMin, precioMax, nombre, pageRequest).map(AnimalResponse::fromEntity));
+        Page<AnimalResponse> resultado = animalService.getAnimales(estado, idCategoria, idRefugio, precioMin, precioMax, nombre, pageRequest).map(AnimalResponse::fromEntity);
+        // Si la pagina no trae elementos, se responde 204 (sin cuerpo) en vez de una pagina vacia.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/{animalId}")

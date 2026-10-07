@@ -1,18 +1,18 @@
-import { PRECIO_BOTIQUIN, totalCarrito } from '../../utils/precios'
+import { PRECIO_BOTIQUIN, totalMuelle } from '../../utils/precios'
 import Precio from '../comunes/Precio'
 
-// Suma los precios, permite agregar el botiquín opcional y pasar al pago
-const ResumenCarrito = ({ carrito, conBotiquin, onBotiquin, onPagar }) => {
+// Suma los precios, permite agregar el botiquín opcional y pasar a zarpar (el pago)
+const ResumenMuelle = ({ muelle, conBotiquin, onBotiquin, onZarpar }) => {
   // Los totales se calculan cada vez que se dibuja: no hace falta guardarlos en el estado
-  const subtotal = totalCarrito(carrito, false)
-  const total = totalCarrito(carrito, conBotiquin)
+  const subtotal = totalMuelle(muelle, false)
+  const total = totalMuelle(muelle, conBotiquin)
 
   return (
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-md space-y-space-md">
       <h2 className="font-headline-sm text-headline-sm text-primary">Resumen</h2>
 
       <div className="flex justify-between font-body-md text-body-md">
-        <span>Apadrinamientos ({carrito.length})</span>
+        <span>Apadrinamientos ({muelle.length})</span>
         <span>
           <Precio valor={subtotal} />
         </span>
@@ -31,11 +31,11 @@ const ResumenCarrito = ({ carrito, conBotiquin, onBotiquin, onPagar }) => {
         </span>
       </div>
 
-      <button onClick={onPagar} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full shadow-md hover:bg-tertiary-container">
-        Ir a pagar
+      <button onClick={onZarpar} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full shadow-md hover:bg-tertiary-container">
+        Zarpar
       </button>
     </div>
   )
 }
 
-export default ResumenCarrito
+export default ResumenMuelle

@@ -66,7 +66,7 @@ const Apadrinado = ({ apadrinados, novedades, onVolver, onCambiarPlan, onCancela
           </div>
 
           <FichaAnimal animal={animal} />
-          <MiPlan plan={plan} />
+          <MiPlan plan={plan} cupos={item.cupos} />
           <HistorialPagos pagos={item.pagos} />
           <GestionPlan item={item} onCambiarPlan={onCambiarPlan} onCancelar={onCancelar} />
         </div>

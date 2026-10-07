@@ -30,9 +30,14 @@ public class ZarparsController {
             @RequestParam(required = false) Integer page,
             @RequestParam(required = false) Integer size) {
         PageRequest pageRequest = Paginacion.armar(page, size);
-        return ResponseEntity.ok(zarparService
+        Page<ZarparResponse> resultado = zarparService
                 .getZarparsByUsuario(autorizacionService.idUsuarioActual(), pageRequest)
-                .map(ZarparResponse::fromEntity));
+                .map(ZarparResponse::fromEntity);
+        // Si la pagina no trae elementos, se responde 204 (sin cuerpo) en vez de una pagina vacia.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("/{zarparId}")

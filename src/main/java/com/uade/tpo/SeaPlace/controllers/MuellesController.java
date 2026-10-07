@@ -49,6 +49,11 @@ public class MuellesController {
 
     @GetMapping("/{muelleId}/items")
     public ResponseEntity<List<MuelleDetalleResponse>> getItems(@PathVariable Long muelleId) {
-        return ResponseEntity.ok(muelleService.getItems(muelleId).stream().map(MuelleDetalleResponse::fromEntity).toList());
+        List<MuelleDetalleResponse> resultado = muelleService.getItems(muelleId).stream().map(MuelleDetalleResponse::fromEntity).toList();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 }

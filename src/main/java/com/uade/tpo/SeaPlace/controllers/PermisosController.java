@@ -28,7 +28,12 @@ public class PermisosController {
 
     @GetMapping("permisos")
     public ResponseEntity<List<PermisoResponse>> getPermisos() {
-        return ResponseEntity.ok(permisoService.getPermisos().stream().map(PermisoResponse::fromEntity).toList());
+        List<PermisoResponse> resultado = permisoService.getPermisos().stream().map(PermisoResponse::fromEntity).toList();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @GetMapping("permisos/{permisoId}")

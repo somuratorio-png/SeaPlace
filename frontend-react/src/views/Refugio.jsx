@@ -1,26 +1,30 @@
 import { useContext, useState } from 'react'
 import TarjetaDato from '../components/admin/TarjetaDato'
-import Buscador from '../components/comunes/Buscador'
 import Icono from '../components/comunes/Icono'
+import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
 import TituloSeccion from '../components/comunes/TituloSeccion'
 import FormularioAnimal from '../components/refugio/FormularioAnimal'
 import ListaPadrinos from '../components/refugio/ListaPadrinos'
-import TarjetaMiAnimal from '../components/refugio/TarjetaMiAnimal'
+import SeccionAnimales from '../components/refugio/SeccionAnimales'
 import { ContextoMoneda, formatearPrecio } from '../contexto/Moneda'
 import { urgencias } from '../data/animales'
 import { heroFoca } from '../data/imagenes'
 import { recaudacionMensual } from '../utils/precios'
 
-// Panel del refugio: sus animales, quiénes los apadrinan y cuánto recauda.
-// Desde acá carga animales, los pone en oferta, publica novedades y suma fotos.
+const secciones = [
+  { id: 'animales', nombre: 'Mis animales', icono: 'pets' },
+  { id: 'padrinos', nombre: 'Padrinos', icono: 'group' },
+  { id: 'publicar', nombre: 'Publicar un animal', icono: 'add_circle' },
+]
+
+// Panel del refugio. Tiene un menú lateral y muestra una sola sección por vez:
+// sus animales (ofertas, novedades y fotos), sus padrinos, o el formulario para publicar uno nuevo.
 const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQuitar, onEditarAnimal, onPublicarNovedad, onVerAnimal }) => {
-  const [busqueda, setBusqueda] = useState('')
+  const [seccion, setSeccion] = useState('animales')
   const moneda = useContext(ContextoMoneda)
 
   const propios = animales.filter((animal) => animal.refugio === usuario.nombreUsuario)
-  const texto = busqueda.toLowerCase()
-  const visibles = propios.filter((animal) => `${animal.nombre} ${animal.especie} ${animal.estado}`.toLowerCase().includes(texto))
 
   // Apadrinamientos activos de los animales de este refugio
   const susApadrinamientos = apadrinamientos.filter((a) => a.activo && a.animal.refugio === usuario.nombreUsuario)
@@ -35,6 +39,11 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
     if (Number(datos.precio) <= 0) {
       return 'La cuota mensual tiene que ser mayor a 0'
     }
+    // Misma regla que el backend: los cupos tienen que ser un número entero mayor a 0
+    const cupos = Number(datos.cuposTotales)
+    if (!Number.isInteger(cupos) || cupos <= 0) {
+      return 'Los cupos tienen que ser un número entero mayor a 0'
+    }
 
     // Si no subió ninguna foto, se usa una genérica
     const fotosDelAnimal = fotos.length > 0 ? fotos : [heroFoca]
@@ -46,11 +55,16 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
       estado: urgencias.find((urgencia) => urgencia.id === datos.urgencia).estado,
       // El precio se guarda siempre en dólares; la pantalla lo convierte a pesos si hace falta
       precio: Number(datos.precio),
+      // Al publicarlo, todos los cupos están disponibles
+      cuposTotales: cupos,
+      cuposDisponibles: cupos,
       progreso: 0,
       destacado: false,
       imagen: fotosDelAnimal[0],
       fotos: fotosDelAnimal,
     })
+    // Una vez publicado, se muestra la lista para que lo vea
+    setSeccion('animales')
     return null
   }
 
@@ -66,7 +80,7 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
             </div>
             <h2 className="font-headline-sm text-headline-sm text-primary">Solicitud pendiente</h2>
             <p className="font-body-md text-body-md text-on-surface-variant">
-              Un administrador tiene que revisar tu solicitud. Apenas la apruebe, vas a poder cargar animales y recibir padrinos desde acá.
+              Un administrador tiene que revisar tu solicitud. Apenas la apruebe, vas a poder publicar animales y recibir padrinos desde acá.
             </p>
           </div>
         </div>
@@ -83,7 +97,7 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
         texto={`Tenés ${propios.length} ${propios.length === 1 ? 'animal publicado' : 'animales publicados'} en el catálogo.`}
       />
 
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
         <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
           <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
           <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />
@@ -95,44 +109,31 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
           />
         </div>
 
-        <section className="space-y-space-md">
-          <div className="flex flex-wrap items-end justify-between gap-space-sm">
-            <TituloSeccion>Mis animales</TituloSeccion>
-            <p className="font-body-sm text-body-sm text-on-surface-variant">
-              Mostrando {visibles.length} de {propios.length}
-            </p>
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+          <div className="lg:col-span-3">
+            <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
           </div>
-          <Buscador valor={busqueda} onCambiar={setBusqueda} textoAyuda="Buscar por nombre, especie o estado..." />
 
-          {propios.length === 0 && (
-            <p className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center font-body-md text-body-md text-on-surface-variant">
-              Todavía no cargaste ningún animal.
-            </p>
-          )}
-          {propios.length > 0 && visibles.length === 0 && (
-            <p className="text-center font-body-md text-body-md text-on-surface-variant py-space-lg">
-              Ningún animal coincide con esa búsqueda.
-            </p>
-          )}
-          {visibles.map((animal) => (
-            <TarjetaMiAnimal
-              key={animal.id}
-              animal={animal}
-              apadrinamientos={susApadrinamientos.filter((a) => a.animal.id === animal.id)}
-              onVer={onVerAnimal}
-              onQuitar={onQuitar}
-              onEditar={onEditarAnimal}
-              onPublicarNovedad={onPublicarNovedad}
-            />
-          ))}
-        </section>
-
-        <section className="space-y-space-md">
-          <TituloSeccion>Padrinos</TituloSeccion>
-          <ListaPadrinos apadrinamientos={susApadrinamientos} usuarios={usuarios} />
-        </section>
-
-        <FormularioAnimal onGuardar={guardar} />
+          <div className="lg:col-span-9">
+            {seccion === 'animales' && (
+              <SeccionAnimales
+                animales={propios}
+                apadrinamientos={susApadrinamientos}
+                onVer={onVerAnimal}
+                onQuitar={onQuitar}
+                onEditar={onEditarAnimal}
+                onPublicarNovedad={onPublicarNovedad}
+              />
+            )}
+            {seccion === 'padrinos' && (
+              <section className="space-y-space-md">
+                <TituloSeccion>Padrinos</TituloSeccion>
+                <ListaPadrinos apadrinamientos={susApadrinamientos} usuarios={usuarios} />
+              </section>
+            )}
+            {seccion === 'publicar' && <FormularioAnimal onGuardar={guardar} />}
+          </div>
+        </div>
       </div>
     </>
   )

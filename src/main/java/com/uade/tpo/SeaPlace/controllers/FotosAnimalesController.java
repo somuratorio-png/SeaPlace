@@ -21,7 +21,12 @@ public class FotosAnimalesController {
 
     @GetMapping
     public ResponseEntity<List<FotoAnimalResponse>> getFotos(@PathVariable Long animalId) {
-        return ResponseEntity.ok(fotoAnimalService.getFotosByAnimal(animalId).stream().map(FotoAnimalResponse::fromEntity).toList());
+        List<FotoAnimalResponse> resultado = fotoAnimalService.getFotosByAnimal(animalId).stream().map(FotoAnimalResponse::fromEntity).toList();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
     }
 
     @PostMapping

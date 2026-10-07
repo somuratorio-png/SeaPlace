@@ -11,12 +11,13 @@ const formularioVacio = {
   edad: '',
   ubicacion: '',
   precio: '',
+  cuposTotales: '',
   descripcion: '',
 }
 
 const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40'
 
-// Formulario para cargar un animal nuevo. onGuardar devuelve un mensaje de error, o null si salió bien.
+// Formulario para publicar un animal nuevo en el catálogo. onGuardar devuelve un mensaje de error, o null si salió bien.
 const FormularioAnimal = ({ onGuardar }) => {
   const [datos, setDatos] = useState(formularioVacio)
   const [fotos, setFotos] = useState([]) // las fotos elegidas, ya convertidas a texto
@@ -44,7 +45,7 @@ const FormularioAnimal = ({ onGuardar }) => {
 
   return (
     <form onSubmit={enviar} className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
-      <h2 className="font-title-lg text-title-lg text-on-surface">Cargar un animal</h2>
+      <h2 className="font-title-lg text-title-lg text-on-surface">Publicar un animal</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
         <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
@@ -75,6 +76,7 @@ const FormularioAnimal = ({ onGuardar }) => {
         <CampoTexto etiqueta="Edad" nombre="edad" valor={datos.edad} onCambiar={cambiar} />
         <CampoTexto etiqueta="Ubicación" nombre="ubicacion" valor={datos.ubicacion} onCambiar={cambiar} />
         <CampoTexto etiqueta="Cuota mensual (en US$)" nombre="precio" tipo="number" valor={datos.precio} onCambiar={cambiar} />
+        <CampoTexto etiqueta="Cupos (cuántos padrinos admite)" nombre="cuposTotales" tipo="number" valor={datos.cuposTotales} onCambiar={cambiar} />
       </div>
 
       <label className="flex flex-col gap-1.5">
@@ -97,7 +99,7 @@ const FormularioAnimal = ({ onGuardar }) => {
       {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 
       <button type="submit" className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-tertiary-container">
-        Cargar animal
+        Publicar animal
       </button>
     </form>
   )

@@ -2,7 +2,7 @@ import BotonCategoria from './BotonCategoria'
 
 const FiltroCategorias =({ categorias, animales, categoriaActiva, onCambiar }) => {
   return (
-    <div className="flex flex-wrap gap-space-xs">
+    <div className="flex flex-wrap gap-space-sm">
       <BotonCategoria
         nombre="Todas las especies"
         icono="grid_view"

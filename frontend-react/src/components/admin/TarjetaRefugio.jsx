@@ -40,7 +40,7 @@ const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onVerAn
           ))}
         </div>
 
-        <div className="flex flex-wrap items-center gap-space-sm">
+        <div className="flex flex-wrap items-center gap-space-md">
           {!refugio.aprobado && (
             <button
               onClick={() => onAprobar(refugio.nombreUsuario)}
@@ -70,7 +70,7 @@ const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onVerAn
       {abierto && (
         <div className="bg-surface-container-low rounded-b-2xl p-space-md space-y-space-sm">
           {animales.length === 0 && (
-            <p className="font-body-sm text-body-sm text-on-surface-variant">Este refugio todavía no cargó animales.</p>
+            <p className="font-body-sm text-body-sm text-on-surface-variant">Este refugio todavía no publicó animales.</p>
           )}
           {animales.map((animal) => (
             <FilaAnimal key={animal.id} animal={animal} onVer={onVerAnimal} onQuitar={onQuitarAnimal} />
