@@ -1,12 +1,13 @@
 import { useState } from 'react'
-import { categorias, urgencias } from '../../data/animales'
+import { urgencias } from '../../data/animales'
 import { leerFotos } from '../../utils/imagenes'
 import CampoTexto from '../login/CampoTexto'
 
+// categoria queda vacía hasta que se elige una: mientras tanto vale la primera de la lista
 const formularioVacio = {
   nombre: '',
   especie: '',
-  categoria: 'focas',
+  categoria: '',
   urgencia: 'recuperacion',
   edad: '',
   ubicacion: '',
@@ -17,11 +18,13 @@ const formularioVacio = {
 
 const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40'
 
-// Formulario para publicar un animal nuevo en el catálogo. onGuardar devuelve un mensaje de error, o null si salió bien.
-const FormularioAnimal = ({ onGuardar }) => {
+// Formulario para publicar un animal nuevo en el catálogo. "categorias" son las del backend.
+// onGuardar lo manda al backend y devuelve un mensaje de error, o null si salió bien.
+const FormularioAnimal = ({ categorias, onGuardar }) => {
   const [datos, setDatos] = useState(formularioVacio)
   const [fotos, setFotos] = useState([]) // las fotos elegidas, ya convertidas a texto
   const [error, setError] = useState(null)
+  const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
 
   const cambiar = (evento) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })
@@ -32,14 +35,18 @@ const FormularioAnimal = ({ onGuardar }) => {
     setFotos(await leerFotos(evento.target.files))
   }
 
-  const enviar = (evento) => {
+  const enviar = async (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    const mensaje = onGuardar(datos, fotos)
+    const formulario = evento.target
+    setEnviando(true)
+    // Si no tocó el selector de categoría, se manda la primera (la que se ve elegida)
+    const mensaje = await onGuardar({ ...datos, categoria: datos.categoria || categorias[0].id }, fotos)
+    setEnviando(false)
     setError(mensaje)
     if (mensaje === null) {
       setDatos(formularioVacio)
       setFotos([])
-      evento.target.reset() // vacía el selector de archivos
+      formulario.reset() // vacía el selector de archivos
     }
   }
 
@@ -98,8 +105,8 @@ const FormularioAnimal = ({ onGuardar }) => {
 
       {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 
-      <button type="submit" className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-tertiary-container">
-        Publicar animal
+      <button type="submit" disabled={enviando} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-tertiary-container disabled:opacity-60">
+        {enviando ? 'Publicando…' : 'Publicar animal'}
       </button>
     </form>
   )

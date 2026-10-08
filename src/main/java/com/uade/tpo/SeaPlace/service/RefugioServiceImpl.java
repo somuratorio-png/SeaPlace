@@ -35,7 +35,7 @@ public class RefugioServiceImpl implements RefugioService {
 
     private static final int LARGO_MAXIMO = 255;
     private static final String ROL_PADRINO = "padrino";
-    private static final String ROL_REFUGIO = "refugio";
+    private static final String ROL_REFUGIO = "duenioRefugio";
 
     @Override
     public List<Refugio> getRefugios() {
@@ -49,18 +49,47 @@ public class RefugioServiceImpl implements RefugioService {
         return refugioRepository.findById(refugioId).filter(this::puedeVer);
     }
 
-    // Un refugio cuyo usuario esta dado de baja solo lo ve un admin;
-    // para el resto es como si no existiera (404 en el detalle).
+    // Un refugio cuyo usuario esta dado de baja, o que todavia no fue aprobado, solo lo ve
+    // un admin o su propio dueño; para el resto es como si no existiera (404 en el detalle).
     private boolean puedeVer(Refugio refugio) {
-        if (refugio.getUsuario().isActivo()) {
+        if (refugio.getUsuario().isActivo() && refugio.isAprobado()) {
             return true;
         }
-        return autorizacionService.usuarioActualONull() != null && autorizacionService.esAdmin();
+        Usuario actual = autorizacionService.usuarioActualONull();
+        if (actual == null) {
+            return false;
+        }
+        return autorizacionService.esAdmin()
+                || actual.getIdUsuario().equals(refugio.getUsuario().getIdUsuario());
     }
 
+    // Alta hecha por un administrador: el refugio queda aprobado desde el inicio.
     @Override
     @Transactional
     public Refugio createRefugio(RefugioRequest request) {
+        return crear(request, true);
+    }
+
+    // Alta del registro publico (/auth/register-refugio): queda esperando la aprobacion.
+    @Override
+    @Transactional
+    public Refugio createRefugioPendiente(RefugioRequest request) {
+        return crear(request, false);
+    }
+
+    @Override
+    public Refugio aprobarRefugio(Long refugioId) {
+        Refugio refugio = refugioRepository.findById(refugioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el refugio con id " + refugioId));
+        if (refugio.isAprobado()) {
+            throw new ReglaDeNegocioException("El refugio ya esta aprobado");
+        }
+        refugio.setAprobado(true);
+        return refugioRepository.save(refugio);
+    }
+
+    private Refugio crear(RefugioRequest request, boolean aprobado) {
         if (request.getIdUsuario() == null) {
             throw new ReglaDeNegocioException("Debe indicar el usuario que administra el refugio");
         }
@@ -110,6 +139,7 @@ public class RefugioServiceImpl implements RefugioService {
         refugio.setUsuario(usuario);
         refugio.setNombreRefugio(nombreRefugio);
         refugio.setDescripcion(descripcion);
+        refugio.setAprobado(aprobado);
 
         return refugioRepository.save(refugio);
     }

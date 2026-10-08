@@ -51,6 +51,29 @@ public class Animal {
     @Column(nullable = false)
     private String estado;
 
+    // Datos de la ficha que se muestran en el catalogo. Son opcionales: las publicaciones
+    // anteriores a estos campos no los tienen.
+    @Column
+    private String especie;
+
+    @Column
+    private String edad;
+
+    @Column
+    private String ubicacion;
+
+    // Urgencia medica: CRITICO, RECUPERACION o LISTO.
+    @Column
+    private String urgencia;
+
+    // Texto corto que acompaña a la urgencia, por ejemplo "Cria huerfana".
+    @Column
+    private String condicion;
+
+    // Los destacados son los que se muestran en la pagina de inicio. Lo decide un administrador.
+    @Column(nullable = false, columnDefinition = "boolean default false")
+    private boolean destacado = false;
+
     @OneToMany(mappedBy = "animal")
     private List<FotoAnimal> fotos;
 

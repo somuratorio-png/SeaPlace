@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import { traerUltimaUbicacion } from '../../services/animales'
+import { formatearFecha } from '../../utils/fechas'
 import { conductas, coordenadasDe, historialInicial, horaDe, HORAS_ENTRE_SENALES, siguienteSenal, zonaDe } from '../../utils/telemetria'
 import Icono from '../comunes/Icono'
 import DatoRastreo from './DatoRastreo'
@@ -9,12 +11,32 @@ const SEGUNDOS_ENTRE_PULSOS = 5
 const SENALES_EN_EL_MAPA = 24 // las últimas 48 horas
 const SENALES_EN_EL_REGISTRO = 6
 
-// Rastreo satelital del animal (mock). Funciona por pulsos, como un transmisor real:
-// cada tanto llega una señal con la posición y el mapa se actualiza; entre una y otra no se sabe nada.
-// La simulación está acelerada: cada pulso representa 2 horas.
+// Rastreo satelital del animal. Primero le pide al backend la última posición que informó el refugio
+// y, cuando llega, muestra el mapa centrado ahí. Mientras espera muestra un aviso.
+// posicion: undefined = todavía no llegó la respuesta; null = el refugio nunca informó una.
 const Rastreo = ({ animal }) => {
+  const [posicion, setPosicion] = useState(undefined)
+
+  useEffect(() => {
+    traerUltimaUbicacion(animal.id)
+      .then(setPosicion)
+      .catch(() => setPosicion(null))
+  }, [animal.id])
+
+  if (posicion === undefined) {
+    return <p className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-md font-body-md text-body-md text-on-surface-variant">Buscando la señal de {animal.nombre}…</p>
+  }
+  return <RastreoEnVivo animal={animal} posicion={posicion} />
+}
+
+// El mapa con las señales. Funciona por pulsos, como un transmisor real: cada tanto llega una señal
+// con la posición y el mapa se actualiza; entre una y otra no se sabe nada.
+// El recorrido es una simulación acelerada (cada pulso representa 2 horas) que parte de "posicion".
+const RastreoEnVivo = ({ animal, posicion }) => {
+  // La zona no cambia mientras se mira el mapa: se calcula una sola vez
+  const [zona] = useState(() => zonaDe(animal, posicion))
   // Arranca con un recorrido ya hecho, para que el mapa no esté vacío
-  const [senales, setSenales] = useState(() => historialInicial(animal, SENALES_EN_EL_MAPA))
+  const [senales, setSenales] = useState(() => historialInicial(animal, zona, SENALES_EN_EL_MAPA))
   const [enMarcha, setEnMarcha] = useState(true)
 
   useEffect(() => {
@@ -24,14 +46,13 @@ const Rastreo = ({ animal }) => {
 
     // Cada pulso calcula la señal siguiente a partir de la última y la agrega al final
     const intervalo = setInterval(() => {
-      setSenales((actuales) => [...actuales, siguienteSenal(actuales[actuales.length - 1], animal)].slice(-60))
+      setSenales((actuales) => [...actuales, siguienteSenal(actuales[actuales.length - 1], animal, zona)].slice(-60))
     }, SEGUNDOS_ENTRE_PULSOS * 1000)
 
     // Al pausar o salir de la pantalla se corta el intervalo
     return () => clearInterval(intervalo)
-  }, [enMarcha, animal])
+  }, [enMarcha, animal, zona])
 
-  const zona = zonaDe(animal)
   const ultima = senales[senales.length - 1] // puede ser una señal perdida
   const recibidas = senales.filter((senal) => !senal.perdida)
   const ultimaRecibida = recibidas[recibidas.length - 1]
@@ -111,7 +132,10 @@ const Rastreo = ({ animal }) => {
       <RegistroSenales senales={senales.slice(-SENALES_EN_EL_REGISTRO)} />
 
       <p className="font-body-sm text-body-sm text-on-surface-variant">
-        Simulación acelerada: cada señal equivale a {HORAS_ENTRE_SENALES} horas reales y llega cada {SEGUNDOS_ENTRE_PULSOS} segundos.
+        {posicion
+          ? `El mapa parte de la última posición que informó su refugio el ${formatearFecha(posicion.fecha)} (${posicion.latitud}, ${posicion.longitud}). `
+          : 'Su refugio todavía no informó ninguna posición, así que el mapa parte de un punto de referencia. '}
+        Desde ahí el recorrido es una simulación acelerada: cada señal equivale a {HORAS_ENTRE_SENALES} horas reales y llega cada {SEGUNDOS_ENTRE_PULSOS} segundos.
       </p>
     </div>
   )

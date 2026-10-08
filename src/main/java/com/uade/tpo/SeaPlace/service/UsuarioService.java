@@ -21,6 +21,8 @@ public interface UsuarioService {
 
     Usuario darDeBaja(Long usuarioId);
 
+    Usuario reactivar(Long usuarioId);
+
     Usuario modificarMiPerfil(UsuarioPerfilRequest request);
 
     Usuario getMiPerfil();

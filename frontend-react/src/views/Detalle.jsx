@@ -8,9 +8,10 @@ import Galeria from '../components/detalle/Galeria'
 import PreguntasFrecuentes from '../components/detalle/PreguntasFrecuentes'
 
 const Detalle = ({ animales, favoritos, onFavorito, puedeApadrinar, onAgregar, onVolver }) => {
-  // El id sale de la URL (/animal/:id) y con eso se busca el animal
+  // El id sale de la URL (/animal/:id) y con eso se busca el animal.
+  // En la URL es un texto y en los datos un número: por eso se convierte.
   const { id } = useParams()
-  const animal = animales.find((a) => a.id === id)
+  const animal = animales.find((a) => a.id === Number(id))
 
   if (!animal) {
     return <Navigate to="/catalogo" replace />

@@ -8,8 +8,8 @@ import FilaUsuario from './FilaUsuario'
 const USUARIOS_POR_PAGINA = 5
 
 // Sección "Usuarios" del administrador: tabla paginada para cambiarles el rol o darlos de baja.
-// "usuario" es el administrador que está logueado.
-const SeccionUsuarios = ({ usuario, usuarios, onCambiarRol, onCambiarActivo }) => {
+// "usuario" es el administrador que está logueado y "roles" los que existen en el backend.
+const SeccionUsuarios = ({ usuario, usuarios, roles, onCambiarRol, onCambiarActivo }) => {
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(0)
 
@@ -54,6 +54,7 @@ const SeccionUsuarios = ({ usuario, usuarios, onCambiarRol, onCambiarActivo }) =
                 <FilaUsuario
                   key={u.nombreUsuario}
                   usuario={u}
+                  roles={roles}
                   esUnoMismo={u.nombreUsuario === usuario.nombreUsuario}
                   onCambiarRol={onCambiarRol}
                   onCambiarActivo={onCambiarActivo}

@@ -41,4 +41,10 @@ public class RefugiosController {
         Refugio result = refugioService.createRefugio(request);
         return ResponseEntity.created(URI.create("/refugios/" + result.getIdRefugio())).body(RefugioResponse.fromEntity(result));
     }
+
+    // un administrador aprueba a un refugio que se registro solo; recien ahi puede publicar animales
+    @PutMapping("/{refugioId}/aprobar")
+    public ResponseEntity<RefugioResponse> aprobarRefugio(@PathVariable Long refugioId) {
+        return ResponseEntity.ok(RefugioResponse.fromEntity(refugioService.aprobarRefugio(refugioId)));
+    }
 }

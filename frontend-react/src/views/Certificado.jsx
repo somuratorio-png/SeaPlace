@@ -7,7 +7,7 @@ import { formatearFecha } from '../utils/fechas'
 const Certificado = ({ usuario, apadrinados, onVolver }) => {
   // El id sale de la URL (/panel/:id/certificado)
   const { id } = useParams()
-  const item = apadrinados.find((a) => a.animal.id === id)
+  const item = apadrinados.find((a) => a.animal.id === Number(id))
 
   if (!item) {
     return <Navigate to="/panel" replace />
@@ -55,7 +55,7 @@ const Certificado = ({ usuario, apadrinados, onVolver }) => {
             </div>
             <div>
               <p className="font-label-md text-label-md uppercase tracking-wider text-on-surface-variant">N.º de certificado</p>
-              <p className="font-title-lg text-title-lg text-primary">{item.id.slice(0, 8).toUpperCase()}</p>
+              <p className="font-title-lg text-title-lg text-primary">{String(item.id).padStart(6, '0')}</p>
             </div>
           </div>
         </div>

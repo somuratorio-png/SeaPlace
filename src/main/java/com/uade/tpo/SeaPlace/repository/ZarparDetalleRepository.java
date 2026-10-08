@@ -14,4 +14,7 @@ public interface ZarparDetalleRepository extends JpaRepository<ZarparDetalle, Lo
     List<ZarparDetalle> findByZarpar_IdZarpar(Long idZarpar);
 
     List<ZarparDetalle> findByAnimal_IdAnimal(Long idAnimal);
+
+    // los pagos de un padrino por un animal, del mas viejo al mas nuevo
+    List<ZarparDetalle> findByZarpar_Usuario_IdUsuarioAndAnimal_IdAnimalOrderByZarpar_FechaZarparAsc(Long idUsuario, Long idAnimal);
 }

@@ -10,4 +10,10 @@ public class AnimalUpdateRequest {
     private Double cuotaApadrinamiento;
     private Integer cuposTotales;
     private String estado;
+    private String especie;
+    private String edad;
+    private String ubicacion;
+    private String urgencia;
+    private String condicion;
+    private Boolean destacado; // solo lo puede cambiar un administrador
 }

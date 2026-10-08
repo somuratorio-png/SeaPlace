@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import BarraProgreso from '../components/comunes/BarraProgreso'
 import Icono from '../components/comunes/Icono'
@@ -9,14 +10,24 @@ import HistorialPagos from '../components/panel/HistorialPagos'
 import MiPlan from '../components/panel/MiPlan'
 import Rastreo from '../components/panel/Rastreo'
 import RastreoBloqueado from '../components/panel/RastreoBloqueado'
+import { traerNovedades } from '../services/animales'
 import { formatearFecha } from '../utils/fechas'
 
 // Detalle de un animal que el usuario ya apadrinó.
-// apadrinados = [{ id, animal, plan, desde, pagos }] y novedades = las de todos los animales
-const Apadrinado = ({ apadrinados, novedades, onVolver, onCambiarPlan, onCancelar, onVerCertificado }) => {
+// apadrinados = [{ id, animal, plan, desde, pagos }]
+const Apadrinado = ({ apadrinados, onVolver, onCambiarPlan, onCancelar, onVerCertificado }) => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const { id } = useParams()
-  const item = apadrinados.find((a) => a.animal.id === id)
+  const idAnimal = Number(id)
+  const item = apadrinados.find((a) => a.animal.id === idAnimal)
+
+  // La bitácora se pide al backend al abrir la página (y de nuevo si se pasa a otro animal)
+  const [susNovedades, setSusNovedades] = useState([])
+  useEffect(() => {
+    traerNovedades(idAnimal)
+      .then(setSusNovedades)
+      .catch(() => setSusNovedades([]))
+  }, [idAnimal])
 
   // Si ese animal no está apadrinado (o se canceló), se vuelve al panel
   if (!item) {
@@ -24,7 +35,6 @@ const Apadrinado = ({ apadrinados, novedades, onVolver, onCambiarPlan, onCancela
   }
 
   const { animal, plan } = item
-  const susNovedades = novedades.filter((novedad) => novedad.animalId === animal.id)
 
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
@@ -73,7 +83,7 @@ const Apadrinado = ({ apadrinados, novedades, onVolver, onCambiarPlan, onCancela
       </div>
 
       {/* La ubicación solo se muestra con el plan más alto. Va a todo el ancho para que el mapa luzca. */}
-      {plan.ubicacionEnVivo ? <Rastreo animal={animal} /> : <RastreoBloqueado nombre={animal.nombre} />}
+      {plan.ubicacionEnVivo ? <Rastreo key={animal.id} animal={animal} /> : <RastreoBloqueado nombre={animal.nombre} />}
     </div>
   )
 }

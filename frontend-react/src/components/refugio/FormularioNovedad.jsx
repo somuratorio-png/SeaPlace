@@ -5,11 +5,14 @@ const FormularioNovedad = ({ animal, onPublicar }) => {
   const [texto, setTexto] = useState('')
   const [publicada, setPublicada] = useState(false)
 
-  const publicar = (evento) => {
+  // onPublicar la manda al backend y devuelve un mensaje de error, o null si salió bien
+  const publicar = async (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    onPublicar(animal.id, texto.trim())
-    setTexto('')
-    setPublicada(true)
+    const mensaje = await onPublicar(animal.id, texto.trim())
+    if (mensaje === null) {
+      setTexto('')
+      setPublicada(true)
+    }
   }
 
   return (

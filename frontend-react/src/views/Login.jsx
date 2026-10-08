@@ -4,12 +4,14 @@ import CampoTexto from '../components/login/CampoTexto'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
-// Login y registro (mock: se valida contra la lista de usuarios que recibe por props)
-const Login = ({ usuarios, onIngresar, onRegistrar }) => {
+// Login y registro. onIngresar y onRegistrar le piden al backend que valide los datos:
+// devuelven el mensaje de error que mandó (por ejemplo, "Usuario o contrasenia incorrectos"), o null si salió bien.
+const Login = ({ onIngresar, onRegistrar }) => {
   const [esRegistro, setEsRegistro] = useState(false)
   const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
+  const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
 
   // Un solo manejador para todos los campos: usa el "name" del input para saber cuál cambió
   const cambiar = (evento) => {
@@ -21,45 +23,22 @@ const Login = ({ usuarios, onIngresar, onRegistrar }) => {
     setError(null)
   }
 
-  const ingresar = () => {
-    const encontrado = usuarios.find(
-      (usuario) => usuario.nombreUsuario === datos.nombreUsuario && usuario.contrasenia === datos.contrasenia,
-    )
-    if (!encontrado) {
-      setError('Usuario o contraseña incorrectos')
-      return
-    }
-    if (!encontrado.activo) {
-      setError('Esta cuenta fue dada de baja')
-      return
-    }
-    onIngresar(encontrado)
-  }
+  const ingresar = () => onIngresar(datos.nombreUsuario, datos.contrasenia)
 
   const registrar = () => {
     if (datos.contrasenia.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres')
-      return
+      return 'La contraseña debe tener al menos 8 caracteres'
     }
-    if (usuarios.some((usuario) => usuario.nombreUsuario === datos.nombreUsuario)) {
-      setError(`El usuario ${datos.nombreUsuario} ya existe`)
-      return
-    }
-    // Un refugio no tiene nombre y apellido: se guarda como "Refugio" + el nombre que escribió
-    if (esRefugio) {
-      onRegistrar({ ...datos, nombre: 'Refugio' }, true)
-    } else {
-      onRegistrar(datos, false)
-    }
+    // Que el usuario o el correo no estén repetidos lo controla el backend
+    return onRegistrar(datos, esRefugio)
   }
 
-  const enviar = (evento) => {
+  // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página
+  const enviar = async (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    if (esRegistro) {
-      registrar()
-    } else {
-      ingresar()
-    }
+    setEnviando(true)
+    setError(await (esRegistro ? registrar() : ingresar()))
+    setEnviando(false)
   }
 
   return (
@@ -103,7 +82,7 @@ const Login = ({ usuarios, onIngresar, onRegistrar }) => {
 
         {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 
-        <button type="submit" className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container">
+        <button type="submit" disabled={enviando} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container disabled:opacity-60">
           {esRegistro ? 'Crear cuenta' : 'Ingresar'}
         </button>
 

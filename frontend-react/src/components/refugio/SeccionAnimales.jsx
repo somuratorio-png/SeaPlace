@@ -9,7 +9,7 @@ const ANIMALES_POR_PAGINA = 4
 
 // Sección "Mis animales" del refugio: los busca y los muestra de a una página.
 // "animales" son solo los de este refugio y "apadrinamientos" los activos de esos animales.
-const SeccionAnimales = ({ animales, apadrinamientos, onVer, onQuitar, onEditar, onPublicarNovedad }) => {
+const SeccionAnimales = ({ animales, apadrinamientos, onVer, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(0)
 
@@ -50,6 +50,7 @@ const SeccionAnimales = ({ animales, apadrinamientos, onVer, onQuitar, onEditar,
           onQuitar={onQuitar}
           onEditar={onEditar}
           onPublicarNovedad={onPublicarNovedad}
+          onRegistrarUbicacion={onRegistrarUbicacion}
         />
       ))}
 

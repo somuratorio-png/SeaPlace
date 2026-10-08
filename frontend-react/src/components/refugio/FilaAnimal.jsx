@@ -10,7 +10,13 @@ const FilaAnimal = ({ animal, onVer, onQuitar }) => {
       <img src={animal.imagen} alt={`Foto de ${animal.nombre}`} className="w-20 h-20 object-cover rounded-xl" />
 
       <div className="flex-1 min-w-40 space-y-1">
-        <h3 className="font-title-lg text-title-lg text-primary">{animal.nombre}</h3>
+        <h3 className="font-title-lg text-title-lg text-primary">
+          {animal.nombre}
+          {/* Las pausadas no se ven en el catálogo: solo las ven su refugio y el administrador */}
+          {animal.publicacion === 'PAUSADA' && (
+            <span className="ml-space-sm align-middle bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full px-space-sm py-0.5 font-label-md text-label-md">Pausada</span>
+          )}
+        </h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           {animal.especie} · {animal.estado} · <Precio valor={precioFinal(animal)} />/mes
           {tieneDescuento(animal) && ` (en oferta, -${animal.descuento.porcentaje}%)`} · cupos: {animal.cuposDisponibles} libres de {animal.cuposTotales}

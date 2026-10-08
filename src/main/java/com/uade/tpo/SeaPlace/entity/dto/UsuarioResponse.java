@@ -18,6 +18,10 @@ public class UsuarioResponse {
     private Long idRol;
     private String nombreRol;
     private boolean activo;
+    // Solo para las cuentas que administran un refugio; en el resto vienen en null.
+    private Long idRefugio;
+    private String nombreRefugio;
+    private Boolean refugioAprobado;
 
     public static UsuarioResponse fromEntity(Usuario usuario) {
         UsuarioResponse r = new UsuarioResponse();
@@ -32,6 +36,11 @@ public class UsuarioResponse {
             r.setNombreRol(usuario.getRol().getNombreRol());
         }
         r.setActivo(usuario.isActivo());
+        if (usuario.getRefugio() != null) {
+            r.setIdRefugio(usuario.getRefugio().getIdRefugio());
+            r.setNombreRefugio(usuario.getRefugio().getNombreRefugio());
+            r.setRefugioAprobado(usuario.getRefugio().isAprobado());
+        }
         return r;
     }
 }

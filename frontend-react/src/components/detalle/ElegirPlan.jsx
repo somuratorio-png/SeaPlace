@@ -1,21 +1,22 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { ContextoPlanes } from '../../contexto/Planes'
 import { planesDe } from '../../utils/precios'
 import Precio from '../comunes/Precio'
 
-// Muestra los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal
-// (con el descuento ya aplicado si está en oferta).
+// Muestra los 3 niveles de apadrinamiento (los que manda el backend). El precio de cada uno sale
+// de la cuota del animal (con el descuento ya aplicado si está en oferta).
 // puedeApadrinar es false para un administrador o un refugio: ven los planes pero no el botón.
 // Tampoco hay botón si al animal no le quedan cupos disponibles.
 const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
-  const planes = planesDe(animal)
+  const planes = planesDe(animal, useContext(ContextoPlanes))
 
-  // Guardamos el nombre del plan elegido; arranca en el del medio
-  const [planElegido, setPlanElegido] = useState('Guardián de la Bahía')
+  // Guardamos el código del plan elegido; arranca en el del medio
+  const [planElegido, setPlanElegido] = useState('GUARDIAN_DE_LA_BAHIA')
 
   const sinCupos = animal.cuposDisponibles === 0
 
   const agregar = () => {
-    const plan = planes.find((p) => p.nombre === planElegido)
+    const plan = planes.find((p) => p.codigo === planElegido)
     onAgregar(animal, plan)
   }
 
@@ -28,16 +29,16 @@ const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
 
       {planes.map((plan) => (
         <label
-          key={plan.nombre}
+          key={plan.codigo}
           className={`flex items-start gap-space-md p-space-md rounded-xl cursor-pointer ${
-            plan.nombre === planElegido ? 'ring-2 ring-primary bg-surface-container-lowest' : 'bg-surface-container-low'
+            plan.codigo === planElegido ? 'ring-2 ring-primary bg-surface-container-lowest' : 'bg-surface-container-low'
           }`}
         >
           <input
             type="radio"
             name="plan"
-            checked={plan.nombre === planElegido}
-            onChange={() => setPlanElegido(plan.nombre)}
+            checked={plan.codigo === planElegido}
+            onChange={() => setPlanElegido(plan.codigo)}
             className="mt-1 accent-primary"
           />
           <div className="flex-1">

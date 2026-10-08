@@ -8,8 +8,6 @@ import FormularioAnimal from '../components/refugio/FormularioAnimal'
 import ListaPadrinos from '../components/refugio/ListaPadrinos'
 import SeccionAnimales from '../components/refugio/SeccionAnimales'
 import { ContextoMoneda, formatearPrecio } from '../contexto/Moneda'
-import { urgencias } from '../data/animales'
-import { heroFoca } from '../data/imagenes'
 import { recaudacionMensual } from '../utils/precios'
 
 const secciones = [
@@ -19,23 +17,22 @@ const secciones = [
 ]
 
 // Panel del refugio. Tiene un menú lateral y muestra una sola sección por vez:
-// sus animales (ofertas, novedades y fotos), sus padrinos, o el formulario para publicar uno nuevo.
-const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQuitar, onEditarAnimal, onPublicarNovedad, onVerAnimal }) => {
+// sus animales (ofertas, novedades, fotos y ubicación), sus padrinos, o el formulario para publicar uno nuevo.
+// "animales" trae las publicaciones activas de todos y las pausadas de este refugio;
+// "apadrinamientos" son los de sus animales (el backend ya manda solo esos).
+const Refugio = ({ usuario, animales, categorias, apadrinamientos, onAgregar, onQuitar, onEditarAnimal, onPublicarNovedad, onRegistrarUbicacion, onVerAnimal }) => {
   const [seccion, setSeccion] = useState('animales')
   const moneda = useContext(ContextoMoneda)
 
-  const propios = animales.filter((animal) => animal.refugio === usuario.nombreUsuario)
+  const propios = animales.filter((animal) => animal.idRefugio === usuario.idRefugio)
 
   // Apadrinamientos activos de los animales de este refugio
-  const susApadrinamientos = apadrinamientos.filter((a) => a.activo && a.animal.refugio === usuario.nombreUsuario)
+  const susApadrinamientos = apadrinamientos.filter((a) => a.activo && a.animal.idRefugio === usuario.idRefugio)
   const cantidadPadrinos = new Set(susApadrinamientos.map((a) => a.usuario)).size
 
-  // Arma el animal completo a partir del formulario. Devuelve un mensaje de error, o null si salió bien.
-  const guardar = (datos, fotos) => {
-    const id = datos.nombre.trim().toLowerCase().replaceAll(' ', '-')
-    if (animales.some((animal) => animal.id === id)) {
-      return `Ya hay un animal llamado ${datos.nombre}`
-    }
+  // Revisa lo básico antes de mandar el animal al backend (que valida todo de nuevo).
+  // Devuelve un mensaje de error, o null si salió bien.
+  const guardar = async (datos, fotos) => {
     if (Number(datos.precio) <= 0) {
       return 'La cuota mensual tiene que ser mayor a 0'
     }
@@ -45,27 +42,12 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
       return 'Los cupos tienen que ser un número entero mayor a 0'
     }
 
-    // Si no subió ninguna foto, se usa una genérica
-    const fotosDelAnimal = fotos.length > 0 ? fotos : [heroFoca]
-
-    onAgregar({
-      ...datos,
-      id,
-      refugio: usuario.nombreUsuario,
-      estado: urgencias.find((urgencia) => urgencia.id === datos.urgencia).estado,
-      // El precio se guarda siempre en dólares; la pantalla lo convierte a pesos si hace falta
-      precio: Number(datos.precio),
-      // Al publicarlo, todos los cupos están disponibles
-      cuposTotales: cupos,
-      cuposDisponibles: cupos,
-      progreso: 0,
-      destacado: false,
-      imagen: fotosDelAnimal[0],
-      fotos: fotosDelAnimal,
-    })
-    // Una vez publicado, se muestra la lista para que lo vea
-    setSeccion('animales')
-    return null
+    const mensaje = await onAgregar(datos, fotos)
+    if (mensaje === null) {
+      // Una vez publicado, se muestra la lista para que lo vea
+      setSeccion('animales')
+    }
+    return mensaje
   }
 
   // Un refugio recién registrado no puede publicar hasta que un administrador lo apruebe
@@ -123,15 +105,16 @@ const Refugio = ({ usuario, usuarios, animales, apadrinamientos, onAgregar, onQu
                 onQuitar={onQuitar}
                 onEditar={onEditarAnimal}
                 onPublicarNovedad={onPublicarNovedad}
+                onRegistrarUbicacion={onRegistrarUbicacion}
               />
             )}
             {seccion === 'padrinos' && (
               <section className="space-y-space-md">
                 <TituloSeccion>Padrinos</TituloSeccion>
-                <ListaPadrinos apadrinamientos={susApadrinamientos} usuarios={usuarios} />
+                <ListaPadrinos apadrinamientos={susApadrinamientos} />
               </section>
             )}
-            {seccion === 'publicar' && <FormularioAnimal onGuardar={guardar} />}
+            {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={guardar} />}
           </div>
         </div>
       </div>

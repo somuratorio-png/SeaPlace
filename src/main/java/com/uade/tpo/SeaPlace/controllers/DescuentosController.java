@@ -35,4 +35,11 @@ public class DescuentosController {
         Descuento result = descuentoService.createDescuento(request);
         return ResponseEntity.created(URI.create("/animales/" + animalId + "/descuentos/" + result.getIdDescuento())).body(DescuentoResponse.fromEntity(result));
     }
+
+    // quita la oferta: el descuento no se borra, queda inactivo
+    @DeleteMapping("/{descuentoId}")
+    public ResponseEntity<Void> desactivarDescuento(@PathVariable Long animalId, @PathVariable Long descuentoId) {
+        descuentoService.desactivarDescuento(animalId, descuentoId);
+        return ResponseEntity.noContent().build();
+    }
 }

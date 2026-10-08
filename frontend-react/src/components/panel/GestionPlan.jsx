@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
+import { ContextoPlanes } from '../../contexto/Planes'
 import { planesDe } from '../../utils/precios'
 import Precio from '../comunes/Precio'
 
@@ -6,10 +7,10 @@ import Precio from '../comunes/Precio'
 // Cancelar pide una segunda confirmación para que no pase por un clic de más.
 const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
   const [confirmando, setConfirmando] = useState(false)
-  const planes = planesDe(item.animal)
+  const planes = planesDe(item.animal, useContext(ContextoPlanes))
 
   const elegir = (evento) => {
-    const plan = planes.find((p) => p.nombre === evento.target.value)
+    const plan = planes.find((p) => p.codigo === evento.target.value)
     onCambiarPlan(item.id, plan)
   }
 
@@ -20,12 +21,12 @@ const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
       <label className="flex flex-col gap-1.5">
         <span className="font-label-lg text-label-lg text-on-surface">Cambiar de plan</span>
         <select
-          value={item.plan.nombre}
+          value={item.plan.codigo}
           onChange={elegir}
           className="w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40"
         >
           {planes.map((plan) => (
-            <option key={plan.nombre} value={plan.nombre}>
+            <option key={plan.codigo} value={plan.codigo}>
               {plan.nombre}
             </option>
           ))}

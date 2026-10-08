@@ -38,7 +38,7 @@ public class MuellesController {
 
     @PutMapping("/{muelleId}/items/{animalId}")
     public ResponseEntity<MuelleDetalleResponse> modificarCantidad(@PathVariable Long muelleId, @PathVariable Long animalId, @RequestBody MuelleDetalleRequest request) {
-        return ResponseEntity.ok(MuelleDetalleResponse.fromEntity(muelleService.modificarCantidad(muelleId, animalId, request.getCantidad())));
+        return ResponseEntity.ok(MuelleDetalleResponse.fromEntity(muelleService.modificarCantidad(muelleId, animalId, request.getCantidad(), request.getPlan())));
     }
 
     @DeleteMapping("/{muelleId}/items/{animalId}")

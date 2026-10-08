@@ -12,6 +12,7 @@ public class ZarparDetalleResponse {
     private Integer cantidad;
     private Double precioUnitario;
     private Double subtotal;
+    private String plan;
 
     public static ZarparDetalleResponse fromEntity(ZarparDetalle detalle) {
         ZarparDetalleResponse r = new ZarparDetalleResponse();
@@ -23,6 +24,7 @@ public class ZarparDetalleResponse {
         r.setCantidad(detalle.getCantidad());
         r.setPrecioUnitario(detalle.getPrecioUnitario());
         r.setSubtotal(detalle.getSubtotal());
+        r.setPlan(detalle.getPlan().name());
         return r;
     }
 }

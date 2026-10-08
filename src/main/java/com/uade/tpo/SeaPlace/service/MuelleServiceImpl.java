@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Muelle;
 import com.uade.tpo.SeaPlace.entity.MuelleDetalle;
+import com.uade.tpo.SeaPlace.entity.Plan;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.MuelleDetalleRequest;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
@@ -109,23 +110,30 @@ public class MuelleServiceImpl implements MuelleService {
                             + " y se intentan reservar " + cantidadFinal);
         }
 
+        boolean indicaPlan = request.getPlan() != null && !request.getPlan().isBlank();
+
         MuelleDetalle detalle;
         if (detalleExistente.isPresent()) {
             detalle = detalleExistente.get();
             detalle.setCantidad(cantidadFinal);
+            // Si el animal ya estaba en el muelle, el plan solo cambia si el pedido trae uno.
+            if (indicaPlan) {
+                detalle.setPlan(Plan.desde(request.getPlan()));
+            }
         } else {
             detalle = new MuelleDetalle();
             detalle.setMuelle(muelle);
             detalle.setAnimal(animal);
             detalle.setCantidad(cantidadFinal);
             detalle.setPrecioUnitario(animal.getCuotaApadrinamiento());
+            detalle.setPlan(Plan.desde(request.getPlan()));
         }
 
         return muelleDetalleRepository.save(detalle);
     }
 
     @Override
-    public MuelleDetalle modificarCantidad(Long muelleId, Long animalId, Integer cantidad) {
+    public MuelleDetalle modificarCantidad(Long muelleId, Long animalId, Integer cantidad, String plan) {
         if (cantidad == null || cantidad <= 0) {
             throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
@@ -152,6 +160,10 @@ public class MuelleServiceImpl implements MuelleService {
         }
 
         detalle.setCantidad(cantidad);
+        // El plan es opcional: si no viene, queda el que tenia.
+        if (plan != null && !plan.isBlank()) {
+            detalle.setPlan(Plan.desde(plan));
+        }
         return muelleDetalleRepository.save(detalle);
     }
 

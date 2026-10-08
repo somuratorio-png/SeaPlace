@@ -67,4 +67,19 @@ public class DescuentoServiceImpl implements DescuentoService {
 
         return descuentoRepository.save(descuento);
     }
+
+    // Quitar una oferta no borra la fila: el descuento queda inactivo y deja de aplicarse.
+    @Override
+    public void desactivarDescuento(Long animalId, Long descuentoId) {
+        Descuento descuento = descuentoRepository.findById(descuentoId)
+                .filter(d -> d.getAnimal().getIdAnimal().equals(animalId))
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el descuento con id " + descuentoId + " para el animal con id " + animalId));
+
+        // Solo el refugio dueño del animal (o un admin) puede quitarle descuentos.
+        autorizacionService.validarPermisoSobreRefugio(descuento.getAnimal().getRefugio().getIdRefugio());
+
+        descuento.setActivo(false);
+        descuentoRepository.save(descuento);
+    }
 }

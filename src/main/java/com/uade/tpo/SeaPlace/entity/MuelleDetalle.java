@@ -2,6 +2,8 @@ package com.uade.tpo.SeaPlace.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -31,4 +33,14 @@ public class MuelleDetalle {
 
     @Column(nullable = false)
     private Integer cantidad;
+
+    // Nivel de apadrinamiento elegido. Puede venir vacio en filas anteriores a los planes:
+    // en ese caso vale el plan por defecto.
+    @Enumerated(EnumType.STRING)
+    @Column
+    private Plan plan;
+
+    public Plan getPlan() {
+        return plan == null ? Plan.POR_DEFECTO : plan;
+    }
 }

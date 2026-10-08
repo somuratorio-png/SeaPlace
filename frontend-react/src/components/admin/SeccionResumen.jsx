@@ -11,7 +11,7 @@ const SeccionResumen = ({ usuarios, animales, apadrinamientos }) => {
   const recaudacionPorRefugio = refugios
     .filter((refugio) => refugio.aprobado)
     .map((refugio) => {
-      const suyos = apadrinamientos.filter((a) => a.activo && a.animal.refugio === refugio.nombreUsuario)
+      const suyos = apadrinamientos.filter((a) => a.activo && a.animal.idRefugio === refugio.idRefugio)
       return { nombre: `${refugio.nombre} ${refugio.apellido}`, valor: recaudacionMensual(suyos), padrinos: suyos.length }
     })
 

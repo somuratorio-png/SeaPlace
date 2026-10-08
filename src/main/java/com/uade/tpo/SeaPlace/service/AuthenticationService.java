@@ -29,7 +29,7 @@ import lombok.RequiredArgsConstructor;
 public class AuthenticationService {
 
     private static final String ROL_POR_DEFECTO = "padrino";
-    private static final String ROL_REFUGIO = "refugio";
+    private static final String ROL_REFUGIO = "duenioRefugio";
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -58,7 +58,8 @@ public class AuthenticationService {
         refugioRequest.setIdUsuario(usuario.getIdUsuario());
         refugioRequest.setNombreRefugio(request.getNombreRefugio());
         refugioRequest.setDescripcion(request.getDescripcion());
-        refugioService.createRefugio(refugioRequest);
+        // Queda pendiente: un administrador lo tiene que aprobar antes de que pueda publicar.
+        refugioService.createRefugioPendiente(refugioRequest);
 
         var jwtToken = jwtService.generateToken(usuario);
         return AuthenticationResponse.builder().accessToken(jwtToken).build();

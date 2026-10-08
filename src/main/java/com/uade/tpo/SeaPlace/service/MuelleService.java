@@ -11,7 +11,7 @@ public interface MuelleService {
 
     MuelleDetalle agregarItem(MuelleDetalleRequest request);
 
-    MuelleDetalle modificarCantidad(Long muelleId, Long animalId, Integer cantidad);
+    MuelleDetalle modificarCantidad(Long muelleId, Long animalId, Integer cantidad, String plan);
 
     void quitarItem(Long muelleId, Long animalId);
 

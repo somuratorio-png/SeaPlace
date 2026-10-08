@@ -8,7 +8,9 @@ import { PRECIO_BOTIQUIN, totalMuelle } from '../utils/precios'
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
 // Zarpar = confirmar el muelle y pagar (igual que la clase Zarpar del backend).
-// Es un mock: no se cobra nada ni se guardan los datos de la tarjeta.
+// El pago es simulado: no se cobra nada ni se guardan los datos de la tarjeta (no se mandan al backend).
+// Lo que sí es real es la confirmación: onConfirmar le pide al backend que registre el zarpar
+// y devuelve su mensaje de error (por ejemplo, si a un animal ya no le quedan cupos), o null si salió bien.
 // Los campos de la tarjeta no dejan escribir de más: solo números y hasta el largo justo.
 // Antes de confirmar se revisa que el número esté completo, que la tarjeta no esté vencida y el código.
 
@@ -37,13 +39,14 @@ const estaVencida = (mes, anio) => {
 const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
+  const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
 
   const cambiar = (evento) => {
     const { name, value } = evento.target
     setDatos({ ...datos, [name]: limpiar[name](value) })
   }
 
-  const confirmar = (evento) => {
+  const confirmar = async (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
     const mes = Number(datos.vencimiento.slice(0, 2))
     const anio = Number(datos.vencimiento.slice(3, 5))
@@ -68,12 +71,19 @@ const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
       setError('El código de seguridad son los 3 dígitos del dorso')
       return
     }
-    onConfirmar()
+
+    // Si sale bien, App pasa a la página de gracias y este formulario desaparece
+    setEnviando(true)
+    const mensaje = await onConfirmar()
+    if (mensaje) {
+      setError(mensaje)
+      setEnviando(false)
+    }
   }
 
   return (
     <>
-      <Portada icono="sailing" etiqueta="Último paso" titulo="Todo listo para zarpar" texto="Es una simulación: no se realiza ningún cobro ni se guardan los datos de la tarjeta." />
+      <Portada icono="sailing" etiqueta="Último paso" titulo="Todo listo para zarpar" texto="El pago es una simulación: no se realiza ningún cobro ni se guardan los datos de la tarjeta." />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
         <form onSubmit={confirmar} className="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-space-md">
@@ -89,7 +99,7 @@ const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
           {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
 
           <div className="flex flex-wrap items-center gap-space-md">
-            <button type="submit" className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-title-lg text-title-lg px-space-lg py-space-sm rounded-full shadow-md hover:bg-tertiary-container">
+            <button type="submit" disabled={enviando} className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-title-lg text-title-lg px-space-lg py-space-sm rounded-full shadow-md hover:bg-tertiary-container disabled:opacity-60">
               <Icono nombre="lock" clase="text-[20px]" />
               Zarpar · <Precio valor={totalMuelle(muelle, conBotiquin)} />
             </button>

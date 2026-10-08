@@ -1,6 +1,5 @@
-// Devuelve solo la "página" pedida de una lista, para no mostrar (ni traer) todo junto.
-// Imita lo que hace el backend con ?page=0&size=6: cuando se conecte la API, esta función
-// se reemplaza por la llamada, que ya devuelve la página armada.
+// Devuelve solo la "página" pedida de una lista, para no mostrar todo junto.
+// Se usa sobre listas que ya llegaron completas del backend y que la pantalla filtra y ordena.
 // La primera página es la 0, igual que en el backend.
 export const paginar = (lista, pagina, tamanio) => {
   const totalPaginas = Math.max(1, Math.ceil(lista.length / tamanio))

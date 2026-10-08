@@ -9,4 +9,6 @@ public interface DescuentoService {
     List<Descuento> getDescuentosActivos(Long animalId);
 
     Descuento createDescuento(DescuentoRequest request);
+
+    void desactivarDescuento(Long animalId, Long descuentoId);
 }

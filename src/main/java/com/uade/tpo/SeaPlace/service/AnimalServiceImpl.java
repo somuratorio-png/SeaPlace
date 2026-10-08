@@ -1,6 +1,7 @@
 package com.uade.tpo.SeaPlace.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,9 @@ public class AnimalServiceImpl implements AnimalService {
     private static final String ESTADO_PUBLICACION_ELIMINADA = "ELIMINADA";
 
     private static final int LARGO_MAXIMO = 255;
+
+    private static final List<String> URGENCIAS = List.of("CRITICO", "RECUPERACION", "LISTO");
+    private static final String URGENCIA_POR_DEFECTO = "RECUPERACION";
 
     @Autowired
     private AnimalRepository animalRepository;
@@ -120,6 +124,11 @@ public class AnimalServiceImpl implements AnimalService {
 
         autorizacionService.validarPermisoSobreRefugio(refugio.getIdRefugio());
 
+        // Un refugio que se registro solo no publica hasta que un administrador lo aprueba.
+        if (!refugio.isAprobado()) {
+            throw new ReglaDeNegocioException("El refugio todavia no fue aprobado por un administrador");
+        }
+
         if (request.getCuposTotales() == null || request.getCuposTotales() <= 0) {
             throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
         }
@@ -139,7 +148,39 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setEstado(ESTADO_PUBLICACION_ACTIVA);
         animal.setFechaPublicacion(LocalDateTime.now());
 
+        String urgencia = urgenciaValida(request.getUrgencia());
+        animal.setEspecie(textoOpcional(request.getEspecie(), "especie"));
+        animal.setEdad(textoOpcional(request.getEdad(), "edad"));
+        animal.setUbicacion(textoOpcional(request.getUbicacion(), "ubicacion"));
+        animal.setUrgencia(urgencia == null ? URGENCIA_POR_DEFECTO : urgencia);
+        animal.setCondicion(textoOpcional(request.getCondicion(), "condicion"));
+
         return animalRepository.save(animal);
+    }
+
+    // Recorta un texto opcional de la ficha. Vacio se guarda como null; corta si no entra en la columna.
+    private String textoOpcional(String valor, String campo) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        String limpio = valor.trim();
+        if (limpio.length() > LARGO_MAXIMO) {
+            throw new ReglaDeNegocioException(
+                    "El campo '" + campo + "' no puede superar los " + LARGO_MAXIMO + " caracteres");
+        }
+        return limpio;
+    }
+
+    // Devuelve la urgencia en mayusculas, o null si no vino. Corta si no es una de las validas.
+    private String urgenciaValida(String valor) {
+        if (valor == null || valor.isBlank()) {
+            return null;
+        }
+        String urgencia = valor.trim().toUpperCase();
+        if (!URGENCIAS.contains(urgencia)) {
+            throw new ReglaDeNegocioException("Urgencia invalida: CRITICO, RECUPERACION o LISTO");
+        }
+        return urgencia;
     }
 
     // Un dueño de refugio no manda idRefugio: se usa el de su cuenta (el del token).
@@ -206,6 +247,32 @@ public class AnimalServiceImpl implements AnimalService {
             }
             animal.setCuposDisponibles(request.getCuposTotales() - cuposOcupados);
             animal.setCuposTotales(request.getCuposTotales());
+        }
+
+        // Datos de la ficha: igual que el resto, solo se cambia lo que viene informado.
+        if (request.getEspecie() != null) {
+            animal.setEspecie(textoOpcional(request.getEspecie(), "especie"));
+        }
+        if (request.getEdad() != null) {
+            animal.setEdad(textoOpcional(request.getEdad(), "edad"));
+        }
+        if (request.getUbicacion() != null) {
+            animal.setUbicacion(textoOpcional(request.getUbicacion(), "ubicacion"));
+        }
+        if (request.getCondicion() != null) {
+            animal.setCondicion(textoOpcional(request.getCondicion(), "condicion"));
+        }
+        String urgencia = urgenciaValida(request.getUrgencia());
+        if (urgencia != null) {
+            animal.setUrgencia(urgencia);
+        }
+
+        // Que animales se destacan en el inicio lo decide un administrador, no cada refugio.
+        if (request.getDestacado() != null) {
+            if (!autorizacionService.esAdmin()) {
+                throw new AccessDeniedException("Solo un administrador puede destacar un animal");
+            }
+            animal.setDestacado(request.getDestacado());
         }
 
         return animalRepository.save(animal);

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 // Igual que useState, pero además guarda el valor en el navegador (localStorage)
 // para que no se pierda al recargar la página. "clave" es el nombre con el que se guarda.
+// Es para preferencias de este navegador (como la moneda): los datos de la app viven en el backend.
 export const useEstadoGuardado = (clave, valorInicial) => {
   const nombre = `seaplace-v3-${clave}`
 
@@ -24,12 +25,4 @@ export const useEstadoGuardado = (clave, valorInicial) => {
   }, [nombre, valor])
 
   return [valor, setValor]
-}
-
-// Borra todo lo guardado y recarga, para volver a los datos de demo
-export const reiniciarDatos = () => {
-  Object.keys(localStorage)
-    .filter((clave) => clave.startsWith('seaplace-'))
-    .map((clave) => localStorage.removeItem(clave))
-  window.location.assign('/')
 }

@@ -12,4 +12,8 @@ public interface RefugioService {
     Optional<Refugio> getRefugioById(Long refugioId);
 
     Refugio createRefugio(RefugioRequest request);
+
+    Refugio createRefugioPendiente(RefugioRequest request);
+
+    Refugio aprobarRefugio(Long refugioId);
 }

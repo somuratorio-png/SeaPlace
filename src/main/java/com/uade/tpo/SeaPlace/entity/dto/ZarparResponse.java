@@ -16,6 +16,7 @@ public class ZarparResponse {
     private LocalDateTime fechaZarpar;
     private Double total;
     private String estado;
+    private boolean conBotiquin;
     // Si la lista esta vacia, el campo directamente no se incluye en el JSON.
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ZarparDetalleResponse> detalles;
@@ -29,6 +30,7 @@ public class ZarparResponse {
         r.setFechaZarpar(zarpar.getFechaZarpar());
         r.setTotal(zarpar.getTotal());
         r.setEstado(zarpar.getEstado());
+        r.setConBotiquin(zarpar.isConBotiquin());
         r.setDetalles(zarpar.getDetalles() == null
                 ? new ArrayList<>()
                 : zarpar.getDetalles().stream().map(ZarparDetalleResponse::fromEntity).toList());

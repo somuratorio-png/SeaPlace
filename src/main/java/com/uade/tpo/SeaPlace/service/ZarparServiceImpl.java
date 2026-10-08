@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Muelle;
 import com.uade.tpo.SeaPlace.entity.MuelleDetalle;
+import com.uade.tpo.SeaPlace.entity.Plan;
 import com.uade.tpo.SeaPlace.entity.Zarpar;
 import com.uade.tpo.SeaPlace.entity.ZarparDetalle;
 import com.uade.tpo.SeaPlace.entity.Descuento;
@@ -39,6 +40,9 @@ public class ZarparServiceImpl implements ZarparService {
     private static final String ESTADO_ZARPAR_CONFIRMADA = "CONFIRMADA";
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
 
+    // Adicional opcional de precio fijo (en dolares, como las cuotas) que se suma al total.
+    private static final double PRECIO_BOTIQUIN = 5.0;
+
     @Autowired
     private ZarparRepository zarparRepository;
 
@@ -59,6 +63,9 @@ public class ZarparServiceImpl implements ZarparService {
 
     @Autowired
     private DescuentoRepository descuentoRepository;
+
+    @Autowired
+    private ApadrinamientoService apadrinamientoService;
 
     @Autowired
     private AutorizacionService autorizacionService;
@@ -144,7 +151,9 @@ public class ZarparServiceImpl implements ZarparService {
             Animal animal = detalleMuelle.getAnimal();
             int cantidad = detalleMuelle.getCantidad();
 
-            double precioFinal = calcularPrecioFinal(animal, hoy);
+            // El precio de un cupo sale de la cuota (con el descuento vigente) y del plan elegido.
+            Plan plan = detalleMuelle.getPlan();
+            double precioFinal = plan.precioPara(calcularPrecioFinal(animal, hoy));
             double subtotal = redondearADosDecimales(precioFinal * cantidad);
 
             animal.setCuposDisponibles(animal.getCuposDisponibles() - cantidad);
@@ -156,10 +165,20 @@ public class ZarparServiceImpl implements ZarparService {
             detalleZarpar.setCantidad(cantidad);
             detalleZarpar.setPrecioUnitario(precioFinal);
             detalleZarpar.setSubtotal(subtotal);
+            detalleZarpar.setPlan(plan);
             detallesCreados.add(zarparDetalleRepository.save(detalleZarpar));
+
+            // El pago deja al usuario como padrino del animal (o le suma cupos, si ya lo era).
+            apadrinamientoService.registrar(usuario, animal, plan, cantidad, zarpar.getFechaZarpar());
 
             totalZarpar += subtotal;
         }
+
+        boolean conBotiquin = Boolean.TRUE.equals(request.getConBotiquin());
+        if (conBotiquin) {
+            totalZarpar += PRECIO_BOTIQUIN;
+        }
+        zarpar.setConBotiquin(conBotiquin);
 
         zarpar.setTotal(redondearADosDecimales(totalZarpar));
         zarpar = zarparRepository.save(zarpar);

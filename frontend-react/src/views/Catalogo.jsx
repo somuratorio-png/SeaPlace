@@ -4,7 +4,6 @@ import FiltroCategorias from '../components/catalogo/FiltroCategorias'
 import TarjetaAnimal from '../components/catalogo/TarjetaAnimal'
 import Paginacion from '../components/comunes/Paginacion'
 import Portada from '../components/comunes/Portada'
-import { categorias } from '../data/animales'
 import { paginar } from '../utils/paginar'
 import { precioFinal } from '../utils/precios'
 
@@ -22,7 +21,9 @@ const comparadores = {
   nombre: (a, b) => a.nombre.localeCompare(b.nombre),
 }
 
-const Catalogo = ({ animales, favoritos, onFavorito, onVerAnimal }) => {
+// "animales" y "categorias" vienen del backend (los pide App). Los filtros y el orden se aplican
+// acá, sobre la lista ya recibida.
+const Catalogo = ({ animales, categorias, favoritos, onFavorito, onVerAnimal }) => {
   const [categoria, setCategoria] = useState('todas')
   const [busqueda, setBusqueda] = useState('')
   const [urgencia, setUrgencia] = useState('todas')
@@ -47,7 +48,7 @@ const Catalogo = ({ animales, favoritos, onFavorito, onVerAnimal }) => {
   // "Recomendados" deja el orden original. Para el resto se ordena una copia (sort modifica el array)
   const ordenados = orden === 'recomendados' ? filtrados : [...filtrados].sort(comparadores[orden])
 
-  // Se muestran de a 6: es lo mismo que le va a pedir el front al backend (?page=0&size=6)
+  // Se muestran de a 6
   const { items: visibles, paginaActual, totalPaginas } = paginar(ordenados, pagina, ANIMALES_POR_PAGINA)
 
   return (

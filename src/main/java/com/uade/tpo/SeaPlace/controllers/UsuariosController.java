@@ -58,6 +58,12 @@ public class UsuariosController {
         return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.darDeBaja(usuarioId)));
     }
 
+    // Un administrador reactiva una cuenta dada de baja (mientras este dentro del plazo).
+    @PutMapping("/{usuarioId}/reactivar")
+    public ResponseEntity<UsuarioResponse> reactivar(@PathVariable Long usuarioId) {
+        return ResponseEntity.ok(UsuarioResponse.fromEntity(usuarioService.reactivar(usuarioId)));
+    }
+
     // Modifica los datos del usuario logueado (el del token). El nombre de usuario, el rol
     // y el estado de la cuenta no se pueden cambiar por esta ruta.
     @PutMapping("/me")

@@ -24,11 +24,15 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioPerfilRequest;
 import com.uade.tpo.SeaPlace.entity.dto.CambiarContraseniaRequest;
+import com.uade.tpo.SeaPlace.entity.Refugio;
+import com.uade.tpo.SeaPlace.repository.RefugioRepository;
 
 @Service
 public class UsuarioServiceImpl implements UsuarioService {
 
     private static final String ROL_ADMINISTRADOR = "administrador";
+    private static final String ROL_REFUGIO = "duenioRefugio";
+    private static final int LARGO_MAXIMO = 255;
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
     private static final String ESTADO_PUBLICACION_PAUSADA = "PAUSADA"; 
 
@@ -49,6 +53,9 @@ public class UsuarioServiceImpl implements UsuarioService {
 
     @Autowired
     private CuentaBajaService cuentaBajaService;
+
+    @Autowired
+    private RefugioRepository refugioRepository;
 
     @Override
     public Page<Usuario> getUsuarios(PageRequest pageRequest) {
@@ -103,6 +110,7 @@ public class UsuarioServiceImpl implements UsuarioService {
     }
 
     @Override
+    @Transactional
     public Usuario cambiarRol(Long usuarioId, Long idRol) {
         if (idRol == null) {
             throw new ReglaDeNegocioException("El campo 'idRol' es obligatorio");
@@ -126,6 +134,57 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         usuario.setRol(rol);
+        if (rol.getNombreRol().equalsIgnoreCase(ROL_REFUGIO)) {
+            habilitarRefugio(usuario);
+        }
+        return usuarioRepository.save(usuario);
+    }
+
+    // Una cuenta con rol de refugio necesita un refugio para poder publicar animales.
+    // Cuando un administrador le da ese rol a un usuario, lo esta habilitando: si no tenia
+    // refugio se le crea uno, y en cualquier caso queda aprobado.
+    private void habilitarRefugio(Usuario usuario) {
+        Optional<Refugio> existente = refugioRepository.findByUsuario_IdUsuario(usuario.getIdUsuario());
+        if (existente.isPresent()) {
+            existente.get().setAprobado(true);
+            refugioRepository.save(existente.get());
+            return;
+        }
+
+        String nombreRefugio = "Refugio de " + usuario.getNombre() + " " + usuario.getApellido();
+        // El nombre del refugio no se puede repetir: si ya existe, se distingue con el nombre de usuario.
+        if (refugioRepository.findByNombreRefugio(nombreRefugio).isPresent()) {
+            nombreRefugio = nombreRefugio + " (" + usuario.getNombreUsuario() + ")";
+        }
+        if (nombreRefugio.length() > LARGO_MAXIMO) {
+            nombreRefugio = nombreRefugio.substring(0, LARGO_MAXIMO);
+        }
+
+        Refugio refugio = new Refugio();
+        refugio.setUsuario(usuario);
+        refugio.setNombreRefugio(nombreRefugio);
+        refugio.setAprobado(true);
+        // Se enlaza tambien del lado del usuario, para que la respuesta ya traiga su refugio.
+        usuario.setRefugio(refugioRepository.save(refugio));
+    }
+
+    // Reactiva una cuenta dada de baja, mientras este dentro del plazo. Lo hace un administrador;
+    // el propio usuario se reactiva solo, iniciando sesion.
+    @Override
+    public Usuario reactivar(Long usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el usuario con id " + usuarioId));
+
+        if (usuario.isActivo()) {
+            throw new ReglaDeNegocioException("El usuario no esta dado de baja");
+        }
+        if (usuario.bajaVencida()) {
+            throw new ReglaDeNegocioException("El plazo para reactivar la cuenta ya vencio");
+        }
+
+        usuario.setActivo(true);
+        usuario.setFechaBaja(null);
         return usuarioRepository.save(usuario);
     }
 

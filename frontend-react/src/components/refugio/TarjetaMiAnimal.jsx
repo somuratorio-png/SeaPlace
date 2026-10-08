@@ -6,12 +6,15 @@ import Precio from '../comunes/Precio'
 import FilaAnimal from './FilaAnimal'
 import FormularioNovedad from './FormularioNovedad'
 import FormularioOferta from './FormularioOferta'
+import FormularioUbicacion from './FormularioUbicacion'
 
-// Un animal del refugio con todo lo que se puede hacer con él: ver cuánto recauda,
-// ponerlo en oferta, publicar novedades y sumarle fotos.
+// Un animal del refugio con todo lo que se puede hacer con él: ver cuánto recauda, pausar su
+// publicación, ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
 // "apadrinamientos" son solo los activos de este animal.
-const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, onPublicarNovedad }) => {
+const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [abierto, setAbierto] = useState(false)
+
+  const pausada = animal.publicacion === 'PAUSADA'
 
   // Las fotos nuevas se agregan al final de las que ya tenía
   const sumarFotos = async (evento) => {
@@ -31,16 +34,27 @@ const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, o
           </b>{' '}
           por mes · {animal.fotos.length} {animal.fotos.length === 1 ? 'foto' : 'fotos'}
         </p>
-        <button onClick={() => setAbierto(!abierto)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline">
-          <Icono nombre={abierto ? 'expand_less' : 'tune'} clase="text-[18px]" />
-          {abierto ? 'Cerrar' : 'Gestionar'}
-        </button>
+        <div className="flex flex-wrap items-center gap-space-md">
+          {/* Una publicación pausada no se ve en el catálogo, pero conserva sus padrinos y sus datos */}
+          <button
+            onClick={() => onEditar(animal.id, { publicacion: pausada ? 'ACTIVA' : 'PAUSADA' })}
+            className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline"
+          >
+            <Icono nombre={pausada ? 'play_circle' : 'pause_circle'} clase="text-[18px]" />
+            {pausada ? 'Volver a publicar' : 'Pausar'}
+          </button>
+          <button onClick={() => setAbierto(!abierto)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline">
+            <Icono nombre={abierto ? 'expand_less' : 'tune'} clase="text-[18px]" />
+            {abierto ? 'Cerrar' : 'Gestionar'}
+          </button>
+        </div>
       </div>
 
       {abierto && (
-        <div className="px-space-md pb-space-md grid grid-cols-1 lg:grid-cols-3 gap-space-lg">
+        <div className="px-space-md pb-space-md grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
           <FormularioOferta animal={animal} onEditar={onEditar} />
           <FormularioNovedad animal={animal} onPublicar={onPublicarNovedad} />
+          <FormularioUbicacion animal={animal} onRegistrar={onRegistrarUbicacion} />
           <label className="space-y-space-sm block">
             <h4 className="font-label-lg text-label-lg text-on-surface">Sumar fotos a su galería</h4>
             <input

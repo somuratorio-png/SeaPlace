@@ -15,7 +15,7 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 public class AutorizacionService {
 
     private static final String ROL_ADMINISTRADOR = "administrador";
-    private static final String ROL_REFUGIO = "refugio";
+    private static final String ROL_REFUGIO = "duenioRefugio";
 
     public Usuario usuarioActual() {
         return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

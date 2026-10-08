@@ -6,9 +6,9 @@ import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
 
 // Panel del administrador. Tiene un menú lateral y muestra una sola sección por vez
-// (resumen, refugios o usuarios): cada una se ocupa de lo suyo, y cuando se conecte el
-// backend cada una va a pedir solo sus datos, en vez de traer todo junto.
-const Admin = ({ usuario, usuarios, animales, apadrinamientos, onCambiarRol, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
+// (resumen, refugios o usuarios). Los datos los pide App al backend cuando entra un administrador:
+// todos los usuarios, los roles, todos los apadrinamientos y los animales (activos y pausados).
+const Admin = ({ usuario, usuarios, roles, animales, apadrinamientos, onCambiarRol, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
   const [seccion, setSeccion] = useState('resumen')
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
@@ -45,7 +45,7 @@ const Admin = ({ usuario, usuarios, animales, apadrinamientos, onCambiarRol, onC
               onQuitarAnimal={onQuitarAnimal}
             />
           )}
-          {seccion === 'usuarios' && <SeccionUsuarios usuario={usuario} usuarios={usuarios} onCambiarRol={onCambiarRol} onCambiarActivo={onCambiarActivo} />}
+          {seccion === 'usuarios' && <SeccionUsuarios usuario={usuario} usuarios={usuarios} roles={roles} onCambiarRol={onCambiarRol} onCambiarActivo={onCambiarActivo} />}
         </div>
       </div>
     </>

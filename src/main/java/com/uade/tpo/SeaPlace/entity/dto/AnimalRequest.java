@@ -10,5 +10,11 @@ public class AnimalRequest {
     private Double cuotaApadrinamiento;
     private Integer cuposTotales;
     private String descripcion;
+    // Datos opcionales de la ficha
+    private String especie;
+    private String edad;
+    private String ubicacion;
+    private String urgencia; // CRITICO, RECUPERACION o LISTO
+    private String condicion;
     // cuposDisponibles, fechaPublicacion y estado los setea el service
 }

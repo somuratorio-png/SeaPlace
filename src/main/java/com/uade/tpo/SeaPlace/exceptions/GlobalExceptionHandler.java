@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.resource.NoResourceFoundException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
+import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.multipart.support.MissingServletRequestPartException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -52,6 +54,18 @@ public class GlobalExceptionHandler {
     public ResponseEntity<Object> handleRequestInvalido(Exception ex) {
         return construirRespuesta(HttpStatus.BAD_REQUEST,
                 "Solicitud invalida: revisa el formato del JSON y los parametros");
+    }
+
+    // Subida de archivos: falta el archivo, el pedido no es multipart o supera el tamaño permitido.
+    @ExceptionHandler(MultipartException.class)
+    public ResponseEntity<Object> handleArchivoInvalido(MultipartException ex) {
+        return construirRespuesta(HttpStatus.BAD_REQUEST,
+                "No se pudo recibir el archivo: revisa que sea una imagen de hasta 2 MB");
+    }
+
+    @ExceptionHandler(MissingServletRequestPartException.class)
+    public ResponseEntity<Object> handleArchivoFaltante(MissingServletRequestPartException ex) {
+        return construirRespuesta(HttpStatus.BAD_REQUEST, "El archivo de la foto es obligatorio");
     }
 
     @ExceptionHandler(HttpRequestMethodNotSupportedException.class)

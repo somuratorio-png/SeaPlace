@@ -1,9 +1,12 @@
 import { hoy } from './fechas'
 
-export const PRECIO_BOTIQUIN = 5 // en dólares, como el resto de los precios
+export const PRECIO_BOTIQUIN = 5 // en dólares, como el resto de los precios (el backend suma lo mismo al total)
+
+// Los precios se redondean a dos decimales, igual que hace el backend al cobrar
+const redondear = (valor) => Math.round(valor * 100) / 100
 
 // Un animal está en oferta si tiene un descuento que todavía no venció.
-// animal.descuento = { porcentaje: 20, hasta: '2026-12-31' }
+// animal.descuento = { id, porcentaje: 20, hasta: '2026-12-31' }
 export const tieneDescuento = (animal) => Boolean(animal.descuento) && animal.descuento.hasta >= hoy()
 
 // La cuota mensual que se cobra de verdad: con el descuento aplicado si está en oferta
@@ -11,18 +14,15 @@ export const precioFinal = (animal) => {
   if (!tieneDescuento(animal)) {
     return animal.precio
   }
-  return Math.round((animal.precio * (100 - animal.descuento.porcentaje)) / 100)
+  return redondear((animal.precio * (100 - animal.descuento.porcentaje)) / 100)
 }
 
-// Los 3 niveles de apadrinamiento. El precio de cada uno sale de la cuota del animal.
-export const planesDe = (animal) => {
-  const cuota = precioFinal(animal)
-  return [
-    { nombre: 'Brisa Marina', precio: Math.round(cuota / 2), texto: 'Certificado digital y bitácora mensual por correo.' },
-    { nombre: 'Guardián de la Bahía', precio: cuota, texto: 'Todo lo anterior + webcam 24/7 y kit de bienvenida.' },
-    { nombre: 'Marea Profunda', precio: cuota * 2, texto: 'Todo lo anterior + ubicación en vivo y charla virtual con los biólogos.', ubicacionEnVivo: true },
-  ]
-}
+// Los niveles de apadrinamiento de un animal. "planes" es la lista que manda el backend
+// (ver contexto/Planes.js); a cada uno se le agrega su precio, que sale de la cuota del animal.
+export const planesDe = (animal, planes) => planes.map((plan) => ({ ...plan, precio: redondear(precioFinal(animal) * plan.multiplicador) }))
+
+// Un solo plan, buscado por su código (por ejemplo 'MAREA_PROFUNDA')
+export const planDe = (animal, planes, codigo) => planesDe(animal, planes).find((plan) => plan.codigo === codigo)
 
 export const totalMuelle = (muelle, conBotiquin) => {
   // Cada item cuesta la cuota del plan por la cantidad de cupos elegida

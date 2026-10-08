@@ -53,7 +53,7 @@ const SeccionRefugios = ({ usuarios, animales, onCambiarActivo, onAprobar, onVer
         <TarjetaRefugio
           key={refugio.nombreUsuario}
           refugio={refugio}
-          animales={animales.filter((animal) => animal.refugio === refugio.nombreUsuario)}
+          animales={animales.filter((animal) => animal.idRefugio === refugio.idRefugio)}
           onCambiarActivo={onCambiarActivo}
           onAprobar={onAprobar}
           onVerAnimal={onVerAnimal}
