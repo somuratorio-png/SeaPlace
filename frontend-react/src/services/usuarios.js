@@ -42,12 +42,44 @@ export const salir = () => {
   borrarToken()
 }
 
+// ---------- Mi cuenta ----------
+
+// Cambia nombre, apellido y mail de quien está logueado. Devuelve el usuario ya modificado.
+export const modificarMiPerfil = async ({ nombre, apellido, mail }) => aUsuario(await pedir('/usuarios/me', { metodo: 'PUT', cuerpo: { nombre, apellido, mail } }))
+
+// Hay que mandar la contraseña actual: así nadie con la sesión abierta puede cambiarla
+export const cambiarMiContrasenia = (contraseniaActual, contraseniaNueva) =>
+  pedir('/usuarios/me/contrasenia', { metodo: 'PUT', cuerpo: { contraseniaActual, contraseniaNueva } })
+
+// ---------- Olvidé mi contraseña ----------
+
+// Pide un código de un solo uso para ese mail (vence a los 5 minutos). Devuelve el mensaje del backend,
+// que es siempre el mismo exista o no el mail. No se manda un correo de verdad: el código sale
+// impreso en la consola del servidor.
+export const pedirCodigo = async (mail) => (await pedir('/auth/olvide-contrasenia', { metodo: 'POST', cuerpo: { mail } })).mensaje
+
+export const restablecerContrasenia = (mail, codigo, contraseniaNueva) =>
+  pedir('/auth/restablecer-contrasenia', { metodo: 'POST', cuerpo: { mail, codigo, contraseniaNueva } })
+
 // ---------- Administración (solo las puede usar un administrador) ----------
 
 export const traerUsuarios = async () => (await pedirPagina('/usuarios')).map(aUsuario)
 
-// [{ id, nombre }] con el nombre que se usa en las pantallas
-export const traerRoles = async () => (await pedirLista('/roles')).map((rol) => ({ id: rol.idRol, nombre: rolDelFront(rol.nombreRol) }))
+// [{ id, nombre, permisos }] con el nombre que se usa en las pantallas.
+// permisos = los nombres de los permisos que tiene el rol (el backend no manda el campo si no tiene ninguno)
+export const traerRoles = async () =>
+  (await pedirLista('/roles')).map((rol) => ({ id: rol.idRol, nombre: rolDelFront(rol.nombreRol), permisos: rol.permisos ?? [] }))
+
+export const crearRol = (nombreRol) => pedir('/roles', { metodo: 'POST', cuerpo: { nombreRol } })
+
+// [{ id, nombre, descripcion }]
+export const traerPermisos = async () =>
+  (await pedirLista('/permisos')).map((permiso) => ({ id: permiso.idPermiso, nombre: permiso.nombrePermiso, descripcion: permiso.descripcion ?? '' }))
+
+export const crearPermiso = (nombrePermiso, descripcion) => pedir('/permisos', { metodo: 'POST', cuerpo: { nombrePermiso, descripcion } })
+
+// Reemplaza todos los permisos del rol por los de la lista (ids)
+export const asignarPermisos = (idRol, idPermisos) => pedir(`/roles/${idRol}/permisos`, { metodo: 'POST', cuerpo: { idPermisos } })
 
 export const cambiarRol = (idUsuario, idRol) => pedir(`/usuarios/${idUsuario}/rol`, { metodo: 'PUT', cuerpo: { idRol } })
 

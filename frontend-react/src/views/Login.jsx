@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import Bienvenida from '../components/login/Bienvenida'
 import CampoTexto from '../components/login/CampoTexto'
+import RecuperarContrasenia from '../components/login/RecuperarContrasenia'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
@@ -12,6 +13,7 @@ const Login = ({ onIngresar, onRegistrar }) => {
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
+  const [recuperando, setRecuperando] = useState(false) // true = se muestra "olvidé mi contraseña"
 
   // Un solo manejador para todos los campos: usa el "name" del input para saber cuál cambió
   const cambiar = (evento) => {
@@ -39,6 +41,16 @@ const Login = ({ onIngresar, onRegistrar }) => {
     setEnviando(true)
     setError(await (esRegistro ? registrar() : ingresar()))
     setEnviando(false)
+  }
+
+  // "Olvidé mi contraseña" reemplaza al formulario hasta que se vuelve
+  if (recuperando) {
+    return (
+      <div className="max-w-6xl mx-auto px-margin-mobile lg:px-margin py-space-xl grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+        <Bienvenida />
+        <RecuperarContrasenia onVolver={() => setRecuperando(false)} />
+      </div>
+    )
   }
 
   return (
@@ -89,6 +101,12 @@ const Login = ({ onIngresar, onRegistrar }) => {
         <button type="button" onClick={cambiarModo} className="w-full font-label-lg text-label-lg text-secondary hover:underline">
           {esRegistro ? '¿Ya tenés cuenta? Ingresá' : '¿No tenés cuenta? Registrate'}
         </button>
+
+        {!esRegistro && (
+          <button type="button" onClick={() => setRecuperando(true)} className="w-full font-label-lg text-label-lg text-on-surface-variant hover:underline">
+            ¿Olvidaste tu contraseña?
+          </button>
+        )}
 
         {!esRegistro && (
           <p className="font-body-sm text-body-sm text-on-surface-variant text-center">

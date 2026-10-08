@@ -41,6 +41,11 @@ const Header =({ rutaActual, cantidadMuelle, usuario, moneda, onCambiarMoneda, o
             {usuario ? usuario.nombre : 'Ingresar'}
           </button>
           {usuario && (
+            <button onClick={() => onNavegar('/cuenta')} className={`font-label-lg text-label-lg hover:text-primary ${rutaActual === '/cuenta' ? 'text-primary' : 'text-on-surface-variant'}`}>
+              Mi cuenta
+            </button>
+          )}
+          {usuario && (
             <button onClick={onSalir} className="font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
               Salir
             </button>

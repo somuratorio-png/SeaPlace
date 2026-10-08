@@ -54,6 +54,9 @@ const iconoDe = (nombre) => {
 export const traerCategorias = async () =>
   (await pedirLista('/categorias')).map((categoria) => ({ id: categoria.idCategoria, nombre: categoria.nombreCategoria, icono: iconoDe(categoria.nombreCategoria) }))
 
+// Solo la puede crear un administrador
+export const crearCategoria = (nombreCategoria, descripcion) => pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } })
+
 // Las publicaciones activas son públicas. Las pausadas solo las puede pedir el refugio (ve las suyas)
 // o un administrador (ve todas).
 export const traerAnimales = async (estado = 'ACTIVA') => (await pedirPagina(`/animales?estado=${estado}`)).map(aAnimal)

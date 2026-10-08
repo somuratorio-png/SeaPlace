@@ -1,14 +1,34 @@
 import { useState } from 'react'
+import SeccionCategorias from '../components/admin/SeccionCategorias'
 import SeccionRefugios from '../components/admin/SeccionRefugios'
 import SeccionResumen from '../components/admin/SeccionResumen'
+import SeccionRoles from '../components/admin/SeccionRoles'
 import SeccionUsuarios from '../components/admin/SeccionUsuarios'
 import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
 
 // Panel del administrador. Tiene un menú lateral y muestra una sola sección por vez
-// (resumen, refugios o usuarios). Los datos los pide App al backend cuando entra un administrador:
-// todos los usuarios, los roles, todos los apadrinamientos y los animales (activos y pausados).
-const Admin = ({ usuario, usuarios, roles, animales, apadrinamientos, onCambiarRol, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
+// (resumen, refugios, usuarios, categorías o roles). Los datos los pide App al backend cuando entra
+// un administrador: todos los usuarios, los roles y permisos, todos los apadrinamientos y los animales
+// (activos y pausados).
+const Admin = ({
+  usuario,
+  usuarios,
+  roles,
+  permisos,
+  categorias,
+  animales,
+  apadrinamientos,
+  onCambiarRol,
+  onCambiarActivo,
+  onAprobar,
+  onVerAnimal,
+  onQuitarAnimal,
+  onCrearCategoria,
+  onCrearRol,
+  onCrearPermiso,
+  onAsignarPermisos,
+}) => {
   const [seccion, setSeccion] = useState('resumen')
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
@@ -17,6 +37,8 @@ const Admin = ({ usuario, usuarios, roles, animales, apadrinamientos, onCambiarR
     { id: 'resumen', nombre: 'Resumen', icono: 'dashboard' },
     { id: 'refugios', nombre: 'Refugios', icono: 'home_health', aviso: pendientes.length },
     { id: 'usuarios', nombre: 'Usuarios', icono: 'group' },
+    { id: 'categorias', nombre: 'Categorías', icono: 'category' },
+    { id: 'roles', nombre: 'Roles y permisos', icono: 'key' },
   ]
 
   return (
@@ -46,6 +68,8 @@ const Admin = ({ usuario, usuarios, roles, animales, apadrinamientos, onCambiarR
             />
           )}
           {seccion === 'usuarios' && <SeccionUsuarios usuario={usuario} usuarios={usuarios} roles={roles} onCambiarRol={onCambiarRol} onCambiarActivo={onCambiarActivo} />}
+          {seccion === 'categorias' && <SeccionCategorias categorias={categorias} animales={animales} onCrear={onCrearCategoria} />}
+          {seccion === 'roles' && <SeccionRoles roles={roles} permisos={permisos} onCrearRol={onCrearRol} onCrearPermiso={onCrearPermiso} onAsignar={onAsignarPermisos} />}
         </div>
       </div>
     </>

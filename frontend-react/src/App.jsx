@@ -15,6 +15,7 @@ import Apadrinado from './views/Apadrinado'
 import Muelle from './views/Muelle'
 import Catalogo from './views/Catalogo'
 import Certificado from './views/Certificado'
+import Cuenta from './views/Cuenta'
 import Detalle from './views/Detalle'
 import Gracias from './views/Gracias'
 import Inicio from './views/Inicio'
@@ -31,7 +32,8 @@ const SIN_SESION = {
   apadrinamientos: [], // padrino: los suyos; refugio: los de sus animales; administrador: todos
   pausados: [], // publicaciones pausadas (refugio: las suyas; administrador: todas)
   usuarios: [], // solo para el administrador
-  roles: [], // solo para el administrador: [{ id, nombre }]
+  roles: [], // solo para el administrador: [{ id, nombre, permisos }]
+  permisos: [], // solo para el administrador: [{ id, nombre, descripcion }]
 }
 
 // Pide al backend todo lo que necesita ver quien acaba de entrar, según su rol.
@@ -40,15 +42,16 @@ const traerDatosDe = async (quien, planes) => {
   const esAdmin = quien.rol === 'administrador'
   const esRefugio = quien.rol === 'refugio'
 
-  const [favoritos, apadrinamientos, muelle, pausados, usuarios, roles] = await Promise.all([
+  const [favoritos, apadrinamientos, muelle, pausados, usuarios, roles, permisos] = await Promise.all([
     apadrinarApi.traerFavoritos(),
     apadrinarApi.traerApadrinamientos(planes),
     esAdmin || esRefugio ? SIN_SESION.muelle : apadrinarApi.traerMuelle(planes),
     esAdmin || (esRefugio && quien.idRefugio) ? animalesApi.traerAnimales('PAUSADA') : [],
     esAdmin ? usuariosApi.traerUsuarios() : [],
     esAdmin ? usuariosApi.traerRoles() : [],
+    esAdmin ? usuariosApi.traerPermisos() : [],
   ])
-  return { favoritos, apadrinamientos, muelle, pausados, usuarios, roles }
+  return { favoritos, apadrinamientos, muelle, pausados, usuarios, roles, permisos }
 }
 
 // App es el componente principal. Guarda el estado que comparten varias páginas
@@ -217,6 +220,16 @@ const App = () => {
     irA('/')
   }
 
+  // ---------- Mi cuenta ----------
+
+  // Las dos devuelven el mensaje de error (para que lo muestre el formulario), o null si salió bien
+  const guardarPerfil = (perfil) =>
+    intentar(async () => {
+      setUsuario(await usuariosApi.modificarMiPerfil(perfil))
+    }, false)
+
+  const cambiarContrasenia = (actual, nueva) => intentar(() => usuariosApi.cambiarMiContrasenia(actual, nueva), false)
+
   // ---------- Favoritos y muelle ----------
 
   // Los favoritos se guardan en la cuenta: si no hay nadie logueado, primero hay que entrar
@@ -354,6 +367,39 @@ const App = () => {
       await recargarUsuarios()
     })
   }
+
+  // ---------- Categorías, roles y permisos (administrador) ----------
+  // Todas devuelven el mensaje de error, o null si salió bien
+
+  const crearCategoria = (nombre, descripcion) =>
+    intentar(async () => {
+      await animalesApi.crearCategoria(nombre, descripcion)
+      setCategorias(await animalesApi.traerCategorias())
+    }, false)
+
+  const recargarRoles = async () => {
+    const [roles, permisos] = await Promise.all([usuariosApi.traerRoles(), usuariosApi.traerPermisos()])
+    guardar({ roles, permisos })
+  }
+
+  const crearRol = (nombre) =>
+    intentar(async () => {
+      await usuariosApi.crearRol(nombre)
+      await recargarRoles()
+    })
+
+  const crearPermiso = (nombre, descripcion) =>
+    intentar(async () => {
+      await usuariosApi.crearPermiso(nombre, descripcion)
+      await recargarRoles()
+    })
+
+  // Reemplaza todos los permisos del rol por los elegidos
+  const asignarPermisos = (idRol, idsPermisos) =>
+    intentar(async () => {
+      await usuariosApi.asignarPermisos(idRol, idsPermisos)
+      await recargarRoles()
+    })
 
   // ---------- Animales (refugio y admin) ----------
 
@@ -544,6 +590,12 @@ const App = () => {
                 />
                 <Route path="/panel/:id/certificado" element={<Certificado usuario={usuario} apadrinados={misApadrinados} onVolver={verApadrinado} />} />
 
+                {/* "Mi cuenta" es para cualquiera que haya entrado: si no hay nadie, se muestra el login */}
+                <Route
+                  path="/cuenta"
+                  element={usuario ? <Cuenta usuario={usuario} onGuardarPerfil={guardarPerfil} onCambiarContrasenia={cambiarContrasenia} /> : login}
+                />
+
                 {/* Solo entra un administrador: el resto va al panel (o al login) */}
                 <Route
                   path="/admin"
@@ -553,6 +605,8 @@ const App = () => {
                         usuario={usuario}
                         usuarios={datos.usuarios}
                         roles={datos.roles}
+                        permisos={datos.permisos}
+                        categorias={categorias}
                         animales={todosLosAnimales}
                         apadrinamientos={datos.apadrinamientos}
                         onCambiarRol={cambiarRol}
@@ -560,6 +614,10 @@ const App = () => {
                         onAprobar={aprobarRefugio}
                         onVerAnimal={verAnimal}
                         onQuitarAnimal={quitarAnimal}
+                        onCrearCategoria={crearCategoria}
+                        onCrearRol={crearRol}
+                        onCrearPermiso={crearPermiso}
+                        onAsignarPermisos={asignarPermisos}
                       />
                     ) : (
                       <Navigate to="/panel" replace />
