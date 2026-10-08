@@ -1,0 +1,6 @@
+# Copia este archivo como application-local.properties (en esta misma carpeta) y pone tu
+# contrasenia de MySQL. Ese archivo no se sube al repo, asi cada integrante tiene la suya.
+spring.datasource.password=TU_CONTRASENIA
+
+# Si tu usuario de MySQL no es root, tambien lo podes cambiar aca:
+# spring.datasource.username=root

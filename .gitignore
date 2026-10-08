@@ -37,3 +37,6 @@ build/
 
 # Guía de la migración a React (queda solo local)
 Guia-React-Vite-SeaPlace.pdf
+
+# Configuracion local de cada integrante (contrasenia de MySQL)
+application-local.properties

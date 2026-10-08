@@ -36,7 +36,7 @@ spring.sql.init.mode=always
 
 - La base `seaplace` se crea sola si no existe (`createDatabaseIfNotExist=true`).
 - `defer-datasource-initialization=true` + `sql.init.mode=always` son necesarios para que `data.sql` corra **después** de que Hibernate genere el schema (si no, falla porque las tablas todavía no existen).
-- Ajustá usuario/contraseña de MySQL según tu entorno local antes de correr el proyecto.
+- **Contraseña de MySQL:** cada integrante tiene la suya, así que no va en `application.properties`. Copiá `application-local.properties.example` como `application-local.properties` (en la raíz, al lado del `pom.xml`) y poné ahí tu contraseña. Ese archivo está en `.gitignore` y pisa lo que diga `application.properties`.
 - ⚠️ El `application.properties` actual tiene usuario/password y el secret de JWT hardcodeados en texto plano. Para una entrega en repo público conviene moverlos a variables de entorno.
 
 ## Cómo levantar el proyecto
