@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
@@ -74,22 +74,9 @@ const App = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation() // la ruta actual, por ejemplo '/catalogo'
 
-  // Cada vez que se cambia de página (por ejemplo al volver al catálogo), se muestra desde arriba.
-  // refArriba apunta al contenedor principal y scrollIntoView lleva la pantalla hasta su comienzo.
-  const refArriba = useRef(null)
-  useEffect(() => {
-    refArriba.current.scrollIntoView()
-  }, [pathname])
-
   // Al abrir la página se pide el catálogo. Si quedó un token guardado de una visita anterior,
-  // también se recupera la sesión. En desarrollo React ejecuta los efectos dos veces: yaArranco lo evita.
-  const yaArranco = useRef(false)
+  // también se recupera la sesión.
   useEffect(() => {
-    if (yaArranco.current) {
-      return
-    }
-    yaArranco.current = true
-
     const arrancar = async () => {
       try {
         const [listaAnimales, listaCategorias, listaPlanes] = await Promise.all([
@@ -424,7 +411,7 @@ const App = () => {
 
   // "cambios" trae solo lo que se modifica, y cada cosa va a su propio endpoint:
   // { descuento: { porcentaje, hasta } } pone una oferta y { descuento: null } la quita,
-  // { fotos: [...] } sube las fotos nuevas y { publicacion: 'PAUSADA' | 'ACTIVA' } pausa o republica.
+  // { fotos: [...] } sube los archivos de fotos nuevos y { publicacion: 'PAUSADA' | 'ACTIVA' } pausa o republica.
   const editarAnimal = (idAnimal, cambios) => {
     intentar(async () => {
       const animal = todosLosAnimales.find((a) => a.id === idAnimal)
@@ -436,8 +423,8 @@ const App = () => {
         await animalesApi.quitarOferta(idAnimal, animal.descuento.id)
       }
       if (cambios.fotos) {
-        // Las que ya tenía son direcciones (urls); las recién elegidas vienen como texto "data:"
-        for (const foto of cambios.fotos.filter((f) => f.startsWith('data:'))) {
+        // Los archivos recién elegidos en el formulario, tal como vienen del <input type="file">
+        for (const foto of cambios.fotos) {
           await animalesApi.subirFoto(idAnimal, foto)
         }
       }
@@ -491,7 +478,7 @@ const App = () => {
     <ContextoMoneda.Provider value={moneda}>
       <ContextoPlanes.Provider value={planes}>
         {/* flex + min-h-screen + flex-1 en <main>: el footer queda siempre abajo, aunque la página sea corta */}
-        <div ref={refArriba} className="min-h-screen flex flex-col fondo-playa font-body-md text-on-surface">
+        <div className="min-h-screen flex flex-col fondo-playa font-body-md text-on-surface">
           <Header
             rutaActual={pathname}
             cantidadMuelle={datos.muelle.items.length}
@@ -502,7 +489,10 @@ const App = () => {
             onSalir={salir}
           />
 
-          <main className="flex-1">
+          <main key={pathname} className="flex-1">
+            {/* Al cambiar la ruta, la key vuelve a montar <main>: React enfoca este botón invisible
+                y el navegador lleva la pantalla hasta arriba */}
+            <button tabIndex={-1} autoFocus aria-hidden="true" className="ancla-arriba" />
             {/* El último pedido al backend que falló, con su mensaje */}
             {error && (
               <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin pb-space-sm print:hidden">

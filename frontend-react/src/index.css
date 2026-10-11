@@ -476,3 +476,28 @@ main > * {
     left: 12%;
   }
 }
+
+/* ---------- Navegación e impresión ---------- */
+
+/* Botón invisible al comienzo de <main>: al cambiar de página React lo enfoca y el navegador
+   lleva la pantalla hasta arriba. scroll-margin-top compensa el header, que es sticky y tapa el inicio. */
+.ancla-arriba {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+  outline: none;
+  scroll-margin-top: 10rem;
+}
+
+/* Al imprimir (Ctrl+P) queda solo el contenido: sin header, footer ni botones */
+@media print {
+  header,
+  footer,
+  button {
+    display: none;
+  }
+}

@@ -1,6 +1,5 @@
 import { useState } from 'react'
 import { urgencias } from '../../data/animales'
-import { leerFotos } from '../../utils/imagenes'
 import CampoTexto from '../login/CampoTexto'
 
 // categoria queda vacía hasta que se elige una: mientras tanto vale la primera de la lista
@@ -22,7 +21,7 @@ const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 
 // onGuardar lo manda al backend y devuelve un mensaje de error, o null si salió bien.
 const FormularioAnimal = ({ categorias, onGuardar }) => {
   const [datos, setDatos] = useState(formularioVacio)
-  const [fotos, setFotos] = useState([]) // las fotos elegidas, ya convertidas a texto
+  const [fotos, setFotos] = useState([]) // [{ archivo, vistaPrevia }]: cada archivo elegido y una dirección temporal para mostrarlo
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
 
@@ -30,9 +29,10 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })
   }
 
-  // Leer las fotos tarda un instante, por eso se espera con "await"
-  const elegirFotos = async (evento) => {
-    setFotos(await leerFotos(evento.target.files))
+  // Se guardan los archivos originales (el backend se encarga de achicarlos). URL.createObjectURL
+  // da una dirección temporal del archivo que sirve como src de la miniatura.
+  const elegirFotos = (evento) => {
+    setFotos([...evento.target.files].map((archivo) => ({ archivo, vistaPrevia: URL.createObjectURL(archivo) })))
   }
 
   const enviar = async (evento) => {
@@ -40,7 +40,7 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
     const formulario = evento.target
     setEnviando(true)
     // Si no tocó el selector de categoría, se manda la primera (la que se ve elegida)
-    const mensaje = await onGuardar({ ...datos, categoria: datos.categoria || categorias[0].id }, fotos)
+    const mensaje = await onGuardar({ ...datos, categoria: datos.categoria || categorias[0].id }, fotos.map((foto) => foto.archivo))
     setEnviando(false)
     setError(mensaje)
     if (mensaje === null) {
@@ -98,7 +98,7 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       {fotos.length > 0 && (
         <div className="flex flex-wrap gap-space-sm">
           {fotos.map((foto, indice) => (
-            <img key={foto} src={foto} alt={`Foto elegida ${indice + 1}`} className="w-20 h-20 object-cover rounded-xl" />
+            <img key={foto.vistaPrevia} src={foto.vistaPrevia} alt={`Foto elegida ${indice + 1}`} className="w-20 h-20 object-cover rounded-xl" />
           ))}
         </div>
       )}

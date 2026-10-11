@@ -86,11 +86,8 @@ export const cambiarPublicacion = (idAnimal, estado) => pedir(`/animales/${idAni
 
 export const quitarAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`, { metodo: 'DELETE' })
 
-// "foto" es el texto (data URL) que arma utils/imagenes.js: fetch lo convierte de nuevo en un archivo
-export const subirFoto = async (idAnimal, foto) => {
-  const archivo = await (await fetch(foto)).blob()
-  return pedir(`/animales/${idAnimal}/fotos/archivo`, { metodo: 'POST', archivo })
-}
+// "archivo" es el archivo elegido en un <input type="file">, tal cual: se manda sin procesar
+export const subirFoto = (idAnimal, archivo) => pedir(`/animales/${idAnimal}/fotos/archivo`, { metodo: 'POST', archivo })
 
 // La oferta rige desde hoy hasta la fecha elegida
 export const ponerOferta = (idAnimal, porcentaje, hasta) =>

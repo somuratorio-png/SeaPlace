@@ -1,5 +1,4 @@
 import { useState } from 'react'
-import { leerFotos } from '../../utils/imagenes'
 import { recaudacionMensual } from '../../utils/precios'
 import Icono from '../comunes/Icono'
 import Precio from '../comunes/Precio'
@@ -16,10 +15,9 @@ const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, o
 
   const pausada = animal.publicacion === 'PAUSADA'
 
-  // Las fotos nuevas se agregan al final de las que ya tenía
-  const sumarFotos = async (evento) => {
-    const nuevas = await leerFotos(evento.target.files)
-    onEditar(animal.id, { fotos: [...animal.fotos, ...nuevas] })
+  // Las fotos nuevas se suben al elegirlas (los archivos tal cual) y el backend las agrega al final de su galería
+  const sumarFotos = (evento) => {
+    onEditar(animal.id, { fotos: [...evento.target.files] })
   }
 
   return (

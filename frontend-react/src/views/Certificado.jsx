@@ -2,8 +2,8 @@ import { Navigate, useParams } from 'react-router-dom'
 import Icono from '../components/comunes/Icono'
 import { formatearFecha } from '../utils/fechas'
 
-// Certificado de apadrinamiento listo para imprimir o guardar como PDF.
-// Lo que tiene la clase "print:hidden" no sale en la impresión.
+// Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
+// Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
 const Certificado = ({ usuario, apadrinados, onVolver }) => {
   // El id sale de la URL (/panel/:id/certificado)
   const { id } = useParams()
@@ -19,9 +19,9 @@ const Certificado = ({ usuario, apadrinados, onVolver }) => {
         <button onClick={() => onVolver(item)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
           <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a {item.animal.nombre}
         </button>
-        <button onClick={() => window.print()} className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
-          <Icono nombre="print" clase="text-[18px]" /> Imprimir o guardar como PDF
-        </button>
+        <p className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant">
+          <Icono nombre="print" clase="text-[18px]" /> Para imprimir o guardar como PDF, usá Ctrl+P
+        </p>
       </div>
 
       <div className="bg-surface-container-lowest rounded-2xl shadow-xl p-space-sm">
