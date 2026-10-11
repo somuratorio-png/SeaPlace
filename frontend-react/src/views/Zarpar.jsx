@@ -46,7 +46,7 @@ const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
     setDatos({ ...datos, [name]: limpiar[name](value) })
   }
 
-  const confirmar = async (evento) => {
+  const confirmar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
     const mes = Number(datos.vencimiento.slice(0, 2))
     const anio = Number(datos.vencimiento.slice(3, 5))
@@ -74,11 +74,12 @@ const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
 
     // Si sale bien, App pasa a la página de gracias y este formulario desaparece
     setEnviando(true)
-    const mensaje = await onConfirmar()
-    if (mensaje) {
-      setError(mensaje)
-      setEnviando(false)
-    }
+    onConfirmar().then((mensaje) => {
+      if (mensaje) {
+        setError(mensaje)
+        setEnviando(false)
+      }
+    })
   }
 
   return (

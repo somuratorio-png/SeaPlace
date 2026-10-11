@@ -17,9 +17,10 @@ const TarjetaRol = ({ rol, permisos, onAsignar }) => {
     }
   }
 
-  const guardar = async () => {
-    const mensaje = await onAsignar(rol.id, elegidos)
-    setGuardado(mensaje === null)
+  const guardar = () => {
+    onAsignar(rol.id, elegidos).then((mensaje) => {
+      setGuardado(mensaje === null)
+    })
   }
 
   return (

@@ -14,18 +14,22 @@ const SeccionRoles = ({ roles, permisos, onCrearRol, onCrearPermiso, onAsignar }
   const [nombreRol, setNombreRol] = useState('')
   const [permiso, setPermiso] = useState({ nombre: '', descripcion: '' })
 
-  const crearRol = async (evento) => {
+  const crearRol = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    if ((await onCrearRol(nombreRol)) === null) {
-      setNombreRol('')
-    }
+    onCrearRol(nombreRol).then((mensaje) => {
+      if (mensaje === null) {
+        setNombreRol('')
+      }
+    })
   }
 
-  const crearPermiso = async (evento) => {
+  const crearPermiso = (evento) => {
     evento.preventDefault()
-    if ((await onCrearPermiso(permiso.nombre, permiso.descripcion)) === null) {
-      setPermiso({ nombre: '', descripcion: '' })
-    }
+    onCrearPermiso(permiso.nombre, permiso.descripcion).then((mensaje) => {
+      if (mensaje === null) {
+        setPermiso({ nombre: '', descripcion: '' })
+      }
+    })
   }
 
   return (

@@ -35,19 +35,20 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
     setFotos([...evento.target.files].map((archivo) => ({ archivo, vistaPrevia: URL.createObjectURL(archivo) })))
   }
 
-  const enviar = async (evento) => {
+  const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
     const formulario = evento.target
     setEnviando(true)
     // Si no tocó el selector de categoría, se manda la primera (la que se ve elegida)
-    const mensaje = await onGuardar({ ...datos, categoria: datos.categoria || categorias[0].id }, fotos.map((foto) => foto.archivo))
-    setEnviando(false)
-    setError(mensaje)
-    if (mensaje === null) {
-      setDatos(formularioVacio)
-      setFotos([])
-      formulario.reset() // vacía el selector de archivos
-    }
+    onGuardar({ ...datos, categoria: datos.categoria || categorias[0].id }, fotos.map((foto) => foto.archivo)).then((mensaje) => {
+      setEnviando(false)
+      setError(mensaje)
+      if (mensaje === null) {
+        setDatos(formularioVacio)
+        setFotos([])
+        formulario.reset() // vacía el selector de archivos
+      }
+    })
   }
 
   return (

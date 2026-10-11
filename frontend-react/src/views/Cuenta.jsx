@@ -32,14 +32,15 @@ const Cuenta = ({ usuario, onGuardarPerfil, onCambiarContrasenia }) => {
     setContraseniaCambiada(false)
   }
 
-  const guardarPerfil = async (evento) => {
+  const guardarPerfil = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    const mensaje = await onGuardarPerfil(perfil)
-    setErrorPerfil(mensaje)
-    setPerfilGuardado(mensaje === null)
+    onGuardarPerfil(perfil).then((mensaje) => {
+      setErrorPerfil(mensaje)
+      setPerfilGuardado(mensaje === null)
+    })
   }
 
-  const guardarContrasenia = async (evento) => {
+  const guardarContrasenia = (evento) => {
     evento.preventDefault()
     if (contrasenias.nueva.length < 8) {
       setErrorContrasenia('La contraseña nueva debe tener al menos 8 caracteres')
@@ -49,12 +50,13 @@ const Cuenta = ({ usuario, onGuardarPerfil, onCambiarContrasenia }) => {
       setErrorContrasenia('Las dos contraseñas nuevas no coinciden')
       return
     }
-    const mensaje = await onCambiarContrasenia(contrasenias.actual, contrasenias.nueva)
-    setErrorContrasenia(mensaje)
-    setContraseniaCambiada(mensaje === null)
-    if (mensaje === null) {
-      setContrasenias(sinContrasenias)
-    }
+    onCambiarContrasenia(contrasenias.actual, contrasenias.nueva).then((mensaje) => {
+      setErrorContrasenia(mensaje)
+      setContraseniaCambiada(mensaje === null)
+      if (mensaje === null) {
+        setContrasenias(sinContrasenias)
+      }
+    })
   }
 
   return (

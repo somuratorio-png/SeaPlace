@@ -13,13 +13,14 @@ const SeccionCategorias = ({ categorias, animales, onCrear }) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })
   }
 
-  const crear = async (evento) => {
+  const crear = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    const mensaje = await onCrear(datos.nombre, datos.descripcion)
-    setError(mensaje)
-    if (mensaje === null) {
-      setDatos({ nombre: '', descripcion: '' })
-    }
+    onCrear(datos.nombre, datos.descripcion).then((mensaje) => {
+      setError(mensaje)
+      if (mensaje === null) {
+        setDatos({ nombre: '', descripcion: '' })
+      }
+    })
   }
 
   return (

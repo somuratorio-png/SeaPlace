@@ -27,20 +27,24 @@ const Login = ({ onIngresar, onRegistrar }) => {
 
   const ingresar = () => onIngresar(datos.nombreUsuario, datos.contrasenia)
 
+  // Devuelve siempre una promesa con el mensaje de error (o null), igual que onRegistrar
   const registrar = () => {
     if (datos.contrasenia.length < 8) {
-      return 'La contraseña debe tener al menos 8 caracteres'
+      return Promise.resolve('La contraseña debe tener al menos 8 caracteres')
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
     return onRegistrar(datos, esRefugio)
   }
 
   // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página
-  const enviar = async (evento) => {
+  const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
     setEnviando(true)
-    setError(await (esRegistro ? registrar() : ingresar()))
-    setEnviando(false)
+    const pedido = esRegistro ? registrar() : ingresar()
+    pedido.then((mensaje) => {
+      setError(mensaje)
+      setEnviando(false)
+    })
   }
 
   // "Olvidé mi contraseña" reemplaza al formulario hasta que se vuelve

@@ -10,14 +10,15 @@ const FormularioUbicacion = ({ animal, onRegistrar }) => {
   const [registrada, setRegistrada] = useState(false)
 
   // onRegistrar la manda al backend y devuelve un mensaje de error, o null si salió bien
-  const registrar = async (evento) => {
+  const registrar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    const mensaje = await onRegistrar(animal.id, Number(latitud), Number(longitud))
-    if (mensaje === null) {
-      setLatitud('')
-      setLongitud('')
-      setRegistrada(true)
-    }
+    onRegistrar(animal.id, Number(latitud), Number(longitud)).then((mensaje) => {
+      if (mensaje === null) {
+        setLatitud('')
+        setLongitud('')
+        setRegistrada(true)
+      }
+    })
   }
 
   return (

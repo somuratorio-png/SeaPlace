@@ -31,23 +31,24 @@ const Refugio = ({ usuario, animales, categorias, apadrinamientos, onAgregar, on
   const cantidadPadrinos = new Set(susApadrinamientos.map((a) => a.usuario)).size
 
   // Revisa lo básico antes de mandar el animal al backend (que valida todo de nuevo).
-  // Devuelve un mensaje de error, o null si salió bien.
-  const guardar = async (datos, fotos) => {
+  // Devuelve una promesa con un mensaje de error, o null si salió bien.
+  const guardar = (datos, fotos) => {
     if (Number(datos.precio) <= 0) {
-      return 'La cuota mensual tiene que ser mayor a 0'
+      return Promise.resolve('La cuota mensual tiene que ser mayor a 0')
     }
     // Misma regla que el backend: los cupos tienen que ser un número entero mayor a 0
     const cupos = Number(datos.cuposTotales)
     if (!Number.isInteger(cupos) || cupos <= 0) {
-      return 'Los cupos tienen que ser un número entero mayor a 0'
+      return Promise.resolve('Los cupos tienen que ser un número entero mayor a 0')
     }
 
-    const mensaje = await onAgregar(datos, fotos)
-    if (mensaje === null) {
-      // Una vez publicado, se muestra la lista para que lo vea
-      setSeccion('animales')
-    }
-    return mensaje
+    return onAgregar(datos, fotos).then((mensaje) => {
+      if (mensaje === null) {
+        // Una vez publicado, se muestra la lista para que lo vea
+        setSeccion('animales')
+      }
+      return mensaje
+    })
   }
 
   // Un refugio recién registrado no puede publicar hasta que un administrador lo apruebe

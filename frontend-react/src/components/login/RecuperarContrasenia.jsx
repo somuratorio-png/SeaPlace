@@ -19,30 +19,33 @@ const RecuperarContrasenia = ({ onVolver }) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })
   }
 
-  const pedir = async (evento) => {
+  const pedir = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    try {
-      setAviso(await pedirCodigo(datos.mail))
-      setError(null)
-      setPaso('codigo')
-    } catch (falla) {
-      setError(falla.message)
-    }
+    pedirCodigo(datos.mail)
+      .then((mensaje) => {
+        setAviso(mensaje)
+        setError(null)
+        setPaso('codigo')
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }
 
-  const restablecer = async (evento) => {
+  const restablecer = (evento) => {
     evento.preventDefault()
     if (datos.contrasenia.length < 8) {
       setError('La contraseña debe tener al menos 8 caracteres')
       return
     }
-    try {
-      await restablecerContrasenia(datos.mail, datos.codigo.trim(), datos.contrasenia)
-      setError(null)
-      setPaso('listo')
-    } catch (falla) {
-      setError(falla.message)
-    }
+    restablecerContrasenia(datos.mail, datos.codigo.trim(), datos.contrasenia)
+      .then(() => {
+        setError(null)
+        setPaso('listo')
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }
 
   return (
