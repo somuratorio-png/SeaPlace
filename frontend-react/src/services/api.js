@@ -23,44 +23,34 @@ const mensajeDeError = (estado, datos) => {
   return `El pedido falló (error ${estado})`
 }
 
-// Hace un pedido al backend y devuelve el cuerpo de la respuesta ya convertido de JSON,
-// o null si la respuesta no trae cuerpo (el backend responde 204 cuando una lista está vacía).
-// Si hay un token guardado (alguien inició sesión), lo manda en el encabezado Authorization.
-// "cuerpo" viaja como JSON; "archivo" viaja como formulario (para subir una foto).
-// Si el pedido sale mal lanza un Error con el mensaje del backend y el código en error.estado.
-// Ejemplo: pedir('/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } })
-export const pedir = async (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
-  const token = localStorage.getItem(CLAVE_TOKEN)
-  const encabezados = {}
-  if (token) {
-    encabezados.Authorization = `Bearer ${token}`
-  }
-
-  let contenido
+// Lo que viaja en el pedido: "archivo" va como formulario (el navegador arma solo el encabezado
+// Content-Type), "cuerpo" va como JSON, y sin ninguno de los dos no viaja nada.
+const armarContenido = (cuerpo, archivo) => {
   if (archivo) {
-    // Con FormData el navegador arma solo el encabezado Content-Type
-    contenido = new FormData()
-    contenido.append('archivo', archivo, 'foto.jpg')
-  } else if (cuerpo) {
-    encabezados['Content-Type'] = 'application/json'
-    contenido = JSON.stringify(cuerpo)
+    const formulario = new FormData()
+    formulario.append('archivo', archivo, 'foto.jpg')
+    return formulario
   }
+  if (cuerpo) {
+    return JSON.stringify(cuerpo)
+  }
+  return undefined
+}
 
-  let respuesta
+// Convierte el texto de la respuesta de JSON a datos. Sin texto (204) devuelve null, y también
+// si el texto no es JSON (cuando el backend está caído, el proxy contesta con texto suelto).
+const convertir = (texto) => {
   try {
-    respuesta = await fetch(URL_BASE + ruta, { method: metodo, headers: encabezados, body: contenido })
+    return texto ? JSON.parse(texto) : null
   } catch {
-    throw new Error('No se pudo conectar con el servidor')
+    return null
   }
+}
 
-  const texto = await respuesta.text()
-  let datos = null
-  try {
-    datos = texto ? JSON.parse(texto) : null
-  } catch {
-    // Si el backend está caído, el proxy contesta con texto que no es JSON
-  }
-
+// Con la respuesta ya leída: si salió bien devuelve los datos; si no, lanza el Error con el
+// mensaje del backend y el código en error.estado.
+const interpretar = (respuesta, texto) => {
+  const datos = convertir(texto)
   if (!respuesta.ok) {
     const error = new Error(mensajeDeError(respuesta.status, datos))
     error.estado = respuesta.status
@@ -69,9 +59,33 @@ export const pedir = async (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
   return datos
 }
 
+// Hace un pedido al backend y devuelve una promesa con el cuerpo de la respuesta ya convertido de JSON,
+// o null si la respuesta no trae cuerpo (el backend responde 204 cuando una lista está vacía).
+// Si hay un token guardado (alguien inició sesión), lo manda en el encabezado Authorization.
+// "cuerpo" viaja como JSON; "archivo" viaja como formulario (para subir una foto).
+// Si el pedido sale mal la promesa se rechaza con un Error con el mensaje del backend y el código en error.estado.
+// Ejemplo: pedir('/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } })
+export const pedir = (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
+  const token = localStorage.getItem(CLAVE_TOKEN)
+  const encabezados = {}
+  if (token) {
+    encabezados.Authorization = `Bearer ${token}`
+  }
+  if (cuerpo && !archivo) {
+    encabezados['Content-Type'] = 'application/json'
+  }
+
+  return fetch(URL_BASE + ruta, { method: metodo, headers: encabezados, body: armarContenido(cuerpo, archivo) })
+    .catch(() => {
+      // Solo falla acá si no se pudo llegar al servidor (el proxy apagado, sin red)
+      throw new Error('No se pudo conectar con el servidor')
+    })
+    .then((respuesta) => respuesta.text().then((texto) => interpretar(respuesta, texto)))
+}
+
 // Para los pedidos que devuelven una lista: sin elementos el backend responde 204, y acá se devuelve []
-export const pedirLista = async (ruta) => (await pedir(ruta)) ?? []
+export const pedirLista = (ruta) => pedir(ruta).then((datos) => datos ?? [])
 
 // Para los que devuelven una página de Spring ({ content: [...], totalPages, ... }): devuelve sus elementos.
 // Sin page ni size el backend manda todo en una sola página.
-export const pedirPagina = async (ruta) => (await pedir(ruta))?.content ?? []
+export const pedirPagina = (ruta) => pedir(ruta).then((datos) => datos?.content ?? [])

@@ -51,35 +51,35 @@ const iconoDe = (nombre) => {
 }
 
 // [{ id, nombre, icono }]
-export const traerCategorias = async () =>
-  (await pedirLista('/categorias')).map((categoria) => ({ id: categoria.idCategoria, nombre: categoria.nombreCategoria, icono: iconoDe(categoria.nombreCategoria) }))
+export const traerCategorias = () =>
+  pedirLista('/categorias').then((categorias) =>
+    categorias.map((categoria) => ({ id: categoria.idCategoria, nombre: categoria.nombreCategoria, icono: iconoDe(categoria.nombreCategoria) })),
+  )
 
 // Solo la puede crear un administrador
 export const crearCategoria = (nombreCategoria, descripcion) => pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } })
 
 // Las publicaciones activas son públicas. Las pausadas solo las puede pedir el refugio (ve las suyas)
 // o un administrador (ve todas).
-export const traerAnimales = async (estado = 'ACTIVA') => (await pedirPagina(`/animales?estado=${estado}`)).map(aAnimal)
+export const traerAnimales = (estado = 'ACTIVA') => pedirPagina(`/animales?estado=${estado}`).then((animales) => animales.map(aAnimal))
 
 // datos = lo que carga el formulario del refugio. El refugio no se manda: el backend usa el de la cuenta.
-export const crearAnimal = async (datos) =>
-  aAnimal(
-    await pedir('/animales', {
-      metodo: 'POST',
-      cuerpo: {
-        idCategoria: Number(datos.categoria),
-        nombreAnimal: datos.nombre,
-        especie: datos.especie,
-        edad: datos.edad,
-        ubicacion: datos.ubicacion,
-        urgencia: datos.urgencia.toUpperCase(),
-        condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
-        descripcion: datos.descripcion,
-        cuotaApadrinamiento: Number(datos.precio),
-        cuposTotales: Number(datos.cuposTotales),
-      },
-    }),
-  )
+export const crearAnimal = (datos) =>
+  pedir('/animales', {
+    metodo: 'POST',
+    cuerpo: {
+      idCategoria: Number(datos.categoria),
+      nombreAnimal: datos.nombre,
+      especie: datos.especie,
+      edad: datos.edad,
+      ubicacion: datos.ubicacion,
+      urgencia: datos.urgencia.toUpperCase(),
+      condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
+      descripcion: datos.descripcion,
+      cuotaApadrinamiento: Number(datos.precio),
+      cuposTotales: Number(datos.cuposTotales),
+    },
+  }).then(aAnimal)
 
 // 'ACTIVA' vuelve a mostrarla en el catálogo; 'PAUSADA' la oculta sin eliminarla
 export const cambiarPublicacion = (idAnimal, estado) => pedir(`/animales/${idAnimal}`, { metodo: 'PUT', cuerpo: { estado } })
@@ -98,22 +98,22 @@ export const quitarOferta = (idAnimal, idDescuento) => pedir(`/animales/${idAnim
 // ---------- Bitácora y ubicación ----------
 
 // [{ id, fecha: 'AAAA-MM-DD', texto }], de la más nueva a la más vieja
-export const traerNovedades = async (idAnimal) =>
-  (await pedirLista(`/animales/${idAnimal}/novedades`)).map((novedad) => ({ id: novedad.idNovedad, fecha: novedad.fecha.slice(0, 10), texto: novedad.texto }))
+export const traerNovedades = (idAnimal) =>
+  pedirLista(`/animales/${idAnimal}/novedades`).then((novedades) =>
+    novedades.map((novedad) => ({ id: novedad.idNovedad, fecha: novedad.fecha.slice(0, 10), texto: novedad.texto })),
+  )
 
 export const publicarNovedad = (idAnimal, texto) => pedir(`/animales/${idAnimal}/novedades`, { metodo: 'POST', cuerpo: { texto } })
 
 // La última posición que informó el refugio: { latitud, longitud, fecha: 'AAAA-MM-DD' }, o null si nunca informó una
-export const traerUltimaUbicacion = async (idAnimal) => {
-  try {
-    const ubicacion = await pedir(`/animales/${idAnimal}/ubicaciones/ultima`)
-    return { latitud: ubicacion.latitud, longitud: ubicacion.longitud, fecha: ubicacion.fechaHora.slice(0, 10) }
-  } catch (error) {
-    // 404 = el animal todavía no tiene ninguna ubicación cargada
-    if (error.estado === 404) return null
-    throw error
-  }
-}
+export const traerUltimaUbicacion = (idAnimal) =>
+  pedir(`/animales/${idAnimal}/ubicaciones/ultima`)
+    .then((ubicacion) => ({ latitud: ubicacion.latitud, longitud: ubicacion.longitud, fecha: ubicacion.fechaHora.slice(0, 10) }))
+    .catch((error) => {
+      // 404 = el animal todavía no tiene ninguna ubicación cargada
+      if (error.estado === 404) return null
+      throw error
+    })
 
 export const registrarUbicacion = (idAnimal, latitud, longitud) =>
   pedir(`/animales/${idAnimal}/ubicaciones`, { metodo: 'POST', cuerpo: { latitud, longitud } })

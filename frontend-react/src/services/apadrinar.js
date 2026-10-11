@@ -7,14 +7,16 @@ import { pedir, pedirLista } from './api'
 // armarlo completo, con su nombre y su precio para ese animal.
 
 // Los 3 niveles de apadrinamiento: [{ codigo, nombre, multiplicador, texto, ubicacionEnVivo }]
-export const traerPlanes = async () =>
-  (await pedirLista('/planes')).map((plan) => ({
-    codigo: plan.codigo,
-    nombre: plan.nombre,
-    multiplicador: plan.multiplicador,
-    texto: plan.descripcion,
-    ubicacionEnVivo: plan.ubicacionEnVivo,
-  }))
+export const traerPlanes = () =>
+  pedirLista('/planes').then((planes) =>
+    planes.map((plan) => ({
+      codigo: plan.codigo,
+      nombre: plan.nombre,
+      multiplicador: plan.multiplicador,
+      texto: plan.descripcion,
+      ubicacionEnVivo: plan.ubicacionEnVivo,
+    })),
+  )
 
 // ---------- Muelle ----------
 
@@ -25,11 +27,11 @@ const aItem = (detalle, planes) => {
 
 // El muelle activo del usuario logueado: { id, items: [{ animal, plan, cantidad }] }.
 // Si no tenía uno, el backend lo crea.
-export const traerMuelle = async (planes) => {
-  const muelle = await pedir('/muelles')
-  const detalles = await pedirLista(`/muelles/${muelle.idMuelle}/items`)
-  return { id: muelle.idMuelle, items: detalles.map((detalle) => aItem(detalle, planes)) }
-}
+// Primero se pide el muelle y, con su id, sus ítems.
+export const traerMuelle = (planes) =>
+  pedir('/muelles').then((muelle) =>
+    pedirLista(`/muelles/${muelle.idMuelle}/items`).then((detalles) => ({ id: muelle.idMuelle, items: detalles.map((detalle) => aItem(detalle, planes)) })),
+  )
 
 export const agregarAlMuelle = (idMuelle, idAnimal, codigoPlan) =>
   pedir('/muelles/items', { metodo: 'POST', cuerpo: { idMuelle, idAnimal, cantidad: 1, plan: codigoPlan } })
@@ -42,10 +44,11 @@ export const quitarDelMuelle = (idMuelle, idAnimal) => pedir(`/muelles/${idMuell
 
 // Confirma el muelle: el backend valida los cupos, cobra y crea los apadrinamientos.
 // Devuelve { total, idsAnimales } del pago hecho.
-export const zarpar = async (idMuelle, conBotiquin) => {
-  const respuesta = await pedir('/zarpar', { metodo: 'POST', cuerpo: { idMuelle, conBotiquin } })
-  return { total: respuesta.total, idsAnimales: (respuesta.detalles ?? []).map((detalle) => detalle.idAnimal) }
-}
+export const zarpar = (idMuelle, conBotiquin) =>
+  pedir('/zarpar', { metodo: 'POST', cuerpo: { idMuelle, conBotiquin } }).then((respuesta) => ({
+    total: respuesta.total,
+    idsAnimales: (respuesta.detalles ?? []).map((detalle) => detalle.idAnimal),
+  }))
 
 // ---------- Apadrinamientos ----------
 
@@ -67,10 +70,10 @@ const aApadrinamiento = (dato, planes) => {
 
 // Los que le corresponden a quien está logueado: un padrino recibe los suyos, un refugio
 // los de sus animales y un administrador todos.
-export const traerApadrinamientos = async (planes) => (await pedirLista('/apadrinamientos')).map((dato) => aApadrinamiento(dato, planes))
+export const traerApadrinamientos = (planes) => pedirLista('/apadrinamientos').then((datos) => datos.map((dato) => aApadrinamiento(dato, planes)))
 
-export const cambiarPlan = async (idApadrinamiento, codigoPlan, planes) =>
-  aApadrinamiento(await pedir(`/apadrinamientos/${idApadrinamiento}/plan`, { metodo: 'PUT', cuerpo: { plan: codigoPlan } }), planes)
+export const cambiarPlan = (idApadrinamiento, codigoPlan, planes) =>
+  pedir(`/apadrinamientos/${idApadrinamiento}/plan`, { metodo: 'PUT', cuerpo: { plan: codigoPlan } }).then((dato) => aApadrinamiento(dato, planes))
 
 // No lo borra: queda inactivo y sus cupos vuelven a estar disponibles
 export const cancelarApadrinamiento = (idApadrinamiento) => pedir(`/apadrinamientos/${idApadrinamiento}`, { metodo: 'DELETE' })
@@ -78,7 +81,7 @@ export const cancelarApadrinamiento = (idApadrinamiento) => pedir(`/apadrinamien
 // ---------- Favoritos ----------
 
 // Devuelve los ids de los animales guardados por el usuario logueado
-export const traerFavoritos = async () => (await pedirLista('/favoritos')).map((favorito) => favorito.idAnimal)
+export const traerFavoritos = () => pedirLista('/favoritos').then((favoritos) => favoritos.map((favorito) => favorito.idAnimal))
 
 export const agregarFavorito = (idAnimal) => pedir(`/favoritos/${idAnimal}`, { metodo: 'PUT' })
 
