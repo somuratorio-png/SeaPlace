@@ -11,6 +11,9 @@ const urlDeFoto = (url) => (url.startsWith('/animales/') ? URL_BASE + url : url)
 // urgencia: 'critico' | 'recuperacion' | 'listo'. estado: el texto del cartelito de la tarjeta.
 // publicacion: 'ACTIVA' | 'PAUSADA'. progreso: porcentaje de cupos ya tomados.
 // descuento: { id, porcentaje, hasta } si hoy está en oferta, o null.
+// sinFotos: true si el refugio todavía no le subió ninguna (se muestra una genérica).
+const aDescuento = (dato) => ({ id: dato.idDescuento, porcentaje: dato.porcentaje, hasta: dato.fechaFin })
+
 export const aAnimal = (dato) => {
   const urgencia = (dato.urgencia ?? 'RECUPERACION').toLowerCase()
   // Si el animal no tiene fotos, se usa una genérica
@@ -37,7 +40,8 @@ export const aAnimal = (dato) => {
     progreso: dato.progreso,
     imagen: fotos[0],
     fotos,
-    descuento: dato.descuento ? { id: dato.descuento.idDescuento, porcentaje: dato.descuento.porcentaje, hasta: dato.descuento.fechaFin } : null,
+    sinFotos: dato.fotos.length === 0,
+    descuento: dato.descuento ? aDescuento(dato.descuento) : null,
   }
 }
 
@@ -50,14 +54,14 @@ const iconoDe = (nombre) => {
   return 'pets'
 }
 
-// [{ id, nombre, icono }]
-export const traerCategorias = () =>
-  pedirLista('/categorias').then((categorias) =>
-    categorias.map((categoria) => ({ id: categoria.idCategoria, nombre: categoria.nombreCategoria, icono: iconoDe(categoria.nombreCategoria) })),
-  )
+const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
 
-// Solo la puede crear un administrador
-export const crearCategoria = (nombreCategoria, descripcion) => pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } })
+// [{ id, nombre, icono }]
+export const traerCategorias = () => pedirLista('/categorias').then((categorias) => categorias.map(aCategoria))
+
+// Solo la puede crear un administrador. Devuelve la categoría creada.
+export const crearCategoria = (nombreCategoria, descripcion) =>
+  pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } }).then(aCategoria)
 
 // Las publicaciones activas son públicas. Las pausadas solo las puede pedir el refugio (ve las suyas)
 // o un administrador (ve todas).
@@ -81,19 +85,32 @@ export const crearAnimal = (datos) =>
     },
   }).then(aAnimal)
 
-// 'ACTIVA' vuelve a mostrarla en el catálogo; 'PAUSADA' la oculta sin eliminarla
-export const cambiarPublicacion = (idAnimal, estado) => pedir(`/animales/${idAnimal}`, { metodo: 'PUT', cuerpo: { estado } })
-
 export const quitarAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`, { metodo: 'DELETE' })
 
-// "archivo" es el archivo elegido en un <input type="file">, tal cual: se manda sin procesar
-export const subirFoto = (idAnimal, archivo) => pedir(`/animales/${idAnimal}/fotos/archivo`, { metodo: 'POST', archivo })
+// Las cuatro que siguen modifican un animal y devuelven ese animal ya actualizado, armado con lo
+// que contestó el backend: así quien las llama lo guarda en su estado sin volver a pedir la lista.
+
+// 'ACTIVA' vuelve a mostrarla en el catálogo; 'PAUSADA' la oculta sin eliminarla
+export const cambiarPublicacion = (idAnimal, estado) => pedir(`/animales/${idAnimal}`, { metodo: 'PUT', cuerpo: { estado } }).then(aAnimal)
+
+// "archivo" es el archivo elegido en un <input type="file">, tal cual: se manda sin procesar.
+// El backend agrega la foto al final de la galería.
+export const subirFoto = (animal, archivo) =>
+  pedir(`/animales/${animal.id}/fotos/archivo`, { metodo: 'POST', archivo }).then((foto) => {
+    const url = urlDeFoto(foto.urlImagen)
+    const fotos = animal.sinFotos ? [url] : [...animal.fotos, url]
+    return { ...animal, fotos, imagen: fotos[0], sinFotos: false }
+  })
 
 // La oferta rige desde hoy hasta la fecha elegida
-export const ponerOferta = (idAnimal, porcentaje, hasta) =>
-  pedir(`/animales/${idAnimal}/descuentos`, { metodo: 'POST', cuerpo: { porcentaje, fechaInicio: hoy(), fechaFin: hasta } })
+export const ponerOferta = (animal, porcentaje, hasta) =>
+  pedir(`/animales/${animal.id}/descuentos`, { metodo: 'POST', cuerpo: { porcentaje, fechaInicio: hoy(), fechaFin: hasta } }).then((descuento) => ({
+    ...animal,
+    descuento: aDescuento(descuento),
+  }))
 
-export const quitarOferta = (idAnimal, idDescuento) => pedir(`/animales/${idAnimal}/descuentos/${idDescuento}`, { metodo: 'DELETE' })
+export const quitarOferta = (animal) =>
+  pedir(`/animales/${animal.id}/descuentos/${animal.descuento.id}`, { metodo: 'DELETE' }).then(() => ({ ...animal, descuento: null }))
 
 // ---------- Bitácora y ubicación ----------
 

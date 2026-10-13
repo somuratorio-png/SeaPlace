@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
+import AvisoError from '../components/comunes/AvisoError'
 import BarraProgreso from '../components/comunes/BarraProgreso'
 import Icono from '../components/comunes/Icono'
 import Galeria from '../components/detalle/Galeria'
@@ -11,23 +12,59 @@ import MiPlan from '../components/panel/MiPlan'
 import Rastreo from '../components/panel/Rastreo'
 import RastreoBloqueado from '../components/panel/RastreoBloqueado'
 import { traerNovedades } from '../services/animales'
+import { cambiarPlan, cancelarApadrinamiento } from '../services/apadrinar'
 import { formatearFecha } from '../utils/fechas'
 
 // Detalle de un animal que el usuario ya apadrinó.
-// apadrinados = [{ id, animal, plan, desde, pagos }]
-const Apadrinado = ({ apadrinados, onVolver, onCambiarPlan, onCancelar, onVerCertificado }) => {
+// "apadrinamientos" son los que ya tiene App; esta página pide al backend, al montarse, la bitácora del animal.
+// onGuardarApadrinamiento le pasa a App el apadrinamiento como quedó después de cambiarle el plan o cancelarlo,
+// onGuardarAnimal el animal como quedó después de cancelar (recupera sus cupos) y
+// onError muestra arriba de la página el mensaje de una acción que falló.
+const Apadrinado = ({ apadrinamientos, onVolver, onVerCertificado, onGuardarApadrinamiento, onGuardarAnimal, onError }) => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const { id } = useParams()
   const idAnimal = Number(id)
-  const item = apadrinados.find((a) => a.animal.id === idAnimal)
 
-  // La bitácora se pide al backend al abrir la página (y de nuevo si se pasa a otro animal)
   const [susNovedades, setSusNovedades] = useState([])
+  const [errorNovedades, setErrorNovedades] = useState(null)
+
+  // La bitácora depende del animal: se pide al abrir la página (y de nuevo si se pasa a otro animal)
   useEffect(() => {
     traerNovedades(idAnimal)
-      .then(setSusNovedades)
-      .catch(() => setSusNovedades([]))
+      .then((novedades) => {
+        setSusNovedades(novedades)
+      })
+      .catch((falla) => {
+        setErrorNovedades(falla.message)
+      })
   }, [idAnimal])
+
+  // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
+  const elegirPlan = (idApadrinamiento, planNuevo) => {
+    onError(null)
+    cambiarPlan(idApadrinamiento, planNuevo.codigo)
+      .then(onGuardarApadrinamiento)
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
+
+  // No se borra: queda inactivo, así el historial no se pierde.
+  // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
+  const cancelar = (idApadrinamiento) => {
+    onError(null)
+    cancelarApadrinamiento(idApadrinamiento)
+      .then((cancelado) => {
+        onGuardarApadrinamiento(cancelado)
+        onGuardarAnimal(cancelado.animal)
+        onVolver()
+      })
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
+
+  const item = apadrinamientos.find((a) => a.activo && a.animal.id === idAnimal)
 
   // Si ese animal no está apadrinado (o se canceló), se vuelve al panel
   if (!item) {
@@ -51,7 +88,7 @@ const Apadrinado = ({ apadrinados, onVolver, onCambiarPlan, onCancelar, onVerCer
             <p className="font-body-md text-body-md text-on-surface-variant">{animal.descripcion}</p>
           </div>
 
-          <Bitacora nombre={animal.nombre} novedades={susNovedades} />
+          {errorNovedades ? <AvisoError mensaje={errorNovedades} /> : <Bitacora nombre={animal.nombre} novedades={susNovedades} />}
         </div>
 
         <div className="lg:col-span-5 space-y-space-md">
@@ -78,7 +115,7 @@ const Apadrinado = ({ apadrinados, onVolver, onCambiarPlan, onCancelar, onVerCer
           <FichaAnimal animal={animal} />
           <MiPlan plan={plan} cupos={item.cupos} />
           <HistorialPagos pagos={item.pagos} />
-          <GestionPlan item={item} onCambiarPlan={onCambiarPlan} onCancelar={onCancelar} />
+          <GestionPlan item={item} onCambiarPlan={elegirPlan} onCancelar={cancelar} />
         </div>
       </div>
 

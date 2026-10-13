@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { traerUltimaUbicacion } from '../../services/animales'
 import { formatearFecha } from '../../utils/fechas'
 import { conductas, coordenadasDe, historialInicial, horaDe, HORAS_ENTRE_SENALES, siguienteSenal, zonaDe } from '../../utils/telemetria'
+import AvisoError from '../comunes/AvisoError'
 import Icono from '../comunes/Icono'
 import DatoRastreo from './DatoRastreo'
 import MapaRastreo from './MapaRastreo'
@@ -14,15 +15,24 @@ const SENALES_EN_EL_REGISTRO = 6
 // Rastreo satelital del animal. Primero le pide al backend la última posición que informó el refugio
 // y, cuando llega, muestra el mapa centrado ahí. Mientras espera muestra un aviso.
 // posicion: undefined = todavía no llegó la respuesta; null = el refugio nunca informó una.
+// Si el pedido falla se muestra el mensaje del backend en lugar del mapa.
 const Rastreo = ({ animal }) => {
   const [posicion, setPosicion] = useState(undefined)
+  const [error, setError] = useState(null)
 
   useEffect(() => {
     traerUltimaUbicacion(animal.id)
-      .then(setPosicion)
-      .catch(() => setPosicion(null))
+      .then((ultima) => {
+        setPosicion(ultima)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }, [animal.id])
 
+  if (error) {
+    return <AvisoError mensaje={error} />
+  }
   if (posicion === undefined) {
     return <p className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-md font-body-md text-body-md text-on-surface-variant">Buscando la señal de {animal.nombre}…</p>
   }

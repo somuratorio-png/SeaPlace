@@ -1,6 +1,8 @@
 import { useState } from 'react'
 import Portada from '../components/comunes/Portada'
 import CampoTexto from '../components/login/CampoTexto'
+import { cambiarMiContrasenia, modificarMiPerfil } from '../services/usuarios'
+import { intentar } from '../utils/intentar'
 
 const claseTarjeta = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container disabled:opacity-60'
@@ -11,9 +13,9 @@ const sinContrasenias = { actual: '', nueva: '', repetida: '' }
 
 // "Mi cuenta": el usuario logueado cambia sus datos y su contraseña.
 // El nombre de usuario no se puede cambiar (es el que lleva el token), y el rol tampoco.
-// onGuardarPerfil y onCambiarContrasenia le piden el cambio al backend y devuelven su mensaje
-// de error, o null si salió bien.
-const Cuenta = ({ usuario, onGuardarPerfil, onCambiarContrasenia }) => {
+// Los dos formularios le piden el cambio al backend y muestran acá mismo su mensaje de error.
+// onPerfilGuardado le pasa a App el usuario como quedó, para que el nombre nuevo se vea en toda la página.
+const Cuenta = ({ usuario, onPerfilGuardado }) => {
   const [perfil, setPerfil] = useState({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
   const [errorPerfil, setErrorPerfil] = useState(null)
   const [perfilGuardado, setPerfilGuardado] = useState(false)
@@ -34,7 +36,7 @@ const Cuenta = ({ usuario, onGuardarPerfil, onCambiarContrasenia }) => {
 
   const guardarPerfil = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    onGuardarPerfil(perfil).then((mensaje) => {
+    intentar(modificarMiPerfil(perfil).then(onPerfilGuardado)).then((mensaje) => {
       setErrorPerfil(mensaje)
       setPerfilGuardado(mensaje === null)
     })
@@ -50,7 +52,7 @@ const Cuenta = ({ usuario, onGuardarPerfil, onCambiarContrasenia }) => {
       setErrorContrasenia('Las dos contraseñas nuevas no coinciden')
       return
     }
-    onCambiarContrasenia(contrasenias.actual, contrasenias.nueva).then((mensaje) => {
+    intentar(cambiarMiContrasenia(contrasenias.actual, contrasenias.nueva)).then((mensaje) => {
       setErrorContrasenia(mensaje)
       setContraseniaCambiada(mensaje === null)
       if (mensaje === null) {

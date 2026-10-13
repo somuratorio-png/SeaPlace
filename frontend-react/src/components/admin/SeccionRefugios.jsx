@@ -51,7 +51,7 @@ const SeccionRefugios = ({ usuarios, animales, onCambiarActivo, onAprobar, onVer
       )}
       {items.map((refugio) => (
         <TarjetaRefugio
-          key={refugio.nombreUsuario}
+          key={refugio.id}
           refugio={refugio}
           animales={animales.filter((animal) => animal.idRefugio === refugio.idRefugio)}
           onCambiarActivo={onCambiarActivo}

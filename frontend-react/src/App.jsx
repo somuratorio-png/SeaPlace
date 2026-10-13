@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { Navigate, Route, Routes, useLocation, useNavigate } from 'react-router-dom'
+import AvisoError from './components/comunes/AvisoError'
+import Cargando from './components/comunes/Cargando'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
-import Icono from './components/comunes/Icono'
 import { ContextoMoneda } from './contexto/Moneda'
 import { ContextoPlanes } from './contexto/Planes'
 import { useEstadoGuardado } from './hooks/useEstadoGuardado'
@@ -10,6 +11,7 @@ import * as animalesApi from './services/animales'
 import * as apadrinarApi from './services/apadrinar'
 import { hayToken } from './services/api'
 import * as usuariosApi from './services/usuarios'
+import { ponerEn, sacarDe } from './utils/listas'
 import Admin from './views/Admin'
 import Apadrinado from './views/Apadrinado'
 import Muelle from './views/Muelle'
@@ -25,46 +27,55 @@ import Zarpar from './views/Zarpar'
 import Panel from './views/Panel'
 import Refugio from './views/Refugio'
 
-// Los datos que dependen de quién está logueado, cuando no hay nadie
-const SIN_SESION = {
-  muelle: { id: null, items: [] }, // items: [{ animal, plan, cantidad }] cantidad = cupos que se toman
-  favoritos: [], // ids de animales
-  apadrinamientos: [], // padrino: los suyos; refugio: los de sus animales; administrador: todos
-  pausados: [], // publicaciones pausadas (refugio: las suyas; administrador: todas)
-  usuarios: [], // solo para el administrador
-  roles: [], // solo para el administrador: [{ id, nombre, permisos }]
-  permisos: [], // solo para el administrador: [{ id, nombre, descripcion }]
-}
+// El muelle cuando todavía no se conoce el del usuario. items: [{ animal, plan, cantidad }]
+const SIN_MUELLE = { id: null, items: [] }
 
-// Pide al backend todo lo que necesita ver quien acaba de entrar, según su rol.
-// Admin y refugio no apadrinan (no tienen muelle); el resto no ve publicaciones pausadas.
-const traerDatosDe = async (quien, planes) => {
+// Lo que hace falta tener a mano de quien entra, porque lo usan varias páginas: sus favoritos,
+// su muelle, sus apadrinamientos y las publicaciones pausadas que puede ver.
+// Admin y refugio no apadrinan (no tienen muelle ni apadrinamientos propios); el resto no ve publicaciones pausadas.
+const traerDatosDe = (quien) => {
   const esAdmin = quien.rol === 'administrador'
   const esRefugio = quien.rol === 'refugio'
+  const apadrina = !esAdmin && !esRefugio
 
-  const [favoritos, apadrinamientos, muelle, pausados, usuarios, roles, permisos] = await Promise.all([
+  return Promise.all([
     apadrinarApi.traerFavoritos(),
-    apadrinarApi.traerApadrinamientos(planes),
-    esAdmin || esRefugio ? SIN_SESION.muelle : apadrinarApi.traerMuelle(planes),
+    apadrina ? apadrinarApi.traerMuelle() : SIN_MUELLE,
     esAdmin || (esRefugio && quien.idRefugio) ? animalesApi.traerAnimales('PAUSADA') : [],
-    esAdmin ? usuariosApi.traerUsuarios() : [],
-    esAdmin ? usuariosApi.traerRoles() : [],
-    esAdmin ? usuariosApi.traerPermisos() : [],
-  ])
-  return { favoritos, apadrinamientos, muelle, pausados, usuarios, roles, permisos }
+    apadrina ? apadrinarApi.traerApadrinamientos() : [],
+  ]).then(([favoritos, muelle, pausados, apadrinamientos]) => ({ favoritos, muelle, pausados, apadrinamientos }))
 }
 
-// App es el componente principal. Guarda el estado que comparten varias páginas
-// y se lo pasa a cada una por props. La página que se muestra depende de la URL.
-// Los datos viven en el backend: App los pide al arrancar (y al iniciar sesión) usando los
-// servicios de src/services, y cada acción llama primero a la API y después actualiza el estado.
+// El muelle con ese ítem puesto: si el animal ya estaba, lo reemplaza; si no, lo agrega
+const conItem = (muelle, item) => {
+  const yaEstaba = muelle.items.some((otro) => otro.animal.id === item.animal.id)
+  const items = yaEstaba ? muelle.items.map((otro) => (otro.animal.id === item.animal.id ? item : otro)) : [...muelle.items, item]
+  return { ...muelle, items }
+}
+
+// El animal después de que le tomaron "cantidad" cupos (el progreso es el porcentaje de cupos tomados)
+const conCuposTomados = (animal, cantidad) => {
+  const cuposDisponibles = animal.cuposDisponibles - cantidad
+  const progreso = Math.round(((animal.cuposTotales - cuposDisponibles) * 100) / animal.cuposTotales)
+  return { ...animal, cuposDisponibles, progreso }
+}
+
+// App es el componente principal: tiene el ruteo y el estado que comparten varias páginas
+// (el catálogo, quién está logueado, sus favoritos y su muelle), que les pasa por props.
+// Lo que usa una sola página lo pide esa página en su propio useEffect (ver src/views).
+// Cada acción llama primero a la API y, con lo que contesta, actualiza el estado: no se vuelve a pedir la lista.
 const App = () => {
   const [animales, setAnimales] = useState([]) // las publicaciones activas: es el catálogo
   const [categorias, setCategorias] = useState([])
   const [planes, setPlanes] = useState([])
   const [usuario, setUsuario] = useState(null) // quien está logueado, o null
-  const [datos, setDatos] = useState(SIN_SESION)
+  const [favoritos, setFavoritos] = useState([]) // ids de animales
+  const [muelle, setMuelle] = useState(SIN_MUELLE)
+  const [apadrinamientos, setApadrinamientos] = useState([]) // los del padrino logueado, activos y cancelados
+  const [pausados, setPausados] = useState([]) // publicaciones pausadas (refugio: las suyas; administrador: todas)
   const [cargando, setCargando] = useState(true)
+  const [sinConexion, setSinConexion] = useState(null) // mensaje si no se pudo traer el catálogo al arrancar
+  const [intento, setIntento] = useState(0) // cuántas veces se volvió a intentar traer el catálogo
   const [error, setError] = useState(null) // mensaje del último pedido que falló
   const [pendiente, setPendiente] = useState(null) // { animal, plan } elegido antes de iniciar sesión
   const [moneda, setMoneda] = useEstadoGuardado('moneda', 'ARS') // 'ARS' | 'USD'. Queda guardada en el navegador
@@ -74,37 +85,48 @@ const App = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation() // la ruta actual, por ejemplo '/catalogo'
 
-  // Al abrir la página se pide el catálogo. Si quedó un token guardado de una visita anterior,
-  // también se recupera la sesión.
+  // Al abrir la página se pide el catálogo, una sola vez. Si quedó un token guardado de una visita
+  // anterior, también se recupera la sesión. "intento" solo cambia con el botón de reintentar
+  // (cuando el backend no respondía): ahí el efecto se ejecuta de nuevo.
   useEffect(() => {
-    const arrancar = async () => {
-      try {
-        const [listaAnimales, listaCategorias, listaPlanes] = await Promise.all([
-          animalesApi.traerAnimales(),
-          animalesApi.traerCategorias(),
-          apadrinarApi.traerPlanes(),
-        ])
+    Promise.all([animalesApi.traerAnimales(), animalesApi.traerCategorias(), apadrinarApi.traerPlanes()])
+      .then(([listaAnimales, listaCategorias, listaPlanes]) => {
         setAnimales(listaAnimales)
         setCategorias(listaCategorias)
         setPlanes(listaPlanes)
 
-        if (hayToken()) {
-          try {
-            const quien = await usuariosApi.traerMiUsuario()
-            setDatos(await traerDatosDe(quien, listaPlanes))
-            setUsuario(quien)
-          } catch {
+        if (!hayToken()) {
+          return null
+        }
+        return usuariosApi
+          .traerMiUsuario()
+          .then((quien) =>
+            traerDatosDe(quien).then((datos) => {
+              setFavoritos(datos.favoritos)
+              setMuelle(datos.muelle)
+              setPausados(datos.pausados)
+              setApadrinamientos(datos.apadrinamientos)
+              setUsuario(quien)
+            }),
+          )
+          .catch(() => {
             // El token venció o la cuenta fue dada de baja: se sigue sin sesión
             usuariosApi.salir()
-          }
-        }
-      } catch (falla) {
-        setError(falla.message)
-      }
-      setCargando(false)
-    }
-    arrancar()
-  }, [])
+          })
+      })
+      .catch((falla) => {
+        setSinConexion(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [intento])
+
+  const reintentar = () => {
+    setSinConexion(null)
+    setCargando(true)
+    setIntento(intento + 1)
+  }
 
   const esAdmin = usuario !== null && usuario.rol === 'administrador'
   const esRefugio = usuario !== null && usuario.rol === 'refugio'
@@ -113,12 +135,9 @@ const App = () => {
   const panelPropio = esAdmin ? '/admin' : '/refugio'
 
   // Las publicaciones activas más las pausadas que puede ver quien está logueado
-  const todosLosAnimales = [...animales, ...datos.pausados]
+  const todosLosAnimales = [...animales, ...pausados]
 
-  // Los apadrinamientos activos de quien está logueado
-  const misApadrinados = datos.apadrinamientos.filter((a) => usuario !== null && a.usuario === usuario.nombreUsuario && a.activo)
-
-  const animalesFavoritos = animales.filter((animal) => datos.favoritos.includes(animal.id))
+  const animalesFavoritos = animales.filter((animal) => favoritos.includes(animal.id))
 
   const irA = (ruta) => {
     setError(null)
@@ -133,89 +152,48 @@ const App = () => {
     irA(`/panel/${item.animal.id}`)
   }
 
-  // Ejecuta una acción que le pide algo al backend. Si falla devuelve el mensaje de error
-  // (y lo muestra arriba de la página, salvo que el formulario prefiera mostrarlo él); si sale bien devuelve null.
-  const intentar = async (accion, mostrarError = true) => {
-    try {
-      setError(null)
-      await accion()
-      return null
-    } catch (falla) {
-      if (mostrarError) {
-        setError(falla.message)
-      }
-      return falla.message
-    }
-  }
-
-  // Cambia una parte de los datos de la sesión, por ejemplo guardar({ favoritos: [...] })
-  const guardar = (cambios) => {
-    setDatos((actuales) => ({ ...actuales, ...cambios }))
-  }
-
-  // ---------- Volver a pedir datos después de un cambio ----------
-
-  const recargarAnimales = async () => {
-    const [activos, pausados] = await Promise.all([
-      animalesApi.traerAnimales(),
-      esAdmin || (esRefugio && usuario.idRefugio) ? animalesApi.traerAnimales('PAUSADA') : [],
-    ])
-    setAnimales(activos)
-    guardar({ pausados })
-  }
-
-  const recargarApadrinamientos = async () => {
-    guardar({ apadrinamientos: await apadrinarApi.traerApadrinamientos(planes) })
-  }
-
-  const recargarUsuarios = async () => {
-    guardar({ usuarios: await usuariosApi.traerUsuarios() })
+  const verCertificado = (item) => {
+    irA(`/panel/${item.animal.id}/certificado`)
   }
 
   // ---------- Sesión ----------
 
-  // Deja logueado a "quien" y trae sus datos. Si antes de entrar había elegido un animal
-  // para apadrinar, se lo agrega al muelle y lo lleva ahí.
-  const entrar = async (quien) => {
-    const nuevos = await traerDatosDe(quien, planes)
-    const puede = quien.rol !== 'administrador' && quien.rol !== 'refugio'
+  // La llama el login cuando el backend aceptó el usuario y la contraseña (o el registro).
+  // Deja logueado a "quien" con sus datos. Si antes de entrar había elegido un animal para
+  // apadrinar, se lo agrega al muelle y lo lleva ahí.
+  const entrar = (quien) =>
+    traerDatosDe(quien).then((datos) => {
+      setFavoritos(datos.favoritos)
+      setMuelle(datos.muelle)
+      setPausados(datos.pausados)
+      setApadrinamientos(datos.apadrinamientos)
+      setUsuario(quien)
+      setPendiente(null)
 
-    if (pendiente && puede) {
-      await ponerEnElMuelle(nuevos.muelle, pendiente.animal, pendiente.plan)
-      nuevos.muelle = await apadrinarApi.traerMuelle(planes)
-      navigate('/muelle')
-    }
-    setPendiente(null)
-    setDatos(nuevos)
-    setUsuario(quien)
-  }
-
-  // Los dos devuelven el mensaje de error (para que lo muestre el formulario), o null si salió bien
-  const ingresar = (nombreUsuario, contrasenia) =>
-    intentar(async () => entrar(await usuariosApi.ingresar(nombreUsuario, contrasenia)), false)
-
-  // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
-  const registrar = (datosDelFormulario, esUnRefugio) =>
-    intentar(async () => entrar(await usuariosApi.registrar(datosDelFormulario, esUnRefugio)), false)
+      const puede = quien.rol !== 'administrador' && quien.rol !== 'refugio'
+      if (pendiente && puede) {
+        ponerEnElMuelle(datos.muelle, pendiente.animal, pendiente.plan)
+          .then((muelleNuevo) => {
+            setMuelle(muelleNuevo)
+            navigate('/muelle')
+          })
+          .catch((falla) => {
+            setError(falla.message)
+          })
+      }
+    })
 
   const salir = () => {
     usuariosApi.salir()
     setUsuario(null)
-    setDatos(SIN_SESION)
+    setFavoritos([])
+    setMuelle(SIN_MUELLE)
+    setApadrinamientos([])
+    setPausados([])
     setConBotiquin(false)
     setUltimoZarpar(null)
     irA('/')
   }
-
-  // ---------- Mi cuenta ----------
-
-  // Las dos devuelven el mensaje de error (para que lo muestre el formulario), o null si salió bien
-  const guardarPerfil = (perfil) =>
-    intentar(async () => {
-      setUsuario(await usuariosApi.modificarMiPerfil(perfil))
-    }, false)
-
-  const cambiarContrasenia = (actual, nueva) => intentar(() => usuariosApi.cambiarMiContrasenia(actual, nueva), false)
 
   // ---------- Favoritos y muelle ----------
 
@@ -225,25 +203,26 @@ const App = () => {
       irA('/panel')
       return
     }
-    intentar(async () => {
-      if (datos.favoritos.includes(idAnimal)) {
-        await apadrinarApi.quitarFavorito(idAnimal)
-        guardar({ favoritos: datos.favoritos.filter((id) => id !== idAnimal) })
-      } else {
-        await apadrinarApi.agregarFavorito(idAnimal)
-        guardar({ favoritos: [...datos.favoritos, idAnimal] })
-      }
-    })
+    setError(null)
+    const yaEra = favoritos.includes(idAnimal)
+    const pedido = yaEra ? apadrinarApi.quitarFavorito(idAnimal) : apadrinarApi.agregarFavorito(idAnimal)
+    pedido
+      .then(() => {
+        setFavoritos(yaEra ? favoritos.filter((id) => id !== idAnimal) : [...favoritos, idAnimal])
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }
 
-  // Si el animal ya estaba en el muelle, solo se le cambia el plan (conserva los cupos elegidos)
-  const ponerEnElMuelle = async (muelle, animal, plan) => {
-    const yaEstaba = muelle.items.find((item) => item.animal.id === animal.id)
-    if (yaEstaba) {
-      await apadrinarApi.cambiarItem(muelle.id, animal.id, yaEstaba.cantidad, plan.codigo)
-    } else {
-      await apadrinarApi.agregarAlMuelle(muelle.id, animal.id, plan.codigo)
-    }
+  // Le pide al backend que ponga el animal en ese muelle y devuelve una promesa con el muelle como queda.
+  // Si el animal ya estaba, solo se le cambia el plan (conserva los cupos elegidos).
+  const ponerEnElMuelle = (muelleActual, animal, plan) => {
+    const yaEstaba = muelleActual.items.find((item) => item.animal.id === animal.id)
+    const pedido = yaEstaba
+      ? apadrinarApi.cambiarItem(muelleActual.id, animal.id, yaEstaba.cantidad, plan.codigo)
+      : apadrinarApi.agregarAlMuelle(muelleActual.id, animal.id, plan.codigo)
+    return pedido.then((item) => conItem(muelleActual, item))
   }
 
   // El muelle es de cada usuario: quien no entró primero pasa por el login, y el animal
@@ -254,201 +233,125 @@ const App = () => {
       irA('/panel')
       return
     }
-    intentar(async () => {
-      await ponerEnElMuelle(datos.muelle, animal, plan)
-      guardar({ muelle: await apadrinarApi.traerMuelle(planes) })
-      setUltimoZarpar(null) // empieza un pedido nuevo: la página de gracias del anterior ya no hace falta
-      irA('/muelle')
-    })
+    setError(null)
+    // Al zarpar, el muelle que se pagó queda cerrado: el siguiente se le pide al backend recién
+    // cuando hace falta, que es acá
+    const muelleListo = muelle.id === null ? apadrinarApi.traerMuelle() : Promise.resolve(muelle)
+    muelleListo
+      .then((muelleActual) => ponerEnElMuelle(muelleActual, animal, plan))
+      .then((muelleNuevo) => {
+        setMuelle(muelleNuevo)
+        setUltimoZarpar(null) // empieza un pedido nuevo: la página de gracias del anterior ya no hace falta
+        navigate('/muelle')
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }
 
   // Botones de más y menos: la cantidad son los cupos que se quieren tomar de ese animal.
   // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
   const cambiarCantidad = (idAnimal, cantidad) => {
-    const item = datos.muelle.items.find((i) => i.animal.id === idAnimal)
+    const item = muelle.items.find((i) => i.animal.id === idAnimal)
     const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
-    intentar(async () => {
-      await apadrinarApi.cambiarItem(datos.muelle.id, idAnimal, acotada)
-      guardar({ muelle: { ...datos.muelle, items: datos.muelle.items.map((i) => (i.animal.id === idAnimal ? { ...i, cantidad: acotada } : i)) } })
-    })
+    setError(null)
+    apadrinarApi
+      .cambiarItem(muelle.id, idAnimal, acotada)
+      .then((cambiado) => {
+        setMuelle(conItem(muelle, cambiado))
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }
 
   const quitarDelMuelle = (idAnimal) => {
-    intentar(async () => {
-      await apadrinarApi.quitarDelMuelle(datos.muelle.id, idAnimal)
-      guardar({ muelle: { ...datos.muelle, items: datos.muelle.items.filter((i) => i.animal.id !== idAnimal) } })
-    })
+    setError(null)
+    apadrinarApi
+      .quitarDelMuelle(muelle.id, idAnimal)
+      .then(() => {
+        setMuelle({ ...muelle, items: muelle.items.filter((i) => i.animal.id !== idAnimal) })
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
   }
 
   // Zarpar = confirmar el muelle. Se llama cuando el pago salió bien. El backend vuelve a validar los cupos,
-  // convierte cada item en un apadrinamiento del usuario, descuenta los cupos y deja el muelle vacío.
-  // Devuelve el mensaje de error (por ejemplo, si a un animal ya no le quedan cupos), o null si salió bien.
-  const zarpar = () =>
-    intentar(async () => {
-      const pago = await apadrinarApi.zarpar(datos.muelle.id, conBotiquin)
-
-      // Después de pagar cambió casi todo: los apadrinamientos, los cupos de los animales y el muelle (hay uno nuevo)
-      const [apadrinamientos, muelle, activos] = await Promise.all([
-        apadrinarApi.traerApadrinamientos(planes),
-        apadrinarApi.traerMuelle(planes),
-        animalesApi.traerAnimales(),
-      ])
-      guardar({ apadrinamientos, muelle })
-      setAnimales(activos)
-
-      const apadrinados = apadrinamientos.filter((a) => a.activo && pago.idsAnimales.includes(a.animal.id))
-      setUltimoZarpar({ apadrinados, total: pago.total })
-      setConBotiquin(false)
-      irA('/gracias')
-    }, false)
-
-  // ---------- Apadrinamientos del padrino ----------
-
-  const cambiarPlan = (idApadrinamiento, plan) => {
-    intentar(async () => {
-      const cambiado = await apadrinarApi.cambiarPlan(idApadrinamiento, plan.codigo, planes)
-      guardar({ apadrinamientos: datos.apadrinamientos.map((a) => (a.id === idApadrinamiento ? cambiado : a)) })
-    })
+  // convierte cada ítem en un apadrinamiento del usuario, descuenta los cupos y cierra el muelle.
+  // Devuelve una promesa con el mensaje de error (por ejemplo, si a un animal ya no le quedan cupos), o null si salió bien.
+  const zarpar = () => {
+    const pagados = muelle.items
+    return apadrinarApi
+      .zarpar(muelle.id, conBotiquin)
+      .then((total) =>
+        // El pago crea apadrinamientos y la respuesta de zarpar no los trae: se piden una vez, acá.
+        // Si ese pedido falla el pago igual quedó hecho: se sigue con la lista que había.
+        apadrinarApi
+          .traerApadrinamientos()
+          .catch(() => apadrinamientos)
+          .then((lista) => {
+            // Lo que cambió con el pago se refleja acá mismo: a cada animal le quedan menos cupos y el muelle queda vacío
+            setAnimales(
+              animales.map((animal) => {
+                const item = pagados.find((i) => i.animal.id === animal.id)
+                return item ? conCuposTomados(animal, item.cantidad) : animal
+              }),
+            )
+            setApadrinamientos(lista)
+            setUltimoZarpar({ apadrinados: pagados.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan })), total })
+            setMuelle(SIN_MUELLE)
+            setConBotiquin(false)
+            irA('/gracias')
+            return null
+          }),
+      )
+      .catch((falla) => falla.message)
   }
 
-  // No se borra: queda inactivo, así el historial no se pierde.
-  // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
-  const cancelarApadrinamiento = (idApadrinamiento) => {
-    intentar(async () => {
-      await apadrinarApi.cancelarApadrinamiento(idApadrinamiento)
-      await Promise.all([recargarApadrinamientos(), recargarAnimales()])
-      irA('/panel')
-    })
+  // Un apadrinamiento como lo devolvió el backend después de cambiarle el plan o cancelarlo
+  const guardarApadrinamiento = (apadrinamiento) => {
+    setApadrinamientos((actuales) => ponerEn(actuales, apadrinamiento))
   }
 
-  // ---------- Usuarios (administrador) ----------
+  // ---------- Cambios en el catálogo ----------
+  // Los paneles del refugio y del administrador (y el padrino, cuando cancela un apadrinamiento) llaman
+  // al backend y después avisan acá con lo que les contestó, para que el cambio se vea en todas las páginas.
 
-  const usuarioLlamado = (nombreUsuario) => datos.usuarios.find((u) => u.nombreUsuario === nombreUsuario)
-
-  // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado
-  const cambiarRol = (nombreUsuario, rol) => {
-    intentar(async () => {
-      const idRol = datos.roles.find((r) => r.nombre === rol).id
-      await usuariosApi.cambiarRol(usuarioLlamado(nombreUsuario).id, idRol)
-      await recargarUsuarios()
-    })
+  // Guarda un animal nuevo o modificado en la lista que le toca según el estado de su publicación
+  const guardarAnimal = (animal) => {
+    const activa = animal.publicacion === 'ACTIVA'
+    const pausadaVisible = animal.publicacion === 'PAUSADA' && (esAdmin || esRefugio)
+    setAnimales((actuales) => (activa ? ponerEn(actuales, animal) : sacarDe(actuales, animal.id)))
+    setPausados((actuales) => (pausadaVisible ? ponerEn(actuales, animal) : sacarDe(actuales, animal.id)))
   }
 
-  // Da de baja a un usuario activo, o reactiva a uno dado de baja.
-  // Al dar de baja a un refugio sus publicaciones se pausan, por eso también se vuelven a pedir los animales.
-  const cambiarActivo = (nombreUsuario) => {
-    intentar(async () => {
-      const elegido = usuarioLlamado(nombreUsuario)
-      if (elegido.activo) {
-        await usuariosApi.darDeBaja(elegido.id)
-      } else {
-        await usuariosApi.reactivar(elegido.id)
-      }
-      await Promise.all([recargarUsuarios(), recargarAnimales()])
-    })
+  // La publicación fue eliminada: deja de verse
+  const sacarAnimal = (idAnimal) => {
+    setAnimales((actuales) => sacarDe(actuales, idAnimal))
+    setPausados((actuales) => sacarDe(actuales, idAnimal))
   }
 
-  const aprobarRefugio = (nombreUsuario) => {
-    intentar(async () => {
-      await usuariosApi.aprobarRefugio(usuarioLlamado(nombreUsuario).idRefugio)
-      await recargarUsuarios()
-    })
+  // Al dar de baja a un refugio, el backend pausa sus publicaciones activas
+  const pausarAnimalesDe = (idRefugio) => {
+    const suyos = animales.filter((animal) => animal.idRefugio === idRefugio)
+    setAnimales(animales.filter((animal) => animal.idRefugio !== idRefugio))
+    setPausados([...pausados, ...suyos.map((animal) => ({ ...animal, publicacion: 'PAUSADA' }))])
   }
 
-  // ---------- Categorías, roles y permisos (administrador) ----------
-  // Todas devuelven el mensaje de error, o null si salió bien
-
-  const crearCategoria = (nombre, descripcion) =>
-    intentar(async () => {
-      await animalesApi.crearCategoria(nombre, descripcion)
-      setCategorias(await animalesApi.traerCategorias())
-    }, false)
-
-  const recargarRoles = async () => {
-    const [roles, permisos] = await Promise.all([usuariosApi.traerRoles(), usuariosApi.traerPermisos()])
-    guardar({ roles, permisos })
+  const agregarCategoria = (categoria) => {
+    setCategorias([...categorias, categoria])
   }
-
-  const crearRol = (nombre) =>
-    intentar(async () => {
-      await usuariosApi.crearRol(nombre)
-      await recargarRoles()
-    })
-
-  const crearPermiso = (nombre, descripcion) =>
-    intentar(async () => {
-      await usuariosApi.crearPermiso(nombre, descripcion)
-      await recargarRoles()
-    })
-
-  // Reemplaza todos los permisos del rol por los elegidos
-  const asignarPermisos = (idRol, idsPermisos) =>
-    intentar(async () => {
-      await usuariosApi.asignarPermisos(idRol, idsPermisos)
-      await recargarRoles()
-    })
-
-  // ---------- Animales (refugio y admin) ----------
-
-  // Publica un animal y después le sube las fotos elegidas, una por una.
-  // Devuelve el mensaje de error (para que lo muestre el formulario), o null si salió bien.
-  const agregarAnimal = (datosDelFormulario, fotos) =>
-    intentar(async () => {
-      const nuevo = await animalesApi.crearAnimal(datosDelFormulario)
-      for (const foto of fotos) {
-        await animalesApi.subirFoto(nuevo.id, foto)
-      }
-      await recargarAnimales()
-    }, false)
-
-  // No lo borra de la base: la publicación queda eliminada y deja de verse
-  const quitarAnimal = (idAnimal) => {
-    intentar(async () => {
-      await animalesApi.quitarAnimal(idAnimal)
-      await recargarAnimales()
-    })
-  }
-
-  // "cambios" trae solo lo que se modifica, y cada cosa va a su propio endpoint:
-  // { descuento: { porcentaje, hasta } } pone una oferta y { descuento: null } la quita,
-  // { fotos: [...] } sube los archivos de fotos nuevos y { publicacion: 'PAUSADA' | 'ACTIVA' } pausa o republica.
-  const editarAnimal = (idAnimal, cambios) => {
-    intentar(async () => {
-      const animal = todosLosAnimales.find((a) => a.id === idAnimal)
-
-      if (cambios.descuento) {
-        await animalesApi.ponerOferta(idAnimal, cambios.descuento.porcentaje, cambios.descuento.hasta)
-      }
-      if (cambios.descuento === null && animal.descuento) {
-        await animalesApi.quitarOferta(idAnimal, animal.descuento.id)
-      }
-      if (cambios.fotos) {
-        // Los archivos recién elegidos en el formulario, tal como vienen del <input type="file">
-        for (const foto of cambios.fotos) {
-          await animalesApi.subirFoto(idAnimal, foto)
-        }
-      }
-      if (cambios.publicacion) {
-        await animalesApi.cambiarPublicacion(idAnimal, cambios.publicacion)
-      }
-      await recargarAnimales()
-    })
-  }
-
-  // Las dos devuelven el mensaje de error, o null si salió bien
-  const publicarNovedad = (idAnimal, texto) => intentar(() => animalesApi.publicarNovedad(idAnimal, texto))
-
-  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(() => animalesApi.registrarUbicacion(idAnimal, latitud, longitud))
 
   // ---------- Páginas que dependen de quién está logueado ----------
 
-  const login = <Login onIngresar={ingresar} onRegistrar={registrar} />
+  const login = <Login onEntrar={entrar} />
 
   // El panel es solo para usuarios logueados: si no hay nadie, se muestra el login
   const paginaPanel = usuario ? (
     <Panel
       usuario={usuario}
-      apadrinados={misApadrinados}
+      apadrinamientos={apadrinamientos}
       animalesFavoritos={animalesFavoritos}
       onFavorito={alternarFavorito}
       onVerCatalogo={() => irA('/catalogo')}
@@ -466,10 +369,149 @@ const App = () => {
     }
     // Con el muelle vacío no hay nada que pagar. Justo después de zarpar también queda vacío:
     // en ese caso se pasa a la página de gracias de ese pago.
-    if (datos.muelle.items.length === 0) {
+    if (muelle.items.length === 0) {
       return <Navigate to={ultimoZarpar ? '/gracias' : '/muelle'} replace />
     }
-    return <Zarpar muelle={datos.muelle.items} conBotiquin={conBotiquin} onConfirmar={zarpar} onVolver={() => irA('/muelle')} />
+    return <Zarpar muelle={muelle.items} conBotiquin={conBotiquin} onConfirmar={zarpar} onVolver={() => irA('/muelle')} />
+  }
+
+  // El contenido de <main>: un aviso mientras llega el catálogo, el error si el backend no respondió, o la página de la ruta actual
+  const elegirContenido = () => {
+    if (cargando) {
+      return <Cargando texto="Cargando SeaPlace…" />
+    }
+    if (sinConexion) {
+      return (
+        <div className="max-w-2xl mx-auto px-margin-mobile py-space-xl space-y-space-md text-center">
+          <AvisoError mensaje={sinConexion} />
+          <button onClick={reintentar} className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">
+            Volver a intentar
+          </button>
+        </div>
+      )
+    }
+    return (
+      <Routes>
+        <Route path="/" element={<Inicio animales={animales} onVerCatalogo={() => irA('/catalogo')} onVerAnimal={verAnimal} />} />
+        <Route
+          path="/catalogo"
+          element={<Catalogo animales={animales} categorias={categorias} favoritos={favoritos} onFavorito={alternarFavorito} onVerAnimal={verAnimal} />}
+        />
+        <Route
+          path="/animal/:id"
+          element={
+            <Detalle
+              animales={todosLosAnimales}
+              favoritos={favoritos}
+              onFavorito={alternarFavorito}
+              puedeApadrinar={puedeApadrinar}
+              onAgregar={agregarAlMuelle}
+              onVolver={() => irA('/catalogo')}
+            />
+          }
+        />
+
+        {/* Admin y refugio no apadrinan: no tienen muelle, zarpar ni panel de padrino, van directo a su panel */}
+        <Route
+          path="/muelle"
+          element={
+            puedeApadrinar ? (
+              <Muelle
+                muelle={muelle.items}
+                conBotiquin={conBotiquin}
+                onBotiquin={setConBotiquin}
+                onCantidad={cambiarCantidad}
+                onQuitar={quitarDelMuelle}
+                onZarpar={() => irA('/zarpar')}
+                onVerCatalogo={() => irA('/catalogo')}
+              />
+            ) : (
+              <Navigate to={panelPropio} replace />
+            )
+          }
+        />
+        <Route path="/zarpar" element={puedeApadrinar ? elegirPaginaZarpar() : <Navigate to={panelPropio} replace />} />
+        <Route
+          path="/gracias"
+          element={
+            ultimoZarpar ? (
+              <Gracias zarpar={ultimoZarpar} onVerCertificado={verCertificado} onVerPanel={() => irA('/panel')} onVerCatalogo={() => irA('/catalogo')} />
+            ) : (
+              <Navigate to="/panel" replace />
+            )
+          }
+        />
+        <Route path="/panel" element={puedeApadrinar ? paginaPanel : <Navigate to={panelPropio} replace />} />
+        {/* El detalle de un apadrinado y su certificado son solo del padrino que entró: el resto vuelve al panel */}
+        <Route
+          path="/panel/:id"
+          element={
+            usuario && puedeApadrinar ? (
+              <Apadrinado
+                apadrinamientos={apadrinamientos}
+                onVolver={() => irA('/panel')}
+                onVerCertificado={verCertificado}
+                onGuardarApadrinamiento={guardarApadrinamiento}
+                onGuardarAnimal={guardarAnimal}
+                onError={setError}
+              />
+            ) : (
+              <Navigate to="/panel" replace />
+            )
+          }
+        />
+        <Route
+          path="/panel/:id/certificado"
+          element={usuario && puedeApadrinar ? <Certificado usuario={usuario} apadrinamientos={apadrinamientos} onVolver={verApadrinado} /> : <Navigate to="/panel" replace />}
+        />
+
+        {/* "Mi cuenta" es para cualquiera que haya entrado: si no hay nadie, se muestra el login */}
+        <Route path="/cuenta" element={usuario ? <Cuenta usuario={usuario} onPerfilGuardado={setUsuario} /> : login} />
+
+        {/* Solo entra un administrador: el resto va al panel (o al login) */}
+        <Route
+          path="/admin"
+          element={
+            esAdmin ? (
+              <Admin
+                usuario={usuario}
+                categorias={categorias}
+                animales={todosLosAnimales}
+                onVerAnimal={verAnimal}
+                onAnimalQuitado={sacarAnimal}
+                onRefugioDeBaja={pausarAnimalesDe}
+                onCategoriaCreada={agregarCategoria}
+                onError={setError}
+              />
+            ) : (
+              <Navigate to="/panel" replace />
+            )
+          }
+        />
+        {/* Solo entra un refugio: el resto va al panel (o al login) */}
+        <Route
+          path="/refugio"
+          element={
+            esRefugio ? (
+              <Refugio
+                usuario={usuario}
+                animales={todosLosAnimales}
+                categorias={categorias}
+                onGuardarAnimal={guardarAnimal}
+                onAnimalQuitado={sacarAnimal}
+                onVerAnimal={verAnimal}
+                onError={setError}
+              />
+            ) : (
+              <Navigate to="/panel" replace />
+            )
+          }
+        />
+
+        {/* Cualquier otra dirección muestra la página de "no encontrada" */}
+        <Route path="*" element={<NoEncontrada onVolver={() => irA('/')} />} />
+      </Routes>
+    )
   }
 
   return (
@@ -479,13 +521,15 @@ const App = () => {
       <ContextoPlanes.Provider value={planes}>
         {/* flex + min-h-screen + flex-1 en <main>: el footer queda siempre abajo, aunque la página sea corta */}
         <div className="min-h-screen flex flex-col fondo-playa font-body-md text-on-surface">
+          {/* El header y el footer están fuera de <Routes>: se ven en todas las páginas */}
           <Header
             rutaActual={pathname}
-            cantidadMuelle={datos.muelle.items.length}
+            cantidadMuelle={muelle.items.length}
             usuario={usuario}
             moneda={moneda}
             onCambiarMoneda={setMoneda}
             onNavegar={irA}
+            onUsarLink={() => setError(null)}
             onSalir={salir}
           />
 
@@ -496,151 +540,11 @@ const App = () => {
             {/* El último pedido al backend que falló, con su mensaje */}
             {error && (
               <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin pb-space-sm print:hidden">
-                <div role="alert" className="bg-error-container text-on-error-container rounded-2xl px-space-lg py-space-md flex items-center justify-between gap-space-md shadow-sm">
-                  <span className="inline-flex items-center gap-space-sm font-body-md text-body-md">
-                    <Icono nombre="error" clase="text-[20px]" /> {error}
-                  </span>
-                  <button onClick={() => setError(null)} className="font-label-lg text-label-lg underline">
-                    Cerrar
-                  </button>
-                </div>
+                <AvisoError mensaje={error} onCerrar={() => setError(null)} />
               </div>
             )}
 
-            {cargando ? (
-              <p className="text-center font-body-md text-body-md text-on-surface-variant py-space-xl">Cargando SeaPlace…</p>
-            ) : (
-              <Routes>
-                <Route path="/" element={<Inicio animales={animales} onVerCatalogo={() => irA('/catalogo')} onVerAnimal={verAnimal} />} />
-                <Route
-                  path="/catalogo"
-                  element={<Catalogo animales={animales} categorias={categorias} favoritos={datos.favoritos} onFavorito={alternarFavorito} onVerAnimal={verAnimal} />}
-                />
-                <Route
-                  path="/animal/:id"
-                  element={
-                    <Detalle
-                      animales={todosLosAnimales}
-                      favoritos={datos.favoritos}
-                      onFavorito={alternarFavorito}
-                      puedeApadrinar={puedeApadrinar}
-                      onAgregar={agregarAlMuelle}
-                      onVolver={() => irA('/catalogo')}
-                    />
-                  }
-                />
-
-                {/* Admin y refugio no apadrinan: no tienen muelle, zarpar ni panel de padrino, van directo a su panel */}
-                <Route
-                  path="/muelle"
-                  element={
-                    puedeApadrinar ? (
-                      <Muelle
-                        muelle={datos.muelle.items}
-                        conBotiquin={conBotiquin}
-                        onBotiquin={setConBotiquin}
-                        onCantidad={cambiarCantidad}
-                        onQuitar={quitarDelMuelle}
-                        onZarpar={() => irA('/zarpar')}
-                        onVerCatalogo={() => irA('/catalogo')}
-                      />
-                    ) : (
-                      <Navigate to={panelPropio} replace />
-                    )
-                  }
-                />
-                <Route path="/zarpar" element={puedeApadrinar ? elegirPaginaZarpar() : <Navigate to={panelPropio} replace />} />
-                <Route
-                  path="/gracias"
-                  element={
-                    ultimoZarpar ? (
-                      <Gracias
-                        zarpar={ultimoZarpar}
-                        onVerCertificado={(item) => irA(`/panel/${item.animal.id}/certificado`)}
-                        onVerPanel={() => irA('/panel')}
-                        onVerCatalogo={() => irA('/catalogo')}
-                      />
-                    ) : (
-                      <Navigate to="/panel" replace />
-                    )
-                  }
-                />
-                <Route path="/panel" element={puedeApadrinar ? paginaPanel : <Navigate to={panelPropio} replace />} />
-                <Route
-                  path="/panel/:id"
-                  element={
-                    <Apadrinado
-                      apadrinados={misApadrinados}
-                      onVolver={() => irA('/panel')}
-                      onCambiarPlan={cambiarPlan}
-                      onCancelar={cancelarApadrinamiento}
-                      onVerCertificado={(item) => irA(`/panel/${item.animal.id}/certificado`)}
-                    />
-                  }
-                />
-                <Route path="/panel/:id/certificado" element={<Certificado usuario={usuario} apadrinados={misApadrinados} onVolver={verApadrinado} />} />
-
-                {/* "Mi cuenta" es para cualquiera que haya entrado: si no hay nadie, se muestra el login */}
-                <Route
-                  path="/cuenta"
-                  element={usuario ? <Cuenta usuario={usuario} onGuardarPerfil={guardarPerfil} onCambiarContrasenia={cambiarContrasenia} /> : login}
-                />
-
-                {/* Solo entra un administrador: el resto va al panel (o al login) */}
-                <Route
-                  path="/admin"
-                  element={
-                    esAdmin ? (
-                      <Admin
-                        usuario={usuario}
-                        usuarios={datos.usuarios}
-                        roles={datos.roles}
-                        permisos={datos.permisos}
-                        categorias={categorias}
-                        animales={todosLosAnimales}
-                        apadrinamientos={datos.apadrinamientos}
-                        onCambiarRol={cambiarRol}
-                        onCambiarActivo={cambiarActivo}
-                        onAprobar={aprobarRefugio}
-                        onVerAnimal={verAnimal}
-                        onQuitarAnimal={quitarAnimal}
-                        onCrearCategoria={crearCategoria}
-                        onCrearRol={crearRol}
-                        onCrearPermiso={crearPermiso}
-                        onAsignarPermisos={asignarPermisos}
-                      />
-                    ) : (
-                      <Navigate to="/panel" replace />
-                    )
-                  }
-                />
-                {/* Solo entra un refugio: el resto va al panel (o al login) */}
-                <Route
-                  path="/refugio"
-                  element={
-                    esRefugio ? (
-                      <Refugio
-                        usuario={usuario}
-                        animales={todosLosAnimales}
-                        categorias={categorias}
-                        apadrinamientos={datos.apadrinamientos}
-                        onAgregar={agregarAnimal}
-                        onQuitar={quitarAnimal}
-                        onEditarAnimal={editarAnimal}
-                        onPublicarNovedad={publicarNovedad}
-                        onRegistrarUbicacion={registrarUbicacion}
-                        onVerAnimal={verAnimal}
-                      />
-                    ) : (
-                      <Navigate to="/panel" replace />
-                    )
-                  }
-                />
-
-                {/* Cualquier otra dirección muestra la página de "no encontrada" */}
-                <Route path="*" element={<NoEncontrada onVolver={() => irA('/')} />} />
-              </Routes>
-            )}
+            {elegirContenido()}
           </main>
 
           <Footer />

@@ -27,6 +27,11 @@ const SeccionCategorias = ({ categorias, animales, onCrear }) => {
     <section className="space-y-space-md">
       <TituloSeccion>Categorías</TituloSeccion>
 
+      {categorias.length === 0 && (
+        <p className="bg-surface-container rounded-2xl p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
+          Todavía no hay categorías. Creá la primera con el formulario de abajo.
+        </p>
+      )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
         {categorias.map((categoria) => {
           const cantidad = animales.filter((animal) => animal.categoria === categoria.id).length

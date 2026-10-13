@@ -12,11 +12,17 @@ const AnimalesDestacados = ({ animales, onVerAnimal }) => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">
-        {animales.map((animal) => (
-          <TarjetaDestacada key={animal.id} animal={animal} onVer={() => onVerAnimal(animal)} />
-        ))}
-      </div>
+      {animales.length === 0 ? (
+        <p className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
+          Todavía no hay animales destacados para mostrar.
+        </p>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">
+          {animales.map((animal) => (
+            <TarjetaDestacada key={animal.id} animal={animal} onVer={() => onVerAnimal(animal)} />
+          ))}
+        </div>
+      )}
     </section>
   )
 }

@@ -9,9 +9,9 @@ const HistorialPagos = ({ pagos }) => {
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-space-sm">
       <h2 className="font-title-lg text-title-lg text-on-surface">Historial de pagos</h2>
 
-      {/* Puede haber dos pagos el mismo día, así que la fecha sola no alcanza como "key" */}
-      {pagos.map((pago, indice) => (
-        <div key={`${pago.fecha}-${indice}`} className="flex justify-between font-body-md text-body-md">
+      {pagos.length === 0 && <p className="font-body-md text-body-md text-on-surface-variant">Todavía no hay pagos registrados.</p>}
+      {pagos.map((pago) => (
+        <div key={pago.id} className="flex justify-between font-body-md text-body-md">
           <span className="text-on-surface-variant">{formatearFecha(pago.fecha)}</span>
           <span className="text-on-surface tabular-nums">
             <Precio valor={pago.monto} />

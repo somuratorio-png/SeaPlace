@@ -79,7 +79,7 @@ const Catalogo = ({ animales, categorias, favoritos, onFavorito, onVerAnimal }) 
 
         {visibles.length === 0 ? (
           <p className="text-center font-body-md text-body-md text-on-surface-variant py-space-xl">
-            Ningún animal coincide con esos filtros. Probá con otra búsqueda.
+            {animales.length === 0 ? 'Todavía no hay animales publicados para apadrinar.' : 'Ningún animal coincide con esos filtros. Probá con otra búsqueda.'}
           </p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">

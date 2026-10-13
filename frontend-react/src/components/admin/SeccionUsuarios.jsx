@@ -52,7 +52,7 @@ const SeccionUsuarios = ({ usuario, usuarios, roles, onCambiarRol, onCambiarActi
             <tbody>
               {items.map((u) => (
                 <FilaUsuario
-                  key={u.nombreUsuario}
+                  key={u.id}
                   usuario={u}
                   roles={roles}
                   esUnoMismo={u.nombreUsuario === usuario.nombreUsuario}

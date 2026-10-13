@@ -27,6 +27,7 @@ const TarjetaRol = ({ rol, permisos, onAsignar }) => {
     <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-md space-y-space-sm">
       <h3 className="font-title-lg text-title-lg text-primary">{rol.nombre}</h3>
 
+      {permisos.length === 0 && <p className="font-body-sm text-body-sm text-on-surface-variant">Todavía no hay permisos para asignar.</p>}
       {permisos.map((permiso) => (
         <label key={permiso.id} className="flex items-start gap-space-sm cursor-pointer">
           <input type="checkbox" checked={elegidos.includes(permiso.id)} onChange={() => alternar(permiso.id)} className="mt-1 accent-secondary w-4 h-4" />

@@ -1,5 +1,7 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import TarjetaDato from '../components/admin/TarjetaDato'
+import AvisoError from '../components/comunes/AvisoError'
+import Cargando from '../components/comunes/Cargando'
 import Icono from '../components/comunes/Icono'
 import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
@@ -8,6 +10,9 @@ import FormularioAnimal from '../components/refugio/FormularioAnimal'
 import ListaPadrinos from '../components/refugio/ListaPadrinos'
 import SeccionAnimales from '../components/refugio/SeccionAnimales'
 import { ContextoMoneda, formatearPrecio } from '../contexto/Moneda'
+import * as animalesApi from '../services/animales'
+import { traerApadrinamientos } from '../services/apadrinar'
+import { intentar } from '../utils/intentar'
 import { recaudacionMensual } from '../utils/precios'
 
 const secciones = [
@@ -18,11 +23,30 @@ const secciones = [
 
 // Panel del refugio. Tiene un menú lateral y muestra una sola sección por vez:
 // sus animales (ofertas, novedades, fotos y ubicación), sus padrinos, o el formulario para publicar uno nuevo.
-// "animales" trae las publicaciones activas de todos y las pausadas de este refugio;
-// "apadrinamientos" son los de sus animales (el backend ya manda solo esos).
-const Refugio = ({ usuario, animales, categorias, apadrinamientos, onAgregar, onQuitar, onEditarAnimal, onPublicarNovedad, onRegistrarUbicacion, onVerAnimal }) => {
+// "animales" son los que ya tiene App: las publicaciones activas de todos y las pausadas de este refugio.
+// Los apadrinamientos de sus animales los pide esta página al montarse (el backend ya manda solo esos).
+// Cada acción llama al backend y le pasa a App el animal como quedó (onGuardarAnimal), así el cambio
+// se ve sin volver a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
+const Refugio = ({ usuario, animales, categorias, onGuardarAnimal, onAnimalQuitado, onVerAnimal, onError }) => {
   const [seccion, setSeccion] = useState('animales')
+  const [apadrinamientos, setApadrinamientos] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [errorAlCargar, setErrorAlCargar] = useState(null)
   const moneda = useContext(ContextoMoneda)
+
+  // Un solo pedido, al entrar al panel
+  useEffect(() => {
+    traerApadrinamientos()
+      .then((lista) => {
+        setApadrinamientos(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
 
   const propios = animales.filter((animal) => animal.idRefugio === usuario.idRefugio)
 
@@ -30,9 +54,24 @@ const Refugio = ({ usuario, animales, categorias, apadrinamientos, onAgregar, on
   const susApadrinamientos = apadrinamientos.filter((a) => a.activo && a.animal.idRefugio === usuario.idRefugio)
   const cantidadPadrinos = new Set(susApadrinamientos.map((a) => a.usuario)).size
 
-  // Revisa lo básico antes de mandar el animal al backend (que valida todo de nuevo).
-  // Devuelve una promesa con un mensaje de error, o null si salió bien.
-  const guardar = (datos, fotos) => {
+  // Sube las fotos de a una y en orden: cada una espera a que termine la anterior.
+  // Cada vez que el backend guarda una, el animal se actualiza en pantalla con esa foto.
+  const subirFotos = (animal, archivos) =>
+    archivos.reduce(
+      (anterior, archivo) =>
+        anterior
+          .then((actual) => animalesApi.subirFoto(actual, archivo))
+          .then((conFoto) => {
+            onGuardarAnimal(conFoto)
+            return conFoto
+          }),
+      Promise.resolve(animal),
+    )
+
+  // Revisa lo básico antes de mandar el animal al backend (que valida todo de nuevo), lo publica
+  // y después le sube las fotos elegidas.
+  // Devuelve una promesa con un mensaje de error (lo muestra el formulario), o null si salió bien.
+  const publicar = (datos, fotos) => {
     if (Number(datos.precio) <= 0) {
       return Promise.resolve('La cuota mensual tiene que ser mayor a 0')
     }
@@ -42,14 +81,61 @@ const Refugio = ({ usuario, animales, categorias, apadrinamientos, onAgregar, on
       return Promise.resolve('Los cupos tienen que ser un número entero mayor a 0')
     }
 
-    return onAgregar(datos, fotos).then((mensaje) => {
-      if (mensaje === null) {
-        // Una vez publicado, se muestra la lista para que lo vea
-        setSeccion('animales')
-      }
-      return mensaje
+    return intentar(
+      animalesApi
+        .crearAnimal(datos)
+        .then((nuevo) => {
+          onGuardarAnimal(nuevo)
+          return subirFotos(nuevo, fotos)
+        })
+        .then(() => {
+          // Una vez publicado, se muestra la lista para que lo vea
+          setSeccion('animales')
+        }),
+    )
+  }
+
+  // No lo borra de la base: la publicación queda eliminada y deja de verse
+  const quitar = (idAnimal) => {
+    onError(null)
+    animalesApi
+      .quitarAnimal(idAnimal)
+      .then(() => {
+        onAnimalQuitado(idAnimal)
+      })
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
+
+  // "cambios" trae lo que se modifica, y cada cosa va a su propio endpoint:
+  // { descuento: { porcentaje, hasta } } pone una oferta y { descuento: null } la quita,
+  // { fotos: [...] } sube los archivos de fotos nuevos (tal como vienen del <input type="file">)
+  // y { publicacion: 'PAUSADA' | 'ACTIVA' } pausa o republica.
+  const editar = (idAnimal, cambios) => {
+    const animal = propios.find((a) => a.id === idAnimal)
+
+    let pedido
+    if (cambios.descuento) {
+      pedido = animalesApi.ponerOferta(animal, cambios.descuento.porcentaje, cambios.descuento.hasta)
+    } else if (cambios.descuento === null) {
+      pedido = animalesApi.quitarOferta(animal)
+    } else if (cambios.fotos) {
+      pedido = subirFotos(animal, cambios.fotos)
+    } else {
+      pedido = animalesApi.cambiarPublicacion(idAnimal, cambios.publicacion)
+    }
+
+    onError(null)
+    pedido.then(onGuardarAnimal).catch((falla) => {
+      onError(falla.message)
     })
   }
+
+  // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
+  const publicarNovedad = (idAnimal, texto) => intentar(animalesApi.publicarNovedad(idAnimal, texto), onError)
+
+  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(animalesApi.registrarUbicacion(idAnimal, latitud, longitud), onError)
 
   // Un refugio recién registrado no puede publicar hasta que un administrador lo apruebe
   if (!usuario.aprobado) {
@@ -80,45 +166,52 @@ const Refugio = ({ usuario, animales, categorias, apadrinamientos, onAgregar, on
         texto={`Tenés ${propios.length} ${propios.length === 1 ? 'animal publicado' : 'animales publicados'} en el catálogo.`}
       />
 
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
-        <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
-          <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
-          <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />
-          <TarjetaDato
-            icono="payments"
-            valor={formatearPrecio(recaudacionMensual(susApadrinamientos), moneda)}
-            titulo="Recaudación mensual"
-            clase="bg-tertiary-fixed text-on-tertiary-fixed-variant"
-          />
-        </div>
+      {cargando ? (
+        <Cargando texto="Cargando tu refugio…" />
+      ) : (
+        <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
+          {/* Si no llegaron los apadrinamientos, se avisa y el resto del panel sigue funcionando */}
+          {errorAlCargar && <AvisoError mensaje={errorAlCargar} />}
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-          <div className="lg:col-span-3">
-            <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
+          <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+            <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
+            <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />
+            <TarjetaDato
+              icono="payments"
+              valor={formatearPrecio(recaudacionMensual(susApadrinamientos), moneda)}
+              titulo="Recaudación mensual"
+              clase="bg-tertiary-fixed text-on-tertiary-fixed-variant"
+            />
           </div>
 
-          <div className="lg:col-span-9">
-            {seccion === 'animales' && (
-              <SeccionAnimales
-                animales={propios}
-                apadrinamientos={susApadrinamientos}
-                onVer={onVerAnimal}
-                onQuitar={onQuitar}
-                onEditar={onEditarAnimal}
-                onPublicarNovedad={onPublicarNovedad}
-                onRegistrarUbicacion={onRegistrarUbicacion}
-              />
-            )}
-            {seccion === 'padrinos' && (
-              <section className="space-y-space-md">
-                <TituloSeccion>Padrinos</TituloSeccion>
-                <ListaPadrinos apadrinamientos={susApadrinamientos} />
-              </section>
-            )}
-            {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={guardar} />}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+            <div className="lg:col-span-3">
+              <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
+            </div>
+
+            <div className="lg:col-span-9">
+              {seccion === 'animales' && (
+                <SeccionAnimales
+                  animales={propios}
+                  apadrinamientos={susApadrinamientos}
+                  onVer={onVerAnimal}
+                  onQuitar={quitar}
+                  onEditar={editar}
+                  onPublicarNovedad={publicarNovedad}
+                  onRegistrarUbicacion={registrarUbicacion}
+                />
+              )}
+              {seccion === 'padrinos' && (
+                <section className="space-y-space-md">
+                  <TituloSeccion>Padrinos</TituloSeccion>
+                  <ListaPadrinos apadrinamientos={susApadrinamientos} />
+                </section>
+              )}
+              {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={publicar} />}
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </>
   )
 }

@@ -4,11 +4,14 @@ import { formatearFecha } from '../utils/fechas'
 
 // Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
 // Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
-const Certificado = ({ usuario, apadrinados, onVolver }) => {
+// "apadrinamientos" son los del usuario, que ya tiene App.
+const Certificado = ({ usuario, apadrinamientos, onVolver }) => {
   // El id sale de la URL (/panel/:id/certificado)
   const { id } = useParams()
-  const item = apadrinados.find((a) => a.animal.id === Number(id))
 
+  const item = apadrinamientos.find((a) => a.activo && a.animal.id === Number(id))
+
+  // Si ese animal no está apadrinado, se vuelve al panel
   if (!item) {
     return <Navigate to="/panel" replace />
   }

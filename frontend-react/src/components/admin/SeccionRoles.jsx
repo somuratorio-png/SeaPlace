@@ -36,6 +36,11 @@ const SeccionRoles = ({ roles, permisos, onCrearRol, onCrearPermiso, onAsignar }
     <section className="space-y-space-md">
       <TituloSeccion>Roles y permisos</TituloSeccion>
 
+      {roles.length === 0 && (
+        <p className="bg-surface-container rounded-2xl p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
+          Todavía no hay roles. Creá el primero con el formulario de abajo.
+        </p>
+      )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md items-start">
         {/* La "key" incluye los permisos: si cambian (o se crea uno), la tarjeta arranca de nuevo con los datos frescos */}
         {roles.map((rol) => (

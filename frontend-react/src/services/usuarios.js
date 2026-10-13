@@ -67,29 +67,33 @@ export const restablecerContrasenia = (mail, codigo, contraseniaNueva) =>
 
 export const traerUsuarios = () => pedirPagina('/usuarios').then((usuarios) => usuarios.map(aUsuario))
 
-// [{ id, nombre, permisos }] con el nombre que se usa en las pantallas.
-// permisos = los nombres de los permisos que tiene el rol (el backend no manda el campo si no tiene ninguno)
-export const traerRoles = () =>
-  pedirLista('/roles').then((roles) => roles.map((rol) => ({ id: rol.idRol, nombre: rolDelFront(rol.nombreRol), permisos: rol.permisos ?? [] })))
+// Un rol con el nombre que se usa en las pantallas. permisos = los nombres de los permisos
+// que tiene (el backend no manda el campo si no tiene ninguno)
+const aRol = (dato) => ({ id: dato.idRol, nombre: rolDelFront(dato.nombreRol), permisos: dato.permisos ?? [] })
 
-export const crearRol = (nombreRol) => pedir('/roles', { metodo: 'POST', cuerpo: { nombreRol } })
+const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, descripcion: dato.descripcion ?? '' })
+
+// Las que crean o modifican algo devuelven lo que contestó el backend (el rol, el permiso o el
+// usuario, ya en el formato de las pantallas): con eso se actualiza el estado sin volver a pedir la lista.
+
+// [{ id, nombre, permisos }]
+export const traerRoles = () => pedirLista('/roles').then((roles) => roles.map(aRol))
+
+export const crearRol = (nombreRol) => pedir('/roles', { metodo: 'POST', cuerpo: { nombreRol } }).then(aRol)
 
 // [{ id, nombre, descripcion }]
-export const traerPermisos = () =>
-  pedirLista('/permisos').then((permisos) =>
-    permisos.map((permiso) => ({ id: permiso.idPermiso, nombre: permiso.nombrePermiso, descripcion: permiso.descripcion ?? '' })),
-  )
+export const traerPermisos = () => pedirLista('/permisos').then((permisos) => permisos.map(aPermiso))
 
-export const crearPermiso = (nombrePermiso, descripcion) => pedir('/permisos', { metodo: 'POST', cuerpo: { nombrePermiso, descripcion } })
+export const crearPermiso = (nombrePermiso, descripcion) => pedir('/permisos', { metodo: 'POST', cuerpo: { nombrePermiso, descripcion } }).then(aPermiso)
 
 // Reemplaza todos los permisos del rol por los de la lista (ids)
-export const asignarPermisos = (idRol, idPermisos) => pedir(`/roles/${idRol}/permisos`, { metodo: 'POST', cuerpo: { idPermisos } })
+export const asignarPermisos = (idRol, idPermisos) => pedir(`/roles/${idRol}/permisos`, { metodo: 'POST', cuerpo: { idPermisos } }).then(aRol)
 
-export const cambiarRol = (idUsuario, idRol) => pedir(`/usuarios/${idUsuario}/rol`, { metodo: 'PUT', cuerpo: { idRol } })
+export const cambiarRol = (idUsuario, idRol) => pedir(`/usuarios/${idUsuario}/rol`, { metodo: 'PUT', cuerpo: { idRol } }).then(aUsuario)
 
 // No borra al usuario: lo deja inactivo
-export const darDeBaja = (idUsuario) => pedir(`/usuarios/${idUsuario}`, { metodo: 'DELETE' })
+export const darDeBaja = (idUsuario) => pedir(`/usuarios/${idUsuario}`, { metodo: 'DELETE' }).then(aUsuario)
 
-export const reactivar = (idUsuario) => pedir(`/usuarios/${idUsuario}/reactivar`, { metodo: 'PUT' })
+export const reactivar = (idUsuario) => pedir(`/usuarios/${idUsuario}/reactivar`, { metodo: 'PUT' }).then(aUsuario)
 
 export const aprobarRefugio = (idRefugio) => pedir(`/refugios/${idRefugio}/aprobar`, { metodo: 'PUT' })

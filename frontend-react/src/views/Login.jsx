@@ -2,12 +2,15 @@ import { useState } from 'react'
 import Bienvenida from '../components/login/Bienvenida'
 import CampoTexto from '../components/login/CampoTexto'
 import RecuperarContrasenia from '../components/login/RecuperarContrasenia'
+import * as usuariosApi from '../services/usuarios'
+import { intentar } from '../utils/intentar'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
-// Login y registro. onIngresar y onRegistrar le piden al backend que valide los datos:
-// devuelven el mensaje de error que mandó (por ejemplo, "Usuario o contrasenia incorrectos"), o null si salió bien.
-const Login = ({ onIngresar, onRegistrar }) => {
+// Login y registro. Le pide al backend que valide los datos: si los rechaza, muestra el mensaje
+// que mandó (por ejemplo, "Usuario o contrasenia incorrectos"). Si los acepta, le pasa a App
+// el usuario que entró (onEntrar), y App trae sus datos y muestra otra página.
+const Login = ({ onEntrar }) => {
   const [esRegistro, setEsRegistro] = useState(false)
   const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
   const [datos, setDatos] = useState(formularioVacio)
@@ -25,15 +28,17 @@ const Login = ({ onIngresar, onRegistrar }) => {
     setError(null)
   }
 
-  const ingresar = () => onIngresar(datos.nombreUsuario, datos.contrasenia)
+  // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
 
-  // Devuelve siempre una promesa con el mensaje de error (o null), igual que onRegistrar
+  const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario, datos.contrasenia).then(onEntrar))
+
+  // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
   const registrar = () => {
     if (datos.contrasenia.length < 8) {
       return Promise.resolve('La contraseña debe tener al menos 8 caracteres')
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
-    return onRegistrar(datos, esRefugio)
+    return intentar(usuariosApi.registrar(datos, esRefugio).then(onEntrar))
   }
 
   // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página
