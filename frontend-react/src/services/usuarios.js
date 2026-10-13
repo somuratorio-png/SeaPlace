@@ -1,6 +1,6 @@
 import { aAnimal } from './animales'
-import { aApadrinamiento, aItem } from './apadrinar'
-import { borrarToken, guardarToken, pedir } from './api'
+import { aItem } from './apadrinar'
+import { borrarToken, guardarToken, pedir, pedirLista, pedirPagina } from './api'
 
 // El backend llama 'duenioRefugio' al rol que en las pantallas es simplemente 'refugio'
 const rolDelFront = (nombreRol) => (nombreRol === 'duenioRefugio' ? 'refugio' : nombreRol)
@@ -21,21 +21,14 @@ const aUsuario = (dato) => ({
 
 // ---------- Sesión ----------
 
-// Pasa la sesión del backend (SesionResponse) al formato que usa App: quién entró y todo lo suyo.
+// Pasa la sesión del backend (SesionResponse) al formato que usa App: quién entró, sus favoritos
+// (los animales que guardó) y su muelle. Es lo que hace falta en cualquier pantalla; el resto lo pide cada una.
 // Llega con el pedido inicial (si había un token guardado) y en la respuesta del login y del registro.
 // Lo que está vacío o no le corresponde a ese usuario no viene, y acá queda como [] (o sin muelle).
-// favoritos = ids de animales. apadrinamientos = los que le corresponden: un padrino recibe los suyos,
-// un refugio los de sus animales y un administrador todos. pausados = las publicaciones pausadas que
-// puede ver. usuarios, roles y permisos solo los recibe un administrador.
 export const aSesion = (dato) => ({
   usuario: aUsuario(dato.usuario),
-  favoritos: (dato.favoritos ?? []).map((favorito) => favorito.idAnimal),
+  favoritos: (dato.favoritos ?? []).map((favorito) => aAnimal(favorito.animal)),
   muelle: { id: dato.idMuelle ?? null, items: (dato.itemsMuelle ?? []).map(aItem) },
-  apadrinamientos: (dato.apadrinamientos ?? []).map(aApadrinamiento),
-  pausados: (dato.pausados ?? []).map(aAnimal),
-  usuarios: (dato.usuarios ?? []).map(aUsuario),
-  roles: (dato.roles ?? []).map(aRol),
-  permisos: (dato.permisos ?? []).map(aPermiso),
 })
 
 // Los dos devuelven la sesión de quien queda logueado. El token se guarda para los pedidos siguientes.
@@ -83,6 +76,8 @@ export const restablecerContrasenia = (mail, codigo, contraseniaNueva) =>
 
 // ---------- Administración (solo las puede usar un administrador) ----------
 
+export const traerUsuarios = () => pedirPagina('/usuarios').then((usuarios) => usuarios.map(aUsuario))
+
 // Un rol con el nombre que se usa en las pantallas. permisos = los nombres de los permisos
 // que tiene (el backend no manda el campo si no tiene ninguno)
 const aRol = (dato) => ({ id: dato.idRol, nombre: rolDelFront(dato.nombreRol), permisos: dato.permisos ?? [] })
@@ -91,9 +86,14 @@ const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, de
 
 // Las que crean o modifican algo devuelven lo que contestó el backend (el rol, el permiso o el
 // usuario, ya en el formato de las pantallas): con eso se actualiza el estado sin volver a pedir la lista.
-// Las listas de usuarios, roles y permisos llegan con la sesión del administrador (ver aSesion).
+
+// [{ id, nombre, permisos }]
+export const traerRoles = () => pedirLista('/roles').then((roles) => roles.map(aRol))
 
 export const crearRol = (nombreRol) => pedir('/roles', { metodo: 'POST', cuerpo: { nombreRol } }).then(aRol)
+
+// [{ id, nombre, descripcion }]
+export const traerPermisos = () => pedirLista('/permisos').then((permisos) => permisos.map(aPermiso))
 
 export const crearPermiso = (nombrePermiso, descripcion) => pedir('/permisos', { metodo: 'POST', cuerpo: { nombrePermiso, descripcion } }).then(aPermiso)
 

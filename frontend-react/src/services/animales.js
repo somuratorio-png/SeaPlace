@@ -1,7 +1,7 @@
 import { urgencias } from '../data/animales'
 import { heroFoca } from '../data/imagenes'
 import { hoy } from '../utils/fechas'
-import { pedir, URL_BASE } from './api'
+import { pedir, pedirLista, pedirPagina, URL_BASE } from './api'
 
 // Una foto subida como archivo tiene una url de la API (empieza con /animales/): hay que pedirla
 // a través del proxy. Las demás son urls completas o imágenes que sirve el propio front.
@@ -54,11 +54,30 @@ const iconoDe = (nombre) => {
   return 'pets'
 }
 
-export const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
+const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
+
+// [{ id, nombre, icono }]
+export const traerCategorias = () => pedirLista('/categorias').then((categorias) => categorias.map(aCategoria))
 
 // Solo la puede crear un administrador. Devuelve la categoría creada.
 export const crearCategoria = (nombreCategoria, descripcion) =>
   pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } }).then(aCategoria)
+
+// El catálogo: las publicaciones activas, que son públicas
+export const traerAnimales = () => pedirPagina('/animales').then((animales) => animales.map(aAnimal))
+
+// Un animal por su id. Si no existe (o su publicación no está activa y no es de quien lo pide) el backend responde 404.
+export const traerAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`).then(aAnimal)
+
+// Las publicaciones activas y las pausadas, para los paneles de gestión. En el backend son dos listados
+// (las pausadas solo las ve su refugio o un administrador), así que es un pedido por cada uno.
+// Con idRefugio trae solo las de ese refugio; sin idRefugio, las de todos (para el administrador).
+export const traerPublicaciones = (idRefugio) => {
+  const filtro = idRefugio ? `&idRefugio=${idRefugio}` : ''
+  return pedirPagina(`/animales?estado=ACTIVA${filtro}`).then((activas) =>
+    pedirPagina(`/animales?estado=PAUSADA${filtro}`).then((pausadas) => [...activas, ...pausadas].map(aAnimal)),
+  )
+}
 
 // datos = lo que carga el formulario del refugio. El refugio no se manda: el backend usa el de la cuenta.
 export const crearAnimal = (datos) =>
@@ -107,7 +126,8 @@ export const quitarOferta = (animal) =>
 
 // ---------- Bitácora y ubicación ----------
 
-// La bitácora y la última ubicación de un animal llegan dentro de cada apadrinamiento (ver apadrinar.js)
+// La bitácora y la última ubicación de un animal llegan dentro de cada apadrinamiento (ver apadrinar.js),
+// así la pantalla del apadrinado las tiene con un solo pedido
 
 // Una novedad de la bitácora: { id, fecha: 'AAAA-MM-DD', texto }
 export const aNovedad = (novedad) => ({ id: novedad.idNovedad, fecha: novedad.fecha.slice(0, 10), texto: novedad.texto })

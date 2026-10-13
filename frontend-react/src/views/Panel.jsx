@@ -1,14 +1,34 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import AvisoError from '../components/comunes/AvisoError'
 import Buscador from '../components/comunes/Buscador'
+import Cargando from '../components/comunes/Cargando'
 import Portada from '../components/comunes/Portada'
 import TituloSeccion from '../components/comunes/TituloSeccion'
 import TarjetaApadrinado from '../components/panel/TarjetaApadrinado'
 import TarjetaFavorito from '../components/panel/TarjetaFavorito'
+import { traerApadrinamientos } from '../services/apadrinar'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
-// Los apadrinamientos y los favoritos son los que ya tiene App (los pidió al iniciar la sesión).
-const Panel = ({ usuario, apadrinamientos, animalesFavoritos, onFavorito, onVerCatalogo, onVerApadrinado, onVerAnimal }) => {
+// Los apadrinamientos los pide esta página al backend cuando se monta; los favoritos son los que ya tiene App.
+const Panel = ({ usuario, animalesFavoritos, onFavorito, onVerCatalogo, onVerApadrinado, onVerAnimal }) => {
+  const [apadrinamientos, setApadrinamientos] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
   const [busqueda, setBusqueda] = useState('')
+
+  // Un solo pedido, al entrar al panel
+  useEffect(() => {
+    traerApadrinamientos()
+      .then((lista) => {
+        setApadrinamientos(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
 
   // El backend manda también los cancelados (para el historial): acá se muestran los activos
   const apadrinados = apadrinamientos.filter((a) => a.activo)
@@ -16,8 +36,14 @@ const Panel = ({ usuario, apadrinamientos, animalesFavoritos, onFavorito, onVerC
   const texto = busqueda.toLowerCase()
   const visibles = apadrinados.filter((item) => `${item.animal.nombre} ${item.animal.especie} ${item.animal.ubicacion}`.toLowerCase().includes(texto))
 
-  // La sección de apadrinados: el mensaje de lista vacía o las tarjetas
+  // La sección de apadrinados: el aviso de espera, el error del backend, el mensaje de lista vacía o las tarjetas
   const elegirApadrinados = () => {
+    if (cargando) {
+      return <Cargando texto="Buscando tus apadrinados…" />
+    }
+    if (error) {
+      return <AvisoError mensaje={error} />
+    }
     if (apadrinados.length === 0) {
       return (
         <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center space-y-space-md">
@@ -52,7 +78,7 @@ const Panel = ({ usuario, apadrinamientos, animalesFavoritos, onFavorito, onVerC
         icono="favorite"
         etiqueta="Tu panel de protector"
         titulo={`¡Hola de nuevo, ${usuario.nombre}!`}
-        texto={`Tenés ${apadrinados.length} ${apadrinados.length === 1 ? 'animal apadrinado' : 'animales apadrinados'}.`}
+        texto={cargando ? 'Estamos buscando a tus apadrinados.' : `Tenés ${apadrinados.length} ${apadrinados.length === 1 ? 'animal apadrinado' : 'animales apadrinados'}.`}
       />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">

@@ -1,40 +1,42 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import SeccionCategorias from '../components/admin/SeccionCategorias'
 import SeccionRefugios from '../components/admin/SeccionRefugios'
 import SeccionResumen from '../components/admin/SeccionResumen'
 import SeccionRoles from '../components/admin/SeccionRoles'
 import SeccionUsuarios from '../components/admin/SeccionUsuarios'
+import AvisoError from '../components/comunes/AvisoError'
+import Cargando from '../components/comunes/Cargando'
 import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
-import * as animalesApi from '../services/animales'
 import * as usuariosApi from '../services/usuarios'
-import { intentar } from '../utils/intentar'
+import { ponerEn } from '../utils/listas'
 
 // Panel del administrador. Tiene un menú lateral y muestra una sola sección por vez
 // (resumen, refugios, usuarios, categorías o roles).
-// Todo lo que muestra es lo que ya tiene App y le llega por props: los usuarios, los roles, los permisos,
-// todos los apadrinamientos, las categorías y los animales (activos y pausados).
-// Cada acción llama al backend y le pasa a App lo que contestó (onGuardarUsuario, onGuardarRol,
-// onGuardarPermiso...): la lista no se vuelve a pedir.
+// Esta página pide al montarse los usuarios, que usan el menú (el aviso de refugios pendientes) y varias
+// secciones. Lo demás lo pide cada sección cuando se abre: sus animales, sus roles, sus categorías...
+// Cada acción llama al backend y, con lo que contesta, actualiza el estado: la lista no se vuelve a pedir.
 // Si una acción falla, onError muestra el mensaje arriba de la página.
-const Admin = ({
-  usuario,
-  usuarios,
-  roles,
-  permisos,
-  apadrinamientos,
-  categorias,
-  animales,
-  onVerAnimal,
-  onGuardarUsuario,
-  onGuardarRol,
-  onGuardarPermiso,
-  onAnimalQuitado,
-  onRefugioDeBaja,
-  onCategoriaCreada,
-  onError,
-}) => {
+const Admin = ({ usuario, onVerAnimal, onError }) => {
   const [seccion, setSeccion] = useState('resumen')
+  const [usuarios, setUsuarios] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Un solo pedido de los usuarios, al entrar al panel
+  useEffect(() => {
+    usuariosApi
+      .traerUsuarios()
+      .then((lista) => {
+        setUsuarios(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
 
@@ -46,78 +48,55 @@ const Admin = ({
     { id: 'roles', nombre: 'Roles y permisos', icono: 'key' },
   ]
 
-  const usuarioLlamado = (nombreUsuario) => usuarios.find((u) => u.nombreUsuario === nombreUsuario)
-
-  // ---------- Usuarios y refugios ----------
-
-  // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado
-  const cambiarRol = (nombreUsuario, rol) => {
-    const idRol = roles.find((r) => r.nombre === rol).id
-    onError(null)
-    usuariosApi
-      .cambiarRol(usuarioLlamado(nombreUsuario).id, idRol)
-      .then(onGuardarUsuario)
-      .catch((falla) => {
-        onError(falla.message)
-      })
+  // Pone en la lista al usuario como lo devolvió el backend
+  const guardarUsuario = (cambiado) => {
+    setUsuarios((actuales) => ponerEn(actuales, cambiado))
   }
 
-  // Da de baja a un usuario activo, o reactiva a uno dado de baja.
-  // Al dar de baja a un refugio sus publicaciones se pausan: se le avisa a App, que tiene los animales.
+  // Da de baja a un usuario activo, o reactiva a uno dado de baja. La usan dos secciones.
+  // Devuelve una promesa con el usuario como quedó, o null si el pedido falló.
   const cambiarActivo = (nombreUsuario) => {
-    const elegido = usuarioLlamado(nombreUsuario)
+    const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     const pedido = elegido.activo ? usuariosApi.darDeBaja(elegido.id) : usuariosApi.reactivar(elegido.id)
     onError(null)
-    pedido
+    return pedido
       .then((cambiado) => {
-        onGuardarUsuario(cambiado)
-        if (!cambiado.activo && cambiado.idRefugio) {
-          onRefugioDeBaja(cambiado.idRefugio)
-        }
+        guardarUsuario(cambiado)
+        return cambiado
       })
       .catch((falla) => {
         onError(falla.message)
+        return null
       })
   }
 
-  const aprobarRefugio = (nombreUsuario) => {
-    const elegido = usuarioLlamado(nombreUsuario)
-    onError(null)
-    usuariosApi
-      .aprobarRefugio(elegido.idRefugio)
-      .then(() => {
-        onGuardarUsuario({ ...elegido, aprobado: true })
-      })
-      .catch((falla) => {
-        onError(falla.message)
-      })
+  const elegirContenido = () => {
+    if (cargando) {
+      return <Cargando texto="Cargando el panel…" />
+    }
+    if (error) {
+      return <AvisoError mensaje={error} />
+    }
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+        <div className="lg:col-span-3">
+          <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
+        </div>
+
+        <div className="lg:col-span-9">
+          {seccion === 'resumen' && <SeccionResumen usuarios={usuarios} />}
+          {seccion === 'refugios' && (
+            <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onVerAnimal={onVerAnimal} onError={onError} />
+          )}
+          {seccion === 'usuarios' && (
+            <SeccionUsuarios usuario={usuario} usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={onError} />
+          )}
+          {seccion === 'categorias' && <SeccionCategorias />}
+          {seccion === 'roles' && <SeccionRoles onError={onError} />}
+        </div>
+      </div>
+    )
   }
-
-  // No lo borra de la base: la publicación queda eliminada y deja de verse
-  const quitarAnimal = (idAnimal) => {
-    onError(null)
-    animalesApi
-      .quitarAnimal(idAnimal)
-      .then(() => {
-        onAnimalQuitado(idAnimal)
-      })
-      .catch((falla) => {
-        onError(falla.message)
-      })
-  }
-
-  // ---------- Categorías, roles y permisos ----------
-  // Todas devuelven una promesa con el mensaje de error, o null si salió bien (lo usan los formularios)
-
-  // El error de esta lo muestra el propio formulario
-  const crearCategoria = (nombre, descripcion) => intentar(animalesApi.crearCategoria(nombre, descripcion).then(onCategoriaCreada))
-
-  const crearRol = (nombre) => intentar(usuariosApi.crearRol(nombre).then(onGuardarRol), onError)
-
-  const crearPermiso = (nombre, descripcion) => intentar(usuariosApi.crearPermiso(nombre, descripcion).then(onGuardarPermiso), onError)
-
-  // Reemplaza todos los permisos del rol por los elegidos
-  const asignarPermisos = (idRol, idsPermisos) => intentar(usuariosApi.asignarPermisos(idRol, idsPermisos).then(onGuardarRol), onError)
 
   return (
     <>
@@ -128,30 +107,7 @@ const Admin = ({
         texto="Desde acá controlás los refugios, sus animales y las cuentas de SeaPlace."
       />
 
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-          <div className="lg:col-span-3">
-            <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
-          </div>
-
-          <div className="lg:col-span-9">
-            {seccion === 'resumen' && <SeccionResumen usuarios={usuarios} animales={animales} apadrinamientos={apadrinamientos} />}
-            {seccion === 'refugios' && (
-              <SeccionRefugios
-                usuarios={usuarios}
-                animales={animales}
-                onCambiarActivo={cambiarActivo}
-                onAprobar={aprobarRefugio}
-                onVerAnimal={onVerAnimal}
-                onQuitarAnimal={quitarAnimal}
-              />
-            )}
-            {seccion === 'usuarios' && <SeccionUsuarios usuario={usuario} usuarios={usuarios} roles={roles} onCambiarRol={cambiarRol} onCambiarActivo={cambiarActivo} />}
-            {seccion === 'categorias' && <SeccionCategorias categorias={categorias} animales={animales} onCrear={crearCategoria} />}
-            {seccion === 'roles' && <SeccionRoles roles={roles} permisos={permisos} onCrearRol={crearRol} onCrearPermiso={crearPermiso} onAsignar={asignarPermisos} />}
-          </div>
-        </div>
-      </div>
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg">{elegirContenido()}</div>
     </>
   )
 }

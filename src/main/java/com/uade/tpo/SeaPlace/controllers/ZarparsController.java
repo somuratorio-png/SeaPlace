@@ -14,7 +14,6 @@ import com.uade.tpo.SeaPlace.entity.dto.ZarparRequest;
 import com.uade.tpo.SeaPlace.entity.dto.ZarparResponse;
 import com.uade.tpo.SeaPlace.service.ZarparService;
 import com.uade.tpo.SeaPlace.service.AutorizacionService;
-import com.uade.tpo.SeaPlace.service.SesionService;
 
 @RestController
 @RequestMapping("zarpar")
@@ -25,9 +24,6 @@ public class ZarparsController {
 
     @Autowired
     private AutorizacionService autorizacionService;
-
-    @Autowired
-    private SesionService sesionService;
 
     @GetMapping
     public ResponseEntity<Page<ZarparResponse>> getZarpars(
@@ -54,9 +50,6 @@ public class ZarparsController {
     @PostMapping
     public ResponseEntity<ZarparResponse> confirmarZarpar(@RequestBody ZarparRequest request) {
         Zarpar result = zarparService.confirmarZarpar(autorizacionService.idUsuarioActual(), request);
-        // La respuesta lleva los apadrinamientos como quedaron, asi el cliente no los vuelve a pedir.
-        ZarparResponse respuesta = ZarparResponse.fromEntity(result);
-        respuesta.setApadrinamientos(sesionService.getApadrinamientos());
-        return ResponseEntity.created(URI.create("/zarpar/" + result.getIdZarpar())).body(respuesta);
+        return ResponseEntity.created(URI.create("/zarpar/" + result.getIdZarpar())).body(ZarparResponse.fromEntity(result));
     }
 }

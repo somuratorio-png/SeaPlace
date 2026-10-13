@@ -1,6 +1,11 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { quitarAnimal, traerPublicaciones } from '../../services/animales'
+import { aprobarRefugio } from '../../services/usuarios'
+import { sacarDe } from '../../utils/listas'
 import { paginar } from '../../utils/paginar'
+import AvisoError from '../comunes/AvisoError'
 import Buscador from '../comunes/Buscador'
+import Cargando from '../comunes/Cargando'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaRefugio from './TarjetaRefugio'
@@ -8,10 +13,62 @@ import TarjetaRefugio from './TarjetaRefugio'
 const REFUGIOS_POR_PAGINA = 4
 
 // Sección "Refugios" del administrador: los busca, los muestra de a una página y permite
-// aprobarlos, darlos de baja y ver sus animales
-const SeccionRefugios = ({ usuarios, animales, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
+// aprobarlos, darlos de baja y ver sus animales.
+// "usuarios" los tiene el panel. Las publicaciones (activas y pausadas) las pide esta sección al backend
+// cuando se abre. Cada acción llama al backend y, con lo que contesta, actualiza el estado.
+const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onVerAnimal, onError }) => {
+  const [animales, setAnimales] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [errorAlCargar, setErrorAlCargar] = useState(null)
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(0)
+
+  // Las publicaciones de todos los refugios
+  useEffect(() => {
+    traerPublicaciones()
+      .then((lista) => {
+        setAnimales(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
+
+  // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
+  const cambiarActivo = (nombreUsuario) => {
+    onCambiarActivo(nombreUsuario).then((cambiado) => {
+      if (cambiado && !cambiado.activo && cambiado.idRefugio) {
+        setAnimales((actuales) => actuales.map((animal) => (animal.idRefugio === cambiado.idRefugio ? { ...animal, publicacion: 'PAUSADA' } : animal)))
+      }
+    })
+  }
+
+  const aprobar = (nombreUsuario) => {
+    const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
+    onError(null)
+    aprobarRefugio(elegido.idRefugio)
+      .then(() => {
+        onGuardarUsuario({ ...elegido, aprobado: true })
+      })
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
+
+  // No lo borra de la base: la publicación queda eliminada y deja de verse
+  const quitar = (idAnimal) => {
+    onError(null)
+    quitarAnimal(idAnimal)
+      .then(() => {
+        setAnimales((actuales) => sacarDe(actuales, idAnimal))
+      })
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
   // Los que esperan aprobación van primero en la lista
@@ -25,6 +82,13 @@ const SeccionRefugios = ({ usuarios, animales, onCambiarActivo, onAprobar, onVer
   const buscar = (valor) => {
     setBusqueda(valor)
     setPagina(0)
+  }
+
+  if (cargando) {
+    return <Cargando texto="Cargando los refugios…" />
+  }
+  if (errorAlCargar) {
+    return <AvisoError mensaje={errorAlCargar} />
   }
 
   return (
@@ -54,10 +118,10 @@ const SeccionRefugios = ({ usuarios, animales, onCambiarActivo, onAprobar, onVer
           key={refugio.id}
           refugio={refugio}
           animales={animales.filter((animal) => animal.idRefugio === refugio.idRefugio)}
-          onCambiarActivo={onCambiarActivo}
-          onAprobar={onAprobar}
+          onCambiarActivo={cambiarActivo}
+          onAprobar={aprobar}
           onVerAnimal={onVerAnimal}
-          onQuitarAnimal={onQuitarAnimal}
+          onQuitarAnimal={quitar}
         />
       ))}
 

@@ -1,4 +1,9 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import * as usuariosApi from '../../services/usuarios'
+import { intentar } from '../../utils/intentar'
+import { ponerEn } from '../../utils/listas'
+import AvisoError from '../comunes/AvisoError'
+import Cargando from '../comunes/Cargando'
 import TituloSeccion from '../comunes/TituloSeccion'
 import CampoTexto from '../login/CampoTexto'
 import TarjetaRol from './TarjetaRol'
@@ -9,14 +14,53 @@ const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-
 // Sección "Roles y permisos" del administrador: qué permisos tiene cada rol, y los formularios
 // para crear un rol o un permiso nuevo. Un permiso es lo que el backend exige para ciertas rutas
 // (por ejemplo GESTIONAR_USUARIOS); un rol es un conjunto de permisos.
-// Las tres funciones devuelven el mensaje de error del backend, o null si salió bien.
-const SeccionRoles = ({ roles, permisos, onCrearRol, onCrearPermiso, onAsignar }) => {
+// Los roles y los permisos los pide esta sección al backend cuando se abre, un pedido por lista.
+// Cada acción llama al backend y, con lo que contesta, actualiza la lista. Si falla, onError muestra el mensaje.
+const SeccionRoles = ({ onError }) => {
+  const [roles, setRoles] = useState([]) // [{ id, nombre, permisos }]
+  const [permisos, setPermisos] = useState([]) // [{ id, nombre, descripcion }]
+  const [cargando, setCargando] = useState(true)
+  const [errorAlCargar, setErrorAlCargar] = useState(null)
   const [nombreRol, setNombreRol] = useState('')
   const [permiso, setPermiso] = useState({ nombre: '', descripcion: '' })
 
+  // Los roles
+  useEffect(() => {
+    usuariosApi.traerRoles()
+      .then((lista) => {
+        setRoles(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
+
+  // Los permisos que se les pueden asignar
+  useEffect(() => {
+    usuariosApi.traerPermisos()
+      .then((lista) => {
+        setPermisos(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+  }, [])
+
+  // Pone en la lista el rol como lo devolvió el backend (uno nuevo, o uno con sus permisos cambiados)
+  const guardarRol = (rol) => {
+    setRoles((actuales) => ponerEn(actuales, rol))
+  }
+
+  // Reemplaza todos los permisos del rol por los elegidos.
+  // Devuelve una promesa con el mensaje de error, o null si salió bien (lo usa la tarjeta del rol).
+  const asignar = (idRol, idsPermisos) => intentar(usuariosApi.asignarPermisos(idRol, idsPermisos).then(guardarRol), onError)
+
   const crearRol = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    onCrearRol(nombreRol).then((mensaje) => {
+    intentar(usuariosApi.crearRol(nombreRol).then(guardarRol), onError).then((mensaje) => {
       if (mensaje === null) {
         setNombreRol('')
       }
@@ -25,11 +69,21 @@ const SeccionRoles = ({ roles, permisos, onCrearRol, onCrearPermiso, onAsignar }
 
   const crearPermiso = (evento) => {
     evento.preventDefault()
-    onCrearPermiso(permiso.nombre, permiso.descripcion).then((mensaje) => {
+    const pedido = usuariosApi.crearPermiso(permiso.nombre, permiso.descripcion).then((nuevo) => {
+      setPermisos((actuales) => [...actuales, nuevo])
+    })
+    intentar(pedido, onError).then((mensaje) => {
       if (mensaje === null) {
         setPermiso({ nombre: '', descripcion: '' })
       }
     })
+  }
+
+  if (cargando) {
+    return <Cargando texto="Cargando los roles…" />
+  }
+  if (errorAlCargar) {
+    return <AvisoError mensaje={errorAlCargar} />
   }
 
   return (
@@ -44,7 +98,7 @@ const SeccionRoles = ({ roles, permisos, onCrearRol, onCrearPermiso, onAsignar }
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md items-start">
         {/* La "key" incluye los permisos: si cambian (o se crea uno), la tarjeta arranca de nuevo con los datos frescos */}
         {roles.map((rol) => (
-          <TarjetaRol key={`${rol.id}-${rol.permisos.join()}-${permisos.length}`} rol={rol} permisos={permisos} onAsignar={onAsignar} />
+          <TarjetaRol key={`${rol.id}-${rol.permisos.join()}-${permisos.length}`} rol={rol} permisos={permisos} onAsignar={asignar} />
         ))}
       </div>
 

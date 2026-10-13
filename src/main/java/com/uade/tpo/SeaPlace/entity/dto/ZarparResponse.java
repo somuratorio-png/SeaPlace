@@ -20,9 +20,6 @@ public class ZarparResponse {
     // Si la lista esta vacia, el campo directamente no se incluye en el JSON.
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ZarparDetalleResponse> detalles;
-    // Solo al confirmar: los apadrinamientos del usuario como quedaron despues del pago.
-    @JsonInclude(JsonInclude.Include.NON_EMPTY)
-    private List<ApadrinamientoResponse> apadrinamientos;
 
     public static ZarparResponse fromEntity(Zarpar zarpar) {
         ZarparResponse r = new ZarparResponse();

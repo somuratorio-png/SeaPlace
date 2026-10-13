@@ -1,5 +1,8 @@
+import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
+import AvisoError from '../components/comunes/AvisoError'
 import BarraProgreso from '../components/comunes/BarraProgreso'
+import Cargando from '../components/comunes/Cargando'
 import Icono from '../components/comunes/Icono'
 import Galeria from '../components/detalle/Galeria'
 import Bitacora from '../components/panel/Bitacora'
@@ -9,24 +12,44 @@ import HistorialPagos from '../components/panel/HistorialPagos'
 import MiPlan from '../components/panel/MiPlan'
 import Rastreo from '../components/panel/Rastreo'
 import RastreoBloqueado from '../components/panel/RastreoBloqueado'
-import { cambiarPlan, cancelarApadrinamiento } from '../services/apadrinar'
+import { cambiarPlan, cancelarApadrinamiento, traerApadrinamientos } from '../services/apadrinar'
 import { formatearFecha } from '../utils/fechas'
+import { ponerEn } from '../utils/listas'
 
 // Detalle de un animal que el usuario ya apadrinó.
-// "apadrinamientos" son los que ya tiene App: cada uno trae la bitácora y la última ubicación de su animal.
-// onGuardarApadrinamiento le pasa a App el apadrinamiento como quedó después de cambiarle el plan o cancelarlo,
-// onGuardarAnimal el animal como quedó después de cancelar (recupera sus cupos) y
+// Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
+// y la última ubicación de su animal, así que alcanza con ese pedido.
 // onError muestra arriba de la página el mensaje de una acción que falló.
-const Apadrinado = ({ apadrinamientos, onVolver, onVerCertificado, onGuardarApadrinamiento, onGuardarAnimal, onError }) => {
+const Apadrinado = ({ onVolver, onVerCertificado, onError }) => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const { id } = useParams()
   const idAnimal = Number(id)
+
+  const [apadrinamientos, setApadrinamientos] = useState([]) // [{ id, animal, plan, desde, pagos, activo, novedades, ultimaUbicacion }]
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Un solo pedido, al abrir la página
+  useEffect(() => {
+    traerApadrinamientos()
+      .then((lista) => {
+        setApadrinamientos(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
     onError(null)
     cambiarPlan(idApadrinamiento, planNuevo.codigo)
-      .then(onGuardarApadrinamiento)
+      .then((cambiado) => {
+        setApadrinamientos((actuales) => ponerEn(actuales, cambiado))
+      })
       .catch((falla) => {
         onError(falla.message)
       })
@@ -37,14 +60,27 @@ const Apadrinado = ({ apadrinamientos, onVolver, onVerCertificado, onGuardarApad
   const cancelar = (idApadrinamiento) => {
     onError(null)
     cancelarApadrinamiento(idApadrinamiento)
-      .then((cancelado) => {
-        onGuardarApadrinamiento(cancelado)
-        onGuardarAnimal(cancelado.animal)
+      .then(() => {
         onVolver()
       })
       .catch((falla) => {
         onError(falla.message)
       })
+  }
+
+  if (cargando) {
+    return <Cargando texto="Buscando a tu apadrinado…" />
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
+        <AvisoError mensaje={error} />
+        <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+          <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a mis apadrinados
+        </button>
+      </div>
+    )
   }
 
   const item = apadrinamientos.find((a) => a.activo && a.animal.id === idAnimal)

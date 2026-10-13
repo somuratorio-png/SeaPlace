@@ -20,8 +20,9 @@ Los usuarios de demo están en el README de la raíz del repo.
 ## Cómo está armado
 
 - `src/main.jsx` — punto de entrada: `BrowserRouter` envolviendo a `<App />`.
-- `src/App.jsx` — el ruteo (`Routes`/`Route`) y el estado que viene del backend, que les pasa a las vistas por props.
+- `src/App.jsx` — el ruteo (`Routes`/`Route`) y lo que es de toda la app: quién está logueado, sus favoritos y su muelle.
 - `src/views/` — una pantalla por archivo (Inicio, Catalogo, Detalle, Muelle, Zarpar, Panel, Admin, Refugio...).
+  Cada una pide sus datos al backend cuando se monta, los guarda en su estado y los reparte por props.
 - `src/components/` — las piezas, agrupadas en una carpeta por pantalla (`comunes/` son las que usa todo el sitio).
   Reciben props y muestran: no saben nada del backend.
 - `src/services/` — las llamadas a la API. El único `fetch` está en `api.js`; el resto arma cada pedido
@@ -33,9 +34,11 @@ Los usuarios de demo están en el README de la raíz del repo.
 
 ## Cómo se habla con el backend
 
-- Hay un solo GET: `App` pide `/inicio` al montarse (`useEffect` con `[]`) y recibe el catálogo, las
-  categorías, los planes y, si había una sesión guardada, los datos de ese usuario.
-- El login y el registro devuelven en su respuesta los datos de quien entra.
+- Cada pantalla pide lo suyo en un `useEffect` al montarse, un GET por listado: el catálogo pide los
+  animales y las categorías, el panel los apadrinamientos, y en el panel del administrador cada sección
+  del menú pide sus propias listas cuando se abre.
+- `App` pide una sola cosa al arrancar (`/inicio`): los planes y, si había una sesión guardada, quién es
+  el usuario, sus favoritos y su muelle. El login y el registro devuelven eso mismo en su respuesta.
 - Cada POST, PUT o DELETE devuelve lo que cambió y con eso se actualiza el estado: no se vuelve a pedir
   la lista ni hace falta recargar.
 - Si un pedido falla, se muestra en pantalla el mensaje que manda el backend.

@@ -1,9 +1,46 @@
+import { useEffect, useState } from 'react'
+import { traerAnimales } from '../../services/animales'
+import { traerApadrinamientos } from '../../services/apadrinar'
 import { recaudacionMensual } from '../../utils/precios'
+import AvisoError from '../comunes/AvisoError'
+import Cargando from '../comunes/Cargando'
 import GraficoRecaudacion from './GraficoRecaudacion'
 import TarjetaDato from './TarjetaDato'
 
-// Sección "Resumen" del administrador: los números generales y el gráfico de recaudación
-const SeccionResumen = ({ usuarios, animales, apadrinamientos }) => {
+// Sección "Resumen" del administrador: los números generales y el gráfico de recaudación.
+// "usuarios" los tiene el panel. Los animales publicados y los apadrinamientos los pide esta
+// sección al backend cuando se abre, un pedido por lista.
+const SeccionResumen = ({ usuarios }) => {
+  const [animales, setAnimales] = useState([])
+  const [apadrinamientos, setApadrinamientos] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [errorAlCargar, setErrorAlCargar] = useState(null)
+
+  // Los animales publicados
+  useEffect(() => {
+    traerAnimales()
+      .then((lista) => {
+        setAnimales(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+  }, [])
+
+  // Todos los apadrinamientos, para la recaudación
+  useEffect(() => {
+    traerApadrinamientos()
+      .then((lista) => {
+        setApadrinamientos(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
+
   const refugios = usuarios.filter((u) => u.rol === 'refugio')
   const dadosDeBaja = usuarios.filter((u) => !u.activo)
 
@@ -14,6 +51,13 @@ const SeccionResumen = ({ usuarios, animales, apadrinamientos }) => {
       const suyos = apadrinamientos.filter((a) => a.activo && a.animal.idRefugio === refugio.idRefugio)
       return { nombre: `${refugio.nombre} ${refugio.apellido}`, valor: recaudacionMensual(suyos), padrinos: suyos.length }
     })
+
+  if (cargando) {
+    return <Cargando texto="Cargando el resumen…" />
+  }
+  if (errorAlCargar) {
+    return <AvisoError mensaje={errorAlCargar} />
+  }
 
   return (
     <div className="space-y-space-lg">

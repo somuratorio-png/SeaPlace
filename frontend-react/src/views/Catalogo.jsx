@@ -1,9 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import BarraBusqueda from '../components/catalogo/BarraBusqueda'
 import FiltroCategorias from '../components/catalogo/FiltroCategorias'
 import TarjetaAnimal from '../components/catalogo/TarjetaAnimal'
+import AvisoError from '../components/comunes/AvisoError'
+import Cargando from '../components/comunes/Cargando'
 import Paginacion from '../components/comunes/Paginacion'
 import Portada from '../components/comunes/Portada'
+import { traerAnimales, traerCategorias } from '../services/animales'
 import { paginar } from '../utils/paginar'
 import { precioFinal } from '../utils/precios'
 
@@ -21,15 +24,45 @@ const comparadores = {
   nombre: (a, b) => a.nombre.localeCompare(b.nombre),
 }
 
-// "animales" y "categorias" vienen del backend (los pide App). Los filtros y el orden se aplican
-// acá, sobre la lista ya recibida.
-const Catalogo = ({ animales, categorias, favoritos, onFavorito, onVerAnimal }) => {
+// El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
+// por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
+// "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
+const Catalogo = ({ favoritos, onFavorito, onVerAnimal }) => {
+  const [animales, setAnimales] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
   const [categoria, setCategoria] = useState('todas')
   const [busqueda, setBusqueda] = useState('')
   const [urgencia, setUrgencia] = useState('todas')
   const [orden, setOrden] = useState('recomendados')
   const [soloFavoritos, setSoloFavoritos] = useState(false)
   const [pagina, setPagina] = useState(0)
+
+  // Un solo pedido de los animales, al abrir la página
+  useEffect(() => {
+    traerAnimales()
+      .then((lista) => {
+        setAnimales(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
+
+  // Y uno de las categorías, para los filtros
+  useEffect(() => {
+    traerCategorias()
+      .then((lista) => {
+        setCategorias(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+  }, [])
 
   // Cada vez que cambia un filtro, se guarda el valor nuevo y se vuelve a la primera página
   const alFiltrar = (guardar) => (valor) => {
@@ -51,16 +84,16 @@ const Catalogo = ({ animales, categorias, favoritos, onFavorito, onVerAnimal }) 
   // Se muestran de a 6
   const { items: visibles, paginaActual, totalPaginas } = paginar(ordenados, pagina, ANIMALES_POR_PAGINA)
 
-  return (
-    <>
-      <Portada
-        icono="pets"
-        etiqueta="Fauna para apadrinar"
-        titulo="Encontrá a tu compañero del océano"
-        texto="Crías huérfanas, ejemplares vulnerables y mamíferos en recuperación. Tu aporte mensual cubre su nutrición y sus cuidados hasta que vuelvan al mar."
-      />
-
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
+  // Debajo de la portada: el aviso de espera, el error del backend o el catálogo con sus filtros
+  const elegirContenido = () => {
+    if (cargando) {
+      return <Cargando texto="Buscando a los animales…" />
+    }
+    if (error) {
+      return <AvisoError mensaje={error} />
+    }
+    return (
+      <>
         <FiltroCategorias categorias={categorias} animales={animales} categoriaActiva={categoria} onCambiar={alFiltrar(setCategoria)} />
         <BarraBusqueda
           busqueda={busqueda}
@@ -96,7 +129,20 @@ const Catalogo = ({ animales, categorias, favoritos, onFavorito, onVerAnimal }) 
         )}
 
         <Paginacion pagina={paginaActual} totalPaginas={totalPaginas} onCambiar={setPagina} />
-      </div>
+      </>
+    )
+  }
+
+  return (
+    <>
+      <Portada
+        icono="pets"
+        etiqueta="Fauna para apadrinar"
+        titulo="Encontrá a tu compañero del océano"
+        texto="Crías huérfanas, ejemplares vulnerables y mamíferos en recuperación. Tu aporte mensual cubre su nutrición y sus cuidados hasta que vuelvan al mar."
+      />
+
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">{elegirContenido()}</div>
     </>
   )
 }

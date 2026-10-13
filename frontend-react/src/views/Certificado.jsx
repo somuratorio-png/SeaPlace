@@ -1,13 +1,47 @@
+import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
+import AvisoError from '../components/comunes/AvisoError'
+import Cargando from '../components/comunes/Cargando'
 import Icono from '../components/comunes/Icono'
+import { traerApadrinamientos } from '../services/apadrinar'
 import { formatearFecha } from '../utils/fechas'
 
 // Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
 // Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
-// "apadrinamientos" son los del usuario, que ya tiene App.
-const Certificado = ({ usuario, apadrinamientos, onVolver }) => {
+// Los apadrinamientos del usuario los pide esta página al backend cuando se monta.
+const Certificado = ({ usuario, onVolver }) => {
   // El id sale de la URL (/panel/:id/certificado)
   const { id } = useParams()
+
+  const [apadrinamientos, setApadrinamientos] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
+
+  // Un solo pedido, al abrir la página
+  useEffect(() => {
+    traerApadrinamientos()
+      .then((lista) => {
+        setApadrinamientos(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
+
+  if (cargando) {
+    return <Cargando texto="Preparando tu certificado…" />
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-4xl mx-auto px-margin-mobile py-space-lg">
+        <AvisoError mensaje={error} />
+      </div>
+    )
+  }
 
   const item = apadrinamientos.find((a) => a.activo && a.animal.id === Number(id))
 

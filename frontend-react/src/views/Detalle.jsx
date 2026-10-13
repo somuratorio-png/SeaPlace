@@ -1,20 +1,62 @@
+import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
+import AvisoError from '../components/comunes/AvisoError'
 import BarraProgreso from '../components/comunes/BarraProgreso'
 import BotonFavorito from '../components/comunes/BotonFavorito'
+import Cargando from '../components/comunes/Cargando'
 import Icono from '../components/comunes/Icono'
 import PrecioAnimal from '../components/comunes/PrecioAnimal'
 import ElegirPlan from '../components/detalle/ElegirPlan'
 import Galeria from '../components/detalle/Galeria'
 import PreguntasFrecuentes from '../components/detalle/PreguntasFrecuentes'
+import { traerAnimal } from '../services/animales'
 
-const Detalle = ({ animales, favoritos, onFavorito, puedeApadrinar, onAgregar, onVolver }) => {
-  // El id sale de la URL (/animal/:id) y con eso se busca el animal.
-  // En la URL es un texto y en los datos un número: por eso se convierte.
+// La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
+// "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
+const Detalle = ({ favoritos, onFavorito, puedeApadrinar, onAgregar, onVolver }) => {
   const { id } = useParams()
-  const animal = animales.find((a) => a.id === Number(id))
 
-  if (!animal) {
+  const [animal, setAnimal] = useState(null)
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
+  const [noExiste, setNoExiste] = useState(false)
+
+  // Un solo pedido, al abrir la página (cada animal tiene su URL, así que cambia solo con el id)
+  useEffect(() => {
+    traerAnimal(id)
+      .then((encontrado) => {
+        setAnimal(encontrado)
+      })
+      .catch((falla) => {
+        // 404 = ese animal no existe o su publicación ya no está activa
+        if (falla.estado === 404) {
+          setNoExiste(true)
+        } else {
+          setError(falla.message)
+        }
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [id])
+
+  if (cargando) {
+    return <Cargando texto="Buscando al animal…" />
+  }
+
+  if (noExiste) {
     return <Navigate to="/catalogo" replace />
+  }
+
+  if (error) {
+    return (
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
+        <AvisoError mensaje={error} />
+        <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+          <Icono nombre="arrow_back" clase="text-[18px]" /> Volver al catálogo
+        </button>
+      </div>
+    )
   }
 
   return (

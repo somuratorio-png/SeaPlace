@@ -7,10 +7,3 @@ export const conItem = (muelle, item) => {
   const items = yaEstaba ? muelle.items.map((otro) => (otro.animal.id === item.animal.id ? item : otro)) : [...muelle.items, item]
   return { ...muelle, items }
 }
-
-// El animal después de que le tomaron "cantidad" cupos (el progreso es el porcentaje de cupos tomados)
-export const conCuposTomados = (animal, cantidad) => {
-  const cuposDisponibles = animal.cuposDisponibles - cantidad
-  const progreso = Math.round(((animal.cuposTotales - cuposDisponibles) * 100) / animal.cuposTotales)
-  return { ...animal, cuposDisponibles, progreso }
-}

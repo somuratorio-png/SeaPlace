@@ -1,13 +1,47 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { crearCategoria, traerAnimales, traerCategorias } from '../../services/animales'
+import { intentar } from '../../utils/intentar'
+import AvisoError from '../comunes/AvisoError'
+import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
 import TituloSeccion from '../comunes/TituloSeccion'
 import CampoTexto from '../login/CampoTexto'
 
 // Sección "Categorías" del administrador: las que existen (con cuántos animales tiene cada una)
-// y el formulario para crear una nueva. onCrear devuelve el mensaje de error del backend, o null si salió bien.
-const SeccionCategorias = ({ categorias, animales, onCrear }) => {
+// y el formulario para crear una nueva.
+// Las categorías y los animales publicados los pide esta sección al backend cuando se abre, un pedido por lista.
+const SeccionCategorias = () => {
+  const [categorias, setCategorias] = useState([])
+  const [animales, setAnimales] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [errorAlCargar, setErrorAlCargar] = useState(null)
   const [datos, setDatos] = useState({ nombre: '', descripcion: '' })
   const [error, setError] = useState(null)
+
+  // Las categorías
+  useEffect(() => {
+    traerCategorias()
+      .then((lista) => {
+        setCategorias(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [])
+
+  // Los animales publicados, para contar cuántos tiene cada categoría
+  useEffect(() => {
+    traerAnimales()
+      .then((lista) => {
+        setAnimales(lista)
+      })
+      .catch((falla) => {
+        setErrorAlCargar(falla.message)
+      })
+  }, [])
 
   const cambiar = (evento) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })
@@ -15,12 +49,23 @@ const SeccionCategorias = ({ categorias, animales, onCrear }) => {
 
   const crear = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    onCrear(datos.nombre, datos.descripcion).then((mensaje) => {
+    // La categoría nueva se agrega a la lista con lo que devuelve el backend. Si falla, el error lo muestra el formulario.
+    const pedido = crearCategoria(datos.nombre, datos.descripcion).then((nueva) => {
+      setCategorias((actuales) => [...actuales, nueva])
+    })
+    intentar(pedido).then((mensaje) => {
       setError(mensaje)
       if (mensaje === null) {
         setDatos({ nombre: '', descripcion: '' })
       }
     })
+  }
+
+  if (cargando) {
+    return <Cargando texto="Cargando las categorías…" />
+  }
+  if (errorAlCargar) {
+    return <AvisoError mensaje={errorAlCargar} />
   }
 
   return (

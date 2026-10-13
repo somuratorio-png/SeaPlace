@@ -1,5 +1,7 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import TarjetaDato from '../components/admin/TarjetaDato'
+import AvisoError from '../components/comunes/AvisoError'
+import Cargando from '../components/comunes/Cargando'
 import Icono from '../components/comunes/Icono'
 import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
@@ -9,7 +11,9 @@ import ListaPadrinos from '../components/refugio/ListaPadrinos'
 import SeccionAnimales from '../components/refugio/SeccionAnimales'
 import { ContextoMoneda, formatearPrecio } from '../contexto/Moneda'
 import * as animalesApi from '../services/animales'
+import { traerApadrinamientos } from '../services/apadrinar'
 import { intentar } from '../utils/intentar'
+import { ponerEn, sacarDe } from '../utils/listas'
 import { recaudacionMensual } from '../utils/precios'
 
 const secciones = [
@@ -20,13 +24,60 @@ const secciones = [
 
 // Panel del refugio. Tiene un menú lateral y muestra una sola sección por vez:
 // sus animales (ofertas, novedades, fotos y ubicación), sus padrinos, o el formulario para publicar uno nuevo.
-// "animales" son los que ya tiene App: las publicaciones activas de todos y las pausadas de este refugio.
-// "apadrinamientos" también los tiene App: son los de los animales de este refugio.
-// Cada acción llama al backend y le pasa a App el animal como quedó (onGuardarAnimal), así el cambio
-// se ve sin volver a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
-const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnimal, onAnimalQuitado, onVerAnimal, onError }) => {
+// Esta página pide al backend, cuando se monta, lo que muestra: las publicaciones de este refugio (activas
+// y pausadas), los apadrinamientos de sus animales y las categorías para el formulario. Un pedido por lista.
+// Cada acción llama al backend y, con lo que contesta, actualiza el estado: el cambio se ve sin volver
+// a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
+const Refugio = ({ usuario, onVerAnimal, onError }) => {
   const [seccion, setSeccion] = useState('animales')
+  const [animales, setAnimales] = useState([])
+  const [apadrinamientos, setApadrinamientos] = useState([])
+  const [categorias, setCategorias] = useState([])
+  const [cargando, setCargando] = useState(true)
+  const [error, setError] = useState(null)
   const moneda = useContext(ContextoMoneda)
+
+  // Sus publicaciones, al entrar al panel. El refugio no cambia mientras se mira la página.
+  useEffect(() => {
+    animalesApi
+      .traerPublicaciones(usuario.idRefugio)
+      .then((lista) => {
+        setAnimales(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+      .then(() => {
+        setCargando(false)
+      })
+  }, [usuario.idRefugio])
+
+  // Los apadrinamientos de sus animales (el backend ya manda solo esos)
+  useEffect(() => {
+    traerApadrinamientos()
+      .then((lista) => {
+        setApadrinamientos(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+  }, [])
+
+  // Las categorías, para el formulario de publicar
+  useEffect(() => {
+    animalesApi.traerCategorias()
+      .then((lista) => {
+        setCategorias(lista)
+      })
+      .catch((falla) => {
+        setError(falla.message)
+      })
+  }, [])
+
+  // Pone en la lista al animal como lo devolvió el backend
+  const guardarAnimal = (animal) => {
+    setAnimales((actuales) => ponerEn(actuales, animal))
+  }
 
   const propios = animales.filter((animal) => animal.idRefugio === usuario.idRefugio)
 
@@ -42,7 +93,7 @@ const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnim
         anterior
           .then((actual) => animalesApi.subirFoto(actual, archivo))
           .then((conFoto) => {
-            onGuardarAnimal(conFoto)
+            guardarAnimal(conFoto)
             return conFoto
           }),
       Promise.resolve(animal),
@@ -65,7 +116,7 @@ const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnim
       animalesApi
         .crearAnimal(datos)
         .then((nuevo) => {
-          onGuardarAnimal(nuevo)
+          guardarAnimal(nuevo)
           return subirFotos(nuevo, fotos)
         })
         .then(() => {
@@ -81,7 +132,7 @@ const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnim
     animalesApi
       .quitarAnimal(idAnimal)
       .then(() => {
-        onAnimalQuitado(idAnimal)
+        setAnimales((actuales) => sacarDe(actuales, idAnimal))
       })
       .catch((falla) => {
         onError(falla.message)
@@ -107,7 +158,7 @@ const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnim
     }
 
     onError(null)
-    pedido.then(onGuardarAnimal).catch((falla) => {
+    pedido.then(guardarAnimal).catch((falla) => {
       onError(falla.message)
     })
   }
@@ -137,6 +188,10 @@ const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnim
     )
   }
 
+  if (cargando) {
+    return <Cargando texto="Cargando tu refugio…" />
+  }
+
   return (
     <>
       <Portada
@@ -147,6 +202,9 @@ const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnim
       />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
+        {/* Si alguna lista no llegó, se avisa y el resto del panel sigue funcionando */}
+        {error && <AvisoError mensaje={error} />}
+
         <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
           <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
           <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />

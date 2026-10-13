@@ -3,35 +3,29 @@ package com.uade.tpo.SeaPlace.service;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.Muelle;
 import com.uade.tpo.SeaPlace.entity.Usuario;
-import com.uade.tpo.SeaPlace.entity.dto.AnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.ApadrinamientoResponse;
 import com.uade.tpo.SeaPlace.entity.dto.FavoritoResponse;
 import com.uade.tpo.SeaPlace.entity.dto.MuelleDetalleResponse;
 import com.uade.tpo.SeaPlace.entity.dto.NovedadResponse;
-import com.uade.tpo.SeaPlace.entity.dto.PermisoResponse;
-import com.uade.tpo.SeaPlace.entity.dto.RolResponse;
 import com.uade.tpo.SeaPlace.entity.dto.SesionResponse;
 import com.uade.tpo.SeaPlace.entity.dto.UbicacionAnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
 import com.uade.tpo.SeaPlace.repository.NovedadRepository;
 import com.uade.tpo.SeaPlace.repository.UbicacionAnimalRepository;
 
-// Arma, para el usuario logueado, todo lo que el front necesita tener de el. Asi el front lo
-// recibe en una sola respuesta (la de /inicio o la del login) en vez de pedir cada cosa aparte.
+// Arma, para el usuario logueado, lo que el front necesita tener de el en cualquier pantalla
+// (quien es, sus favoritos y su muelle). Asi lo recibe en una sola respuesta: la de /inicio
+// o la del login.
 @Service
 public class SesionService {
 
     private static final String ROL_REFUGIO = "duenioRefugio";
-    private static final String ESTADO_PUBLICACION_PAUSADA = "PAUSADA";
-    private static final String PERMISO_USUARIOS = "GESTIONAR_USUARIOS";
-    private static final String PERMISO_ROLES = "GESTIONAR_ROLES";
 
     @Autowired
     private AutorizacionService autorizacionService;
@@ -49,15 +43,6 @@ public class SesionService {
     private ApadrinamientoService apadrinamientoService;
 
     @Autowired
-    private AnimalService animalService;
-
-    @Autowired
-    private RolService rolService;
-
-    @Autowired
-    private PermisoService permisoService;
-
-    @Autowired
     private NovedadRepository novedadRepository;
 
     @Autowired
@@ -65,34 +50,17 @@ public class SesionService {
 
     public SesionResponse armarSesion() {
         Usuario actual = autorizacionService.usuarioActual();
-        boolean esAdmin = autorizacionService.esAdmin();
         boolean esRefugio = actual.getRol().getNombreRol().equalsIgnoreCase(ROL_REFUGIO);
-        PageRequest todo = PageRequest.of(0, Integer.MAX_VALUE);
 
         SesionResponse sesion = new SesionResponse();
         sesion.setUsuario(UsuarioResponse.fromEntity(usuarioService.getMiPerfil()));
         sesion.setFavoritos(favoritoService.getFavoritos().stream().map(FavoritoResponse::fromEntity).toList());
-        sesion.setApadrinamientos(getApadrinamientos());
 
         // Admin y refugio no apadrinan: no tienen muelle.
-        if (!esAdmin && !esRefugio) {
+        if (!autorizacionService.esAdmin() && !esRefugio) {
             Muelle muelle = muelleService.getOrCreateMuelleActivo(actual.getIdUsuario());
             sesion.setIdMuelle(muelle.getIdMuelle());
             sesion.setItemsMuelle(muelleService.getItems(muelle.getIdMuelle()).stream().map(MuelleDetalleResponse::fromEntity).toList());
-        }
-
-        if (esAdmin || actual.getRefugio() != null) {
-            sesion.setPausados(animalService.getAnimales(ESTADO_PUBLICACION_PAUSADA, null, null, null, null, null, todo)
-                    .map(AnimalResponse::fromEntity).getContent());
-        }
-
-        // Las mismas reglas que protegen /usuarios, /roles y /permisos en SecurityConfig.
-        if (tienePermiso(actual, PERMISO_USUARIOS)) {
-            sesion.setUsuarios(usuarioService.getUsuarios(todo).map(UsuarioResponse::fromEntity).getContent());
-        }
-        if (tienePermiso(actual, PERMISO_ROLES)) {
-            sesion.setRoles(rolService.getRoles().stream().map(RolResponse::fromEntity).toList());
-            sesion.setPermisos(permisoService.getPermisos().stream().map(PermisoResponse::fromEntity).toList());
         }
         return sesion;
     }
@@ -116,9 +84,5 @@ public class SesionService {
                     .map(UbicacionAnimalResponse::fromEntity).orElse(null));
         }
         return r;
-    }
-
-    private boolean tienePermiso(Usuario usuario, String permiso) {
-        return usuario.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals(permiso));
     }
 }
