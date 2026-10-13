@@ -4,6 +4,7 @@ import AvisoError from './components/comunes/AvisoError'
 import Cargando from './components/comunes/Cargando'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
+import SinConexion from './components/comunes/SinConexion'
 import { ContextoMoneda } from './contexto/Moneda'
 import { ContextoPlanes } from './contexto/Planes'
 import { useEstadoGuardado } from './hooks/useEstadoGuardado'
@@ -11,6 +12,7 @@ import * as apadrinarApi from './services/apadrinar'
 import { traerInicio } from './services/inicio'
 import * as usuariosApi from './services/usuarios'
 import { ponerEn, sacarDe } from './utils/listas'
+import { conCuposTomados, conItem, SIN_MUELLE } from './utils/muelle'
 import Admin from './views/Admin'
 import Apadrinado from './views/Apadrinado'
 import Muelle from './views/Muelle'
@@ -25,23 +27,6 @@ import NoEncontrada from './views/NoEncontrada'
 import Zarpar from './views/Zarpar'
 import Panel from './views/Panel'
 import Refugio from './views/Refugio'
-
-// El muelle cuando todavía no se conoce el del usuario. items: [{ animal, plan, cantidad }]
-const SIN_MUELLE = { id: null, items: [] }
-
-// El muelle con ese ítem puesto: si el animal ya estaba, lo reemplaza; si no, lo agrega
-const conItem = (muelle, item) => {
-  const yaEstaba = muelle.items.some((otro) => otro.animal.id === item.animal.id)
-  const items = yaEstaba ? muelle.items.map((otro) => (otro.animal.id === item.animal.id ? item : otro)) : [...muelle.items, item]
-  return { ...muelle, items }
-}
-
-// El animal después de que le tomaron "cantidad" cupos (el progreso es el porcentaje de cupos tomados)
-const conCuposTomados = (animal, cantidad) => {
-  const cuposDisponibles = animal.cuposDisponibles - cantidad
-  const progreso = Math.round(((animal.cuposTotales - cuposDisponibles) * 100) / animal.cuposTotales)
-  return { ...animal, cuposDisponibles, progreso }
-}
 
 // App es el componente principal: tiene el ruteo y todo lo que viene del backend (el catálogo, quién
 // está logueado y lo suyo), que les pasa a las páginas por props.
@@ -239,58 +224,28 @@ const App = () => {
       })
   }
 
-  // Botones de más y menos: la cantidad son los cupos que se quieren tomar de ese animal.
-  // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
-  const cambiarCantidad = (idAnimal, cantidad) => {
-    const item = muelle.items.find((i) => i.animal.id === idAnimal)
-    const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
-    setError(null)
-    apadrinarApi
-      .cambiarItem(muelle.id, idAnimal, acotada)
-      .then((cambiado) => {
-        setMuelle(conItem(muelle, cambiado))
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
+  // La página del muelle llama al backend cuando se cambia una cantidad o se quita un animal,
+  // y avisa acá con los ítems como quedaron
+  const guardarItemsDelMuelle = (items) => {
+    setMuelle({ ...muelle, items })
   }
 
-  const quitarDelMuelle = (idAnimal) => {
-    setError(null)
-    apadrinarApi
-      .quitarDelMuelle(muelle.id, idAnimal)
-      .then(() => {
-        setMuelle({ ...muelle, items: muelle.items.filter((i) => i.animal.id !== idAnimal) })
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-  }
-
-  // Zarpar = confirmar el muelle. Se llama cuando el pago salió bien. El backend vuelve a validar los cupos,
-  // convierte cada ítem en un apadrinamiento del usuario, descuenta los cupos y cierra el muelle.
-  // Devuelve una promesa con el mensaje de error (por ejemplo, si a un animal ya no le quedan cupos), o null si salió bien.
-  const zarpar = () => {
+  // La página de zarpar avisa acá cuando el pago salió bien, con lo que contestó el backend ({ total, apadrinamientos }).
+  // Lo que cambió se refleja acá mismo: a cada animal le quedan menos cupos, el muelle queda vacío
+  // y los apadrinamientos son los que vinieron en la respuesta.
+  const registrarZarpar = (pago) => {
     const pagados = muelle.items
-    return apadrinarApi
-      .zarpar(muelle.id, conBotiquin)
-      .then((pago) => {
-        // Lo que cambió con el pago se refleja acá mismo, con lo que contestó el backend: a cada animal le
-        // quedan menos cupos, el muelle queda vacío y los apadrinamientos son los que vinieron en la respuesta
-        setAnimales(
-          animales.map((animal) => {
-            const item = pagados.find((i) => i.animal.id === animal.id)
-            return item ? conCuposTomados(animal, item.cantidad) : animal
-          }),
-        )
-        setApadrinamientos(pago.apadrinamientos)
-        setUltimoZarpar({ apadrinados: pagados.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan })), total: pago.total })
-        setMuelle(SIN_MUELLE)
-        setConBotiquin(false)
-        irA('/gracias')
-        return null
-      })
-      .catch((falla) => falla.message)
+    setAnimales(
+      animales.map((animal) => {
+        const item = pagados.find((i) => i.animal.id === animal.id)
+        return item ? conCuposTomados(animal, item.cantidad) : animal
+      }),
+    )
+    setApadrinamientos(pago.apadrinamientos)
+    setUltimoZarpar({ apadrinados: pagados.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan })), total: pago.total })
+    setMuelle(SIN_MUELLE)
+    setConBotiquin(false)
+    irA('/gracias')
   }
 
   // Un apadrinamiento como lo devolvió el backend después de cambiarle el plan o cancelarlo
@@ -377,7 +332,7 @@ const App = () => {
     if (muelle.items.length === 0) {
       return <Navigate to={ultimoZarpar ? '/gracias' : '/muelle'} replace />
     }
-    return <Zarpar muelle={muelle.items} conBotiquin={conBotiquin} onConfirmar={zarpar} onVolver={() => irA('/muelle')} />
+    return <Zarpar idMuelle={muelle.id} muelle={muelle.items} conBotiquin={conBotiquin} onZarpado={registrarZarpar} onVolver={() => irA('/muelle')} />
   }
 
   // El contenido de <main>: un aviso mientras llega el catálogo, el error si el backend no respondió, o la página de la ruta actual
@@ -386,14 +341,7 @@ const App = () => {
       return <Cargando texto="Cargando SeaPlace…" />
     }
     if (sinConexion) {
-      return (
-        <div className="max-w-2xl mx-auto px-margin-mobile py-space-xl space-y-space-md text-center">
-          <AvisoError mensaje={sinConexion} />
-          <button onClick={reintentar} className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">
-            Volver a intentar
-          </button>
-        </div>
-      )
+      return <SinConexion mensaje={sinConexion} onReintentar={reintentar} />
     }
     return (
       <Routes>
@@ -422,11 +370,12 @@ const App = () => {
           element={
             puedeApadrinar ? (
               <Muelle
+                idMuelle={muelle.id}
                 muelle={muelle.items}
                 conBotiquin={conBotiquin}
                 onBotiquin={setConBotiquin}
-                onCantidad={cambiarCantidad}
-                onQuitar={quitarDelMuelle}
+                onCambiar={guardarItemsDelMuelle}
+                onError={setError}
                 onZarpar={() => irA('/zarpar')}
                 onVerCatalogo={() => irA('/catalogo')}
               />

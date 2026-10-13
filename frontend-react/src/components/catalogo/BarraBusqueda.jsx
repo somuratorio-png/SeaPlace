@@ -13,14 +13,14 @@ const BarraBusqueda = ({ busqueda, onBusqueda, urgencia, onUrgencia, orden, onOr
         <Buscador valor={busqueda} onCambiar={onBusqueda} textoAyuda="Buscar por nombre, especie o lugar..." />
       </div>
 
-      <select value={urgencia} onChange={(evento) => onUrgencia(evento.target.value)} aria-label="Filtrar por condición" className={`lg:col-span-3 ${claseSelect}`}>
+      <select name="urgencia" value={urgencia} onChange={(evento) => onUrgencia(evento.target.value)} aria-label="Filtrar por condición" className={`lg:col-span-3 ${claseSelect}`}>
         <option value="todas">Todas las condiciones</option>
         <option value="critico">🚨 Crítico</option>
         <option value="recuperacion">🌿 En recuperación</option>
         <option value="listo">🌊 Listo para liberación</option>
       </select>
 
-      <select value={orden} onChange={(evento) => onOrden(evento.target.value)} aria-label="Ordenar" className={`lg:col-span-2 ${claseSelect}`}>
+      <select name="orden" value={orden} onChange={(evento) => onOrden(evento.target.value)} aria-label="Ordenar" className={`lg:col-span-2 ${claseSelect}`}>
         <option value="recomendados">Recomendados</option>
         <option value="urgencia">Más urgentes</option>
         <option value="progreso">Menos financiados</option>

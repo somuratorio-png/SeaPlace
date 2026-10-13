@@ -18,9 +18,11 @@ const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-space-md">
       <h2 className="font-title-lg text-title-lg text-on-surface">Gestionar apadrinamiento</h2>
 
-      <label className="flex flex-col gap-1.5">
+      <label htmlFor="cambiarPlan" className="flex flex-col gap-1.5">
         <span className="font-label-lg text-label-lg text-on-surface">Cambiar de plan</span>
         <select
+          id="cambiarPlan"
+          name="plan"
           value={item.plan.codigo}
           onChange={elegir}
           className="w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40"

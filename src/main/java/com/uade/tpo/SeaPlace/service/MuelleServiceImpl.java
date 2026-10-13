@@ -146,6 +146,10 @@ public class MuelleServiceImpl implements MuelleService {
         // Solo el dueño del carrito (o un admin) puede modificarlo.
         autorizacionService.validarPropietarioOAdmin(detalle.getMuelle().getUsuario().getIdUsuario());
 
+        if (!ESTADO_MUELLE_ACTIVO.equals(detalle.getMuelle().getEstado())) {
+            throw new ReglaDeNegocioException("El muelle ya fue confirmado o no esta activo");
+        }
+
         Animal animal = detalle.getAnimal();
 
         if (!ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
@@ -177,6 +181,10 @@ public class MuelleServiceImpl implements MuelleService {
 
         // Solo el dueño del carrito (o un admin) puede sacarle items.
         autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
+
+        if (!ESTADO_MUELLE_ACTIVO.equals(muelle.getEstado())) {
+            throw new ReglaDeNegocioException("El muelle ya fue confirmado o no esta activo");
+        }
 
         muelleDetalleRepository.deleteByMuelle_IdMuelleAndAnimal_IdAnimal(muelleId, animalId);
     }

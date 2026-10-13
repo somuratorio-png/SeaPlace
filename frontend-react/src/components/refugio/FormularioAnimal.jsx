@@ -59,9 +59,9 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
         <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
         <CampoTexto etiqueta="Especie" nombre="especie" valor={datos.especie} onCambiar={cambiar} />
 
-        <label className="flex flex-col gap-1.5">
+        <label htmlFor="categoria" className="flex flex-col gap-1.5">
           <span className="font-label-lg text-label-lg text-on-surface">Categoría</span>
-          <select name="categoria" value={datos.categoria} onChange={cambiar} className={claseCampo}>
+          <select id="categoria" name="categoria" value={datos.categoria} onChange={cambiar} className={claseCampo}>
             {categorias.map((categoria) => (
               <option key={categoria.id} value={categoria.id}>
                 {categoria.nombre}
@@ -70,9 +70,9 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
           </select>
         </label>
 
-        <label className="flex flex-col gap-1.5">
+        <label htmlFor="urgencia" className="flex flex-col gap-1.5">
           <span className="font-label-lg text-label-lg text-on-surface">Condición</span>
-          <select name="urgencia" value={datos.urgencia} onChange={cambiar} className={claseCampo}>
+          <select id="urgencia" name="urgencia" value={datos.urgencia} onChange={cambiar} className={claseCampo}>
             {urgencias.map((urgencia) => (
               <option key={urgencia.id} value={urgencia.id}>
                 {urgencia.estado}
@@ -87,14 +87,14 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
         <CampoTexto etiqueta="Cupos (cuántos padrinos admite)" nombre="cuposTotales" tipo="number" valor={datos.cuposTotales} onCambiar={cambiar} />
       </div>
 
-      <label className="flex flex-col gap-1.5">
+      <label htmlFor="descripcion" className="flex flex-col gap-1.5">
         <span className="font-label-lg text-label-lg text-on-surface">Su historia</span>
-        <textarea name="descripcion" value={datos.descripcion} onChange={cambiar} required rows="3" className={claseCampo} />
+        <textarea id="descripcion" name="descripcion" value={datos.descripcion} onChange={cambiar} required rows="3" className={claseCampo} />
       </label>
 
-      <label className="flex flex-col gap-1.5">
+      <label htmlFor="fotos" className="flex flex-col gap-1.5">
         <span className="font-label-lg text-label-lg text-on-surface">Fotos (opcional, podés elegir varias)</span>
-        <input type="file" accept="image/*" multiple onChange={elegirFotos} className={claseCampo} />
+        <input type="file" id="fotos" name="fotos" accept="image/*" multiple onChange={elegirFotos} className={claseCampo} />
       </label>
       {fotos.length > 0 && (
         <div className="flex flex-wrap gap-space-sm">

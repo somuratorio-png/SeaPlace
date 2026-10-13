@@ -1,8 +1,37 @@
 import MuelleDetalle from '../components/muelle/MuelleDetalle'
 import ResumenMuelle from '../components/muelle/ResumenMuelle'
 import Portada from '../components/comunes/Portada'
+import { cambiarItem, quitarDelMuelle } from '../services/apadrinar'
 
-const Muelle = ({ muelle, conBotiquin, onBotiquin, onCantidad, onQuitar, onZarpar, onVerCatalogo }) => {
+// El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
+// "muelle" son sus ítems, que tiene App. Cada cambio llama al backend y, con lo que contesta, le pasa
+// a App los ítems como quedaron (onCambiar). Si falla, onError muestra el mensaje arriba de la página.
+const Muelle = ({ idMuelle, muelle, conBotiquin, onBotiquin, onCambiar, onError, onZarpar, onVerCatalogo }) => {
+  // Botones de más y menos: la cantidad son los cupos que se quieren tomar de ese animal.
+  // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
+  const cambiarCantidad = (item, cantidad) => {
+    const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
+    onError(null)
+    cambiarItem(idMuelle, item.animal.id, acotada)
+      .then((cambiado) => {
+        onCambiar(muelle.map((otro) => (otro.animal.id === cambiado.animal.id ? cambiado : otro)))
+      })
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
+
+  const quitar = (item) => {
+    onError(null)
+    quitarDelMuelle(idMuelle, item.animal.id)
+      .then(() => {
+        onCambiar(muelle.filter((otro) => otro.animal.id !== item.animal.id))
+      })
+      .catch((falla) => {
+        onError(falla.message)
+      })
+  }
+
   if (muelle.length === 0) {
     return (
       <>
@@ -33,8 +62,8 @@ const Muelle = ({ muelle, conBotiquin, onBotiquin, onCantidad, onQuitar, onZarpa
               <MuelleDetalle
                 key={item.animal.id}
                 item={item}
-                onCantidad={(cantidad) => onCantidad(item.animal.id, cantidad)}
-                onQuitar={() => onQuitar(item.animal.id)}
+                onCantidad={(cantidad) => cambiarCantidad(item, cantidad)}
+                onQuitar={() => quitar(item)}
               />
             ))}
           </ul>

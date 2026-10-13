@@ -25,13 +25,13 @@ const FormularioUbicacion = ({ animal, onRegistrar }) => {
     <form onSubmit={registrar} className="space-y-space-sm">
       <h4 className="font-label-lg text-label-lg text-on-surface">Informar su ubicación</h4>
       <div className="grid grid-cols-2 gap-space-sm">
-        <label className="flex flex-col gap-1">
+        <label htmlFor={`latitud-${animal.id}`} className="flex flex-col gap-1">
           <span className="font-label-md text-label-md text-on-surface-variant">Latitud</span>
-          <input type="number" step="any" min="-90" max="90" required placeholder="-33.16" value={latitud} onChange={(evento) => setLatitud(evento.target.value)} className={claseCampo} />
+          <input type="number" id={`latitud-${animal.id}`} name="latitud" step="any" min="-90" max="90" required placeholder="-33.16" value={latitud} onChange={(evento) => setLatitud(evento.target.value)} className={claseCampo} />
         </label>
-        <label className="flex flex-col gap-1">
+        <label htmlFor={`longitud-${animal.id}`} className="flex flex-col gap-1">
           <span className="font-label-md text-label-md text-on-surface-variant">Longitud</span>
-          <input type="number" step="any" min="-180" max="180" required placeholder="-71.99" value={longitud} onChange={(evento) => setLongitud(evento.target.value)} className={claseCampo} />
+          <input type="number" id={`longitud-${animal.id}`} name="longitud" step="any" min="-180" max="180" required placeholder="-71.99" value={longitud} onChange={(evento) => setLongitud(evento.target.value)} className={claseCampo} />
         </label>
       </div>
       <div className="flex flex-wrap items-center gap-space-md">

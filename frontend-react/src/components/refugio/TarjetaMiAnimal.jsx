@@ -53,10 +53,12 @@ const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, o
           <FormularioOferta animal={animal} onEditar={onEditar} />
           <FormularioNovedad animal={animal} onPublicar={onPublicarNovedad} />
           <FormularioUbicacion animal={animal} onRegistrar={onRegistrarUbicacion} />
-          <label className="space-y-space-sm block">
+          <label htmlFor={`fotos-${animal.id}`} className="space-y-space-sm block">
             <h4 className="font-label-lg text-label-lg text-on-surface">Sumar fotos a su galería</h4>
             <input
               type="file"
+              id={`fotos-${animal.id}`}
+              name="fotos"
               accept="image/*"
               multiple
               onChange={sumarFotos}

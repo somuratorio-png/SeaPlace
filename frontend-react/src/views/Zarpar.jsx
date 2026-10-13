@@ -3,14 +3,15 @@ import Icono from '../components/comunes/Icono'
 import Portada from '../components/comunes/Portada'
 import Precio from '../components/comunes/Precio'
 import CampoTexto from '../components/login/CampoTexto'
+import { zarpar } from '../services/apadrinar'
 import { PRECIO_BOTIQUIN, totalMuelle } from '../utils/precios'
 
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
 // Zarpar = confirmar el muelle y pagar (igual que la clase Zarpar del backend).
 // El pago es simulado: no se cobra nada ni se guardan los datos de la tarjeta (no se mandan al backend).
-// Lo que sí es real es la confirmación: onConfirmar le pide al backend que registre el zarpar
-// y devuelve su mensaje de error (por ejemplo, si a un animal ya no le quedan cupos), o null si salió bien.
+// Lo que sí es real es la confirmación: se le pide al backend que registre el zarpar. Si falla (por ejemplo,
+// si a un animal ya no le quedan cupos) se muestra su mensaje; si sale bien, onZarpado le pasa a App lo que contestó.
 // Los campos de la tarjeta no dejan escribir de más: solo números y hasta el largo justo.
 // Antes de confirmar se revisa que el número esté completo, que la tarjeta no esté vencida y el código.
 
@@ -36,7 +37,7 @@ const estaVencida = (mes, anio) => {
   return anio < anioActual || (anio === anioActual && mes < mesActual)
 }
 
-const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
+const Zarpar = ({ idMuelle, muelle, conBotiquin, onZarpado, onVolver }) => {
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
@@ -72,14 +73,15 @@ const Zarpar = ({ muelle, conBotiquin, onConfirmar, onVolver }) => {
       return
     }
 
+    // El backend vuelve a validar los cupos, convierte cada ítem en un apadrinamiento y cierra el muelle.
     // Si sale bien, App pasa a la página de gracias y este formulario desaparece
     setEnviando(true)
-    onConfirmar().then((mensaje) => {
-      if (mensaje) {
-        setError(mensaje)
+    zarpar(idMuelle, conBotiquin)
+      .then(onZarpado)
+      .catch((falla) => {
+        setError(falla.message)
         setEnviando(false)
-      }
-    })
+      })
   }
 
   return (

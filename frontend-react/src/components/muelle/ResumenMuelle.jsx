@@ -18,8 +18,8 @@ const ResumenMuelle = ({ muelle, conBotiquin, onBotiquin, onZarpar }) => {
         </span>
       </div>
 
-      <label className="flex items-center gap-space-sm font-body-md text-body-md cursor-pointer">
-        <input type="checkbox" checked={conBotiquin} onChange={() => onBotiquin(!conBotiquin)} className="accent-secondary w-4 h-4" />
+      <label htmlFor="conBotiquin" className="flex items-center gap-space-sm font-body-md text-body-md cursor-pointer">
+        <input type="checkbox" id="conBotiquin" name="conBotiquin" checked={conBotiquin} onChange={() => onBotiquin(!conBotiquin)} className="accent-secondary w-4 h-4" />
         Sumar botiquín de rescate (+
         <Precio valor={PRECIO_BOTIQUIN} />)
       </label>

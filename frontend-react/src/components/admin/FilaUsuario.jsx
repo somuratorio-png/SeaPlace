@@ -33,6 +33,7 @@ const FilaUsuario = ({ usuario, roles, esUnoMismo, onCambiarRol, onCambiarActivo
       <td className="p-space-sm font-body-sm text-body-sm text-on-surface-variant">{usuario.mail}</td>
       <td className="p-space-sm">
         <select
+          name="rol"
           value={usuario.rol}
           disabled={esUnoMismo}
           onChange={(evento) => onCambiarRol(usuario.nombreUsuario, evento.target.value)}

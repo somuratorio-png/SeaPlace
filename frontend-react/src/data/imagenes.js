@@ -1,9 +1,5 @@
-// URLs de las imágenes del diseño original (extraídas de los HTML viejos).
-// Centralizarlas acá evita repetir textos larguísimos en cada componente.
+// Las imágenes del diseño. Están en public/img, así que las sirve el propio front.
 
-export const logo =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuD-8Ozwo_jTN5rpAn8xY6sNpm0qnuXOvjtmqAyg2vC-ybYKt8euXKne17wLECov16cgdhGMIA9Vjsf1-1OmIsPAjGW352Nyps3GEsRDzqoV-dgRH9V39GRApbOOydllqJFCrjSZZaM9vc-HLUONNocZLHoRFhuyL0_dWMPGG5hsc5vSM4lTMYuKhDbdw-jWBuYtEwL761GlWKjnAYKXHN2O6q1HqfnMR8HWYXHBD11QCOstdfRVEuHG'
-export const heroFoca =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuDnbOyz0KyLD8TXsEuS9DIYyYCaZ_1UUi6Yco-VtdJas3dgfLPKOZr4sCJGsB_v8Xn6kNgy_QCxmdqUgtuIO2b1rEOAt5tFcwH5zeBRwuWqomAzgJJMT80UhJuHX3MdL0DpLA3Q7K-O8U6n9DAoszRoiDmtPYr-csfdVTlYrYHrOkiPGEqtYw0SyJVD86nZPUK33USwdxHa7DG0-1ol92eT2UPuX_bpHMkYqyTypm47CKaHxMV1UkPj'
-export const loginFondo =
-  'https://lh3.googleusercontent.com/aida-public/AB6AXuCPYqVa930sJ6L46X2e-aFZ4Bxu45SulkPnuwA7pQWOo7p7fN2JzB-zQRI4OKkd3WLUzcDok7QDpHJo7OKpqyV_iZwz-u23Mr-co6owQUa0_Kr0jUpoGMiwS7XzVI5w7wd4Xy4fmWBwDnHXnnf_RhPExySEd3INwm9666XCSGOVSeUY8XLTC8fT4NxaMKkI4BnComuiH8a-gh_BKBeqZZ9SbWvHuqtnmi5fNmRSk9eeMLJH2YDXT3tG'
+export const logo = '/img/logo.jpg'
+export const heroFoca = '/img/hero-foca.jpg'
+export const loginFondo = '/img/login-fondo.jpg'

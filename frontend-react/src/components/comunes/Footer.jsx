@@ -54,6 +54,8 @@ const Footer = () => {
               <form onSubmit={suscribirse} className="flex gap-space-sm">
                 <input
                   type="email"
+                  name="mail"
+                  aria-label="Tu correo"
                   required
                   placeholder="correo@pacifico.org"
                   className="flex-1 min-w-0 bg-white/95 text-on-surface rounded-full px-space-md py-space-sm font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary-fixed"

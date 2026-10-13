@@ -30,12 +30,14 @@ const ElegirPlan = ({ animal, puedeApadrinar, onAgregar }) => {
       {planes.map((plan) => (
         <label
           key={plan.codigo}
+          htmlFor={`plan-${plan.codigo}`}
           className={`flex items-start gap-space-md p-space-md rounded-xl cursor-pointer ${
             plan.codigo === planElegido ? 'ring-2 ring-primary bg-surface-container-lowest' : 'bg-surface-container-low'
           }`}
         >
           <input
             type="radio"
+            id={`plan-${plan.codigo}`}
             name="plan"
             checked={plan.codigo === planElegido}
             onChange={() => setPlanElegido(plan.codigo)}

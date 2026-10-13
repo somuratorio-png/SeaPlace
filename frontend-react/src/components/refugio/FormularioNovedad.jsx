@@ -20,6 +20,8 @@ const FormularioNovedad = ({ animal, onPublicar }) => {
     <form onSubmit={publicar} className="space-y-space-sm">
       <h4 className="font-label-lg text-label-lg text-on-surface">Publicar novedad para sus padrinos</h4>
       <textarea
+        name="texto"
+        aria-label="Novedad"
         value={texto}
         onChange={(evento) => setTexto(evento.target.value)}
         required
