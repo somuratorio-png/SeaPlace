@@ -10,6 +10,7 @@ import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.dto.ApadrinamientoResponse;
 import com.uade.tpo.SeaPlace.entity.dto.CambiarPlanRequest;
 import com.uade.tpo.SeaPlace.service.ApadrinamientoService;
+import com.uade.tpo.SeaPlace.service.SesionService;
 
 @RestController
 @RequestMapping("apadrinamientos")
@@ -18,11 +19,14 @@ public class ApadrinamientosController {
     @Autowired
     private ApadrinamientoService apadrinamientoService;
 
+    @Autowired
+    private SesionService sesionService;
+
     // los que le corresponden al usuario logueado: un admin ve todos, un refugio los de sus
     // animales y un padrino los propios (activos y cancelados)
     @GetMapping
     public ResponseEntity<List<ApadrinamientoResponse>> getApadrinamientos() {
-        List<ApadrinamientoResponse> resultado = apadrinamientoService.getApadrinamientos().stream().map(this::aRespuesta).toList();
+        List<ApadrinamientoResponse> resultado = sesionService.getApadrinamientos();
         // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
@@ -42,6 +46,6 @@ public class ApadrinamientosController {
     }
 
     private ApadrinamientoResponse aRespuesta(Apadrinamiento apadrinamiento) {
-        return ApadrinamientoResponse.fromEntity(apadrinamiento, apadrinamientoService.getPagos(apadrinamiento));
+        return sesionService.aRespuesta(apadrinamiento);
     }
 }

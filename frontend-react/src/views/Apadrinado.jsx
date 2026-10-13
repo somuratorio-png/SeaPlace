@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
-import AvisoError from '../components/comunes/AvisoError'
 import BarraProgreso from '../components/comunes/BarraProgreso'
 import Icono from '../components/comunes/Icono'
 import Galeria from '../components/detalle/Galeria'
@@ -11,12 +9,11 @@ import HistorialPagos from '../components/panel/HistorialPagos'
 import MiPlan from '../components/panel/MiPlan'
 import Rastreo from '../components/panel/Rastreo'
 import RastreoBloqueado from '../components/panel/RastreoBloqueado'
-import { traerNovedades } from '../services/animales'
 import { cambiarPlan, cancelarApadrinamiento } from '../services/apadrinar'
 import { formatearFecha } from '../utils/fechas'
 
 // Detalle de un animal que el usuario ya apadrinó.
-// "apadrinamientos" son los que ya tiene App; esta página pide al backend, al montarse, la bitácora del animal.
+// "apadrinamientos" son los que ya tiene App: cada uno trae la bitácora y la última ubicación de su animal.
 // onGuardarApadrinamiento le pasa a App el apadrinamiento como quedó después de cambiarle el plan o cancelarlo,
 // onGuardarAnimal el animal como quedó después de cancelar (recupera sus cupos) y
 // onError muestra arriba de la página el mensaje de una acción que falló.
@@ -24,20 +21,6 @@ const Apadrinado = ({ apadrinamientos, onVolver, onVerCertificado, onGuardarApad
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const { id } = useParams()
   const idAnimal = Number(id)
-
-  const [susNovedades, setSusNovedades] = useState([])
-  const [errorNovedades, setErrorNovedades] = useState(null)
-
-  // La bitácora depende del animal: se pide al abrir la página (y de nuevo si se pasa a otro animal)
-  useEffect(() => {
-    traerNovedades(idAnimal)
-      .then((novedades) => {
-        setSusNovedades(novedades)
-      })
-      .catch((falla) => {
-        setErrorNovedades(falla.message)
-      })
-  }, [idAnimal])
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
@@ -88,7 +71,7 @@ const Apadrinado = ({ apadrinamientos, onVolver, onVerCertificado, onGuardarApad
             <p className="font-body-md text-body-md text-on-surface-variant">{animal.descripcion}</p>
           </div>
 
-          {errorNovedades ? <AvisoError mensaje={errorNovedades} /> : <Bitacora nombre={animal.nombre} novedades={susNovedades} />}
+          <Bitacora nombre={animal.nombre} novedades={item.novedades} />
         </div>
 
         <div className="lg:col-span-5 space-y-space-md">
@@ -120,7 +103,7 @@ const Apadrinado = ({ apadrinamientos, onVolver, onVerCertificado, onGuardarApad
       </div>
 
       {/* La ubicación solo se muestra con el plan más alto. Va a todo el ancho para que el mapa luzca. */}
-      {plan.ubicacionEnVivo ? <Rastreo key={animal.id} animal={animal} /> : <RastreoBloqueado nombre={animal.nombre} />}
+      {plan.ubicacionEnVivo ? <Rastreo key={animal.id} animal={animal} posicion={item.ultimaUbicacion} /> : <RastreoBloqueado nombre={animal.nombre} />}
     </div>
   )
 }

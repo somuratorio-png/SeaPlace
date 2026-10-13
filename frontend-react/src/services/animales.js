@@ -1,7 +1,7 @@
 import { urgencias } from '../data/animales'
 import { heroFoca } from '../data/imagenes'
 import { hoy } from '../utils/fechas'
-import { pedir, pedirLista, pedirPagina, URL_BASE } from './api'
+import { pedir, URL_BASE } from './api'
 
 // Una foto subida como archivo tiene una url de la API (empieza con /animales/): hay que pedirla
 // a través del proxy. Las demás son urls completas o imágenes que sirve el propio front.
@@ -54,18 +54,11 @@ const iconoDe = (nombre) => {
   return 'pets'
 }
 
-const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
-
-// [{ id, nombre, icono }]
-export const traerCategorias = () => pedirLista('/categorias').then((categorias) => categorias.map(aCategoria))
+export const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
 
 // Solo la puede crear un administrador. Devuelve la categoría creada.
 export const crearCategoria = (nombreCategoria, descripcion) =>
   pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } }).then(aCategoria)
-
-// Las publicaciones activas son públicas. Las pausadas solo las puede pedir el refugio (ve las suyas)
-// o un administrador (ve todas).
-export const traerAnimales = (estado = 'ACTIVA') => pedirPagina(`/animales?estado=${estado}`).then((animales) => animales.map(aAnimal))
 
 // datos = lo que carga el formulario del refugio. El refugio no se manda: el backend usa el de la cuenta.
 export const crearAnimal = (datos) =>
@@ -114,23 +107,15 @@ export const quitarOferta = (animal) =>
 
 // ---------- Bitácora y ubicación ----------
 
-// [{ id, fecha: 'AAAA-MM-DD', texto }], de la más nueva a la más vieja
-export const traerNovedades = (idAnimal) =>
-  pedirLista(`/animales/${idAnimal}/novedades`).then((novedades) =>
-    novedades.map((novedad) => ({ id: novedad.idNovedad, fecha: novedad.fecha.slice(0, 10), texto: novedad.texto })),
-  )
+// La bitácora y la última ubicación de un animal llegan dentro de cada apadrinamiento (ver apadrinar.js)
+
+// Una novedad de la bitácora: { id, fecha: 'AAAA-MM-DD', texto }
+export const aNovedad = (novedad) => ({ id: novedad.idNovedad, fecha: novedad.fecha.slice(0, 10), texto: novedad.texto })
+
+// La última posición que informó el refugio: { latitud, longitud, fecha: 'AAAA-MM-DD' }
+export const aUbicacion = (ubicacion) => ({ latitud: ubicacion.latitud, longitud: ubicacion.longitud, fecha: ubicacion.fechaHora.slice(0, 10) })
 
 export const publicarNovedad = (idAnimal, texto) => pedir(`/animales/${idAnimal}/novedades`, { metodo: 'POST', cuerpo: { texto } })
-
-// La última posición que informó el refugio: { latitud, longitud, fecha: 'AAAA-MM-DD' }, o null si nunca informó una
-export const traerUltimaUbicacion = (idAnimal) =>
-  pedir(`/animales/${idAnimal}/ubicaciones/ultima`)
-    .then((ubicacion) => ({ latitud: ubicacion.latitud, longitud: ubicacion.longitud, fecha: ubicacion.fechaHora.slice(0, 10) }))
-    .catch((error) => {
-      // 404 = el animal todavía no tiene ninguna ubicación cargada
-      if (error.estado === 404) return null
-      throw error
-    })
 
 export const registrarUbicacion = (idAnimal, latitud, longitud) =>
   pedir(`/animales/${idAnimal}/ubicaciones`, { metodo: 'POST', cuerpo: { latitud, longitud } })

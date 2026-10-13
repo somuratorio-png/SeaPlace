@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import com.uade.tpo.SeaPlace.controllers.auth.AuthenticationRequest;
 import com.uade.tpo.SeaPlace.controllers.auth.AuthenticationResponse;
 import com.uade.tpo.SeaPlace.controllers.auth.RegisterRequest;
 import com.uade.tpo.SeaPlace.controllers.config.JwtService;
+import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.exceptions.RecursoDuplicadoException;
@@ -38,13 +40,23 @@ public class AuthenticationService {
     private final AuthenticationManager authenticationManager;
     private final CuentaBajaService cuentaBajaService;
     private final RefugioService refugioService;
+    private final SesionService sesionService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         Usuario usuario = crearUsuario(request.getNombre(), request.getApellido(), request.getMail(),
                 request.getNombreUsuario(), request.getContrasenia(), ROL_POR_DEFECTO);
 
+        return responder(usuario);
+    }
+
+    // La respuesta de entrar o registrarse: el token y los datos de la sesion de ese usuario.
+    // Lo deja como el usuario actual de este pedido, para armar su sesion igual que en /inicio.
+    private AuthenticationResponse responder(Usuario usuario) {
+        SecurityContextHolder.getContext().setAuthentication(
+                new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities()));
+
         var jwtToken = jwtService.generateToken(usuario);
-        return AuthenticationResponse.builder().accessToken(jwtToken).build();
+        return AuthenticationResponse.builder().accessToken(jwtToken).sesion(sesionService.armarSesion()).build();
     }
 
     // Crea el usuario con rol refugio y su refugio en un solo paso. Es transaccional:
@@ -59,10 +71,11 @@ public class AuthenticationService {
         refugioRequest.setNombreRefugio(request.getNombreRefugio());
         refugioRequest.setDescripcion(request.getDescripcion());
         // Queda pendiente: un administrador lo tiene que aprobar antes de que pueda publicar.
-        refugioService.createRefugioPendiente(refugioRequest);
+        Refugio refugio = refugioService.createRefugioPendiente(refugioRequest);
+        // Para que la sesion que se responde ya muestre su refugio (pendiente de aprobacion).
+        usuario.setRefugio(refugio);
 
-        var jwtToken = jwtService.generateToken(usuario);
-        return AuthenticationResponse.builder().accessToken(jwtToken).build();
+        return responder(usuario);
     }
 
     // Valida los datos, controla duplicados y guarda un usuario nuevo con el rol indicado.
@@ -116,8 +129,7 @@ public class AuthenticationService {
         Usuario usuario = usuarioRepository.findByNombreUsuario(nombreUsuario)
                 .orElseThrow();
 
-        var jwtToken = jwtService.generateToken(usuario);
-        return AuthenticationResponse.builder().accessToken(jwtToken).build();
+        return responder(usuario);
     }
 
     // Si la cuenta esta de baja pero dentro del plazo, entrar con la contrasenia

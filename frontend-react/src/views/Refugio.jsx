@@ -1,7 +1,5 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useState } from 'react'
 import TarjetaDato from '../components/admin/TarjetaDato'
-import AvisoError from '../components/comunes/AvisoError'
-import Cargando from '../components/comunes/Cargando'
 import Icono from '../components/comunes/Icono'
 import MenuLateral from '../components/comunes/MenuLateral'
 import Portada from '../components/comunes/Portada'
@@ -11,7 +9,6 @@ import ListaPadrinos from '../components/refugio/ListaPadrinos'
 import SeccionAnimales from '../components/refugio/SeccionAnimales'
 import { ContextoMoneda, formatearPrecio } from '../contexto/Moneda'
 import * as animalesApi from '../services/animales'
-import { traerApadrinamientos } from '../services/apadrinar'
 import { intentar } from '../utils/intentar'
 import { recaudacionMensual } from '../utils/precios'
 
@@ -24,29 +21,12 @@ const secciones = [
 // Panel del refugio. Tiene un menú lateral y muestra una sola sección por vez:
 // sus animales (ofertas, novedades, fotos y ubicación), sus padrinos, o el formulario para publicar uno nuevo.
 // "animales" son los que ya tiene App: las publicaciones activas de todos y las pausadas de este refugio.
-// Los apadrinamientos de sus animales los pide esta página al montarse (el backend ya manda solo esos).
+// "apadrinamientos" también los tiene App: son los de los animales de este refugio.
 // Cada acción llama al backend y le pasa a App el animal como quedó (onGuardarAnimal), así el cambio
 // se ve sin volver a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
-const Refugio = ({ usuario, animales, categorias, onGuardarAnimal, onAnimalQuitado, onVerAnimal, onError }) => {
+const Refugio = ({ usuario, animales, apadrinamientos, categorias, onGuardarAnimal, onAnimalQuitado, onVerAnimal, onError }) => {
   const [seccion, setSeccion] = useState('animales')
-  const [apadrinamientos, setApadrinamientos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [errorAlCargar, setErrorAlCargar] = useState(null)
   const moneda = useContext(ContextoMoneda)
-
-  // Un solo pedido, al entrar al panel
-  useEffect(() => {
-    traerApadrinamientos()
-      .then((lista) => {
-        setApadrinamientos(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   const propios = animales.filter((animal) => animal.idRefugio === usuario.idRefugio)
 
@@ -166,52 +146,45 @@ const Refugio = ({ usuario, animales, categorias, onGuardarAnimal, onAnimalQuita
         texto={`Tenés ${propios.length} ${propios.length === 1 ? 'animal publicado' : 'animales publicados'} en el catálogo.`}
       />
 
-      {cargando ? (
-        <Cargando texto="Cargando tu refugio…" />
-      ) : (
-        <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
-          {/* Si no llegaron los apadrinamientos, se avisa y el resto del panel sigue funcionando */}
-          {errorAlCargar && <AvisoError mensaje={errorAlCargar} />}
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
+        <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
+          <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
+          <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />
+          <TarjetaDato
+            icono="payments"
+            valor={formatearPrecio(recaudacionMensual(susApadrinamientos), moneda)}
+            titulo="Recaudación mensual"
+            clase="bg-tertiary-fixed text-on-tertiary-fixed-variant"
+          />
+        </div>
 
-          <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
-            <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />
-            <TarjetaDato icono="group" valor={cantidadPadrinos} titulo="Padrinos" clase="bg-secondary-container text-on-secondary-fixed-variant" />
-            <TarjetaDato
-              icono="payments"
-              valor={formatearPrecio(recaudacionMensual(susApadrinamientos), moneda)}
-              titulo="Recaudación mensual"
-              clase="bg-tertiary-fixed text-on-tertiary-fixed-variant"
-            />
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
+          <div className="lg:col-span-3">
+            <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-            <div className="lg:col-span-3">
-              <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
-            </div>
-
-            <div className="lg:col-span-9">
-              {seccion === 'animales' && (
-                <SeccionAnimales
-                  animales={propios}
-                  apadrinamientos={susApadrinamientos}
-                  onVer={onVerAnimal}
-                  onQuitar={quitar}
-                  onEditar={editar}
-                  onPublicarNovedad={publicarNovedad}
-                  onRegistrarUbicacion={registrarUbicacion}
-                />
-              )}
-              {seccion === 'padrinos' && (
-                <section className="space-y-space-md">
-                  <TituloSeccion>Padrinos</TituloSeccion>
-                  <ListaPadrinos apadrinamientos={susApadrinamientos} />
-                </section>
-              )}
-              {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={publicar} />}
-            </div>
+          <div className="lg:col-span-9">
+            {seccion === 'animales' && (
+              <SeccionAnimales
+                animales={propios}
+                apadrinamientos={susApadrinamientos}
+                onVer={onVerAnimal}
+                onQuitar={quitar}
+                onEditar={editar}
+                onPublicarNovedad={publicarNovedad}
+                onRegistrarUbicacion={registrarUbicacion}
+              />
+            )}
+            {seccion === 'padrinos' && (
+              <section className="space-y-space-md">
+                <TituloSeccion>Padrinos</TituloSeccion>
+                <ListaPadrinos apadrinamientos={susApadrinamientos} />
+              </section>
+            )}
+            {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={publicar} />}
           </div>
         </div>
-      )}
+      </div>
     </>
   )
 }

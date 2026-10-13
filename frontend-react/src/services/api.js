@@ -12,8 +12,6 @@ export const borrarToken = () => {
   localStorage.removeItem(CLAVE_TOKEN)
 }
 
-export const hayToken = () => localStorage.getItem(CLAVE_TOKEN) !== null
-
 // El backend manda sus errores como { mensaje: '...' }. Si la respuesta no trae uno
 // (por ejemplo, cuando falta iniciar sesión), se arma un texto según el código.
 const mensajeDeError = (estado, datos) => {
@@ -60,7 +58,7 @@ const interpretar = (respuesta, texto) => {
 }
 
 // Hace un pedido al backend y devuelve una promesa con el cuerpo de la respuesta ya convertido de JSON,
-// o null si la respuesta no trae cuerpo (el backend responde 204 cuando una lista está vacía).
+// o null si la respuesta no trae cuerpo (204).
 // Si hay un token guardado (alguien inició sesión), lo manda en el encabezado Authorization.
 // "cuerpo" viaja como JSON; "archivo" viaja como formulario (para subir una foto).
 // Si el pedido sale mal la promesa se rechaza con un Error con el mensaje del backend y el código en error.estado.
@@ -82,10 +80,3 @@ export const pedir = (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
     })
     .then((respuesta) => respuesta.text().then((texto) => interpretar(respuesta, texto)))
 }
-
-// Para los pedidos que devuelven una lista: sin elementos el backend responde 204, y acá se devuelve []
-export const pedirLista = (ruta) => pedir(ruta).then((datos) => datos ?? [])
-
-// Para los que devuelven una página de Spring ({ content: [...], totalPages, ... }): devuelve sus elementos.
-// Sin page ni size el backend manda todo en una sola página.
-export const pedirPagina = (ruta) => pedir(ruta).then((datos) => datos?.content ?? [])

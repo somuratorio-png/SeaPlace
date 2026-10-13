@@ -3,6 +3,7 @@ package com.uade.tpo.SeaPlace.entity.dto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.ZarparDetalle;
 
@@ -22,6 +23,12 @@ public class ApadrinamientoResponse {
     private boolean activo;
     private LocalDateTime fechaCancelacion;
     private List<PagoResponse> pagos;
+    // La bitacora del animal (de la mas nueva a la mas vieja) y la ultima posicion que informo
+    // el refugio. Si no hay, el campo directamente no se incluye en el JSON.
+    @JsonInclude(JsonInclude.Include.NON_EMPTY)
+    private List<NovedadResponse> novedades;
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private UbicacionAnimalResponse ultimaUbicacion;
 
     // "pagos" son los renglones de zarpar con los que ese padrino pago por ese animal.
     public static ApadrinamientoResponse fromEntity(Apadrinamiento apadrinamiento, List<ZarparDetalle> pagos) {
