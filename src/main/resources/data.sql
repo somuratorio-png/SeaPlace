@@ -8,11 +8,12 @@ INSERT IGNORE INTO permiso (nombre_permiso, descripcion) VALUES ('GESTIONAR_USUA
 
 -- El rol administrador arranca con los tres permisos de gestion; un rol nuevo podria
 -- tener solo alguno de ellos sin volverse administrador completo.
-INSERT IGNORE INTO rol_permiso (id_rol, id_permiso)
+INSERT INTO rol_permiso (id_rol, id_permiso)
 SELECT r.id_rol, p.id_permiso
 FROM rol r
 JOIN permiso p ON p.nombre_permiso IN ('GESTIONAR_ROLES', 'GESTIONAR_REFUGIOS', 'GESTIONAR_USUARIOS')
-WHERE r.nombre_rol = 'administrador';
+WHERE r.nombre_rol = 'administrador'
+  AND NOT EXISTS (SELECT 1 FROM rol_permiso x WHERE x.id_rol = r.id_rol AND x.id_permiso = p.id_permiso);
 
 -- =====================================================================================
 -- DATOS DE DEMO
