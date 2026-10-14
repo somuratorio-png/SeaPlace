@@ -36,7 +36,7 @@ const PanelCuenta = ({ usuario, onPerfilGuardado }) => {
 
   const guardarPerfil = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    intentar(modificarMiPerfil(perfil).then(onPerfilGuardado)).then((mensaje) => {
+    intentar(modificarMiPerfil({ nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }).then(onPerfilGuardado)).then((mensaje) => {
       setErrorPerfil(mensaje)
       setPerfilGuardado(mensaje === null)
     })

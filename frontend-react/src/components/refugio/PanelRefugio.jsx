@@ -146,16 +146,19 @@ const PanelRefugio = ({ usuario, onVerAnimal, onError }) => {
   const editar = (idAnimal, cambios) => {
     const animal = propios.find((a) => a.id === idAnimal)
 
-    let pedido
-    if (cambios.descuento) {
-      pedido = animalesApi.ponerOferta(animal, cambios.descuento.porcentaje, cambios.descuento.hasta)
-    } else if (cambios.descuento === null) {
-      pedido = animalesApi.quitarOferta(animal)
-    } else if (cambios.fotos) {
-      pedido = subirFotos(animal, cambios.fotos)
-    } else {
-      pedido = animalesApi.cambiarPublicacion(idAnimal, cambios.publicacion)
+    const elegirPedido = () => {
+      if (cambios.descuento) {
+        return animalesApi.ponerOferta(animal, cambios.descuento.porcentaje, cambios.descuento.hasta)
+      }
+      if (cambios.descuento === null) {
+        return animalesApi.quitarOferta(animal)
+      }
+      if (cambios.fotos) {
+        return subirFotos(animal, cambios.fotos)
+      }
+      return animalesApi.cambiarPublicacion(idAnimal, cambios.publicacion)
     }
+    const pedido = elegirPedido()
 
     onError(null)
     pedido.then(guardarAnimal).catch((falla) => {

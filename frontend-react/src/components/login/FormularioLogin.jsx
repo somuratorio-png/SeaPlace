@@ -30,7 +30,7 @@ const FormularioLogin = ({ onEntrar }) => {
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
 
-  const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario, datos.contrasenia).then(onEntrar))
+  const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario.trim(), datos.contrasenia).then(onEntrar))
 
   // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
   const registrar = () => {
@@ -38,7 +38,8 @@ const FormularioLogin = ({ onEntrar }) => {
       return Promise.resolve('La contraseña debe tener al menos 8 caracteres')
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
-    return intentar(usuariosApi.registrar(datos, esRefugio).then(onEntrar))
+    const limpios = { ...datos, nombre: datos.nombre.trim(), apellido: datos.apellido.trim(), mail: datos.mail.trim(), nombreUsuario: datos.nombreUsuario.trim() }
+    return intentar(usuariosApi.registrar(limpios, esRefugio).then(onEntrar))
   }
 
   // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página

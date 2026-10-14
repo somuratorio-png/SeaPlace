@@ -60,7 +60,7 @@ const SeccionRoles = ({ onError }) => {
 
   const crearRol = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    intentar(usuariosApi.crearRol(nombreRol).then(guardarRol), onError).then((mensaje) => {
+    intentar(usuariosApi.crearRol(nombreRol.trim()).then(guardarRol), onError).then((mensaje) => {
       if (mensaje === null) {
         setNombreRol('')
       }
@@ -69,7 +69,7 @@ const SeccionRoles = ({ onError }) => {
 
   const crearPermiso = (evento) => {
     evento.preventDefault()
-    const pedido = usuariosApi.crearPermiso(permiso.nombre, permiso.descripcion).then((nuevo) => {
+    const pedido = usuariosApi.crearPermiso(permiso.nombre.trim(), permiso.descripcion.trim()).then((nuevo) => {
       setPermisos((actuales) => [...actuales, nuevo])
     })
     intentar(pedido, onError).then((mensaje) => {

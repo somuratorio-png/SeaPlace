@@ -50,7 +50,7 @@ const SeccionCategorias = () => {
   const crear = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
     // La categoría nueva se agrega a la lista con lo que devuelve el backend. Si falla, el error lo muestra el formulario.
-    const pedido = crearCategoria(datos.nombre, datos.descripcion).then((nueva) => {
+    const pedido = crearCategoria(datos.nombre.trim(), datos.descripcion.trim()).then((nueva) => {
       setCategorias((actuales) => [...actuales, nueva])
     })
     intentar(pedido).then((mensaje) => {

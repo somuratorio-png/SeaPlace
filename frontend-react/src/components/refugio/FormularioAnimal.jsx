@@ -40,7 +40,16 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
     const formulario = evento.target
     setEnviando(true)
     // Si no tocó el selector de categoría, se manda la primera (la que se ve elegida)
-    onGuardar({ ...datos, categoria: datos.categoria || categorias[0].id }, fotos.map((foto) => foto.archivo)).then((mensaje) => {
+    const limpios = {
+      ...datos,
+      nombre: datos.nombre.trim(),
+      especie: datos.especie.trim(),
+      edad: datos.edad.trim(),
+      ubicacion: datos.ubicacion.trim(),
+      descripcion: datos.descripcion.trim(),
+      categoria: datos.categoria || categorias[0].id,
+    }
+    onGuardar(limpios, fotos.map((foto) => foto.archivo)).then((mensaje) => {
       setEnviando(false)
       setError(mensaje)
       if (mensaje === null) {
