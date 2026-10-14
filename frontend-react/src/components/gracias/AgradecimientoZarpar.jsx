@@ -1,11 +1,25 @@
 import Icono from '../comunes/Icono'
 import Portada from '../comunes/Portada'
 import Precio from '../comunes/Precio'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 
 // Se muestra después de zarpar (confirmar el muelle). zarpar = { apadrinados, total }
 // Acá mismo se entrega el certificado de cada animal apadrinado.
-const AgradecimientoZarpar = ({ zarpar, onVerCertificado, onVerPanel, onVerCatalogo }) => {
+const AgradecimientoZarpar = () => {
+  const navigate = useNavigate()
+  const { state } = useLocation()
+
+  // Sin un pago recién hecho no hay nada que agradecer: se vuelve al panel
+  if (state === null) {
+    return <Navigate to="/panel" replace />
+  }
+
+  const zarpar = state.zarpar
   const cantidad = zarpar.apadrinados.length
+
+  const verCertificado = (item) => {
+    navigate(`/panel/${item.animal.id}/certificado`)
+  }
 
   return (
     <>
@@ -40,7 +54,7 @@ const AgradecimientoZarpar = ({ zarpar, onVerCertificado, onVerPanel, onVerCatal
                 <p className="font-body-sm text-body-sm text-on-surface-variant">Plan {item.plan.nombre}</p>
               </div>
               <button
-                onClick={() => onVerCertificado(item)}
+                onClick={() => verCertificado(item)}
                 className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container"
               >
                 <Icono nombre="workspace_premium" clase="text-[20px]" /> Ver certificado
@@ -50,10 +64,10 @@ const AgradecimientoZarpar = ({ zarpar, onVerCertificado, onVerPanel, onVerCatal
         </div>
 
         <div className="flex flex-wrap justify-center gap-space-md">
-          <button onClick={onVerPanel} className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">
+          <button onClick={() => navigate("/panel")} className="bg-primary text-on-primary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">
             Ir a mi panel
           </button>
-          <button onClick={onVerCatalogo} className="bg-primary-fixed text-on-primary-fixed-variant font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">
+          <button onClick={() => navigate("/catalogo")} className="bg-primary-fixed text-on-primary-fixed-variant font-label-lg text-label-lg px-space-lg py-space-sm rounded-full">
             Seguir viendo animales
           </button>
         </div>

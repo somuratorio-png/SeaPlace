@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
-import BotonFavorito from '../comunes/BotonFavorito'
+import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
 import PrecioAnimal from '../comunes/PrecioAnimal'
@@ -13,7 +13,7 @@ import { traerAnimal } from '../../services/animales'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
 // "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
-const DetalleAnimal = ({ favoritos, onFavorito, puedeApadrinar, onAgregar, onVolver }) => {
+const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle, onCambiarMuelle, puedeApadrinar, onVolver }) => {
   const { id } = useParams()
 
   const [animal, setAnimal] = useState(null)
@@ -86,9 +86,9 @@ const DetalleAnimal = ({ favoritos, onFavorito, puedeApadrinar, onAgregar, onVol
               <h1 className="font-headline-lg text-headline-lg text-on-surface">{animal.nombre}</h1>
               <PrecioAnimal animal={animal} />
             </div>
-            <BotonFavorito esFavorito={favoritos.includes(animal.id)} onCambiar={() => onFavorito(animal.id)} />
+              <FavoritoAnimal animal={animal} usuario={usuario} favoritos={favoritos} onCambiarFavoritos={onCambiarFavoritos} onError={onError} />
           </div>
-          <ElegirPlan animal={animal} puedeApadrinar={puedeApadrinar} onAgregar={onAgregar} />
+            <ElegirPlan animal={animal} usuario={usuario} muelle={muelle} onCambiarMuelle={onCambiarMuelle} onError={onError} puedeApadrinar={puedeApadrinar} />
         </div>
       </div>
 

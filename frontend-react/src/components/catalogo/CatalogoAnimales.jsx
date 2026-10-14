@@ -26,8 +26,8 @@ const comparadores = {
 
 // El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
 // por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
-// "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
-const CatalogoAnimales = ({ favoritos, onFavorito, onVerAnimal }) => {
+//"favoritos" son los animales que guardó el usuario, que tiene Sitio.
+const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError, onVerAnimal }) => {
   const [animales, setAnimales] = useState([])
   const [categorias, setCategorias] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -75,7 +75,7 @@ const CatalogoAnimales = ({ favoritos, onFavorito, onVerAnimal }) => {
   const filtrados = animales
     .filter((animal) => categoria === 'todas' || animal.categoria === categoria)
     .filter((animal) => urgencia === 'todas' || animal.urgencia === urgencia)
-    .filter((animal) => !soloFavoritos || favoritos.includes(animal.id))
+        .filter((animal) => !soloFavoritos || favoritos.some((guardado) => guardado.id === animal.id))
     .filter((animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`.toLowerCase().includes(texto))
 
   // "Recomendados" deja el orden original. Para el resto se ordena una copia (sort modifica el array)
@@ -120,8 +120,10 @@ const CatalogoAnimales = ({ favoritos, onFavorito, onVerAnimal }) => {
               <TarjetaAnimal
                 key={animal.id}
                 animal={animal}
-                esFavorito={favoritos.includes(animal.id)}
-                onFavorito={() => onFavorito(animal.id)}
+                usuario={usuario}
+                favoritos={favoritos}
+                onCambiarFavoritos={onCambiarFavoritos}
+                onError={onError}
                 onVer={() => onVerAnimal(animal)}
               />
             ))}

@@ -2,11 +2,23 @@ import MuelleDetalle from './MuelleDetalle'
 import ResumenMuelle from './ResumenMuelle'
 import Portada from '../comunes/Portada'
 import { cambiarItem, quitarDelMuelle } from '../../services/apadrinar'
+import { useState } from 'react'
+import { useLocation, useNavigate } from 'react-router-dom'
 
 // El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
 // "muelle" son sus ítems, que tiene App. Cada cambio llama al backend y, con lo que contesta, le pasa
-// a App los ítems como quedaron (onCambiar). Si falla, onError muestra el mensaje arriba de la página.
-const PanelMuelle = ({ idMuelle, muelle, conBotiquin, onBotiquin, onCambiar, onError, onZarpar, onVerCatalogo }) => {
+// a Sitio los ítems como quedaron (onCambiar). Si falla, onError muestra el mensaje arriba de la página.
+const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle, onError}) => {
+  const navigate = useNavigate()
+  const { state } = useLocation()
+
+  // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
+  const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
+
+  const verCatalogo = () => {
+    navigate('/catalogo')
+  }
+  
   // Botones de más y menos: la cantidad son los cupos que se quieren tomar de ese animal.
   // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
   const cambiarCantidad = (item, cantidad) => {
@@ -14,7 +26,7 @@ const PanelMuelle = ({ idMuelle, muelle, conBotiquin, onBotiquin, onCambiar, onE
     onError(null)
     cambiarItem(idMuelle, item.animal.id, acotada)
       .then((cambiado) => {
-        onCambiar(muelle.map((otro) => (otro.animal.id === cambiado.animal.id ? cambiado : otro)))
+        onCambiarMuelle({ id: idMuelle, items: muelle.map((otro) => (otro.animal.id === cambiado.animal.id ? cambiado : otro)) })
       })
       .catch((falla) => {
         onError(falla.message)
@@ -25,7 +37,7 @@ const PanelMuelle = ({ idMuelle, muelle, conBotiquin, onBotiquin, onCambiar, onE
     onError(null)
     quitarDelMuelle(idMuelle, item.animal.id)
       .then(() => {
-        onCambiar(muelle.filter((otro) => otro.animal.id !== item.animal.id))
+        onCambiarMuelle({ id: idMuelle, items: muelle.filter((otro) => otro.animal.id !== item.animal.id) })
       })
       .catch((falla) => {
         onError(falla.message)
@@ -37,7 +49,7 @@ const PanelMuelle = ({ idMuelle, muelle, conBotiquin, onBotiquin, onCambiar, onE
       <>
         <Portada icono="anchor" etiqueta="Muelle de apadrinamiento" titulo="Tu muelle está vacío" texto="Todavía no elegiste a quién apadrinar." />
         <div className="text-center py-space-lg px-margin-mobile">
-          <button onClick={onVerCatalogo} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
+          <button onClick={verCatalogo} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
             Ver catálogo
           </button>
         </div>
@@ -67,13 +79,18 @@ const PanelMuelle = ({ idMuelle, muelle, conBotiquin, onBotiquin, onCambiar, onE
               />
             ))}
           </ul>
-          <button onClick={onVerCatalogo} className="mt-space-md font-label-lg text-label-lg text-secondary hover:underline">
+          <button onClick={verCatalogo} className="mt-space-md font-label-lg text-label-lg text-secondary hover:underline">
             + Apadrinar otro animal
           </button>
         </div>
 
         <div className="lg:col-span-5">
-          <ResumenMuelle muelle={muelle} conBotiquin={conBotiquin} onBotiquin={onBotiquin} onZarpar={onZarpar} />
+          <ResumenMuelle 
+            muelle={muelle}
+            conBotiquin={conBotiquin}
+            onBotiquin={setConBotiquin}
+            onZarpar={() => navigate('/zarpar', { state: { conBotiquin } })}
+          />
         </div>
       </div>
     </>

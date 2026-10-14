@@ -5,6 +5,8 @@ import Precio from '../comunes/Precio'
 import CampoTexto from '../login/CampoTexto'
 import { zarpar } from '../../services/apadrinar'
 import { PRECIO_BOTIQUIN, totalMuelle } from '../../utils/precios'
+import { Navigate, useLocation, useNavigate } from 'react-router-dom'
+import { SIN_MUELLE } from '../../utils/muelle'
 
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
@@ -37,10 +39,15 @@ const estaVencida = (mes, anio) => {
   return anio < anioActual || (anio === anioActual && mes < mesActual)
 }
 
-const FormularioZarpar = ({ idMuelle, muelle, conBotiquin, onZarpado, onVolver }) => {
+const FormularioZarpar = ({ idMuelle, muelle, onCambiarMuelle }) => {
+  const navigate = useNavigate()
+  const { state } = useLocation()
+  const conBotiquin = state !== null && state.conBotiquin === true
+
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
+  const [zarpado, setZarpado] = useState(false) // true cuando el pago salió bien y ya se va a gracias
 
   const cambiar = (evento) => {
     const { name, value } = evento.target
@@ -77,11 +84,22 @@ const FormularioZarpar = ({ idMuelle, muelle, conBotiquin, onZarpado, onVolver }
     // Si sale bien, App pasa a la página de gracias y este formulario desaparece
     setEnviando(true)
     zarpar(idMuelle, conBotiquin)
-      .then(onZarpado)
+      .then((total) => {
+        const apadrinados = muelle.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan }))
+        setZarpado(true)
+        onCambiarMuelle(SIN_MUELLE)
+        navigate('/gracias', { state: { zarpar: { apadrinados, total } } })
+      })
       .catch((falla) => {
         setError(falla.message)
         setEnviando(false)
       })
+  }
+
+    // Con el muelle vacío no hay nada que pagar. Justo después de zarpar también queda vacío,
+  // pero ahí ya se está yendo a la página de gracias.
+  if (muelle.length === 0) {
+    return zarpado ? null : <Navigate to="/muelle" replace />
   }
 
   return (
@@ -106,7 +124,7 @@ const FormularioZarpar = ({ idMuelle, muelle, conBotiquin, onZarpado, onVolver }
               <Icono nombre="lock" clase="text-[20px]" />
               Zarpar · <Precio valor={totalMuelle(muelle, conBotiquin)} />
             </button>
-            <button type="button" onClick={onVolver} className="font-label-lg text-label-lg text-secondary hover:underline">
+            <button type="button" onClick={() => navigate("/muelle", { state: { conBotiquin } } )} className="font-label-lg text-label-lg text-secondary hover:underline">
               Volver al muelle
             </button>
           </div>

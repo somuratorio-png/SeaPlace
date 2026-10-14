@@ -7,14 +7,17 @@ import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaApadrinado from './TarjetaApadrinado'
 import TarjetaFavorito from './TarjetaFavorito'
 import { traerApadrinamientos } from '../../services/apadrinar'
+import { useNavigate } from 'react-router-dom'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
 // Los apadrinamientos los pide esta página al backend cuando se monta; los favoritos son los que ya tiene App.
-const PanelProtector = ({ usuario, animalesFavoritos, onFavorito, onVerCatalogo, onVerApadrinado, onVerAnimal }) => {
+const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos, onError, onVerCatalogo, onVerApadrinado, onVerAnimal }) => {
   const [apadrinamientos, setApadrinamientos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [busqueda, setBusqueda] = useState('')
+    // Los favoritos que se muestran son los que siguen publicados
+  const animalesFavoritos = favoritos.filter((animal) => animal.publicacion === 'ACTIVA')
 
   // Un solo pedido, al entrar al panel
   useEffect(() => {
@@ -97,7 +100,15 @@ const PanelProtector = ({ usuario, animalesFavoritos, onFavorito, onVerCatalogo,
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
               {animalesFavoritos.map((animal) => (
-                <TarjetaFavorito key={animal.id} animal={animal} onVer={() => onVerAnimal(animal)} onQuitar={() => onFavorito(animal.id)} />
+                <TarjetaFavorito
+                  key={animal.id}
+                  animal={animal}
+                  usuario={usuario}
+                  favoritos={favoritos}
+                  onCambiarFavoritos={onCambiarFavoritos}
+                  onError={onError}
+                  onVer={() => onVerAnimal(animal)}
+                  />
               ))}
             </div>
           )}

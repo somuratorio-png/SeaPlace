@@ -1,5 +1,5 @@
 import BarraProgreso from '../comunes/BarraProgreso'
-import BotonFavorito from '../comunes/BotonFavorito'
+import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import PrecioAnimal from '../comunes/PrecioAnimal'
 
 // Color del cartelito de estado según la urgencia del animal
@@ -9,7 +9,7 @@ const coloresUrgencia = {
   listo: 'bg-primary text-on-primary',
 }
 
-const TarjetaAnimal = ({ animal, esFavorito, onFavorito, onVer }) => {
+const TarjetaAnimal = ({ animal, usuario, favoritos, onCambiarFavoritos, onError, onVer }) => {
   // Si no le quedan cupos, no se puede apadrinar
   const sinCupos = animal.cuposDisponibles === 0
 
@@ -20,7 +20,7 @@ const TarjetaAnimal = ({ animal, esFavorito, onFavorito, onVer }) => {
         <span className={`absolute top-3 left-3 px-2.5 py-1 rounded-full font-label-md text-label-md ${coloresUrgencia[animal.urgencia]}`}>
           {animal.estado}
         </span>
-        <BotonFavorito esFavorito={esFavorito} onCambiar={onFavorito} clase="absolute top-3 right-3" />
+                <FavoritoAnimal animal={animal} usuario={usuario} favoritos={favoritos} onCambiarFavoritos={onCambiarFavoritos} onError={onError} clase="absolute top-3 right-3" />
       </div>
 
       <div className="p-space-lg space-y-space-sm flex-1 flex flex-col">

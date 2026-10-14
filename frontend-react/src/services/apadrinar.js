@@ -1,6 +1,7 @@
 import { planDe } from '../utils/precios'
 import { aAnimal, aNovedad, aUbicacion } from './animales'
 import { pedir, pedirLista } from './api'
+import { conItem } from '../utils/muelle'
 
 // Todo lo que hace un padrino: planes, muelle, zarpar, sus apadrinamientos y sus favoritos.
 // El muelle y los favoritos llegan con la sesión (ver aSesion en usuarios.js); los apadrinamientos
@@ -42,6 +43,18 @@ export const agregarAlMuelle = (idMuelle, idAnimal, codigoPlan) =>
 // Cambia los cupos que se toman de un animal que ya está en el muelle (y, si se indica, su plan)
 export const cambiarItem = (idMuelle, idAnimal, cantidad, codigoPlan) =>
   pedir(`/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'PUT', cuerpo: { cantidad, plan: codigoPlan } }).then(aItem)
+
+// Pone el animal en ese muelle y devuelve una promesa con el muelle como queda.
+// Si el animal ya estaba, solo se le cambia el plan (conserva los cupos elegidos).
+// Al zarpar, el muelle que se pagó queda cerrado (id en null): el backend abre el siguiente al
+// agregarle el primer animal, y el ítem que devuelve trae el id del muelle.
+export const ponerEnElMuelle = (muelleActual, idAnimal, codigoPlan) => {
+  const yaEstaba = muelleActual.items.find((item) => item.animal.id === idAnimal)
+  const pedido = yaEstaba
+    ? cambiarItem(muelleActual.id, idAnimal, yaEstaba.cantidad, codigoPlan)
+    : agregarAlMuelle(muelleActual.id, idAnimal, codigoPlan)
+  return pedido.then((item) => conItem({ ...muelleActual, id: item.idMuelle }, item))
+}
 
 export const quitarDelMuelle = (idMuelle, idAnimal) => pedir(`/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'DELETE' })
 

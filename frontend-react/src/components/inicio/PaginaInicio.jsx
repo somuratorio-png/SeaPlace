@@ -9,7 +9,7 @@ import Testimonios from './Testimonios'
 import { traerAnimales } from '../../services/animales'
 
 // Página de inicio. Pide el catálogo al backend cuando se monta y de ahí muestra los destacados.
-const PaginaInicio = ({ onVerCatalogo, onVerAnimal }) => {
+const PaginaInicio = (onVerCatalogo, onVerAnimal) => {
   const [animales, setAnimales] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
