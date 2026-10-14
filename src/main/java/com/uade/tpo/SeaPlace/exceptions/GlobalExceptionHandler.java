@@ -60,7 +60,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<Object> handleArchivoInvalido(MultipartException ex) {
         return construirRespuesta(HttpStatus.BAD_REQUEST,
-                "No se pudo recibir el archivo: revisa que sea una imagen de hasta 2 MB");
+                "No se pudo recibir el archivo: revisa que sea una imagen de hasta 15 MB");
     }
 
     @ExceptionHandler(MissingServletRequestPartException.class)
