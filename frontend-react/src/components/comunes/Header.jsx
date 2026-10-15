@@ -1,12 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { logo } from '../../data/imagenes'
 import BotonMenu from './BotonMenu'
 import BotonMoneda from './BotonMoneda'
 import Icono from './Icono'
 
-// El menú son <Link>; los botones de la derecha navegan con onNavegar (que usa useNavigate en App).
+// El menú son <Link>; los botones de la derecha navegan con useNavigate
 // onUsarLink avisa que se tocó un link, para que App saque el cartel de error de la página anterior.
-const Header = ({ rutaActual, cantidadMuelle, usuario, moneda, onCambiarMoneda, onNavegar, onUsarLink, onSalir }) => {
+const Header = ({ rutaActual, cantidadMuelle, usuario, moneda, onCambiarMoneda, onUsarLink, onSalir }) => {
+  const navigate = useNavigate()
   const esAdmin = usuario !== null && usuario.rol === 'administrador'
   const esRefugio = usuario !== null && usuario.rol === 'refugio'
 
@@ -37,14 +38,14 @@ const Header = ({ rutaActual, cantidadMuelle, usuario, moneda, onCambiarMoneda, 
         <div className="flex flex-wrap items-center gap-space-md">
           <BotonMoneda moneda={moneda} onCambiar={onCambiarMoneda} />
           <button
-            onClick={() => onNavegar('/panel')}
+            onClick={() => navigate('/panel')}
             className="flex items-center gap-1 bg-secondary text-on-secondary font-label-lg text-label-lg px-space-md py-space-sm rounded-full shadow-sm transition hover:bg-on-secondary-container"
           >
             <Icono nombre="person" clase="text-[18px]" />
             {usuario ? usuario.nombre : 'Ingresar'}
           </button>
           {usuario && (
-            <button onClick={() => onNavegar('/cuenta')} className={`font-label-lg text-label-lg hover:text-primary ${rutaActual === '/cuenta' ? 'text-primary' : 'text-on-surface-variant'}`}>
+            <button onClick={() => navigate('/cuenta')} className={`font-label-lg text-label-lg hover:text-primary ${rutaActual === '/cuenta' ? 'text-primary' : 'text-on-surface-variant'}`}>
               Mi cuenta
             </button>
           )}

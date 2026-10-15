@@ -7,12 +7,22 @@ import Hero from './Hero'
 import KitProtector from './KitProtector'
 import Testimonios from './Testimonios'
 import { traerAnimales } from '../../services/animales'
+import { useNavigate } from 'react-router-dom'
 
 // Página de inicio. Pide el catálogo al backend cuando se monta y de ahí muestra los destacados.
-const PaginaInicio = (onVerCatalogo, onVerAnimal) => {
+const PaginaInicio = () => {
+  const navigate = useNavigate()
   const [animales, setAnimales] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+
+  const verCatalogo = () => {
+    navigate('/catalogo')
+  }
+
+  const verAnimal = (animal) => {
+    navigate(`/animal/${animal.id}`)
+  }
 
   // Un solo pedido, al abrir la página
   useEffect(() => {
@@ -42,12 +52,12 @@ const PaginaInicio = (onVerCatalogo, onVerAnimal) => {
         </div>
       )
     }
-    return <AnimalesDestacados animales={destacados} onVerAnimal={onVerAnimal} />
+    return <AnimalesDestacados animales={destacados} onVerAnimal={verAnimal} />
   }
 
   return (
     <>
-      <Hero onVerCatalogo={onVerCatalogo} />
+      <Hero onVerCatalogo={verCatalogo} />
       <Estadisticas />
       {elegirDestacados()}
       <KitProtector />

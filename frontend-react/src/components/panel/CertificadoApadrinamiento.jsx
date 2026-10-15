@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
@@ -9,8 +9,9 @@ import { formatearFecha } from '../../utils/fechas'
 // Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
 // Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
 // Los apadrinamientos del usuario los pide esta página al backend cuando se monta.
-const CertificadoApadrinamiento = ({ usuario, onVolver }) => {
+const CertificadoApadrinamiento = ({ usuario }) => {
   // El id sale de la URL (/panel/:id/certificado)
+  const navigate = useNavigate()
   const { id } = useParams()
 
   const [apadrinamientos, setApadrinamientos] = useState([])
@@ -53,7 +54,7 @@ const CertificadoApadrinamiento = ({ usuario, onVolver }) => {
   return (
     <div className="max-w-4xl mx-auto px-margin-mobile py-space-lg space-y-space-md">
       <div className="flex flex-wrap items-center justify-between gap-space-sm print:hidden">
-        <button onClick={() => onVolver(item)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+        <button onClick={() => navigate(`/panel/${item.animal.id}`)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
           <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a {item.animal.nombre}
         </button>
         <p className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant">

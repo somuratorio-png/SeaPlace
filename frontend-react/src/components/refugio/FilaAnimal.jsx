@@ -2,9 +2,13 @@ import { precioFinal, tieneDescuento } from '../../utils/precios'
 import BarraProgreso from '../comunes/BarraProgreso'
 import Icono from '../comunes/Icono'
 import Precio from '../comunes/Precio'
+import { useNavigate } from "react-router-dom"
+
 
 // Un animal del refugio, con el botón para quitarlo del catálogo
-const FilaAnimal = ({ animal, onVer, onQuitar }) => {
+const FilaAnimal = ({ animal, onQuitar }) => {
+  const navigate = useNavigate()
+
   return (
     <div className="revelar bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex flex-wrap items-center gap-space-md transition hover:shadow-md">
       <img src={animal.imagen} alt={`Foto de ${animal.nombre}`} className="w-20 h-20 object-cover rounded-xl" />
@@ -27,7 +31,7 @@ const FilaAnimal = ({ animal, onVer, onQuitar }) => {
 
       <div className="flex flex-wrap items-center gap-space-md">
         <button
-          onClick={() => onVer(animal)}
+          onClick={() => navigate(`/animal/${animal.id}`)}
           className="inline-flex items-center gap-1 bg-primary-fixed text-on-primary-fixed-variant font-label-lg text-label-lg px-space-md py-space-sm rounded-full"
         >
           <Icono nombre="visibility" clase="text-[18px]" /> Ver ficha

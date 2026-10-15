@@ -10,7 +10,7 @@ import FormularioUbicacion from './FormularioUbicacion'
 // Un animal del refugio con todo lo que se puede hacer con él: ver cuánto recauda, pausar su
 // publicación, ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
 // "apadrinamientos" son solo los activos de este animal.
-const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
+const TarjetaMiAnimal = ({ animal, apadrinamientos, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [abierto, setAbierto] = useState(false)
 
   const pausada = animal.publicacion === 'PAUSADA'
@@ -22,7 +22,7 @@ const TarjetaMiAnimal = ({ animal, apadrinamientos, onVer, onQuitar, onEditar, o
 
   return (
     <div className="bg-surface-container-low rounded-2xl">
-      <FilaAnimal animal={animal} onVer={onVer} onQuitar={onQuitar} />
+      <FilaAnimal animal={animal} onQuitar={onQuitar} />
 
       <div className="px-space-md py-space-sm flex flex-wrap items-center justify-between gap-space-sm">
         <p className="font-body-sm text-body-sm text-on-surface-variant">

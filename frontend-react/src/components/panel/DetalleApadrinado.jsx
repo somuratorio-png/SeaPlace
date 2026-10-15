@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
 import Cargando from '../comunes/Cargando'
@@ -20,8 +20,9 @@ import { ponerEn } from '../../utils/listas'
 // Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
 // y la última ubicación de su animal, así que alcanza con ese pedido.
 // onError muestra arriba de la página el mensaje de una acción que falló.
-const DetalleApadrinado = ({ onVolver, onVerCertificado, onError }) => {
+const DetalleApadrinado = ({ onError }) => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
+  const navigate = useNavigate()
   const { id } = useParams()
   const idAnimal = Number(id)
 
@@ -61,7 +62,7 @@ const DetalleApadrinado = ({ onVolver, onVerCertificado, onError }) => {
     onError(null)
     cancelarApadrinamiento(idApadrinamiento)
       .then(() => {
-        onVolver()
+        navigate('/panel')
       })
       .catch((falla) => {
         onError(falla.message)
@@ -76,7 +77,7 @@ const DetalleApadrinado = ({ onVolver, onVerCertificado, onError }) => {
     return (
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
         <AvisoError mensaje={error} />
-        <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+        <button onClick={() => navigate('/panel')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
           <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a mis apadrinados
         </button>
       </div>
@@ -94,7 +95,7 @@ const DetalleApadrinado = ({ onVolver, onVerCertificado, onError }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
-      <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+      <button onClick={() => navigate('/panel')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
         <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a mis apadrinados
       </button>
 
@@ -119,7 +120,7 @@ const DetalleApadrinado = ({ onVolver, onVerCertificado, onError }) => {
           </div>
 
           <button
-            onClick={() => onVerCertificado(item)}
+            onClick={() => navigate(`/panel/${item.animal.id}/certificado`)}
             className="w-full inline-flex items-center justify-center gap-1 bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full shadow-md hover:bg-tertiary-container"
           >
             <Icono nombre="workspace_premium" clase="text-[20px]" /> Ver mi certificado

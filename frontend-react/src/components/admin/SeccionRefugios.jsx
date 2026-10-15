@@ -16,7 +16,7 @@ const REFUGIOS_POR_PAGINA = 4
 // aprobarlos, darlos de baja y ver sus animales.
 // "usuarios" los tiene el panel. Las publicaciones (activas y pausadas) las pide esta sección al backend
 // cuando se abre. Cada acción llama al backend y, con lo que contesta, actualiza el estado.
-const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onVerAnimal, onError }) => {
+const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
   const [animales, setAnimales] = useState([])
   const [cargando, setCargando] = useState(true)
   const [errorAlCargar, setErrorAlCargar] = useState(null)
@@ -120,7 +120,6 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onVerAni
           animales={animales.filter((animal) => animal.idRefugio === refugio.idRefugio)}
           onCambiarActivo={cambiarActivo}
           onAprobar={aprobar}
-          onVerAnimal={onVerAnimal}
           onQuitarAnimal={quitar}
         />
       ))}

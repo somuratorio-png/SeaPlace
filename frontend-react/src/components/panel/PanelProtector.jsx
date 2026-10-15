@@ -11,7 +11,8 @@ import { useNavigate } from 'react-router-dom'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
 // Los apadrinamientos los pide esta página al backend cuando se monta; los favoritos son los que ya tiene App.
-const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos, onError, onVerCatalogo, onVerApadrinado, onVerAnimal }) => {
+const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos, onError }) => {
+  const navigate = useNavigate()
   const [apadrinamientos, setApadrinamientos] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
@@ -51,7 +52,7 @@ const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos, onError, onVer
       return (
         <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center space-y-space-md">
           <p className="font-body-md text-body-md text-on-surface-variant">Todavía no apadrinaste a ningún animal.</p>
-          <button onClick={onVerCatalogo} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
+          <button onClick={() => navigate('/catalogo')} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
             Elegir un animal
           </button>
         </div>
@@ -68,7 +69,7 @@ const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos, onError, onVer
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
           {visibles.map((item) => (
-            <TarjetaApadrinado key={item.id} item={item} onVer={onVerApadrinado} />
+            <TarjetaApadrinado key={item.id} item={item} onVer={(item) => navigate(`/panel/${item.animal.id}`)} />
           ))}
         </div>
       </>
@@ -107,7 +108,7 @@ const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos, onError, onVer
                   favoritos={favoritos}
                   onCambiarFavoritos={onCambiarFavoritos}
                   onError={onError}
-                  onVer={() => onVerAnimal(animal)}
+                  onVer={() => navigate(`/animal/${animal.id}`)}
                   />
               ))}
             </div>

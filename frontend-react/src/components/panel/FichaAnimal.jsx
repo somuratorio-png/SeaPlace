@@ -1,5 +1,6 @@
 // Datos básicos del animal apadrinado, en formato "etiqueta: valor"
 const FichaAnimal = ({ animal }) => {
+
   const datos = [
     { etiqueta: 'Especie', valor: animal.especie },
     { etiqueta: 'Edad', valor: animal.edad },

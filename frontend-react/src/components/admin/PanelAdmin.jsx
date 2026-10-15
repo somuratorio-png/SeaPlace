@@ -17,7 +17,7 @@ import { ponerEn } from '../../utils/listas'
 // secciones. Lo demás lo pide cada sección cuando se abre: sus animales, sus roles, sus categorías...
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: la lista no se vuelve a pedir.
 // Si una acción falla, onError muestra el mensaje arriba de la página.
-const PanelAdmin = ({ usuario, onVerAnimal, onError }) => {
+const PanelAdmin = ({ usuario, onError }) => {
   const [seccion, setSeccion] = useState('resumen')
   const [usuarios, setUsuarios] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -86,7 +86,7 @@ const PanelAdmin = ({ usuario, onVerAnimal, onError }) => {
         <div className="lg:col-span-9">
           {seccion === 'resumen' && <SeccionResumen usuarios={usuarios} />}
           {seccion === 'refugios' && (
-            <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onVerAnimal={onVerAnimal} onError={onError} />
+            <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={onError} />
           )}
           {seccion === 'usuarios' && (
             <SeccionUsuarios usuario={usuario} usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={onError} />

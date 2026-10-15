@@ -9,6 +9,7 @@ import Portada from '../comunes/Portada'
 import { traerAnimales, traerCategorias } from '../../services/animales'
 import { paginar } from '../../utils/paginar'
 import { precioFinal } from '../../utils/precios'
+import { useNavigate } from 'react-router-dom'
 
 const ANIMALES_POR_PAGINA = 6
 
@@ -27,7 +28,8 @@ const comparadores = {
 // El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
 // por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
 //"favoritos" son los animales que guardó el usuario, que tiene Sitio.
-const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError, onVerAnimal }) => {
+const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError }) => {
+  const navigate = useNavigate()
   const [animales, setAnimales] = useState([])
   const [categorias, setCategorias] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -124,7 +126,7 @@ const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError, onVe
                 favoritos={favoritos}
                 onCambiarFavoritos={onCambiarFavoritos}
                 onError={onError}
-                onVer={() => onVerAnimal(animal)}
+                onVer={() => navigate(`/animal/${animal.id}`)}
               />
             ))}
           </div>

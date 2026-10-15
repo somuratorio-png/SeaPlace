@@ -28,7 +28,7 @@ const secciones = [
 // y pausadas), los apadrinamientos de sus animales y las categorías para el formulario. Un pedido por lista.
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: el cambio se ve sin volver
 // a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
-const PanelRefugio = ({ usuario, onVerAnimal, onError }) => {
+const PanelRefugio = ({ usuario, onError }) => {
   const [seccion, setSeccion] = useState('animales')
   const [animales, setAnimales] = useState([])
   const [apadrinamientos, setApadrinamientos] = useState([])
@@ -229,7 +229,6 @@ const PanelRefugio = ({ usuario, onVerAnimal, onError }) => {
               <SeccionAnimales
                 animales={propios}
                 apadrinamientos={susApadrinamientos}
-                onVer={onVerAnimal}
                 onQuitar={quitar}
                 onEditar={editar}
                 onPublicarNovedad={publicarNovedad}

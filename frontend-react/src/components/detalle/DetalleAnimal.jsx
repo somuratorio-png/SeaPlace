@@ -10,10 +10,12 @@ import ElegirPlan from './ElegirPlan'
 import Galeria from './Galeria'
 import PreguntasFrecuentes from './PreguntasFrecuentes'
 import { traerAnimal } from '../../services/animales'
+import { useNavigate } from 'react-router-dom'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
 // "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
-const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle, onCambiarMuelle, puedeApadrinar, onVolver }) => {
+const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle, onCambiarMuelle, puedeApadrinar}) => {
+  const navigate = useNavigate()
   const { id } = useParams()
 
   const [animal, setAnimal] = useState(null)
@@ -52,7 +54,7 @@ const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle
     return (
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
         <AvisoError mensaje={error} />
-        <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+        <button onClick={() => navigate('/catalogo')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
           <Icono nombre="arrow_back" clase="text-[18px]" /> Volver al catálogo
         </button>
       </div>
@@ -61,7 +63,7 @@ const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle
 
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
-      <button onClick={onVolver} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
+      <button onClick={() => navigate('/catalogo')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
         <Icono nombre="arrow_back" clase="text-[18px]" /> Volver al catálogo
       </button>
 

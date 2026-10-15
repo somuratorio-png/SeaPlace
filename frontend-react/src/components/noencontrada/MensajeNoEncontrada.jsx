@@ -1,7 +1,10 @@
 import Icono from '../comunes/Icono'
+import { useNavigate } from 'react-router-dom'
 
 // Página 404: se muestra cuando la dirección no coincide con ninguna ruta
-const MensajeNoEncontrada = ({ onVolver }) => {
+const MensajeNoEncontrada = () => {
+  const navigate = useNavigate()
+
   return (
     <div className="max-w-2xl mx-auto px-margin-mobile py-space-xl text-center space-y-space-md">
       <div className="w-24 h-24 mx-auto rounded-full fondo-mar text-on-primary flex items-center justify-center shadow-lg">
@@ -12,7 +15,7 @@ const MensajeNoEncontrada = ({ onVolver }) => {
       <p className="font-body-md text-body-md text-on-surface-variant">
         La dirección que buscás no existe o cambió de lugar. Volvé a la orilla y seguí desde ahí.
       </p>
-      <button onClick={onVolver} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
+      <button onClick={() => navigate('/')} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
         Volver al inicio
       </button>
     </div>

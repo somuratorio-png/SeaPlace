@@ -85,23 +85,6 @@ const App = () => {
   // Solo apadrinan los padrinos (y quien todavía no entró). Admin y refugio tienen su propio panel.
   const puedeApadrinar = !esAdmin && !esRefugio
 
-  const irA = (ruta) => {
-    setError(null)
-    navigate(ruta)
-  }
-
-  const verAnimal = (animal) => {
-    irA(`/animal/${animal.id}`)
-  }
-
-  const verApadrinado = (item) => {
-    irA(`/panel/${item.animal.id}`)
-  }
-
-  const verCertificado = (item) => {
-    irA(`/panel/${item.animal.id}/certificado`)
-  }
-
   // ---------- Sesión ----------
 
   // La llama el login cuando el backend aceptó el usuario y la contraseña (o el registro), con la
@@ -132,7 +115,8 @@ const App = () => {
     setUsuario(null)
     setFavoritos([])
     setMuelle(SIN_MUELLE)
-    irA('/')
+    setError(null)
+    navigate('/')
   }
 
 
@@ -146,11 +130,8 @@ const App = () => {
     }
     return (
       <Routes>
-        <Route path="/" element={<Inicio onVerCatalogo={() => irA('/catalogo')} onVerAnimal={verAnimal} />} />
-        <Route
-          path="/catalogo"
-          element={<Catalogo usuario={usuario} favoritos={favoritos} onCambiarFavoritos={setFavoritos} onError={setError} onVerAnimal={verAnimal} />}
-        />
+        <Route path="/" element={<Inicio />} />
+        <Route path="/catalogo" element={<Catalogo usuario={usuario} favoritos={favoritos} onCambiarFavoritos={setFavoritos} onError={setError} />} />
         <Route
           path="/animal/:id"
           element={
@@ -162,7 +143,6 @@ const App = () => {
               muelle={muelle}
               onCambiarMuelle={setMuelle}
               puedeApadrinar={puedeApadrinar}
-              onVolver={() => irA('/catalogo')}
             />
           }
         />
@@ -195,9 +175,6 @@ const App = () => {
                   favoritos={favoritos}
                   onCambiarFavoritos={setFavoritos}
                   onError={setError}
-                  onVerCatalogo={() => irA('/catalogo')}
-                  onVerApadrinado={verApadrinado}
-                  onVerAnimal={verAnimal}
                 />
               </ConSesion>
             </SoloPadrinos>
@@ -208,7 +185,7 @@ const App = () => {
           element={
             <SoloPadrinos usuario={usuario}>
               <ConSesion usuario={usuario} onEntrar={entrar}>
-                <Apadrinado onVolver={() => irA('/panel')} onVerCertificado={verCertificado} onError={setError} />
+                <Apadrinado onError={setError} />
               </ConSesion>
             </SoloPadrinos>
           }
@@ -218,7 +195,7 @@ const App = () => {
           element={
             <SoloPadrinos usuario={usuario}>
               <ConSesion usuario={usuario} onEntrar={entrar}>
-                <Certificado usuario={usuario} onVolver={verApadrinado} />
+                <Certificado usuario={usuario}/>
               </ConSesion>
             </SoloPadrinos>
           }
@@ -235,7 +212,7 @@ const App = () => {
           path="/admin"
           element={
             <SoloAdmin usuario={usuario}>
-              <Admin usuario={usuario} onVerAnimal={verAnimal} onError={setError} />
+              <Admin usuario={usuario} onError={setError} />
             </SoloAdmin>
           }
         />
@@ -243,12 +220,12 @@ const App = () => {
           path="/refugio"
           element={
             <SoloRefugio usuario={usuario}>
-              <Refugio usuario={usuario} onVerAnimal={verAnimal} onError={setError} />
+              <Refugio usuario={usuario} onError={setError} />
             </SoloRefugio>
           }
         />
                 {/* Cualquier otra dirección muestra la página de "no encontrada" */}
-        <Route path="*" element={<NoEncontrada onVolver={() => irA('/')} />} />
+        <Route path="*" element={<NoEncontrada />} />
       </Routes>
     )
   }
@@ -267,7 +244,6 @@ const App = () => {
             usuario={usuario}
             moneda={moneda}
             onCambiarMoneda={setMoneda}
-            onNavegar={irA}
             onUsarLink={() => setError(null)}
             onSalir={salir}
           />

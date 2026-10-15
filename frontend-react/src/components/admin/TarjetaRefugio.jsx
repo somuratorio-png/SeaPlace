@@ -5,7 +5,7 @@ import Chip from './Chip'
 
 // Un refugio en la lista del administrador. Al tocar "Ver animales" se despliegan los suyos.
 // Si el refugio todavía no fue aprobado, aparece el botón para aprobarlo.
-const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onVerAnimal, onQuitarAnimal }) => {
+const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onQuitarAnimal }) => {
   const [abierto, setAbierto] = useState(false)
 
   return (
@@ -73,7 +73,7 @@ const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onVerAn
             <p className="font-body-sm text-body-sm text-on-surface-variant">Este refugio todavía no publicó animales.</p>
           )}
           {animales.map((animal) => (
-            <FilaAnimal key={animal.id} animal={animal} onVer={onVerAnimal} onQuitar={onQuitarAnimal} />
+            <FilaAnimal key={animal.id} animal={animal} onQuitar={onQuitarAnimal} />
           ))}
         </div>
       )}
