@@ -28,7 +28,7 @@ const comparadores = {
 // El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
 // por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
 //"favoritos" son los animales que guardó el usuario, que tiene Sitio.
-const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError }) => {
+const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos }) => {
   const navigate = useNavigate()
   const [animales, setAnimales] = useState([])
   const [categorias, setCategorias] = useState([])
@@ -40,6 +40,7 @@ const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError }) =>
   const [orden, setOrden] = useState('recomendados')
   const [soloFavoritos, setSoloFavoritos] = useState(false)
   const [pagina, setPagina] = useState(0)
+  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // Un solo pedido de los animales, al abrir la página
   useEffect(() => {
@@ -125,7 +126,7 @@ const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError }) =>
                 usuario={usuario}
                 favoritos={favoritos}
                 onCambiarFavoritos={onCambiarFavoritos}
-                onError={onError}
+                onError={setErrorAccion}
                 onVer={() => navigate(`/animal/${animal.id}`)}
               />
             ))}
@@ -146,7 +147,9 @@ const CatalogoAnimales = ({usuario, favoritos, onCambiarFavoritos, onError }) =>
         texto="Crías huérfanas, ejemplares vulnerables y mamíferos en recuperación. Tu aporte mensual cubre su nutrición y sus cuidados hasta que vuelvan al mar."
       />
 
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">{elegirContenido()}</div>
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
+        {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
+        {elegirContenido()}</div>
     </>
   )
 }

@@ -28,13 +28,14 @@ const secciones = [
 // y pausadas), los apadrinamientos de sus animales y las categorías para el formulario. Un pedido por lista.
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: el cambio se ve sin volver
 // a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
-const PanelRefugio = ({ usuario, onError }) => {
+const PanelRefugio = ({ usuario }) => {
   const [seccion, setSeccion] = useState('animales')
   const [animales, setAnimales] = useState([])
   const [apadrinamientos, setApadrinamientos] = useState([])
   const [categorias, setCategorias] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
   const moneda = useContext(ContextoMoneda)
 
   // Sus publicaciones, al entrar al panel. El refugio no cambia mientras se mira la página.
@@ -128,14 +129,14 @@ const PanelRefugio = ({ usuario, onError }) => {
 
   // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
-    onError(null)
+    setErrorAccion(null)
     animalesApi
       .quitarAnimal(idAnimal)
       .then(() => {
         setAnimales((actuales) => sacarDe(actuales, idAnimal))
       })
       .catch((falla) => {
-        onError(falla.message)
+        setErrorAccion(falla.message)
       })
   }
 
@@ -160,16 +161,16 @@ const PanelRefugio = ({ usuario, onError }) => {
     }
     const pedido = elegirPedido()
 
-    onError(null)
+    setErrorAccion(null)
     pedido.then(guardarAnimal).catch((falla) => {
-      onError(falla.message)
+      setErrorAccion(falla.message)
     })
   }
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
-  const publicarNovedad = (idAnimal, texto) => intentar(animalesApi.publicarNovedad(idAnimal, texto), onError)
+  const publicarNovedad = (idAnimal, texto) => intentar(animalesApi.publicarNovedad(idAnimal, texto), setErrorAccion)
 
-  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(animalesApi.registrarUbicacion(idAnimal, latitud, longitud), onError)
+  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(animalesApi.registrarUbicacion(idAnimal, latitud, longitud), setErrorAccion)
 
   // Un refugio recién registrado no puede publicar hasta que un administrador lo apruebe
   if (!usuario.aprobado) {
@@ -207,6 +208,7 @@ const PanelRefugio = ({ usuario, onError }) => {
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
         {/* Si alguna lista no llegó, se avisa y el resto del panel sigue funcionando */}
         {error && <AvisoError mensaje={error} />}
+        {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
 
         <div className="escalonar grid grid-cols-1 sm:grid-cols-3 gap-space-md">
           <TarjetaDato icono="pets" valor={propios.length} titulo="Animales publicados" clase="bg-primary-fixed text-on-primary-fixed-variant" />

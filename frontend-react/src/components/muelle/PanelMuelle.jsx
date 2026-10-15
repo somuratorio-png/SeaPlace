@@ -4,16 +4,18 @@ import Portada from '../comunes/Portada'
 import { cambiarItem, quitarDelMuelle } from '../../services/apadrinar'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
+import AvisoError from '../comunes/AvisoError'
 
 // El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
 // "muelle" son sus ítems, que tiene App. Cada cambio llama al backend y, con lo que contesta, le pasa
 // a Sitio los ítems como quedaron (onCambiar). Si falla, onError muestra el mensaje arriba de la página.
-const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle, onError}) => {
+const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle }) => {
   const navigate = useNavigate()
   const { state } = useLocation()
 
   // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
   const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
+  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   const verCatalogo = () => {
     navigate('/catalogo')
@@ -23,24 +25,24 @@ const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle, onError}) => {
   // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
   const cambiarCantidad = (item, cantidad) => {
     const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
-    onError(null)
+    setErrorAccion(null)
     cambiarItem(idMuelle, item.animal.id, acotada)
       .then((cambiado) => {
         onCambiarMuelle({ id: idMuelle, items: muelle.map((otro) => (otro.animal.id === cambiado.animal.id ? cambiado : otro)) })
       })
       .catch((falla) => {
-        onError(falla.message)
+        setErrorAccion(falla.message)
       })
   }
 
   const quitar = (item) => {
-    onError(null)
+    setErrorAccion(null)
     quitarDelMuelle(idMuelle, item.animal.id)
       .then(() => {
         onCambiarMuelle({ id: idMuelle, items: muelle.filter((otro) => otro.animal.id !== item.animal.id) })
       })
       .catch((falla) => {
-        onError(falla.message)
+        setErrorAccion(falla.message)
       })
   }
 
@@ -65,6 +67,12 @@ const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle, onError}) => {
         titulo="Ya casi son parte de tu familia"
         texto={`Tenés ${muelle.length} ${muelle.length === 1 ? 'animal' : 'animales'} esperando tu confirmación.`}
       />
+
+      {errorAccion && (
+        <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin pt-space-lg">
+          <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
         <div className="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm">

@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
 // "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
-const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle, onCambiarMuelle, puedeApadrinar}) => {
+const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, muelle, onCambiarMuelle, puedeApadrinar}) => {
   const navigate = useNavigate()
   const { id } = useParams()
 
@@ -22,6 +22,7 @@ const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [noExiste, setNoExiste] = useState(false)
+  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // Un solo pedido, al abrir la página (cada animal tiene su URL, así que cambia solo con el id)
   useEffect(() => {
@@ -63,6 +64,7 @@ const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle
 
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
+      {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
       <button onClick={() => navigate('/catalogo')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
         <Icono nombre="arrow_back" clase="text-[18px]" /> Volver al catálogo
       </button>
@@ -88,9 +90,9 @@ const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, onError, muelle
               <h1 className="font-headline-lg text-headline-lg text-on-surface">{animal.nombre}</h1>
               <PrecioAnimal animal={animal} />
             </div>
-              <FavoritoAnimal animal={animal} usuario={usuario} favoritos={favoritos} onCambiarFavoritos={onCambiarFavoritos} onError={onError} />
+              <FavoritoAnimal animal={animal} usuario={usuario} favoritos={favoritos} onCambiarFavoritos={onCambiarFavoritos} onError={setErrorAccion} />
           </div>
-            <ElegirPlan animal={animal} usuario={usuario} muelle={muelle} onCambiarMuelle={onCambiarMuelle} onError={onError} puedeApadrinar={puedeApadrinar} />
+            <ElegirPlan animal={animal} usuario={usuario} muelle={muelle} onCambiarMuelle={onCambiarMuelle} onError={setErrorAccion} puedeApadrinar={puedeApadrinar} />
         </div>
       </div>
 

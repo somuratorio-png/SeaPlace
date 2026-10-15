@@ -20,7 +20,7 @@ import { ponerEn } from '../../utils/listas'
 // Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
 // y la última ubicación de su animal, así que alcanza con ese pedido.
 // onError muestra arriba de la página el mensaje de una acción que falló.
-const DetalleApadrinado = ({ onError }) => {
+const DetalleApadrinado = () => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const navigate = useNavigate()
   const { id } = useParams()
@@ -29,6 +29,7 @@ const DetalleApadrinado = ({ onError }) => {
   const [apadrinamientos, setApadrinamientos] = useState([]) // [{ id, animal, plan, desde, pagos, activo, novedades, ultimaUbicacion }]
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // Un solo pedido, al abrir la página
   useEffect(() => {
@@ -46,26 +47,26 @@ const DetalleApadrinado = ({ onError }) => {
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
-    onError(null)
+    setErrorAccion(null)
     cambiarPlan(idApadrinamiento, planNuevo.codigo)
       .then((cambiado) => {
         setApadrinamientos((actuales) => ponerEn(actuales, cambiado))
       })
       .catch((falla) => {
-        onError(falla.message)
+        setErrorAccion(falla.message)
       })
   }
 
   // No se borra: queda inactivo, así el historial no se pierde.
   // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
   const cancelar = (idApadrinamiento) => {
-    onError(null)
+    setErrorAccion(null)
     cancelarApadrinamiento(idApadrinamiento)
       .then(() => {
         navigate('/panel')
       })
       .catch((falla) => {
-        onError(falla.message)
+        setErrorAccion(falla.message)
       })
   }
 
@@ -95,6 +96,7 @@ const DetalleApadrinado = ({ onError }) => {
 
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
+      {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
       <button onClick={() => navigate('/panel')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
         <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a mis apadrinados
       </button>

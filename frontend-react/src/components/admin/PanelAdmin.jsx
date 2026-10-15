@@ -17,11 +17,12 @@ import { ponerEn } from '../../utils/listas'
 // secciones. Lo demás lo pide cada sección cuando se abre: sus animales, sus roles, sus categorías...
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: la lista no se vuelve a pedir.
 // Si una acción falla, onError muestra el mensaje arriba de la página.
-const PanelAdmin = ({ usuario, onError }) => {
+const PanelAdmin = ({ usuario }) => {
   const [seccion, setSeccion] = useState('resumen')
   const [usuarios, setUsuarios] = useState([])
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
+  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // Un solo pedido de los usuarios, al entrar al panel
   useEffect(() => {
@@ -58,14 +59,14 @@ const PanelAdmin = ({ usuario, onError }) => {
   const cambiarActivo = (nombreUsuario) => {
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     const pedido = elegido.activo ? usuariosApi.darDeBaja(elegido.id) : usuariosApi.reactivar(elegido.id)
-    onError(null)
+    setErrorAccion(null)
     return pedido
       .then((cambiado) => {
         guardarUsuario(cambiado)
         return cambiado
       })
       .catch((falla) => {
-        onError(falla.message)
+        setErrorAccion(falla.message)
         return null
       })
   }
@@ -86,13 +87,13 @@ const PanelAdmin = ({ usuario, onError }) => {
         <div className="lg:col-span-9">
           {seccion === 'resumen' && <SeccionResumen usuarios={usuarios} />}
           {seccion === 'refugios' && (
-            <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={onError} />
+            <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
           )}
           {seccion === 'usuarios' && (
-            <SeccionUsuarios usuario={usuario} usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={onError} />
+            <SeccionUsuarios usuario={usuario} usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
           )}
           {seccion === 'categorias' && <SeccionCategorias />}
-          {seccion === 'roles' && <SeccionRoles onError={onError} />}
+          {seccion === 'roles' && <SeccionRoles onError={setErrorAccion} />}
         </div>
       </div>
     )
@@ -107,7 +108,9 @@ const PanelAdmin = ({ usuario, onError }) => {
         texto="Desde acá controlás los refugios, sus animales y las cuentas de SeaPlace."
       />
 
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg">{elegirContenido()}</div>
+      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg">
+        {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
+        {elegirContenido()}</div>
     </>
   )
 }

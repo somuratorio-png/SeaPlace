@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import {Route, Routes, useLocation, useNavigate } from 'react-router-dom'
-import AvisoError from './components/comunes/AvisoError'
 import Cargando from './components/comunes/Cargando'
 import Footer from './components/comunes/Footer'
 import Header from './components/comunes/Header'
@@ -42,7 +41,6 @@ const App = () => {
   const [cargando, setCargando] = useState(true)
   const [sinConexion, setSinConexion] = useState(null) // mensaje si el backend no respondió al arrancar
   const [intento, setIntento] = useState(0) // cuántas veces se volvió a intentar
-  const [error, setError] = useState(null) // mensaje del último pedido que falló
   const [moneda, setMoneda] = useEstadoGuardado('moneda', 'ARS') // 'ARS' | 'USD'. Queda guardada en el navegador
 
   const navigate = useNavigate()
@@ -105,7 +103,7 @@ const App = () => {
           navigate('/muelle')
         })
         .catch((falla) => {
-          setError(falla.message)
+          navigate('/panel', { replace: true, state: { error: falla.message }})
         })
     }
   }
@@ -115,7 +113,6 @@ const App = () => {
     setUsuario(null)
     setFavoritos([])
     setMuelle(SIN_MUELLE)
-    setError(null)
     navigate('/')
   }
 
@@ -131,7 +128,7 @@ const App = () => {
     return (
       <Routes>
         <Route path="/" element={<Inicio />} />
-        <Route path="/catalogo" element={<Catalogo usuario={usuario} favoritos={favoritos} onCambiarFavoritos={setFavoritos} onError={setError} />} />
+        <Route path="/catalogo" element={<Catalogo usuario={usuario} favoritos={favoritos} onCambiarFavoritos={setFavoritos} />} />
         <Route
           path="/animal/:id"
           element={
@@ -139,7 +136,6 @@ const App = () => {
               usuario={usuario}
               favoritos={favoritos}
               onCambiarFavoritos={setFavoritos}
-              onError={setError}
               muelle={muelle}
               onCambiarMuelle={setMuelle}
               puedeApadrinar={puedeApadrinar}
@@ -150,7 +146,7 @@ const App = () => {
           path="/muelle"
           element={
             <SoloPadrinos usuario={usuario}>
-              <Muelle idMuelle={muelle.id} muelle={muelle.items} onCambiarMuelle={setMuelle} onError={setError} />
+              <Muelle idMuelle={muelle.id} muelle={muelle.items} onCambiarMuelle={setMuelle} />
             </SoloPadrinos>
           }
         />
@@ -174,7 +170,6 @@ const App = () => {
                   usuario={usuario}
                   favoritos={favoritos}
                   onCambiarFavoritos={setFavoritos}
-                  onError={setError}
                 />
               </ConSesion>
             </SoloPadrinos>
@@ -185,7 +180,7 @@ const App = () => {
           element={
             <SoloPadrinos usuario={usuario}>
               <ConSesion usuario={usuario} onEntrar={entrar}>
-                <Apadrinado onError={setError} />
+                <Apadrinado />
               </ConSesion>
             </SoloPadrinos>
           }
@@ -212,7 +207,7 @@ const App = () => {
           path="/admin"
           element={
             <SoloAdmin usuario={usuario}>
-              <Admin usuario={usuario} onError={setError} />
+              <Admin usuario={usuario} />
             </SoloAdmin>
           }
         />
@@ -220,7 +215,7 @@ const App = () => {
           path="/refugio"
           element={
             <SoloRefugio usuario={usuario}>
-              <Refugio usuario={usuario} onError={setError} />
+              <Refugio usuario={usuario}  />
             </SoloRefugio>
           }
         />
@@ -244,7 +239,6 @@ const App = () => {
             usuario={usuario}
             moneda={moneda}
             onCambiarMoneda={setMoneda}
-            onUsarLink={() => setError(null)}
             onSalir={salir}
           />
 
@@ -252,13 +246,6 @@ const App = () => {
             {/* Al cambiar la ruta, la key vuelve a montar <main>: React enfoca este botón invisible
                 y el navegador lleva la pantalla hasta arriba */}
             <button tabIndex={-1} autoFocus aria-hidden="true" className="ancla-arriba" />
-            {/* El último pedido al backend que falló, con su mensaje */}
-            {error && (
-              <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin pb-space-sm print:hidden">
-                <AvisoError mensaje={error} onCerrar={() => setError(null)} />
-              </div>
-            )}
-
             {elegirContenido()}
           </main>
 
