@@ -10,6 +10,7 @@ import MenuLateral from '../comunes/MenuLateral'
 import Portada from '../comunes/Portada'
 import * as usuariosApi from '../../services/usuarios'
 import { ponerEn } from '../../utils/listas'
+import { useSesion } from '../../hooks/useSesion'
 
 // Panel del administrador. Tiene un menú lateral y muestra una sola sección por vez
 // (resumen, refugios, usuarios, categorías o roles).
@@ -17,7 +18,8 @@ import { ponerEn } from '../../utils/listas'
 // secciones. Lo demás lo pide cada sección cuando se abre: sus animales, sus roles, sus categorías...
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: la lista no se vuelve a pedir.
 // Si una acción falla, onError muestra el mensaje arriba de la página.
-const PanelAdmin = ({ usuario }) => {
+const PanelAdmin = () => {
+  const { usuario } = useSesion()
   const [seccion, setSeccion] = useState('resumen')
   const [usuarios, setUsuarios] = useState([])
   const [cargando, setCargando] = useState(true)

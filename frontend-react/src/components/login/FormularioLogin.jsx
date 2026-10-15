@@ -4,13 +4,13 @@ import CampoTexto from './CampoTexto'
 import RecuperarContrasenia from './RecuperarContrasenia'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
+import { useSesion } from '../../hooks/useSesion'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
 // Login y registro. Le pide al backend que valide los datos: si los rechaza, muestra el mensaje
-// que mandó (por ejemplo, "Usuario o contrasenia incorrectos"). Si los acepta, le pasa a App
-// el usuario que entró (onEntrar), y App trae sus datos y muestra otra página.
-const FormularioLogin = ({ onEntrar }) => {
+const FormularioLogin = () => {
+  const { entrar } = useSesion()
   const [esRegistro, setEsRegistro] = useState(false)
   const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
   const [datos, setDatos] = useState(formularioVacio)
@@ -30,7 +30,7 @@ const FormularioLogin = ({ onEntrar }) => {
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
 
-  const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario.trim(), datos.contrasenia).then(onEntrar))
+  const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario.trim(), datos.contrasenia).then(entrar))
 
   // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
   const registrar = () => {
@@ -39,7 +39,7 @@ const FormularioLogin = ({ onEntrar }) => {
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
     const limpios = { ...datos, nombre: datos.nombre.trim(), apellido: datos.apellido.trim(), mail: datos.mail.trim(), nombreUsuario: datos.nombreUsuario.trim() }
-    return intentar(usuariosApi.registrar(limpios, esRefugio).then(onEntrar))
+    return intentar(usuariosApi.registrar(limpios, esRefugio).then(entrar))
   }
 
   // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página

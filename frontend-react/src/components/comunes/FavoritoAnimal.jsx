@@ -1,14 +1,13 @@
 import { useNavigate } from 'react-router-dom'
+import { useFavoritos } from '../../hooks/useFavoritos'
+import { useSesion } from '../../hooks/useSesion'
 import BotonFavorito from './BotonFavorito'
-import * as apadrinarApi from '../../services/apadrinar'
 
-// El corazón de un animal: lo guarda o lo saca de los favoritos de la cuenta.
-// Si no hay nadie logueado, lleva al login. El cambio se ve con lo que contesta el backend,
-// sin volver a pedir la lista.
-const FavoritoAnimal = ({ animal, usuario, favoritos, onCambiarFavoritos, onError, clase }) => {
+// El corazón de un animal. Si no hay nadie logueado, lleva al login.
+const FavoritoAnimal = ({ animal, onError, clase }) => {
   const navigate = useNavigate()
-
-  const esFavorito = favoritos.some((guardado) => guardado.id === animal.id)
+  const { usuario } = useSesion()
+  const { esFavorito, alternarFavorito } = useFavoritos()
 
   const handleCambiar = () => {
     if (!usuario) {
@@ -16,15 +15,12 @@ const FavoritoAnimal = ({ animal, usuario, favoritos, onCambiarFavoritos, onErro
       return
     }
     onError(null)
-    const pedido = esFavorito
-      ? apadrinarApi.quitarFavorito(animal.id).then(() => favoritos.filter((guardado) => guardado.id !== animal.id))
-      : apadrinarApi.agregarFavorito(animal.id).then((guardado) => [...favoritos, guardado])
-    pedido.then(onCambiarFavoritos).catch((falla) => {
+    alternarFavorito(animal).catch((falla) => {
       onError(falla.message)
     })
   }
 
-  return <BotonFavorito esFavorito={esFavorito} onCambiar={handleCambiar} clase={clase} />
+  return <BotonFavorito esFavorito={esFavorito(animal.id)} onCambiar={handleCambiar} clase={clase} />
 }
 
 export default FavoritoAnimal

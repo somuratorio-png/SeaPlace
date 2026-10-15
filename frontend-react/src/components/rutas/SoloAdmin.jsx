@@ -1,8 +1,10 @@
 import { Navigate } from 'react-router-dom'
+import { useSesion } from '../../hooks/useSesion'
 
-// Deja pasar solo a un administrador: el resto va al panel (o al login)
-const SoloAdmin = ({ usuario, children }) => {
-  if (usuario !== null && usuario.rol === 'administrador') {
+const SoloAdmin = ({ children }) => {
+  const { esAdmin } = useSesion()
+
+  if (esAdmin) {
     return children
   }
   return <Navigate to="/panel" replace />

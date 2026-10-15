@@ -8,12 +8,16 @@ import TarjetaApadrinado from './TarjetaApadrinado'
 import TarjetaFavorito from './TarjetaFavorito'
 import { traerApadrinamientos } from '../../services/apadrinar'
 import { useNavigate, useLocation } from 'react-router-dom'
+import { useFavoritos } from '../../hooks/useFavoritos'
+import { useSesion } from '../../hooks/useSesion'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
 // Los apadrinamientos los pide esta página al backend cuando se monta; los favoritos son los que ya tiene App.
-const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos }) => {
+const PanelProtector = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
+  const { usuario } = useSesion()
+  const { favoritos } = useFavoritos()
 
   const [apadrinamientos, setApadrinamientos] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -112,9 +116,6 @@ const PanelProtector = ({ usuario, favoritos, onCambiarFavoritos }) => {
                 <TarjetaFavorito
                   key={animal.id}
                   animal={animal}
-                  usuario={usuario}
-                  favoritos={favoritos}
-                  onCambiarFavoritos={onCambiarFavoritos}
                   onError={setErrorAccion}
                   onVer={() => navigate(`/animal/${animal.id}`)}
                   />

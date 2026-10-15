@@ -1,8 +1,10 @@
 import { Navigate } from 'react-router-dom'
+import { useSesion } from '../../hooks/useSesion'
 
-// Deja pasar solo a un refugio: el resto va al panel (o al login)
-const SoloRefugio = ({ usuario, children }) => {
-  if (usuario !== null && usuario.rol === 'refugio') {
+const SoloRefugio = ({ children }) => {
+  const { esRefugio } = useSesion()
+
+  if (esRefugio) {
     return children
   }
   return <Navigate to="/panel" replace />

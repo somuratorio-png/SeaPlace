@@ -1,10 +1,9 @@
-import { useContext } from 'react'
-import { ContextoMoneda, formatearPrecio } from '../../contexto/Moneda'
+import { formatearPrecio } from '../../contexto/Moneda'
+import { useMoneda } from '../../hooks/useMoneda'
 
 // Muestra un precio (guardado en dólares) en la moneda que eligió el usuario.
-// Uso: <Precio valor={animal.precio} />
 const Precio = ({ valor }) => {
-  const moneda = useContext(ContextoMoneda)
+  const { moneda } = useMoneda()
   return <>{formatearPrecio(valor, moneda)}</>
 }
 

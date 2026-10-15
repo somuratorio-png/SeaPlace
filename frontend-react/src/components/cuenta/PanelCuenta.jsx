@@ -3,6 +3,7 @@ import Portada from '../comunes/Portada'
 import CampoTexto from '../login/CampoTexto'
 import { cambiarMiContrasenia, modificarMiPerfil } from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
+import { useSesion } from '../../hooks/useSesion'
 
 const claseTarjeta = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container disabled:opacity-60'
@@ -14,8 +15,9 @@ const sinContrasenias = { actual: '', nueva: '', repetida: '' }
 // "Mi cuenta": el usuario logueado cambia sus datos y su contraseña.
 // El nombre de usuario no se puede cambiar (es el que lleva el token), y el rol tampoco.
 // Los dos formularios le piden el cambio al backend y muestran acá mismo su mensaje de error.
-// onPerfilGuardado le pasa a App el usuario como quedó, para que el nombre nuevo se vea en toda la página.
-const PanelCuenta = ({ usuario, onPerfilGuardado }) => {
+// uardarPerfil actualiza el usuario en toda la página
+const PanelCuenta = () => {
+  const { usuario, guardarPerfil } = useSesion()
   const [perfil, setPerfil] = useState({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
   const [errorPerfil, setErrorPerfil] = useState(null)
   const [perfilGuardado, setPerfilGuardado] = useState(false)
@@ -34,9 +36,9 @@ const PanelCuenta = ({ usuario, onPerfilGuardado }) => {
     setContraseniaCambiada(false)
   }
 
-  const guardarPerfil = (evento) => {
+  const handleGuardarPerfil = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    intentar(modificarMiPerfil({ nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }).then(onPerfilGuardado)).then((mensaje) => {
+    intentar(modificarMiPerfil({ nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }).then(guardarPerfil)).then((mensaje) => {
       setErrorPerfil(mensaje)
       setPerfilGuardado(mensaje === null)
     })
@@ -66,7 +68,7 @@ const PanelCuenta = ({ usuario, onPerfilGuardado }) => {
       <Portada icono="manage_accounts" etiqueta="Mi cuenta" titulo={`${usuario.nombre} ${usuario.apellido}`} texto={`Usuario @${usuario.nombreUsuario} · cuenta de ${usuario.rol}`} />
 
       <div className="max-w-5xl mx-auto px-margin-mobile lg:px-margin py-space-lg grid grid-cols-1 lg:grid-cols-2 gap-space-lg items-start">
-        <form onSubmit={guardarPerfil} className={claseTarjeta}>
+        <form onSubmit={handleGuardarPerfil} className={claseTarjeta}>
           <h2 className="font-headline-sm text-headline-sm text-primary">Mis datos</h2>
           <CampoTexto etiqueta="Nombre" nombre="nombre" valor={perfil.nombre} onCambiar={cambiarPerfil} />
           <CampoTexto etiqueta="Apellido" nombre="apellido" valor={perfil.apellido} onCambiar={cambiarPerfil} />

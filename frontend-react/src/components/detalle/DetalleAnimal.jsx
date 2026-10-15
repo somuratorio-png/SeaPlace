@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
 // "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
-const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, muelle, onCambiarMuelle, puedeApadrinar}) => {
+const DetalleAnimal = () => {
   const navigate = useNavigate()
   const { id } = useParams()
 
@@ -90,9 +90,9 @@ const DetalleAnimal = ({ usuario, favoritos, onCambiarFavoritos, muelle, onCambi
               <h1 className="font-headline-lg text-headline-lg text-on-surface">{animal.nombre}</h1>
               <PrecioAnimal animal={animal} />
             </div>
-              <FavoritoAnimal animal={animal} usuario={usuario} favoritos={favoritos} onCambiarFavoritos={onCambiarFavoritos} onError={setErrorAccion} />
+              <FavoritoAnimal animal={animal} onError={setErrorAccion} />
           </div>
-            <ElegirPlan animal={animal} usuario={usuario} muelle={muelle} onCambiarMuelle={onCambiarMuelle} onError={setErrorAccion} puedeApadrinar={puedeApadrinar} />
+            <ElegirPlan animal={animal} onError={setErrorAccion} />
         </div>
       </div>
 

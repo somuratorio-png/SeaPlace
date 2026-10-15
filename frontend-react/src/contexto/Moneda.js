@@ -5,7 +5,7 @@ export const PESOS_POR_DOLAR = 1500
 
 // Contexto con la moneda elegida ('ARS' | 'USD'). App la guarda en su estado y la comparte
 // con todos los componentes, así no hay que pasarla por props uno por uno.
-export const ContextoMoneda = createContext('ARS')
+export const ContextoMoneda = createContext(null) // { moneda, cambiarMoneda }, ver ProveedorMoneda
 
 // Convierte un precio en dólares al texto que se muestra, según la moneda elegida
 export const formatearPrecio = (dolares, moneda) => {

@@ -1,17 +1,18 @@
 import MuelleDetalle from './MuelleDetalle'
 import ResumenMuelle from './ResumenMuelle'
 import Portada from '../comunes/Portada'
-import { cambiarItem, quitarDelMuelle } from '../../services/apadrinar'
 import { useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
+import { useMuelle } from '../../hooks/useMuelle'
 
 // El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
 // "muelle" son sus ítems, que tiene App. Cada cambio llama al backend y, con lo que contesta, le pasa
 // a Sitio los ítems como quedaron (onCambiar). Si falla, onError muestra el mensaje arriba de la página.
-const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle }) => {
+const PanelMuelle = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
+  const { items: muelle, cambiarCantidad, quitar } = useMuelle()
 
   // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
   const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
@@ -20,30 +21,19 @@ const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle }) => {
   const verCatalogo = () => {
     navigate('/catalogo')
   }
-  
-  // Botones de más y menos: la cantidad son los cupos que se quieren tomar de ese animal.
-  // Va de 1 hasta los cupos que le quedan disponibles (igual que valida el backend).
-  const cambiarCantidad = (item, cantidad) => {
-    const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
+
+  const handleCantidad = (item, cantidad) => {
     setErrorAccion(null)
-    cambiarItem(idMuelle, item.animal.id, acotada)
-      .then((cambiado) => {
-        onCambiarMuelle({ id: idMuelle, items: muelle.map((otro) => (otro.animal.id === cambiado.animal.id ? cambiado : otro)) })
-      })
-      .catch((falla) => {
-        setErrorAccion(falla.message)
-      })
+    cambiarCantidad(item, cantidad).catch((falla) => {
+      setErrorAccion(falla.message)
+    })
   }
 
-  const quitar = (item) => {
+  const handleQuitar = (item) => {
     setErrorAccion(null)
-    quitarDelMuelle(idMuelle, item.animal.id)
-      .then(() => {
-        onCambiarMuelle({ id: idMuelle, items: muelle.filter((otro) => otro.animal.id !== item.animal.id) })
-      })
-      .catch((falla) => {
-        setErrorAccion(falla.message)
-      })
+    quitar(item).catch((falla) => {
+      setErrorAccion(falla.message)
+    })
   }
 
   if (muelle.length === 0) {
@@ -82,8 +72,8 @@ const PanelMuelle = ({idMuelle, muelle, onCambiarMuelle }) => {
               <MuelleDetalle
                 key={item.animal.id}
                 item={item}
-                onCantidad={(cantidad) => cambiarCantidad(item, cantidad)}
-                onQuitar={() => quitar(item)}
+                onCantidad={(cantidad) => handleCantidad(item, cantidad)}
+                onQuitar={() => handleQuitar(item)}
               />
             ))}
           </ul>

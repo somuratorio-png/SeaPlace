@@ -6,7 +6,7 @@ import CampoTexto from '../login/CampoTexto'
 import { zarpar } from '../../services/apadrinar'
 import { PRECIO_BOTIQUIN, totalMuelle } from '../../utils/precios'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
-import { SIN_MUELLE } from '../../utils/muelle'
+import { useMuelle } from '../../hooks/useMuelle'
 
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
@@ -39,9 +39,10 @@ const estaVencida = (mes, anio) => {
   return anio < anioActual || (anio === anioActual && mes < mesActual)
 }
 
-const FormularioZarpar = ({ idMuelle, muelle, onCambiarMuelle }) => {
+const FormularioZarpar = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
+  const { idMuelle, items: muelle, vaciar } = useMuelle()
   const conBotiquin = state !== null && state.conBotiquin === true
 
   const [datos, setDatos] = useState(formularioVacio)
@@ -87,7 +88,7 @@ const FormularioZarpar = ({ idMuelle, muelle, onCambiarMuelle }) => {
       .then((total) => {
         const apadrinados = muelle.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan }))
         setZarpado(true)
-        onCambiarMuelle(SIN_MUELLE)
+        vaciar()
         navigate('/gracias', { state: { zarpar: { apadrinados, total } } })
       })
       .catch((falla) => {

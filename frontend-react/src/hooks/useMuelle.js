@@ -1,0 +1,27 @@
+import { useContext } from 'react'
+import { ContextoSesion } from '../contexto/Sesion'
+import { cambiarItem, ponerEnElMuelle, quitarDelMuelle } from '../services/apadrinar'
+import { conItem, SIN_MUELLE } from '../utils/muelle'
+
+export const useMuelle = () => {
+  const { muelle, setMuelle } = useContext(ContextoSesion)
+
+  const agregar = (idAnimal, codigoPlan) => ponerEnElMuelle(muelle, idAnimal, codigoPlan).then(setMuelle)
+
+  // La cantidad va de 1 hasta los cupos que le quedan al animal (igual que valida el backend)
+  const cambiarCantidad = (item, cantidad) => {
+    const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
+    return cambiarItem(muelle.id, item.animal.id, acotada).then((cambiado) => {
+      setMuelle((actual) => conItem(actual, cambiado))
+    })
+  }
+
+  const quitar = (item) =>
+    quitarDelMuelle(muelle.id, item.animal.id).then(() => {
+      setMuelle((actual) => ({ ...actual, items: actual.items.filter((otro) => otro.animal.id !== item.animal.id) }))
+    })
+
+  const vaciar = () => setMuelle(SIN_MUELLE)
+
+  return { idMuelle: muelle.id, items: muelle.items, agregar, cambiarCantidad, quitar, vaciar }
+}

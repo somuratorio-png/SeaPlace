@@ -5,13 +5,15 @@ import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
 import { traerApadrinamientos } from '../../services/apadrinar'
 import { formatearFecha } from '../../utils/fechas'
+import { useSesion } from '../../hooks/useSesion'
 
 // Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
 // Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
 // Los apadrinamientos del usuario los pide esta página al backend cuando se monta.
-const CertificadoApadrinamiento = ({ usuario }) => {
+const CertificadoApadrinamiento = () => {
   // El id sale de la URL (/panel/:id/certificado)
   const navigate = useNavigate()
+  const { usuario } = useSesion()
   const { id } = useParams()
 
   const [apadrinamientos, setApadrinamientos] = useState([])

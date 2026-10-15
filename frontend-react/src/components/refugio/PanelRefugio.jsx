@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import TarjetaDato from '../admin/TarjetaDato'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
@@ -9,12 +9,14 @@ import TituloSeccion from '../comunes/TituloSeccion'
 import FormularioAnimal from './FormularioAnimal'
 import ListaPadrinos from './ListaPadrinos'
 import SeccionAnimales from './SeccionAnimales'
-import { ContextoMoneda, formatearPrecio } from '../../contexto/Moneda'
+import { formatearPrecio } from '../../contexto/Moneda'
 import * as animalesApi from '../../services/animales'
 import { traerApadrinamientos } from '../../services/apadrinar'
 import { intentar } from '../../utils/intentar'
 import { ponerEn, sacarDe } from '../../utils/listas'
 import { recaudacionMensual } from '../../utils/precios'
+import { useMoneda } from '../../hooks/useMoneda'
+import { useSesion } from '../../hooks/useSesion'
 
 const secciones = [
   { id: 'animales', nombre: 'Mis animales', icono: 'pets' },
@@ -28,7 +30,8 @@ const secciones = [
 // y pausadas), los apadrinamientos de sus animales y las categorías para el formulario. Un pedido por lista.
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: el cambio se ve sin volver
 // a pedir la lista. Si una acción falla, onError muestra el mensaje arriba de la página.
-const PanelRefugio = ({ usuario }) => {
+const PanelRefugio = () => {
+  const { usuario } = useSesion()
   const [seccion, setSeccion] = useState('animales')
   const [animales, setAnimales] = useState([])
   const [apadrinamientos, setApadrinamientos] = useState([])
@@ -36,7 +39,7 @@ const PanelRefugio = ({ usuario }) => {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-  const moneda = useContext(ContextoMoneda)
+  const { moneda } = useMoneda()
 
   // Sus publicaciones, al entrar al panel. El refugio no cambia mientras se mira la página.
   useEffect(() => {

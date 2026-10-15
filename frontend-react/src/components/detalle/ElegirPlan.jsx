@@ -1,34 +1,34 @@
-import { useContext, useState } from 'react'
-import { ContextoPlanes } from '../../contexto/Planes'
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { useMuelle } from '../../hooks/useMuelle'
+import { usePlanes } from '../../hooks/usePlanes'
+import { useSesion } from '../../hooks/useSesion'
 import { planesDe } from '../../utils/precios'
 import Precio from '../comunes/Precio'
-import { useNavigate } from 'react-router-dom'
-import { ponerEnElMuelle } from '../../services/apadrinar'
 
 // Muestra los 3 niveles de apadrinamiento (los que manda el backend). El precio de cada uno sale
 // de la cuota del animal (con el descuento ya aplicado si está en oferta).
 // puedeApadrinar es false para un administrador o un refugio: ven los planes pero no el botón.
 // Tampoco hay botón si al animal no le quedan cupos disponibles.
-const ElegirPlan = ({ animal, usuario, muelle, onCambiarMuelle, onError, puedeApadrinar }) => {
+const ElegirPlan = ({ animal, onError }) => {
   const navigate = useNavigate()
-  const planes = planesDe(animal, useContext(ContextoPlanes))
+  const { usuario, puedeApadrinar } = useSesion()
+  const { agregar } = useMuelle()
+  const planesBase = usePlanes()
+  const planes = planesDe(animal, planesBase)
 
-  // Guardamos el código del plan elegido; arranca en el del medio
   const [planElegido, setPlanElegido] = useState('GUARDIAN_DE_LA_BAHIA')
 
   const sinCupos = animal.cuposDisponibles === 0
 
-  // El muelle es de cada usuario: quien no entró primero pasa por el login, y el animal elegido
-  // viaja con la navegación (pendiente) hasta que entre
-  const agregar = () => {
+  const handleAgregar = () => {
     if (!usuario) {
       navigate('/panel', { state: { pendiente: { idAnimal: animal.id, codigoPlan: planElegido } } })
       return
     }
     onError(null)
-    ponerEnElMuelle(muelle, animal.id, planElegido)
-      .then((muelleNuevo) => {
-        onCambiarMuelle(muelleNuevo)
+    agregar(animal.id, planElegido)
+      .then(() => {
         navigate('/muelle')
       })
       .catch((falla) => {
@@ -75,7 +75,7 @@ const ElegirPlan = ({ animal, usuario, muelle, onCambiarMuelle, onError, puedeAp
         </p>
       )}
       {puedeApadrinar && !sinCupos && (
-        <button onClick={agregar} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full hover:bg-tertiary-container">
+        <button onClick={handleAgregar} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-space-md rounded-full hover:bg-tertiary-container">
           Apadrinar a {animal.nombre}
         </button>
       )}
