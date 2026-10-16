@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import AvisoError from '../comunes/AvisoError'
 import Buscador from '../comunes/Buscador'
 import Cargando from '../comunes/Cargando'
@@ -6,41 +6,24 @@ import Portada from '../comunes/Portada'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaApadrinado from './TarjetaApadrinado'
 import TarjetaFavorito from './TarjetaFavorito'
-import { traerApadrinamientos } from '../../services/apadrinar'
+import { useApadrinamientos } from '../../hooks/useApadrinamientos'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useFavoritos } from '../../hooks/useFavoritos'
 import { useSesion } from '../../hooks/useSesion'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
-// Los apadrinamientos los pide esta página al backend cuando se monta; los favoritos son los que ya tiene App.
 const PanelProtector = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
   const { usuario } = useSesion()
   const { favoritos } = useFavoritos()
 
-  const [apadrinamientos, setApadrinamientos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const { datos: apadrinamientos, cargando, error } = useApadrinamientos()
   const [busqueda, setBusqueda] = useState('')
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
   
   // Los favoritos que se muestran son los que siguen publicados
   const animalesFavoritos = favoritos.filter((animal) => animal.publicacion === 'ACTIVA')
-
-  // Un solo pedido, al entrar al panel
-  useEffect(() => {
-    traerApadrinamientos()
-      .then((lista) => {
-        setApadrinamientos(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   // El backend manda también los cancelados (para el historial): acá se muestran los activos
   const apadrinados = apadrinamientos.filter((a) => a.activo)

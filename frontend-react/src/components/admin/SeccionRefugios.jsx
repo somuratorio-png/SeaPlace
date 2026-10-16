@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { quitarAnimal, traerPublicaciones } from '../../services/animales'
 import { aprobarRefugio } from '../../services/usuarios'
 import { sacarDe } from '../../utils/listas'
@@ -9,6 +9,7 @@ import Cargando from '../comunes/Cargando'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaRefugio from './TarjetaRefugio'
+import { useConsulta } from '../../hooks/useConsulta'
 
 const REFUGIOS_POR_PAGINA = 4
 
@@ -17,25 +18,9 @@ const REFUGIOS_POR_PAGINA = 4
 // "usuarios" los tiene el panel. Las publicaciones (activas y pausadas) las pide esta sección al backend
 // cuando se abre. Cada acción llama al backend y, con lo que contesta, actualiza el estado.
 const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
-  const [animales, setAnimales] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [errorAlCargar, setErrorAlCargar] = useState(null)
+  const { datos: animales, setDatos: setAnimales, cargando, error: errorAlCargar } = useConsulta(traerPublicaciones, undefined, [])
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(0)
-
-  // Las publicaciones de todos los refugios
-  useEffect(() => {
-    traerPublicaciones()
-      .then((lista) => {
-        setAnimales(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
   const cambiarActivo = (nombreUsuario) => {

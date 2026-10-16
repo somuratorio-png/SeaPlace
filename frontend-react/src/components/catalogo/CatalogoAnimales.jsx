@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import BarraBusqueda from './BarraBusqueda'
 import FiltroCategorias from './FiltroCategorias'
 import TarjetaAnimal from './TarjetaAnimal'
@@ -11,6 +10,8 @@ import { paginar } from '../../utils/paginar'
 import { precioFinal } from '../../utils/precios'
 import { useNavigate } from 'react-router-dom'
 import { useFavoritos } from '../../hooks/useFavoritos'
+import { useConsulta } from '../../hooks/useConsulta'
+import { useState } from 'react'
 
 const ANIMALES_POR_PAGINA = 6
 
@@ -28,14 +29,12 @@ const comparadores = {
 
 // El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
 // por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
-//"favoritos" son los animales que guardó el usuario, que tiene Sitio.
 const CatalogoAnimales = () => {
   const navigate = useNavigate()
   const { favoritos } = useFavoritos()
-  const [animales, setAnimales] = useState([])
-  const [categorias, setCategorias] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
+  const { datos: categorias, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
+  const error = errorAnimales ?? errorCategorias
   const [categoria, setCategoria] = useState('todas')
   const [busqueda, setBusqueda] = useState('')
   const [urgencia, setUrgencia] = useState('todas')
@@ -43,31 +42,6 @@ const CatalogoAnimales = () => {
   const [soloFavoritos, setSoloFavoritos] = useState(false)
   const [pagina, setPagina] = useState(0)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-
-  // Un solo pedido de los animales, al abrir la página
-  useEffect(() => {
-    traerAnimales()
-      .then((lista) => {
-        setAnimales(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
-
-  // Y uno de las categorías, para los filtros
-  useEffect(() => {
-    traerCategorias()
-      .then((lista) => {
-        setCategorias(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-  }, [])
 
   // Cada vez que cambia un filtro, se guarda el valor nuevo y se vuelve a la primera página
   const alFiltrar = (guardar) => (valor) => {
@@ -80,7 +54,7 @@ const CatalogoAnimales = () => {
   const filtrados = animales
     .filter((animal) => categoria === 'todas' || animal.categoria === categoria)
     .filter((animal) => urgencia === 'todas' || animal.urgencia === urgencia)
-        .filter((animal) => !soloFavoritos || favoritos.some((guardado) => guardado.id === animal.id))
+    .filter((animal) => !soloFavoritos || favoritos.some((guardado) => guardado.id === animal.id))
     .filter((animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`.toLowerCase().includes(texto))
 
   // "Recomendados" deja el orden original. Para el resto se ordena una copia (sort modifica el array)

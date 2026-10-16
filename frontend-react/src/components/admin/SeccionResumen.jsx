@@ -1,45 +1,19 @@
-import { useEffect, useState } from 'react'
 import { traerAnimales } from '../../services/animales'
-import { traerApadrinamientos } from '../../services/apadrinar'
 import { recaudacionMensual } from '../../utils/precios'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
 import GraficoRecaudacion from './GraficoRecaudacion'
 import TarjetaDato from './TarjetaDato'
+import { useConsulta } from '../../hooks/useConsulta'
+import { useApadrinamientos } from '../../hooks/useApadrinamientos'
 
 // Sección "Resumen" del administrador: los números generales y el gráfico de recaudación.
 // "usuarios" los tiene el panel. Los animales publicados y los apadrinamientos los pide esta
 // sección al backend cuando se abre, un pedido por lista.
 const SeccionResumen = ({ usuarios }) => {
-  const [animales, setAnimales] = useState([])
-  const [apadrinamientos, setApadrinamientos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [errorAlCargar, setErrorAlCargar] = useState(null)
-
-  // Los animales publicados
-  useEffect(() => {
-    traerAnimales()
-      .then((lista) => {
-        setAnimales(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-  }, [])
-
-  // Todos los apadrinamientos, para la recaudación
-  useEffect(() => {
-    traerApadrinamientos()
-      .then((lista) => {
-        setApadrinamientos(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
+  const { datos: animales, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
+  const { datos: apadrinamientos, cargando, error: errorApadrinamientos } = useApadrinamientos()
+  const errorAlCargar = errorAnimales ?? errorApadrinamientos
 
   const refugios = usuarios.filter((u) => u.rol === 'refugio')
   const dadosDeBaja = usuarios.filter((u) => !u.activo)

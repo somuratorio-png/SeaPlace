@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
@@ -12,9 +12,10 @@ import HistorialPagos from './HistorialPagos'
 import MiPlan from './MiPlan'
 import Rastreo from './Rastreo'
 import RastreoBloqueado from './RastreoBloqueado'
-import { cambiarPlan, cancelarApadrinamiento, traerApadrinamientos } from '../../services/apadrinar'
+import { cambiarPlan, cancelarApadrinamiento } from '../../services/apadrinar'
 import { formatearFecha } from '../../utils/fechas'
 import { ponerEn } from '../../utils/listas'
+import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
 
 // Detalle de un animal que el usuario ya apadrinó.
 // Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
@@ -24,26 +25,9 @@ const DetalleApadrinado = () => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const navigate = useNavigate()
   const { id } = useParams()
-  const idAnimal = Number(id)
 
-  const [apadrinamientos, setApadrinamientos] = useState([]) // [{ id, animal, plan, desde, pagos, activo, novedades, ultimaUbicacion }]
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const { item, setApadrinamientos, cargando, error } = useApadrinamientoDe(id)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-
-  // Un solo pedido, al abrir la página
-  useEffect(() => {
-    traerApadrinamientos()
-      .then((lista) => {
-        setApadrinamientos(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
@@ -84,8 +68,6 @@ const DetalleApadrinado = () => {
       </div>
     )
   }
-
-  const item = apadrinamientos.find((a) => a.activo && a.animal.id === idAnimal)
 
   // Si ese animal no está apadrinado (o se canceló), se vuelve al panel
   if (!item) {

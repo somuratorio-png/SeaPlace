@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { cambiarRol, traerRoles } from '../../services/usuarios'
 import { paginar } from '../../utils/paginar'
 import AvisoError from '../comunes/AvisoError'
@@ -7,6 +7,7 @@ import Cargando from '../comunes/Cargando'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import FilaUsuario from './FilaUsuario'
+import { useConsulta } from '../../hooks/useConsulta'
 
 const USUARIOS_POR_PAGINA = 5
 
@@ -14,25 +15,9 @@ const USUARIOS_POR_PAGINA = 5
 // "usuario" es el administrador que está logueado y "usuarios" los tiene el panel.
 // Los roles que existen los pide esta sección al backend cuando se abre.
 const SeccionUsuarios = ({ usuario, usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
-  const [roles, setRoles] = useState([]) // [{ id, nombre }]
-  const [cargando, setCargando] = useState(true)
-  const [errorAlCargar, setErrorAlCargar] = useState(null)
+  const { datos: roles, cargando, error: errorAlCargar } = useConsulta(traerRoles, undefined, [])
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(0)
-
-  // Los roles, para el desplegable de cada usuario
-  useEffect(() => {
-    traerRoles()
-      .then((lista) => {
-        setRoles(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.
   // El cambio se ve con el usuario que devuelve el backend.

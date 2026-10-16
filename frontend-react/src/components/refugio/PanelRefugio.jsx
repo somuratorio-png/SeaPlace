@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import TarjetaDato from '../admin/TarjetaDato'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
@@ -11,12 +11,13 @@ import ListaPadrinos from './ListaPadrinos'
 import SeccionAnimales from './SeccionAnimales'
 import { formatearPrecio } from '../../contexto/Moneda'
 import * as animalesApi from '../../services/animales'
-import { traerApadrinamientos } from '../../services/apadrinar'
 import { intentar } from '../../utils/intentar'
 import { ponerEn, sacarDe } from '../../utils/listas'
 import { recaudacionMensual } from '../../utils/precios'
 import { useMoneda } from '../../hooks/useMoneda'
 import { useSesion } from '../../hooks/useSesion'
+import { useConsulta } from '../../hooks/useConsulta'
+import { useApadrinamientos } from '../../hooks/useApadrinamientos'
 
 const secciones = [
   { id: 'animales', nombre: 'Mis animales', icono: 'pets' },
@@ -33,50 +34,12 @@ const secciones = [
 const PanelRefugio = () => {
   const { usuario } = useSesion()
   const [seccion, setSeccion] = useState('animales')
-  const [animales, setAnimales] = useState([])
-  const [apadrinamientos, setApadrinamientos] = useState([])
-  const [categorias, setCategorias] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const { datos: animales, setDatos: setAnimales, cargando, error: errorAnimales } = useConsulta(animalesApi.traerPublicaciones, usuario.idRefugio, [])
+  const { datos: apadrinamientos, error: errorApadrinamientos } = useApadrinamientos()
+  const { datos: categorias, error: errorCategorias } = useConsulta(animalesApi.traerCategorias, undefined, [])
+  const error = errorAnimales ?? errorApadrinamientos ?? errorCategorias
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
   const { moneda } = useMoneda()
-
-  // Sus publicaciones, al entrar al panel. El refugio no cambia mientras se mira la página.
-  useEffect(() => {
-    animalesApi
-      .traerPublicaciones(usuario.idRefugio)
-      .then((lista) => {
-        setAnimales(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [usuario.idRefugio])
-
-  // Los apadrinamientos de sus animales (el backend ya manda solo esos)
-  useEffect(() => {
-    traerApadrinamientos()
-      .then((lista) => {
-        setApadrinamientos(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-  }, [])
-
-  // Las categorías, para el formulario de publicar
-  useEffect(() => {
-    animalesApi.traerCategorias()
-      .then((lista) => {
-        setCategorias(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-  }, [])
 
   // Pone en la lista al animal como lo devolvió el backend
   const guardarAnimal = (animal) => {

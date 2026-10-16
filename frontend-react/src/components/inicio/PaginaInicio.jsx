@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
 import AnimalesDestacados from './AnimalesDestacados'
@@ -8,13 +7,12 @@ import KitProtector from './KitProtector'
 import Testimonios from './Testimonios'
 import { traerAnimales } from '../../services/animales'
 import { useNavigate } from 'react-router-dom'
+import { useConsulta } from '../../hooks/useConsulta'
 
 // Página de inicio. Pide el catálogo al backend cuando se monta y de ahí muestra los destacados.
 const PaginaInicio = () => {
   const navigate = useNavigate()
-  const [animales, setAnimales] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const { datos: animales, cargando, error } = useConsulta(traerAnimales, undefined, [])
 
   const verCatalogo = () => {
     navigate('/catalogo')
@@ -23,20 +21,6 @@ const PaginaInicio = () => {
   const verAnimal = (animal) => {
     navigate(`/animal/${animal.id}`)
   }
-
-  // Un solo pedido, al abrir la página
-  useEffect(() => {
-    traerAnimales()
-      .then((lista) => {
-        setAnimales(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   const destacados = animales.filter((animal) => animal.destacado)
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { ponerEn } from '../../utils/listas'
@@ -7,6 +7,7 @@ import Cargando from '../comunes/Cargando'
 import TituloSeccion from '../comunes/TituloSeccion'
 import CampoTexto from '../login/CampoTexto'
 import TarjetaRol from './TarjetaRol'
+import { useConsulta } from '../../hooks/useConsulta'
 
 const claseFormulario = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container'
@@ -17,37 +18,11 @@ const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-
 // Los roles y los permisos los pide esta sección al backend cuando se abre, un pedido por lista.
 // Cada acción llama al backend y, con lo que contesta, actualiza la lista. Si falla, onError muestra el mensaje.
 const SeccionRoles = ({ onError }) => {
-  const [roles, setRoles] = useState([]) // [{ id, nombre, permisos }]
-  const [permisos, setPermisos] = useState([]) // [{ id, nombre, descripcion }]
-  const [cargando, setCargando] = useState(true)
-  const [errorAlCargar, setErrorAlCargar] = useState(null)
+  const { datos: roles, setDatos: setRoles, cargando, error: errorRoles } = useConsulta(usuariosApi.traerRoles, undefined, [])
+  const { datos: permisos, setDatos: setPermisos, error: errorPermisos } = useConsulta(usuariosApi.traerPermisos, undefined, [])
+  const errorAlCargar = errorRoles ?? errorPermisos
   const [nombreRol, setNombreRol] = useState('')
   const [permiso, setPermiso] = useState({ nombre: '', descripcion: '' })
-
-  // Los roles
-  useEffect(() => {
-    usuariosApi.traerRoles()
-      .then((lista) => {
-        setRoles(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
-
-  // Los permisos que se les pueden asignar
-  useEffect(() => {
-    usuariosApi.traerPermisos()
-      .then((lista) => {
-        setPermisos(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-  }, [])
 
   // Pone en la lista el rol como lo devolvió el backend (uno nuevo, o uno con sus permisos cambiados)
   const guardarRol = (rol) => {

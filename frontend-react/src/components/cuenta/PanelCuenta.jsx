@@ -15,7 +15,7 @@ const sinContrasenias = { actual: '', nueva: '', repetida: '' }
 // "Mi cuenta": el usuario logueado cambia sus datos y su contraseña.
 // El nombre de usuario no se puede cambiar (es el que lleva el token), y el rol tampoco.
 // Los dos formularios le piden el cambio al backend y muestran acá mismo su mensaje de error.
-// uardarPerfil actualiza el usuario en toda la página
+// guardarPerfil actualiza el usuario en toda la página
 const PanelCuenta = () => {
   const { usuario, guardarPerfil } = useSesion()
   const [perfil, setPerfil] = useState({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })

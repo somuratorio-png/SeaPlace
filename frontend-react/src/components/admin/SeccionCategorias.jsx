@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import { crearCategoria, traerAnimales, traerCategorias } from '../../services/animales'
 import { intentar } from '../../utils/intentar'
 import AvisoError from '../comunes/AvisoError'
@@ -6,42 +6,17 @@ import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
 import TituloSeccion from '../comunes/TituloSeccion'
 import CampoTexto from '../login/CampoTexto'
+import { useConsulta } from '../../hooks/useConsulta'
 
 // Sección "Categorías" del administrador: las que existen (con cuántos animales tiene cada una)
 // y el formulario para crear una nueva.
 // Las categorías y los animales publicados los pide esta sección al backend cuando se abre, un pedido por lista.
 const SeccionCategorias = () => {
-  const [categorias, setCategorias] = useState([])
-  const [animales, setAnimales] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [errorAlCargar, setErrorAlCargar] = useState(null)
+  const { datos: categorias, setDatos: setCategorias, cargando, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
+  const { datos: animales, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
+  const errorAlCargar = errorCategorias ?? errorAnimales
   const [datos, setDatos] = useState({ nombre: '', descripcion: '' })
   const [error, setError] = useState(null)
-
-  // Las categorías
-  useEffect(() => {
-    traerCategorias()
-      .then((lista) => {
-        setCategorias(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
-
-  // Los animales publicados, para contar cuántos tiene cada categoría
-  useEffect(() => {
-    traerAnimales()
-      .then((lista) => {
-        setAnimales(lista)
-      })
-      .catch((falla) => {
-        setErrorAlCargar(falla.message)
-      })
-  }, [])
 
   const cambiar = (evento) => {
     setDatos({ ...datos, [evento.target.name]: evento.target.value })

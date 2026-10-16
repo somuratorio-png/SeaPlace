@@ -1,11 +1,10 @@
-import { useEffect, useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
-import { traerApadrinamientos } from '../../services/apadrinar'
 import { formatearFecha } from '../../utils/fechas'
 import { useSesion } from '../../hooks/useSesion'
+import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
 
 // Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
 // Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
@@ -16,23 +15,7 @@ const CertificadoApadrinamiento = () => {
   const { usuario } = useSesion()
   const { id } = useParams()
 
-  const [apadrinamientos, setApadrinamientos] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
-
-  // Un solo pedido, al abrir la página
-  useEffect(() => {
-    traerApadrinamientos()
-      .then((lista) => {
-        setApadrinamientos(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
+  const { item, cargando, error } = useApadrinamientoDe(id)
 
   if (cargando) {
     return <Cargando texto="Preparando tu certificado…" />
@@ -45,8 +28,6 @@ const CertificadoApadrinamiento = () => {
       </div>
     )
   }
-
-  const item = apadrinamientos.find((a) => a.activo && a.animal.id === Number(id))
 
   // Si ese animal no está apadrinado, se vuelve al panel
   if (!item) {

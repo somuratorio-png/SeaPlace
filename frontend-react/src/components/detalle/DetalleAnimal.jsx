@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react'
 import { Navigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
@@ -11,43 +10,22 @@ import Galeria from './Galeria'
 import PreguntasFrecuentes from './PreguntasFrecuentes'
 import { traerAnimal } from '../../services/animales'
 import { useNavigate } from 'react-router-dom'
+import { useConsulta } from '../../hooks/useConsulta'
+import { useState } from 'react'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
-// "favoritos" son los ids de los animales que guardó el usuario, que tiene App.
 const DetalleAnimal = () => {
   const navigate = useNavigate()
   const { id } = useParams()
 
-  const [animal, setAnimal] = useState(null)
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
-  const [noExiste, setNoExiste] = useState(false)
+  const { datos: animal, cargando, error, estadoError } = useConsulta(traerAnimal, id)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-
-  // Un solo pedido, al abrir la página (cada animal tiene su URL, así que cambia solo con el id)
-  useEffect(() => {
-    traerAnimal(id)
-      .then((encontrado) => {
-        setAnimal(encontrado)
-      })
-      .catch((falla) => {
-        // 404 = ese animal no existe o su publicación ya no está activa
-        if (falla.estado === 404) {
-          setNoExiste(true)
-        } else {
-          setError(falla.message)
-        }
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [id])
 
   if (cargando) {
     return <Cargando texto="Buscando al animal…" />
   }
 
-  if (noExiste) {
+  if (estadoError === 404) {
     return <Navigate to="/catalogo" replace />
   }
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import SeccionCategorias from './SeccionCategorias'
 import SeccionRefugios from './SeccionRefugios'
 import SeccionResumen from './SeccionResumen'
@@ -11,6 +11,7 @@ import Portada from '../comunes/Portada'
 import * as usuariosApi from '../../services/usuarios'
 import { ponerEn } from '../../utils/listas'
 import { useSesion } from '../../hooks/useSesion'
+import { useConsulta } from '../../hooks/useConsulta'
 
 // Panel del administrador. Tiene un menú lateral y muestra una sola sección por vez
 // (resumen, refugios, usuarios, categorías o roles).
@@ -21,25 +22,8 @@ import { useSesion } from '../../hooks/useSesion'
 const PanelAdmin = () => {
   const { usuario } = useSesion()
   const [seccion, setSeccion] = useState('resumen')
-  const [usuarios, setUsuarios] = useState([])
-  const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null)
+  const { datos: usuarios, setDatos: setUsuarios, cargando, error } = useConsulta(usuariosApi.traerUsuarios, undefined, [])
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-
-  // Un solo pedido de los usuarios, al entrar al panel
-  useEffect(() => {
-    usuariosApi
-      .traerUsuarios()
-      .then((lista) => {
-        setUsuarios(lista)
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
-      .then(() => {
-        setCargando(false)
-      })
-  }, [])
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
 
