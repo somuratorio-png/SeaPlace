@@ -1,27 +1,16 @@
-import { useState } from 'react'
-import { paginar } from '../../utils/paginar'
 import Buscador from '../comunes/Buscador'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaMiAnimal from './TarjetaMiAnimal'
+import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 
 const ANIMALES_POR_PAGINA = 4
+const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.estado}`
 
 // Sección "Mis animales" del refugio: los busca y los muestra de a una página.
 // "animales" son solo los de este refugio y "apadrinamientos" los activos de esos animales.
 const SeccionAnimales = ({ animales, apadrinamientos, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
-  const [busqueda, setBusqueda] = useState('')
-  const [pagina, setPagina] = useState(0)
-
-  const texto = busqueda.toLowerCase()
-  const encontrados = animales.filter((animal) => `${animal.nombre} ${animal.especie} ${animal.estado}`.toLowerCase().includes(texto))
-  const { items, paginaActual, totalPaginas } = paginar(encontrados, pagina, ANIMALES_POR_PAGINA)
-
-  // Al buscar se vuelve a la primera página
-  const buscar = (valor) => {
-    setBusqueda(valor)
-    setPagina(0)
-  }
+  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(animales, textoDelAnimal, ANIMALES_POR_PAGINA)
 
   return (
     <section className="space-y-space-md">

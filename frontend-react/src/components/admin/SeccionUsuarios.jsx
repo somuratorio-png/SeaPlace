@@ -1,6 +1,5 @@
-import { useState } from 'react'
 import { cambiarRol, traerRoles } from '../../services/usuarios'
-import { paginar } from '../../utils/paginar'
+import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import AvisoError from '../comunes/AvisoError'
 import Buscador from '../comunes/Buscador'
 import Cargando from '../comunes/Cargando'
@@ -8,16 +7,18 @@ import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import FilaUsuario from './FilaUsuario'
 import { useConsulta } from '../../hooks/useConsulta'
+import { useSesion } from '../../hooks/useSesion'
 
 const USUARIOS_POR_PAGINA = 5
+const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.mail} ${u.rol}`
 
 // Sección "Usuarios" del administrador: tabla paginada para cambiarles el rol o darlos de baja.
-// "usuario" es el administrador que está logueado y "usuarios" los tiene el panel.
+// "usuarios" los tiene el panel y el administrador logueado se lee con useSesion.
 // Los roles que existen los pide esta sección al backend cuando se abre.
-const SeccionUsuarios = ({ usuario, usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
+const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { datos: roles, cargando, error: errorAlCargar } = useConsulta(traerRoles, undefined, [])
-  const [busqueda, setBusqueda] = useState('')
-  const [pagina, setPagina] = useState(0)
+  const { usuario } = useSesion()
+  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
   // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.
   // El cambio se ve con el usuario que devuelve el backend.
@@ -30,16 +31,6 @@ const SeccionUsuarios = ({ usuario, usuarios, onCambiarActivo, onGuardarUsuario,
       .catch((falla) => {
         onError(falla.message)
       })
-  }
-
-  const texto = busqueda.toLowerCase()
-  const encontrados = usuarios.filter((u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.mail} ${u.rol}`.toLowerCase().includes(texto))
-  const { items, paginaActual, totalPaginas } = paginar(encontrados, pagina, USUARIOS_POR_PAGINA)
-
-  // Al buscar se vuelve a la primera página
-  const buscar = (valor) => {
-    setBusqueda(valor)
-    setPagina(0)
   }
 
   if (cargando) {

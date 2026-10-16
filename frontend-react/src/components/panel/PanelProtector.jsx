@@ -10,6 +10,7 @@ import { useApadrinamientos } from '../../hooks/useApadrinamientos'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { useFavoritos } from '../../hooks/useFavoritos'
 import { useSesion } from '../../hooks/useSesion'
+import { paraBuscar } from '../../utils/texto'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
 const PanelProtector = () => {
@@ -28,9 +29,9 @@ const PanelProtector = () => {
   // El backend manda también los cancelados (para el historial): acá se muestran los activos
   const apadrinados = apadrinamientos.filter((a) => a.activo)
 
-  const texto = busqueda.toLowerCase()
-  const visibles = apadrinados.filter((item) => `${item.animal.nombre} ${item.animal.especie} ${item.animal.ubicacion}`.toLowerCase().includes(texto))
-
+  const texto = paraBuscar(busqueda)
+  const visibles = apadrinados.filter((item) => paraBuscar(`${item.animal.nombre} ${item.animal.especie} ${item.animal.ubicacion}`).includes(texto))
+  
   // La sección de apadrinados: el aviso de espera, el error del backend, el mensaje de lista vacía o las tarjetas
   const elegirApadrinados = () => {
     if (cargando) {

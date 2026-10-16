@@ -6,14 +6,15 @@ import Cargando from '../comunes/Cargando'
 import Paginacion from '../comunes/Paginacion'
 import Portada from '../comunes/Portada'
 import { traerAnimales, traerCategorias } from '../../services/animales'
-import { paginar } from '../../utils/paginar'
 import { precioFinal } from '../../utils/precios'
 import { useNavigate } from 'react-router-dom'
 import { useFavoritos } from '../../hooks/useFavoritos'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useState } from 'react'
+import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 
 const ANIMALES_POR_PAGINA = 6
+const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`
 
 // Cuanto más chico el número, más urgente
 const pesoUrgencia = { critico: 0, recuperacion: 1, listo: 2 }
@@ -36,32 +37,24 @@ const CatalogoAnimales = () => {
   const { datos: categorias, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
   const error = errorAnimales ?? errorCategorias
   const [categoria, setCategoria] = useState('todas')
-  const [busqueda, setBusqueda] = useState('')
   const [urgencia, setUrgencia] = useState('todas')
   const [orden, setOrden] = useState('recomendados')
   const [soloFavoritos, setSoloFavoritos] = useState(false)
-  const [pagina, setPagina] = useState(0)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
-  // Cada vez que cambia un filtro, se guarda el valor nuevo y se vuelve a la primera página
-  const alFiltrar = (guardar) => (valor) => {
-    guardar(valor)
-    setPagina(0)
-  }
-
-  // Nos quedamos con los animales que cumplen todos los filtros a la vez
-  const texto = busqueda.toLowerCase()
+  // Nos quedamos con los animales que cumplen los filtros a la vez y los ordenamos.
   const filtrados = animales
     .filter((animal) => categoria === 'todas' || animal.categoria === categoria)
     .filter((animal) => urgencia === 'todas' || animal.urgencia === urgencia)
     .filter((animal) => !soloFavoritos || favoritos.some((guardado) => guardado.id === animal.id))
-    .filter((animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`.toLowerCase().includes(texto))
-
-  // "Recomendados" deja el orden original. Para el resto se ordena una copia (sort modifica el array)
   const ordenados = orden === 'recomendados' ? filtrados : [...filtrados].sort(comparadores[orden])
 
-  // Se muestran de a 6
-  const { items: visibles, paginaActual, totalPaginas } = paginar(ordenados, pagina, ANIMALES_POR_PAGINA)
+  const { busqueda, buscar, encontrados, items: visibles, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenados, textoDelAnimal, ANIMALES_POR_PAGINA)
+
+  const alFiltrar = (guardar) => (valor) => {
+    guardar(valor)
+    setPagina(0)
+  }
 
   // Debajo de la portada: el aviso de espera, el error del backend o el catálogo con sus filtros
   const elegirContenido = () => {
@@ -76,7 +69,7 @@ const CatalogoAnimales = () => {
         <FiltroCategorias categorias={categorias} animales={animales} categoriaActiva={categoria} onCambiar={alFiltrar(setCategoria)} />
         <BarraBusqueda
           busqueda={busqueda}
-          onBusqueda={alFiltrar(setBusqueda)}
+          onBusqueda={buscar}
           urgencia={urgencia}
           onUrgencia={alFiltrar(setUrgencia)}
           orden={orden}
@@ -86,7 +79,7 @@ const CatalogoAnimales = () => {
         />
 
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Mostrando {visibles.length} de {ordenados.length} animales
+          Mostrando {visibles.length} de {encontrados.length} animales
         </p>
 
         {visibles.length === 0 ? (
@@ -122,7 +115,8 @@ const CatalogoAnimales = () => {
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
         {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
-        {elegirContenido()}</div>
+        {elegirContenido()}
+      </div>
     </>
   )
 }

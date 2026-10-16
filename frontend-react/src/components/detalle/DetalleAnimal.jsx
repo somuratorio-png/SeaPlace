@@ -1,4 +1,4 @@
-import { Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams, useNavigate } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
 import FavoritoAnimal from '../comunes/FavoritoAnimal'
@@ -9,7 +9,6 @@ import ElegirPlan from './ElegirPlan'
 import Galeria from './Galeria'
 import PreguntasFrecuentes from './PreguntasFrecuentes'
 import { traerAnimal } from '../../services/animales'
-import { useNavigate } from 'react-router-dom'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useState } from 'react'
 

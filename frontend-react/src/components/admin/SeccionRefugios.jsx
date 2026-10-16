@@ -1,8 +1,7 @@
-import { useState } from 'react'
 import { quitarAnimal, traerPublicaciones } from '../../services/animales'
 import { aprobarRefugio } from '../../services/usuarios'
 import { sacarDe } from '../../utils/listas'
-import { paginar } from '../../utils/paginar'
+import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import AvisoError from '../comunes/AvisoError'
 import Buscador from '../comunes/Buscador'
 import Cargando from '../comunes/Cargando'
@@ -12,6 +11,7 @@ import TarjetaRefugio from './TarjetaRefugio'
 import { useConsulta } from '../../hooks/useConsulta'
 
 const REFUGIOS_POR_PAGINA = 4
+const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 
 // Sección "Refugios" del administrador: los busca, los muestra de a una página y permite
 // aprobarlos, darlos de baja y ver sus animales.
@@ -19,8 +19,6 @@ const REFUGIOS_POR_PAGINA = 4
 // cuando se abre. Cada acción llama al backend y, con lo que contesta, actualiza el estado.
 const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { datos: animales, setDatos: setAnimales, cargando, error: errorAlCargar } = useConsulta(traerPublicaciones, undefined, [])
-  const [busqueda, setBusqueda] = useState('')
-  const [pagina, setPagina] = useState(0)
 
   // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
   const cambiarActivo = (nombreUsuario) => {
@@ -58,16 +56,7 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
   // Los que esperan aprobación van primero en la lista
   const refugios = [...pendientes, ...usuarios.filter((u) => u.rol === 'refugio' && u.aprobado)]
-
-  const texto = busqueda.toLowerCase()
-  const encontrados = refugios.filter((r) => `${r.nombre} ${r.apellido} ${r.mail}`.toLowerCase().includes(texto))
-  const { items, paginaActual, totalPaginas } = paginar(encontrados, pagina, REFUGIOS_POR_PAGINA)
-
-  // Al buscar se vuelve a la primera página
-  const buscar = (valor) => {
-    setBusqueda(valor)
-    setPagina(0)
-  }
+  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(refugios, textoDelRefugio, REFUGIOS_POR_PAGINA)
 
   if (cargando) {
     return <Cargando texto="Cargando los refugios…" />

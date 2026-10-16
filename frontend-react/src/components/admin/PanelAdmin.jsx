@@ -76,7 +76,7 @@ const PanelAdmin = () => {
             <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
           )}
           {seccion === 'usuarios' && (
-            <SeccionUsuarios usuario={usuario} usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
+            <SeccionUsuarios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
           )}
           {seccion === 'categorias' && <SeccionCategorias />}
           {seccion === 'roles' && <SeccionRoles onError={setErrorAccion} />}
