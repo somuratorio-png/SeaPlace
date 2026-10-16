@@ -5,6 +5,7 @@ import Icono from '../comunes/Icono'
 import { formatearFecha } from '../../utils/fechas'
 import { useSesion } from '../../hooks/useSesion'
 import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
+import BotonVolver from '../comunes/BotonVolver'
 
 // Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
 // Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
@@ -37,9 +38,10 @@ const CertificadoApadrinamiento = () => {
   return (
     <div className="max-w-4xl mx-auto px-margin-mobile py-space-lg space-y-space-md">
       <div className="flex flex-wrap items-center justify-between gap-space-sm print:hidden">
-        <button onClick={() => navigate(`/panel/${item.animal.id}`)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
-          <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a {item.animal.nombre}
-        </button>
+        <BotonVolver
+          texto={`Volver a ${item.animal.nombre}`}
+          onVolver={() => navigate(`/panel/${item.animal.id}`)}
+        />
         <p className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant">
           <Icono nombre="print" clase="text-[18px]" /> Para imprimir o guardar como PDF, usá Ctrl+P
         </p>

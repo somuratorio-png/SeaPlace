@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import AvisoError from '../comunes/AvisoError'
 import Buscador from '../comunes/Buscador'
-import Cargando from '../comunes/Cargando'
+import EstadoCarga from '../comunes/EstadoCarga'
 import Portada from '../comunes/Portada'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaApadrinado from './TarjetaApadrinado'
@@ -11,6 +11,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { useFavoritos } from '../../hooks/useFavoritos'
 import { useSesion } from '../../hooks/useSesion'
 import { paraBuscar } from '../../utils/texto'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
 const PanelProtector = () => {
@@ -34,12 +35,10 @@ const PanelProtector = () => {
   
   // La sección de apadrinados: el aviso de espera, el error del backend, el mensaje de lista vacía o las tarjetas
   const elegirApadrinados = () => {
-    if (cargando) {
-      return <Cargando texto="Buscando tus apadrinados…" />
+    if (cargando || error) {
+      return <EstadoCarga cargando={cargando} error={error} texto="Cargando a tus apadrinados…" />
     }
-    if (error) {
-      return <AvisoError mensaje={error} />
-    }
+
     if (apadrinados.length === 0) {
       return (
         <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center space-y-space-md">
@@ -55,9 +54,7 @@ const PanelProtector = () => {
         <Buscador valor={busqueda} onCambiar={setBusqueda} textoAyuda="Buscar entre tus apadrinados..." />
 
         {visibles.length === 0 && (
-          <p className="text-center font-body-md text-body-md text-on-surface-variant py-space-lg">
-            Ningún apadrinado coincide con esa búsqueda.
-          </p>
+          <MensajeVacio clase="py-space-lg">Ningún apadrinado coincide con esa búsqueda.</MensajeVacio>
         )}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
           {visibles.map((item) => (
@@ -91,9 +88,7 @@ const PanelProtector = () => {
           <TituloSeccion>Tus favoritos</TituloSeccion>
 
           {animalesFavoritos.length === 0 ? (
-            <p className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-              Tocá el corazón de un animal en el catálogo para guardarlo acá.
-            </p>
+            <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg">Tocá el corazón de un animal en el catálogo para guardarlo acá.</MensajeVacio>
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md">
               {animalesFavoritos.map((animal) => (

@@ -1,7 +1,7 @@
 import { precioFinal, tieneDescuento } from '../../utils/precios'
-import BarraProgreso from '../comunes/BarraProgreso'
-import Icono from '../comunes/Icono'
-import Precio from '../comunes/Precio'
+import BarraProgreso from './BarraProgreso'
+import Icono from './Icono'
+import Precio from './Precio'
 import { useNavigate } from "react-router-dom"
 
 

@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import Icono from '../comunes/Icono'
-import FilaAnimal from '../refugio/FilaAnimal'
+import FilaAnimal from '../comunes/FilaAnimal'
 import Chip from './Chip'
 
 // Un refugio en la lista del administrador. Al tocar "Ver animales" se despliegan los suyos.

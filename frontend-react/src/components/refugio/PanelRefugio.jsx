@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import TarjetaDato from '../admin/TarjetaDato'
+import TarjetaDato from '../comunes/TarjetaDato'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'

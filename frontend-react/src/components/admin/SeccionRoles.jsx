@@ -2,10 +2,9 @@ import { useState } from 'react'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { ponerEn } from '../../utils/listas'
-import AvisoError from '../comunes/AvisoError'
-import Cargando from '../comunes/Cargando'
+import EstadoCarga from '../comunes/EstadoCarga'
 import TituloSeccion from '../comunes/TituloSeccion'
-import CampoTexto from '../login/CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import TarjetaRol from './TarjetaRol'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useFormulario } from '../../hooks/useFormulario'
@@ -55,11 +54,8 @@ const SeccionRoles = ({ onError }) => {
     })
   }
 
-  if (cargando) {
-    return <Cargando texto="Cargando los roles…" />
-  }
-  if (errorAlCargar) {
-    return <AvisoError mensaje={errorAlCargar} />
+  if (cargando || errorAlCargar) {
+    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando los roles…" />
   }
 
   return (
@@ -67,14 +63,12 @@ const SeccionRoles = ({ onError }) => {
       <TituloSeccion>Roles y permisos</TituloSeccion>
 
       {roles.length === 0 && (
-        <p className="bg-surface-container rounded-2xl p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-          Todavía no hay roles. Creá el primero con el formulario de abajo.
-        </p>
+        <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Todavía no hay roles. Creá el primero con el formulario de abajo.</MensajeVacio>
       )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md items-start">
-        {/* La "key" incluye los permisos: si cambian (o se crea uno), la tarjeta arranca de nuevo con los datos frescos */}
+        {/* La key es el id del rol: cada tarjeta guarda los tildes que el usuario va eligiendo */}
         {roles.map((rol) => (
-          <TarjetaRol key={`${rol.id}-${rol.permisos.join()}`} rol={rol} permisos={permisos} onAsignar={asignar} />
+          <TarjetaRol key={rol.id} rol={rol} permisos={permisos} onAsignar={asignar} />
         ))}
       </div>
 

@@ -1,4 +1,4 @@
-import Icono from '../comunes/Icono'
+import Icono from './Icono'
 
 // Número grande del resumen del administrador. clase = colores de fondo y de texto de la tarjeta
 const TarjetaDato = ({ icono, valor, titulo, clase }) => {

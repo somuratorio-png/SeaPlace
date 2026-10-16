@@ -1,5 +1,6 @@
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaDestacada from './TarjetaDestacada'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const AnimalesDestacados = ({ animales, onVerAnimal }) => {
   return (
@@ -13,9 +14,7 @@ const AnimalesDestacados = ({ animales, onVerAnimal }) => {
       </div>
 
       {animales.length === 0 ? (
-        <p className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-          Todavía no hay animales destacados para mostrar.
-        </p>
+        <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg">Todavía no hay animales destacados para mostrar.</MensajeVacio>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-space-lg">
           {animales.map((animal) => (

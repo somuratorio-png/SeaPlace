@@ -3,6 +3,7 @@ import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaMiAnimal from './TarjetaMiAnimal'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const ANIMALES_POR_PAGINA = 4
 const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.estado}`
@@ -23,12 +24,10 @@ const SeccionAnimales = ({ animales, apadrinamientos, onQuitar, onEditar, onPubl
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar por nombre, especie o estado..." />
 
       {animales.length === 0 && (
-        <p className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center font-body-md text-body-md text-on-surface-variant">
-          Todavía no publicaste ningún animal.
-        </p>
+        <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl">Todavía no publicaste ningún animal.</MensajeVacio>
       )}
       {animales.length > 0 && encontrados.length === 0 && (
-        <p className="text-center font-body-md text-body-md text-on-surface-variant py-space-lg">Ningún animal coincide con esa búsqueda.</p>
+        <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg">Tocá el corazón de un animal en el catálogo para guardarlo acá.</MensajeVacio>
       )}
       {items.map((animal) => (
         <TarjetaMiAnimal

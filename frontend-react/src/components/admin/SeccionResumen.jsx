@@ -1,9 +1,8 @@
 import { traerAnimales } from '../../services/animales'
 import { recaudacionMensual } from '../../utils/precios'
-import AvisoError from '../comunes/AvisoError'
-import Cargando from '../comunes/Cargando'
+import EstadoCarga from '../comunes/EstadoCarga'
 import GraficoRecaudacion from './GraficoRecaudacion'
-import TarjetaDato from './TarjetaDato'
+import TarjetaDato from '../comunes/TarjetaDato'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useApadrinamientos } from '../../hooks/useApadrinamientos'
 
@@ -26,11 +25,8 @@ const SeccionResumen = ({ usuarios }) => {
       return { nombre: `${refugio.nombre} ${refugio.apellido}`, valor: recaudacionMensual(suyos), padrinos: suyos.length }
     })
 
-  if (cargando) {
-    return <Cargando texto="Cargando el resumen…" />
-  }
-  if (errorAlCargar) {
-    return <AvisoError mensaje={errorAlCargar} />
+  if (cargando || errorAlCargar) {
+    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando el resumen…" />
   }
 
   return (

@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { crearCategoria, traerAnimales, traerCategorias } from '../../services/animales'
 import { intentar } from '../../utils/intentar'
-import AvisoError from '../comunes/AvisoError'
-import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
 import TituloSeccion from '../comunes/TituloSeccion'
-import CampoTexto from '../login/CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useFormulario } from '../../hooks/useFormulario'
+import MensajeError from '../comunes/MensajeError'
+import EstadoCarga from '../comunes/EstadoCarga'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const formularioVacio = { nombre: '', descripcion: '' }
 
@@ -35,11 +36,8 @@ const SeccionCategorias = () => {
     })
   }
 
-  if (cargando) {
-    return <Cargando texto="Cargando las categorías…" />
-  }
-  if (errorAlCargar) {
-    return <AvisoError mensaje={errorAlCargar} />
+  if (cargando || errorAlCargar) {
+    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando las categorías…" />
   }
 
   return (
@@ -47,9 +45,7 @@ const SeccionCategorias = () => {
       <TituloSeccion>Categorías</TituloSeccion>
 
       {categorias.length === 0 && (
-        <p className="bg-surface-container rounded-2xl p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-          Todavía no hay categorías. Creá la primera con el formulario de abajo.
-        </p>
+        <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Todavía no hay categorías. Creá la primera con el formulario de abajo.</MensajeVacio>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
         {categorias.map((categoria) => {
@@ -76,7 +72,7 @@ const SeccionCategorias = () => {
           <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
           <CampoTexto etiqueta="Descripción" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
         </div>
-        {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
+        {error && <MensajeError mensaje={error} />}
         <button type="submit" className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
           Crear categoría
         </button>

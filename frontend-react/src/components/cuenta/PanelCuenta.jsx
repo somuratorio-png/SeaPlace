@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import Portada from '../comunes/Portada'
-import CampoTexto from '../login/CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import { cambiarMiContrasenia, modificarMiPerfil } from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
+import MensajeError from '../comunes/MensajeError'
+import { validarContrasenia } from '../../utils/validaciones'
 
 const claseTarjeta = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container disabled:opacity-60'
-const claseError = 'bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm'
 const claseExito = 'font-label-lg text-label-lg text-secondary'
 
 const sinContrasenias = { actual: '', nueva: '', repetida: '' }
@@ -47,8 +48,9 @@ const PanelCuenta = () => {
 
   const guardarContrasenia = (evento) => {
     evento.preventDefault()
-    if (contrasenias.nueva.length < 8) {
-      setErrorContrasenia('La contraseña nueva debe tener al menos 8 caracteres')
+    const errorClave = validarContrasenia(contrasenias.nueva, 'La contraseña nueva')
+    if (errorClave !== null) {
+      setErrorContrasenia(errorClave)
       return
     }
     if (contrasenias.nueva !== contrasenias.repetida) {
@@ -75,7 +77,7 @@ const PanelCuenta = () => {
           <CampoTexto etiqueta="Apellido" nombre="apellido" valor={perfil.apellido} onCambiar={cambiarPerfil} />
           <CampoTexto etiqueta="Correo electrónico" nombre="mail" tipo="email" valor={perfil.mail} onCambiar={cambiarPerfil} />
 
-          {errorPerfil && <p className={claseError}>{errorPerfil}</p>}
+          {errorPerfil && <MensajeError mensaje={errorPerfil} />}
           <div className="flex flex-wrap items-center gap-space-md">
             <button type="submit" className={claseBoton}>
               Guardar cambios
@@ -90,7 +92,8 @@ const PanelCuenta = () => {
           <CampoTexto etiqueta="Contraseña nueva" nombre="nueva" tipo="password" valor={contrasenias.nueva} onCambiar={cambiarContrasenias} />
           <CampoTexto etiqueta="Repetí la contraseña nueva" nombre="repetida" tipo="password" valor={contrasenias.repetida} onCambiar={cambiarContrasenias} />
 
-          {errorContrasenia && <p className={claseError}>{errorContrasenia}</p>}
+          {errorContrasenia && <MensajeError mensaje={errorContrasenia} />} 
+
           <div className="flex flex-wrap items-center gap-space-md">
             <button type="submit" className={claseBoton}>
               Cambiar contraseña

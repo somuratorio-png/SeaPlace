@@ -2,7 +2,7 @@ import BarraBusqueda from './BarraBusqueda'
 import FiltroCategorias from './FiltroCategorias'
 import TarjetaAnimal from './TarjetaAnimal'
 import AvisoError from '../comunes/AvisoError'
-import Cargando from '../comunes/Cargando'
+import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import Portada from '../comunes/Portada'
 import { traerAnimales, traerCategorias } from '../../services/animales'
@@ -12,6 +12,7 @@ import { useFavoritos } from '../../hooks/useFavoritos'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useState } from 'react'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const ANIMALES_POR_PAGINA = 6
 const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`
@@ -58,12 +59,10 @@ const CatalogoAnimales = () => {
 
   // Debajo de la portada: el aviso de espera, el error del backend o el catálogo con sus filtros
   const elegirContenido = () => {
-    if (cargando) {
-      return <Cargando texto="Buscando a los animales…" />
+    if (cargando || error) {
+      return <EstadoCarga cargando={cargando} error={error} texto="Cargando el catálogo…" />
     }
-    if (error) {
-      return <AvisoError mensaje={error} />
-    }
+
     return (
       <>
         <FiltroCategorias categorias={categorias} animales={animales} categoriaActiva={categoria} onCambiar={alFiltrar(setCategoria)} />
@@ -83,9 +82,9 @@ const CatalogoAnimales = () => {
         </p>
 
         {visibles.length === 0 ? (
-          <p className="text-center font-body-md text-body-md text-on-surface-variant py-space-xl">
+          <MensajeVacio clase="py-space-xl">
             {animales.length === 0 ? 'Todavía no hay animales publicados para apadrinar.' : 'Ningún animal coincide con esos filtros. Probá con otra búsqueda.'}
-          </p>
+          </MensajeVacio>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
             {visibles.map((animal) => (

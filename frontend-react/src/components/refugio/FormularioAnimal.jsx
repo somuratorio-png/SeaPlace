@@ -1,7 +1,11 @@
 import { useState } from 'react'
 import { urgencias } from '../../data/animales'
-import CampoTexto from '../login/CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import { useFormulario } from '../../hooks/useFormulario'
+import MensajeError from '../comunes/MensajeError'
+import CampoSelect from '../comunes/CampoSelect'
+import CampoTextarea from '../comunes/CampoTextarea'
+import CampoArchivo from '../comunes/CampoArchivo'
 
 // categoria queda vacía hasta que se elige una: mientras tanto vale la primera de la lista
 const formularioVacio = {
@@ -15,8 +19,6 @@ const formularioVacio = {
   cuposTotales: '',
   descripcion: '',
 }
-
-const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40'
 
 // Formulario para publicar un animal nuevo en el catálogo. "categorias" son las del backend.
 // onGuardar lo manda al backend y devuelve un mensaje de error, o null si salió bien.
@@ -65,27 +67,8 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
         <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
         <CampoTexto etiqueta="Especie" nombre="especie" valor={datos.especie} onCambiar={cambiar} />
 
-        <label htmlFor="categoria" className="flex flex-col gap-1.5">
-          <span className="font-label-lg text-label-lg text-on-surface">Categoría</span>
-          <select id="categoria" name="categoria" value={datos.categoria} onChange={cambiar} className={claseCampo}>
-            {categorias.map((categoria) => (
-              <option key={categoria.id} value={categoria.id}>
-                {categoria.nombre}
-              </option>
-            ))}
-          </select>
-        </label>
-
-        <label htmlFor="urgencia" className="flex flex-col gap-1.5">
-          <span className="font-label-lg text-label-lg text-on-surface">Condición</span>
-          <select id="urgencia" name="urgencia" value={datos.urgencia} onChange={cambiar} className={claseCampo}>
-            {urgencias.map((urgencia) => (
-              <option key={urgencia.id} value={urgencia.id}>
-                {urgencia.estado}
-              </option>
-            ))}
-          </select>
-        </label>
+        <CampoSelect etiqueta="Categoría" nombre="categoria" valor={datos.categoria} onCambiar={cambiar} opciones={categorias.map((categoria) => ({ valor: categoria.id, texto: categoria.nombre }))} />
+        <CampoSelect etiqueta="Condición" nombre="urgencia" valor={datos.urgencia} onCambiar={cambiar} opciones={urgencias.map((urgencia) => ({ valor: urgencia.id, texto: urgencia.estado }))} />
 
         <CampoTexto etiqueta="Edad" nombre="edad" valor={datos.edad} onCambiar={cambiar} />
         <CampoTexto etiqueta="Ubicación" nombre="ubicacion" valor={datos.ubicacion} onCambiar={cambiar} />
@@ -93,15 +76,9 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
         <CampoTexto etiqueta="Cupos (cuántos padrinos admite)" nombre="cuposTotales" tipo="number" valor={datos.cuposTotales} onCambiar={cambiar} />
       </div>
 
-      <label htmlFor="descripcion" className="flex flex-col gap-1.5">
-        <span className="font-label-lg text-label-lg text-on-surface">Su historia</span>
-        <textarea id="descripcion" name="descripcion" value={datos.descripcion} onChange={cambiar} required rows={3} className={claseCampo} />
-      </label>
-
-      <label htmlFor="fotos" className="flex flex-col gap-1.5">
-        <span className="font-label-lg text-label-lg text-on-surface">Fotos (opcional, podés elegir varias)</span>
-        <input key={claveFotos} type="file" id="fotos" name="fotos" accept="image/*" multiple onChange={elegirFotos} className={claseCampo} />
-      </label>
+      <CampoTextarea etiqueta="Su historia" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
+      <CampoArchivo key={claveFotos} etiqueta="Fotos (opcional, podés elegir varias)" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
+      
       {fotos.length > 0 && (
         <div className="flex flex-wrap gap-space-sm">
           {fotos.map((foto, indice) => (
@@ -110,7 +87,7 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
         </div>
       )}
 
-      {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
+      {error && <MensajeError mensaje={error} />}
 
       <button type="submit" disabled={enviando} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-tertiary-container disabled:opacity-60">
         {enviando ? 'Publicando…' : 'Publicar animal'}

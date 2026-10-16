@@ -1,11 +1,13 @@
 import { useState } from 'react'
 import Bienvenida from './Bienvenida'
-import CampoTexto from './CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import RecuperarContrasenia from './RecuperarContrasenia'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
+import MensajeError from '../comunes/MensajeError'
+import { validarContrasenia } from '../../utils/validaciones'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
@@ -31,8 +33,9 @@ const FormularioLogin = () => {
 
   // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
   const registrar = () => {
-    if (datos.contrasenia.length < 8) {
-      return Promise.resolve('La contraseña debe tener al menos 8 caracteres')
+    const errorClave = validarContrasenia(datos.contrasenia)
+    if (errorClave !== null) {
+      return Promise.resolve(errorClave)
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
     const limpios = { ...datos, nombre: datos.nombre.trim(), apellido: datos.apellido.trim(), mail: datos.mail.trim(), nombreUsuario: datos.nombreUsuario.trim() }
@@ -99,7 +102,7 @@ const FormularioLogin = () => {
         <CampoTexto etiqueta="Nombre de usuario" nombre="nombreUsuario" valor={datos.nombreUsuario} onCambiar={cambiar} />
         <CampoTexto etiqueta="Contraseña" nombre="contrasenia" tipo="password" valor={datos.contrasenia} onCambiar={cambiar} />
 
-        {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
+        {error && <MensajeError mensaje={error} />}
 
         <button type="submit" disabled={enviando} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container disabled:opacity-60">
           {esRegistro ? 'Crear cuenta' : 'Ingresar'}

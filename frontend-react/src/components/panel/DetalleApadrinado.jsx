@@ -4,7 +4,7 @@ import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
 import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
-import Galeria from '../detalle/Galeria'
+import Galeria from '../comunes/Galeria'
 import Bitacora from './Bitacora'
 import FichaAnimal from './FichaAnimal'
 import GestionPlan from './GestionPlan'
@@ -16,6 +16,7 @@ import { cambiarPlan, cancelarApadrinamiento } from '../../services/apadrinar'
 import { formatearFecha } from '../../utils/fechas'
 import { ponerEn } from '../../utils/listas'
 import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
+import BotonVolver from '../comunes/BotonVolver'
 
 // Detalle de un animal que el usuario ya apadrinó.
 // Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
@@ -62,9 +63,7 @@ const DetalleApadrinado = () => {
     return (
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
         <AvisoError mensaje={error} />
-        <button onClick={() => navigate('/panel')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
-          <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a mis apadrinados
-        </button>
+        <BotonVolver texto="Volver a mis apadrinados" onVolver={() => navigate('/panel')} />
       </div>
     )
   }
@@ -79,9 +78,7 @@ const DetalleApadrinado = () => {
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
       {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
-      <button onClick={() => navigate('/panel')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
-        <Icono nombre="arrow_back" clase="text-[18px]" /> Volver a mis apadrinados
-      </button>
+      <BotonVolver texto="Volver a mis apadrinados" onVolver={() => navigate('/panel')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
         <div className="lg:col-span-7 space-y-space-lg">

@@ -5,7 +5,7 @@ import SeccionResumen from './SeccionResumen'
 import SeccionRoles from './SeccionRoles'
 import SeccionUsuarios from './SeccionUsuarios'
 import AvisoError from '../comunes/AvisoError'
-import Cargando from '../comunes/Cargando'
+import EstadoCarga from '../comunes/EstadoCarga'
 import MenuLateral from '../comunes/MenuLateral'
 import Portada from '../comunes/Portada'
 import * as usuariosApi from '../../services/usuarios'
@@ -58,12 +58,10 @@ const PanelAdmin = () => {
   }
 
   const elegirContenido = () => {
-    if (cargando) {
-      return <Cargando texto="Cargando el panel…" />
+    if (cargando || error) {
+      return <EstadoCarga cargando={cargando} error={error} texto="Cargando el panel…" />
     }
-    if (error) {
-      return <AvisoError mensaje={error} />
-    }
+
     return (
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
         <div className="lg:col-span-3">

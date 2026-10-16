@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import { pedirCodigo, restablecerContrasenia } from '../../services/usuarios'
-import CampoTexto from './CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import { useFormulario } from '../../hooks/useFormulario'
+import MensajeError from '../comunes/MensajeError'
+import { validarContrasenia } from '../../utils/validaciones'
 
 const claseBoton = 'brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container'
 const formularioVacio = { mail: '', codigo: '', contrasenia: '' }
@@ -32,8 +34,9 @@ const RecuperarContrasenia = ({ onVolver }) => {
 
   const restablecer = (evento) => {
     evento.preventDefault()
-    if (datos.contrasenia.length < 8) {
-      setError('La contraseña debe tener al menos 8 caracteres')
+    const errorClave = validarContrasenia(datos.contrasenia)
+    if (errorClave !== null) {
+      setError(errorClave)
       return
     }
     restablecerContrasenia(datos.mail, datos.codigo.trim(), datos.contrasenia)
@@ -54,7 +57,7 @@ const RecuperarContrasenia = ({ onVolver }) => {
         <form onSubmit={pedir} className="space-y-space-md">
           <p className="font-body-md text-body-md text-on-surface-variant">Escribí el correo de tu cuenta y te mandamos un código para elegir una contraseña nueva.</p>
           <CampoTexto etiqueta="Correo electrónico" nombre="mail" tipo="email" valor={datos.mail} onCambiar={cambiar} />
-          {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
+          {error && <MensajeError mensaje={error} />}
           <button type="submit" className={claseBoton}>
             Pedir código
           </button>
@@ -69,7 +72,7 @@ const RecuperarContrasenia = ({ onVolver }) => {
           </p>
           <CampoTexto etiqueta="Código" nombre="codigo" valor={datos.codigo} onCambiar={cambiar} />
           <CampoTexto etiqueta="Contraseña nueva" nombre="contrasenia" tipo="password" valor={datos.contrasenia} onCambiar={cambiar} />
-          {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
+          {error && <MensajeError mensaje={error} />}
           <button type="submit" className={claseBoton}>
             Cambiar contraseña
           </button>

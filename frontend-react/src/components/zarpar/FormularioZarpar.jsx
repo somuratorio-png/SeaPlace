@@ -2,11 +2,12 @@ import { useState } from 'react'
 import Icono from '../comunes/Icono'
 import Portada from '../comunes/Portada'
 import Precio from '../comunes/Precio'
-import CampoTexto from '../login/CampoTexto'
+import CampoTexto from '../comunes/CampoTexto'
 import { zarpar } from '../../services/apadrinar'
 import { PRECIO_BOTIQUIN, totalMuelle } from '../../utils/precios'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import { useMuelle } from '../../hooks/useMuelle'
+import MensajeError from '../comunes/MensajeError'
 
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
@@ -118,7 +119,7 @@ const FormularioZarpar = () => {
             <CampoTexto etiqueta="Código de seguridad (3 dígitos)" nombre="codigo" tipo="password" valor={datos.codigo} onCambiar={cambiar} maximo={3} teclado="numeric" />
           </div>
 
-          {error && <p className="bg-error-container text-on-error-container rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{error}</p>}
+          {error && <MensajeError mensaje={error} />}
 
           <div className="flex flex-wrap items-center gap-space-md">
             <button type="submit" disabled={enviando} className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-title-lg text-title-lg px-space-lg py-space-sm rounded-full shadow-md hover:bg-tertiary-container disabled:opacity-60">

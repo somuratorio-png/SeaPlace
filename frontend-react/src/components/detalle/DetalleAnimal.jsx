@@ -3,14 +3,14 @@ import AvisoError from '../comunes/AvisoError'
 import BarraProgreso from '../comunes/BarraProgreso'
 import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import Cargando from '../comunes/Cargando'
-import Icono from '../comunes/Icono'
 import PrecioAnimal from '../comunes/PrecioAnimal'
 import ElegirPlan from './ElegirPlan'
-import Galeria from './Galeria'
+import Galeria from '../comunes/Galeria'
 import PreguntasFrecuentes from './PreguntasFrecuentes'
 import { traerAnimal } from '../../services/animales'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useState } from 'react'
+import BotonVolver from '../comunes/BotonVolver'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
 const DetalleAnimal = () => {
@@ -32,9 +32,7 @@ const DetalleAnimal = () => {
     return (
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
         <AvisoError mensaje={error} />
-        <button onClick={() => navigate('/catalogo')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
-          <Icono nombre="arrow_back" clase="text-[18px]" /> Volver al catálogo
-        </button>
+        <BotonVolver texto="Volver al catálogo" onVolver={() => navigate('/catalogo')} />
       </div>
     )
   }
@@ -42,9 +40,7 @@ const DetalleAnimal = () => {
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
       {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
-      <button onClick={() => navigate('/catalogo')} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant hover:text-primary">
-        <Icono nombre="arrow_back" clase="text-[18px]" /> Volver al catálogo
-      </button>
+      <BotonVolver texto="Volver al catálogo" onVolver={() => navigate('/catalogo')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">
         <div className="lg:col-span-7 space-y-space-lg">

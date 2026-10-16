@@ -1,13 +1,13 @@
 import { cambiarRol, traerRoles } from '../../services/usuarios'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
-import AvisoError from '../comunes/AvisoError'
 import Buscador from '../comunes/Buscador'
-import Cargando from '../comunes/Cargando'
+import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import FilaUsuario from './FilaUsuario'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useSesion } from '../../hooks/useSesion'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const USUARIOS_POR_PAGINA = 5
 const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.mail} ${u.rol}`
@@ -33,11 +33,8 @@ const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
       })
   }
 
-  if (cargando) {
-    return <Cargando texto="Cargando los usuarios…" />
-  }
-  if (errorAlCargar) {
-    return <AvisoError mensaje={errorAlCargar} />
+  if (cargando || errorAlCargar) {
+    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando los usuarios…" />
   }
 
   return (
@@ -51,9 +48,7 @@ const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar usuario por nombre, correo o rol..." />
 
       {encontrados.length === 0 ? (
-        <p className="bg-surface-container rounded-2xl p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-          Ningún usuario coincide con esa búsqueda.
-        </p>
+        <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Ningún usuario coincide con esa búsqueda.</MensajeVacio>
       ) : (
         <div className="bg-surface-container-lowest rounded-2xl shadow-sm overflow-x-auto">
           <table className="w-full text-left">

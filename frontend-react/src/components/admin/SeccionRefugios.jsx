@@ -2,13 +2,13 @@ import { quitarAnimal, traerPublicaciones } from '../../services/animales'
 import { aprobarRefugio } from '../../services/usuarios'
 import { sacarDe } from '../../utils/listas'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
-import AvisoError from '../comunes/AvisoError'
+import EstadoCarga from '../comunes/EstadoCarga'
 import Buscador from '../comunes/Buscador'
-import Cargando from '../comunes/Cargando'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaRefugio from './TarjetaRefugio'
 import { useConsulta } from '../../hooks/useConsulta'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const REFUGIOS_POR_PAGINA = 4
 const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
@@ -58,11 +58,8 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
   const refugios = [...pendientes, ...usuarios.filter((u) => u.rol === 'refugio' && u.aprobado)]
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(refugios, textoDelRefugio, REFUGIOS_POR_PAGINA)
 
-  if (cargando) {
-    return <Cargando texto="Cargando los refugios…" />
-  }
-  if (errorAlCargar) {
-    return <AvisoError mensaje={errorAlCargar} />
+  if (cargando || errorAlCargar) {
+    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando los refugios…" />
   }
 
   return (
@@ -83,9 +80,7 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar refugio por nombre o correo..." />
 
       {encontrados.length === 0 && (
-        <p className="bg-surface-container rounded-2xl p-space-lg text-center font-body-md text-body-md text-on-surface-variant">
-          Ningún refugio coincide con esa búsqueda.
-        </p>
+        <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Ningún refugio coincide con esa búsqueda.</MensajeVacio>
       )}
       {items.map((refugio) => (
         <TarjetaRefugio
