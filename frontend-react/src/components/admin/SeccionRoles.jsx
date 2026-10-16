@@ -74,7 +74,7 @@ const SeccionRoles = ({ onError }) => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md items-start">
         {/* La "key" incluye los permisos: si cambian (o se crea uno), la tarjeta arranca de nuevo con los datos frescos */}
         {roles.map((rol) => (
-          <TarjetaRol key={`${rol.id}-${rol.permisos.join()}-${permisos.length}`} rol={rol} permisos={permisos} onAsignar={asignar} />
+          <TarjetaRol key={`${rol.id}-${rol.permisos.join()}`} rol={rol} permisos={permisos} onAsignar={asignar} />
         ))}
       </div>
 

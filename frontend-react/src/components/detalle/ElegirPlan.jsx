@@ -17,17 +17,18 @@ const ElegirPlan = ({ animal, onError }) => {
   const planesBase = usePlanes()
   const planes = planesDe(animal, planesBase)
 
-  const [planElegido, setPlanElegido] = useState('GUARDIAN_DE_LA_BAHIA')
+  const [planElegido, setPlanElegido] = useState('') // '' = todavía no eligió: vale el primero de la lista
+  const codigoElegido = planElegido === '' ? planes[0]?.codigo : planElegido
 
   const sinCupos = animal.cuposDisponibles === 0
 
   const handleAgregar = () => {
     if (!usuario) {
-      navigate('/panel', { state: { pendiente: { idAnimal: animal.id, codigoPlan: planElegido } } })
+      navigate('/panel', { state: { pendiente: { idAnimal: animal.id, codigoPlan: codigoElegido } } })
       return
     }
     onError(null)
-    agregar(animal.id, planElegido)
+    agregar(animal.id, codigoElegido)
       .then(() => {
         navigate('/muelle')
       })
@@ -48,14 +49,14 @@ const ElegirPlan = ({ animal, onError }) => {
           key={plan.codigo}
           htmlFor={`plan-${plan.codigo}`}
           className={`flex items-start gap-space-md p-space-md rounded-xl cursor-pointer ${
-            plan.codigo === planElegido ? 'ring-2 ring-primary bg-surface-container-lowest' : 'bg-surface-container-low'
+            plan.codigo === codigoElegido ? 'ring-2 ring-primary bg-surface-container-lowest' : 'bg-surface-container-low'
           }`}
         >
           <input
             type="radio"
             id={`plan-${plan.codigo}`}
             name="plan"
-            checked={plan.codigo === planElegido}
+            checked={plan.codigo === codigoElegido}
             onChange={() => setPlanElegido(plan.codigo)}
             className="mt-1 accent-primary"
           />
