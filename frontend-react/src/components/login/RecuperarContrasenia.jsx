@@ -1,8 +1,10 @@
 import { useState } from 'react'
 import { pedirCodigo, restablecerContrasenia } from '../../services/usuarios'
 import CampoTexto from './CampoTexto'
+import { useFormulario } from '../../hooks/useFormulario'
 
 const claseBoton = 'brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container'
+const formularioVacio = { mail: '', codigo: '', contrasenia: '' }
 
 // "Olvidé mi contraseña", en dos pasos:
 // 1) se escribe el mail y el backend genera un código de un solo uso (vence a los 5 minutos);
@@ -11,13 +13,9 @@ const claseBoton = 'brillo w-full bg-tertiary text-on-tertiary font-title-lg tex
 // onVolver vuelve al formulario de ingreso.
 const RecuperarContrasenia = ({ onVolver }) => {
   const [paso, setPaso] = useState('mail') // 'mail' | 'codigo' | 'listo'
-  const [datos, setDatos] = useState({ mail: '', codigo: '', contrasenia: '' })
+  const { datos, cambiar } = useFormulario(formularioVacio)
   const [aviso, setAviso] = useState(null) // lo que contestó el backend al pedir el código
   const [error, setError] = useState(null)
-
-  const cambiar = (evento) => {
-    setDatos({ ...datos, [evento.target.name]: evento.target.value })
-  }
 
   const pedir = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página

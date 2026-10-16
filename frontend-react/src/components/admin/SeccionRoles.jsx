@@ -8,6 +8,7 @@ import TituloSeccion from '../comunes/TituloSeccion'
 import CampoTexto from '../login/CampoTexto'
 import TarjetaRol from './TarjetaRol'
 import { useConsulta } from '../../hooks/useConsulta'
+import { useFormulario } from '../../hooks/useFormulario'
 
 const claseFormulario = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container'
@@ -22,7 +23,7 @@ const SeccionRoles = ({ onError }) => {
   const { datos: permisos, setDatos: setPermisos, error: errorPermisos } = useConsulta(usuariosApi.traerPermisos, undefined, [])
   const errorAlCargar = errorRoles ?? errorPermisos
   const [nombreRol, setNombreRol] = useState('')
-  const [permiso, setPermiso] = useState({ nombre: '', descripcion: '' })
+  const { datos: permiso, cambiar: cambiarPermiso, reiniciar: reiniciarPermiso } = useFormulario({ nombre: '', descripcion: '' })
 
   // Pone en la lista el rol como lo devolvió el backend (uno nuevo, o uno con sus permisos cambiados)
   const guardarRol = (rol) => {
@@ -49,7 +50,7 @@ const SeccionRoles = ({ onError }) => {
     })
     intentar(pedido, onError).then((mensaje) => {
       if (mensaje === null) {
-        setPermiso({ nombre: '', descripcion: '' })
+        reiniciarPermiso()
       }
     })
   }
@@ -88,8 +89,8 @@ const SeccionRoles = ({ onError }) => {
 
         <form onSubmit={crearPermiso} className={claseFormulario}>
           <h3 className="font-title-lg text-title-lg text-on-surface">Nuevo permiso</h3>
-          <CampoTexto etiqueta="Nombre (por ejemplo GESTIONAR_PAGOS)" nombre="nombre" valor={permiso.nombre} onCambiar={(evento) => setPermiso({ ...permiso, nombre: evento.target.value })} />
-          <CampoTexto etiqueta="Descripción" nombre="descripcion" valor={permiso.descripcion} onCambiar={(evento) => setPermiso({ ...permiso, descripcion: evento.target.value })} />
+          <CampoTexto etiqueta="Nombre (por ejemplo GESTIONAR_PAGOS)" nombre="nombre" valor={permiso.nombre} onCambiar={cambiarPermiso} />
+          <CampoTexto etiqueta="Descripción" nombre="descripcion" valor={permiso.descripcion} onCambiar={cambiarPermiso} />
           <button type="submit" className={claseBoton}>
             Crear permiso
           </button>

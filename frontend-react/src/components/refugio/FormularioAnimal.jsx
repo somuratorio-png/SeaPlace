@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { urgencias } from '../../data/animales'
 import CampoTexto from '../login/CampoTexto'
+import { useFormulario } from '../../hooks/useFormulario'
 
 // categoria queda vacía hasta que se elige una: mientras tanto vale la primera de la lista
 const formularioVacio = {
@@ -20,14 +21,11 @@ const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 
 // Formulario para publicar un animal nuevo en el catálogo. "categorias" son las del backend.
 // onGuardar lo manda al backend y devuelve un mensaje de error, o null si salió bien.
 const FormularioAnimal = ({ categorias, onGuardar }) => {
-  const [datos, setDatos] = useState(formularioVacio)
+  const { datos, cambiar, reiniciar } = useFormulario(formularioVacio)
   const [fotos, setFotos] = useState([]) // [{ archivo, vistaPrevia }]: cada archivo elegido y una dirección temporal para mostrarlo
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
-
-  const cambiar = (evento) => {
-    setDatos({ ...datos, [evento.target.name]: evento.target.value })
-  }
+  const [claveFotos, setClaveFotos] = useState(0) // cambia al guardar: React vuelve a crear el selector de archivos, vacío
 
   // Se guardan los archivos originales (el backend se encarga de achicarlos). URL.createObjectURL
   // da una dirección temporal del archivo que sirve como src de la miniatura.
@@ -37,7 +35,6 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
 
   const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
-    const formulario = evento.target
     setEnviando(true)
     // Si no tocó el selector de categoría, se manda la primera (la que se ve elegida)
     const limpios = {
@@ -53,9 +50,9 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       setEnviando(false)
       setError(mensaje)
       if (mensaje === null) {
-        setDatos(formularioVacio)
+        reiniciar()
         setFotos([])
-        formulario.reset() // vacía el selector de archivos
+        setClaveFotos((actual) => actual + 1)
       }
     })
   }
@@ -98,12 +95,12 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
 
       <label htmlFor="descripcion" className="flex flex-col gap-1.5">
         <span className="font-label-lg text-label-lg text-on-surface">Su historia</span>
-        <textarea id="descripcion" name="descripcion" value={datos.descripcion} onChange={cambiar} required rows="3" className={claseCampo} />
+        <textarea id="descripcion" name="descripcion" value={datos.descripcion} onChange={cambiar} required rows={3} className={claseCampo} />
       </label>
 
       <label htmlFor="fotos" className="flex flex-col gap-1.5">
         <span className="font-label-lg text-label-lg text-on-surface">Fotos (opcional, podés elegir varias)</span>
-        <input type="file" id="fotos" name="fotos" accept="image/*" multiple onChange={elegirFotos} className={claseCampo} />
+        <input key={claveFotos} type="file" id="fotos" name="fotos" accept="image/*" multiple onChange={elegirFotos} className={claseCampo} />
       </label>
       {fotos.length > 0 && (
         <div className="flex flex-wrap gap-space-sm">

@@ -7,6 +7,9 @@ import Icono from '../comunes/Icono'
 import TituloSeccion from '../comunes/TituloSeccion'
 import CampoTexto from '../login/CampoTexto'
 import { useConsulta } from '../../hooks/useConsulta'
+import { useFormulario } from '../../hooks/useFormulario'
+
+const formularioVacio = { nombre: '', descripcion: '' }
 
 // Sección "Categorías" del administrador: las que existen (con cuántos animales tiene cada una)
 // y el formulario para crear una nueva.
@@ -15,12 +18,8 @@ const SeccionCategorias = () => {
   const { datos: categorias, setDatos: setCategorias, cargando, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
   const { datos: animales, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
   const errorAlCargar = errorCategorias ?? errorAnimales
-  const [datos, setDatos] = useState({ nombre: '', descripcion: '' })
+  const { datos, cambiar, reiniciar } = useFormulario(formularioVacio)
   const [error, setError] = useState(null)
-
-  const cambiar = (evento) => {
-    setDatos({ ...datos, [evento.target.name]: evento.target.value })
-  }
 
   const crear = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
@@ -31,7 +30,7 @@ const SeccionCategorias = () => {
     intentar(pedido).then((mensaje) => {
       setError(mensaje)
       if (mensaje === null) {
-        setDatos({ nombre: '', descripcion: '' })
+        reiniciar()
       }
     })
   }

@@ -4,6 +4,7 @@ import CampoTexto from '../login/CampoTexto'
 import { cambiarMiContrasenia, modificarMiPerfil } from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { useSesion } from '../../hooks/useSesion'
+import { useFormulario } from '../../hooks/useFormulario'
 
 const claseTarjeta = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container disabled:opacity-60'
@@ -15,24 +16,24 @@ const sinContrasenias = { actual: '', nueva: '', repetida: '' }
 // "Mi cuenta": el usuario logueado cambia sus datos y su contraseña.
 // El nombre de usuario no se puede cambiar (es el que lleva el token), y el rol tampoco.
 // Los dos formularios le piden el cambio al backend y muestran acá mismo su mensaje de error.
-// guardarPerfil actualiza el usuario en toda la página
+// guardarPerfil (de useSesion) actualiza el usuario en toda la página
 const PanelCuenta = () => {
   const { usuario, guardarPerfil } = useSesion()
-  const [perfil, setPerfil] = useState({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
+  const { datos: perfil, cambiar: cambiarCampoPerfil } = useFormulario({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
   const [errorPerfil, setErrorPerfil] = useState(null)
   const [perfilGuardado, setPerfilGuardado] = useState(false)
 
-  const [contrasenias, setContrasenias] = useState(sinContrasenias)
+  const { datos: contrasenias, cambiar: cambiarCampoContrasenia, reiniciar: reiniciarContrasenias } = useFormulario(sinContrasenias)
   const [errorContrasenia, setErrorContrasenia] = useState(null)
   const [contraseniaCambiada, setContraseniaCambiada] = useState(false)
 
   const cambiarPerfil = (evento) => {
-    setPerfil({ ...perfil, [evento.target.name]: evento.target.value })
+    cambiarCampoPerfil(evento)
     setPerfilGuardado(false)
   }
 
   const cambiarContrasenias = (evento) => {
-    setContrasenias({ ...contrasenias, [evento.target.name]: evento.target.value })
+    cambiarCampoContrasenia(evento)
     setContraseniaCambiada(false)
   }
 
@@ -58,7 +59,7 @@ const PanelCuenta = () => {
       setErrorContrasenia(mensaje)
       setContraseniaCambiada(mensaje === null)
       if (mensaje === null) {
-        setContrasenias(sinContrasenias)
+        reiniciarContrasenias()
       }
     })
   }

@@ -5,24 +5,21 @@ import RecuperarContrasenia from './RecuperarContrasenia'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { useSesion } from '../../hooks/useSesion'
+import { useFormulario } from '../../hooks/useFormulario'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
 // Login y registro. Le pide al backend que valide los datos: si los rechaza, muestra el mensaje
+// que mandó (por ejemplo, "Usuario o contrasenia incorrectos"). Si los acepta, llama a entrar
+// (de useSesion) con el usuario que entró, y la sesión trae sus datos y muestra otra página.
 const FormularioLogin = () => {
   const { entrar } = useSesion()
   const [esRegistro, setEsRegistro] = useState(false)
   const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
-  const [datos, setDatos] = useState(formularioVacio)
+  const { datos, cambiar } = useFormulario(formularioVacio)
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
   const [recuperando, setRecuperando] = useState(false) // true = se muestra "olvidé mi contraseña"
-
-  // Un solo manejador para todos los campos: usa el "name" del input para saber cuál cambió
-  const cambiar = (evento) => {
-    setDatos({ ...datos, [evento.target.name]: evento.target.value })
-  }
-
   const cambiarModo = () => {
     setEsRegistro(!esRegistro)
     setError(null)
