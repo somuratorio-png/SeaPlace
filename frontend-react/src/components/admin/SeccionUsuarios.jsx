@@ -3,7 +3,7 @@ import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import Buscador from '../comunes/Buscador'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
-import TituloSeccion from '../comunes/TituloSeccion'
+import EncabezadoLista from './EncabezadoLista'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useSesion } from '../../hooks/useSesion'
 import MensajeVacio from '../comunes/MensajeVacio'
@@ -39,12 +39,7 @@ const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
 
   return (
     <section className="space-y-space-md">
-      <div className="flex flex-wrap items-end justify-between gap-space-sm">
-        <TituloSeccion>Usuarios</TituloSeccion>
-        <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Mostrando {items.length} de {encontrados.length} usuarios
-        </p>
-      </div>
+      <EncabezadoLista titulo="Usuarios" nombre="usuarios" mostrando={items.length} total={encontrados.length} />
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar usuario por nombre, correo o rol..." />
 
       {encontrados.length === 0 ? (

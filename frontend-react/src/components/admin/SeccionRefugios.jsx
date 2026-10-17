@@ -5,7 +5,7 @@ import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Buscador from '../comunes/Buscador'
 import Paginacion from '../comunes/Paginacion'
-import TituloSeccion from '../comunes/TituloSeccion'
+import EncabezadoLista from './EncabezadoLista'
 import { useConsulta } from '../../hooks/useConsulta'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TarjetaRefugio from './TarjetaRefugio'
@@ -65,12 +65,7 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
 
   return (
     <section className="space-y-space-md">
-      <div className="flex flex-wrap items-end justify-between gap-space-sm">
-        <TituloSeccion>Refugios</TituloSeccion>
-        <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Mostrando {items.length} de {encontrados.length} refugios
-        </p>
-      </div>
+      <EncabezadoLista titulo="Refugios" nombre="refugios" mostrando={items.length} total={encontrados.length} />
 
       {pendientes.length > 0 && <AvisoRefugiosPendientes cantidad={pendientes.length} />}
 

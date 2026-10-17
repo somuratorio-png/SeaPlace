@@ -1,7 +1,9 @@
 import { useState } from 'react'
 import Icono from '../comunes/Icono'
-import FilaAnimal from '../comunes/FilaAnimal'
+import AccionesRefugio from './AccionesRefugio'
+import AnimalesDelRefugio from './AnimalesDelRefugio'
 import Chip from './Chip'
+import PilaFotosAnimales from './PilaFotosAnimales'
 
 // Un refugio en la lista del administrador. Al tocar "Ver animales" se despliegan los suyos.
 // Si el refugio todavía no fue aprobado, aparece el botón para aprobarlo.
@@ -27,56 +29,11 @@ const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onQuita
           </div>
         </div>
 
-        {/* Fotos chiquitas de sus animales, una encima de la otra */}
-        <div className="flex -space-x-3">
-          {animales.map((animal) => (
-            <img
-              key={animal.id}
-              src={animal.imagen}
-              alt={`Foto de ${animal.nombre}`}
-              title={animal.nombre}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-surface-container-lowest"
-            />
-          ))}
-        </div>
-
-        <div className="flex flex-wrap items-center gap-space-md">
-          {!refugio.aprobado && (
-            <button
-              onClick={() => onAprobar(refugio.nombreUsuario)}
-              className="inline-flex items-center gap-1 bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-md py-space-sm rounded-full hover:bg-tertiary-container"
-            >
-              <Icono nombre="check" clase="text-[18px]" /> Aprobar
-            </button>
-          )}
-          <button
-            onClick={() => setAbierto(!abierto)}
-            className="inline-flex items-center gap-1 bg-secondary-container text-on-secondary-fixed-variant font-label-lg text-label-lg px-space-md py-space-sm rounded-full"
-          >
-            <Icono nombre={abierto ? 'expand_less' : 'expand_more'} clase="text-[18px]" />
-            {abierto ? 'Ocultar animales' : 'Ver animales'}
-          </button>
-          <button
-            onClick={() => onCambiarActivo(refugio.nombreUsuario)}
-            className={`font-label-lg text-label-lg px-space-md py-space-sm rounded-full ${
-              refugio.activo ? 'bg-error-container text-on-error-container' : 'bg-primary text-on-primary'
-            }`}
-          >
-            {refugio.activo ? 'Dar de baja' : 'Reactivar'}
-          </button>
-        </div>
+        <PilaFotosAnimales animales={animales} />
+        <AccionesRefugio refugio={refugio} abierto={abierto} onAprobar={onAprobar} onAlternarAnimales={() => setAbierto(!abierto)} onCambiarActivo={onCambiarActivo} />
       </div>
 
-      {abierto && (
-        <div className="bg-surface-container-low rounded-b-2xl p-space-md space-y-space-sm">
-          {animales.length === 0 && (
-            <p className="font-body-sm text-body-sm text-on-surface-variant">Este refugio todavía no publicó animales.</p>
-          )}
-          {animales.map((animal) => (
-            <FilaAnimal key={animal.id} animal={animal} onQuitar={onQuitarAnimal} />
-          ))}
-        </div>
-      )}
+      {abierto && <AnimalesDelRefugio animales={animales} onQuitar={onQuitarAnimal} />}
     </div>
   )
 }

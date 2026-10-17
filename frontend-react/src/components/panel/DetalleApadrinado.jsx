@@ -3,6 +3,7 @@ import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BotonVolver from '../comunes/BotonVolver'
 import Cargando from '../comunes/Cargando'
+import ErrorConVolver from '../comunes/ErrorConVolver'
 import HistoriaApadrinado from './HistoriaApadrinado'
 import Rastreo from './Rastreo'
 import RastreoBloqueado from './RastreoBloqueado'
@@ -53,12 +54,7 @@ const DetalleApadrinado = () => {
   }
 
   if (error) {
-    return (
-      <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-md">
-        <AvisoError mensaje={error} />
-        <BotonVolver texto="Volver a mis apadrinados" onVolver={() => navigate('/panel')} />
-      </div>
-    )
+    return <ErrorConVolver mensaje={error} textoVolver="Volver a mis apadrinados" onVolver={() => navigate('/panel')} />
   }
 
   // Si ese animal no está apadrinado (o se canceló), se vuelve al panel

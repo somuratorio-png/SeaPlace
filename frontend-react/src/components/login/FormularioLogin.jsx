@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import Bienvenida from './Bienvenida'
 import CamposRegistro from './CamposRegistro'
-import CredencialesDePrueba from './CredencialesDePrueba'
+import EnlacesLogin from './EnlacesLogin'
 import RecuperarContrasenia from './RecuperarContrasenia'
 import CampoTexto from '../comunes/CampoTexto'
 import MensajeError from '../comunes/MensajeError'
@@ -85,17 +85,7 @@ const FormularioLogin = () => {
 
         <BotonFormulario deshabilitado={enviando}>{esRegistro ? 'Crear cuenta' : 'Ingresar'}</BotonFormulario>
 
-        <button type="button" onClick={cambiarModo} className="w-full font-label-lg text-label-lg text-secondary hover:underline">
-          {esRegistro ? '¿Ya tenés cuenta? Ingresá' : '¿No tenés cuenta? Registrate'}
-        </button>
-
-        {!esRegistro && (
-          <button type="button" onClick={() => setRecuperando(true)} className="w-full font-label-lg text-label-lg text-on-surface-variant hover:underline">
-            ¿Olvidaste tu contraseña?
-          </button>
-        )}
-
-        {!esRegistro && <CredencialesDePrueba />}
+        <EnlacesLogin esRegistro={esRegistro} onCambiarModo={cambiarModo} onRecuperar={() => setRecuperando(true)} />
       </form>
     </div>
   )

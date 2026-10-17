@@ -56,6 +56,10 @@ const RecuperarContrasenia = ({ onVolver }) => {
         <PasoCodigo aviso={aviso} codigo={datos.codigo} contrasenia={datos.contrasenia} error={error} onCambiar={cambiar} onEnviar={restablecer} />
       )}
       {paso === 'listo' && <p className="font-body-md text-body-md text-on-surface">¡Listo! Ya podés ingresar con tu contraseña nueva.</p>}
+
+      <button type="button" onClick={onVolver} className="w-full font-label-lg text-label-lg text-secondary hover:underline">
+        Volver a ingresar
+      </button>
     </div>
   )
 }

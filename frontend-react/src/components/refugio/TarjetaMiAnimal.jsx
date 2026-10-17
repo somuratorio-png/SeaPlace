@@ -1,11 +1,7 @@
 import { useState } from 'react'
-import { recaudacionMensual } from '../../utils/precios'
-import Icono from '../comunes/Icono'
-import Precio from '../comunes/Precio'
 import FilaAnimal from '../comunes/FilaAnimal'
-import FormularioNovedad from './FormularioNovedad'
-import FormularioOferta from './FormularioOferta'
-import FormularioUbicacion from './FormularioUbicacion'
+import GestionAnimal from './GestionAnimal'
+import ResumenMiAnimal from './ResumenMiAnimal'
 
 // Un animal del refugio con todo lo que se puede hacer con él: ver cuánto recauda, pausar su
 // publicación, ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
@@ -13,60 +9,12 @@ import FormularioUbicacion from './FormularioUbicacion'
 const TarjetaMiAnimal = ({ animal, apadrinamientos, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [abierto, setAbierto] = useState(false)
 
-  const pausada = animal.publicacion === 'PAUSADA'
-
-  // Las fotos nuevas se suben al elegirlas (los archivos tal cual) y el backend las agrega al final de su galería
-  const sumarFotos = (evento) => {
-    onEditar(animal.id, { fotos: [...evento.target.files] })
-  }
-
   return (
     <div className="bg-surface-container-low rounded-2xl">
       <FilaAnimal animal={animal} onQuitar={onQuitar} />
+      <ResumenMiAnimal animal={animal} apadrinamientos={apadrinamientos} abierto={abierto} onEditar={onEditar} onAlternarGestion={() => setAbierto(!abierto)} />
 
-      <div className="px-space-md py-space-sm flex flex-wrap items-center justify-between gap-space-sm">
-        <p className="font-body-sm text-body-sm text-on-surface-variant">
-          <b className="text-primary">{apadrinamientos.length}</b> {apadrinamientos.length === 1 ? 'padrino' : 'padrinos'} · recauda{' '}
-          <b className="text-primary">
-            <Precio valor={recaudacionMensual(apadrinamientos)} />
-          </b>{' '}
-          por mes · {animal.fotos.length} {animal.fotos.length === 1 ? 'foto' : 'fotos'}
-        </p>
-        <div className="flex flex-wrap items-center gap-space-md">
-          {/* Una publicación pausada no se ve en el catálogo, pero conserva sus padrinos y sus datos */}
-          <button
-            onClick={() => onEditar(animal.id, { publicacion: pausada ? 'ACTIVA' : 'PAUSADA' })}
-            className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline"
-          >
-            <Icono nombre={pausada ? 'play_circle' : 'pause_circle'} clase="text-[18px]" />
-            {pausada ? 'Volver a publicar' : 'Pausar'}
-          </button>
-          <button onClick={() => setAbierto(!abierto)} className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline">
-            <Icono nombre={abierto ? 'expand_less' : 'tune'} clase="text-[18px]" />
-            {abierto ? 'Cerrar' : 'Gestionar'}
-          </button>
-        </div>
-      </div>
-
-      {abierto && (
-        <div className="px-space-md pb-space-md grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
-          <FormularioOferta animal={animal} onEditar={onEditar} />
-          <FormularioNovedad animal={animal} onPublicar={onPublicarNovedad} />
-          <FormularioUbicacion animal={animal} onRegistrar={onRegistrarUbicacion} />
-          <label htmlFor={`fotos-${animal.id}`} className="space-y-space-sm block">
-            <h4 className="font-label-lg text-label-lg text-on-surface">Sumar fotos a su galería</h4>
-            <input
-              type="file"
-              id={`fotos-${animal.id}`}
-              name="fotos"
-              accept="image/*"
-              multiple
-              onChange={sumarFotos}
-              className="w-full bg-surface-container-lowest rounded-lg px-space-md py-2 font-body-sm text-body-sm"
-            />
-          </label>
-        </div>
-      )}
+      {abierto && <GestionAnimal animal={animal} onEditar={onEditar} onPublicarNovedad={onPublicarNovedad} onRegistrarUbicacion={onRegistrarUbicacion} />}
     </div>
   )
 }
