@@ -2,7 +2,7 @@ import { precioFinal, tieneDescuento } from '../../utils/precios'
 import BarraProgreso from './BarraProgreso'
 import Icono from './Icono'
 import Precio from './Precio'
-import { useNavigate } from "react-router-dom"
+import { useNavigate } from 'react-router-dom'
 
 
 // Un animal del refugio, con el botón para quitarlo del catálogo

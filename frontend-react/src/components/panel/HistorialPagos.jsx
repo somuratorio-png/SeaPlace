@@ -1,4 +1,4 @@
-import { formatearFecha } from '../../utils/fechas'
+import FilaPago from './FilaPago'
 import Precio from '../comunes/Precio'
 
 // Lista de los pagos ya hechos por un apadrinamiento (uno por cada zarpar donde se pagó ese animal)
@@ -11,12 +11,7 @@ const HistorialPagos = ({ pagos }) => {
 
       {pagos.length === 0 && <p className="font-body-md text-body-md text-on-surface-variant">Todavía no hay pagos registrados.</p>}
       {pagos.map((pago) => (
-        <div key={pago.id} className="flex justify-between font-body-md text-body-md">
-          <span className="text-on-surface-variant">{formatearFecha(pago.fecha)}</span>
-          <span className="text-on-surface tabular-nums">
-            <Precio valor={pago.monto} />
-          </span>
-        </div>
+        <FilaPago key={pago.id} pago={pago} />
       ))}
 
       <div className="flex justify-between pt-space-sm border-t border-outline-variant font-title-lg text-title-lg">

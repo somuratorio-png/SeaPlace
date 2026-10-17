@@ -1,4 +1,4 @@
-import Icono from '../comunes/Icono'
+import TarjetaTestimonio from './TarjetaTestimonio'
 import TituloSeccion from '../comunes/TituloSeccion'
 
 const testimonios = [
@@ -13,14 +13,7 @@ const Testimonios = () => {
       <TituloSeccion>Testimonios de Quienes Custodian el Mar</TituloSeccion>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-space-lg">
         {testimonios.map((testimonio) => (
-          <div key={testimonio.nombre} className="revelar bg-surface-container-lowest rounded-2xl p-space-lg space-y-space-sm shadow-sm border-t-4 transition hover:-translate-y-1 hover:shadow-lg border-tertiary-fixed-dim">
-            <Icono nombre="format_quote" clase="text-tertiary text-[32px]" />
-            <p className="font-body-md text-body-md text-on-surface italic">"{testimonio.texto}"</p>
-            <div>
-              <span className="font-title-lg text-title-lg text-primary block">{testimonio.nombre}</span>
-              <span className="font-body-sm text-body-sm text-on-surface-variant">{testimonio.rol}</span>
-            </div>
-          </div>
+          <TarjetaTestimonio key={testimonio.nombre} nombre={testimonio.nombre} rol={testimonio.rol} texto={testimonio.texto} />
         ))}
       </div>
     </section>

@@ -4,10 +4,10 @@ import Buscador from '../comunes/Buscador'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
-import FilaUsuario from './FilaUsuario'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useSesion } from '../../hooks/useSesion'
 import MensajeVacio from '../comunes/MensajeVacio'
+import TablaUsuarios from './TablaUsuarios'
 
 const USUARIOS_POR_PAGINA = 5
 const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.mail} ${u.rol}`
@@ -50,33 +50,8 @@ const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
       {encontrados.length === 0 ? (
         <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Ningún usuario coincide con esa búsqueda.</MensajeVacio>
       ) : (
-        <div className="bg-surface-container-lowest rounded-2xl shadow-sm overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="bg-primary-fixed font-label-md text-label-md text-on-primary-fixed-variant uppercase tracking-wider">
-                <th className="p-space-sm">Usuario</th>
-                <th className="p-space-sm">Correo</th>
-                <th className="p-space-sm">Rol</th>
-                <th className="p-space-sm">Estado</th>
-                <th className="p-space-sm" />
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((u) => (
-                <FilaUsuario
-                  key={u.id}
-                  usuario={u}
-                  roles={roles}
-                  esUnoMismo={u.nombreUsuario === usuario.nombreUsuario}
-                  onCambiarRol={elegirRol}
-                  onCambiarActivo={onCambiarActivo}
-                />
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <TablaUsuarios usuarios={items} roles={roles} nombreLogueado={usuario.nombreUsuario} onCambiarRol={elegirRol} onCambiarActivo={onCambiarActivo} />
       )}
-
       <Paginacion pagina={paginaActual} totalPaginas={totalPaginas} onCambiar={setPagina} />
     </section>
   )

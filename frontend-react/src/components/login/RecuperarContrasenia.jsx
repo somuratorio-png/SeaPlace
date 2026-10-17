@@ -1,11 +1,10 @@
 import { useState } from 'react'
 import { pedirCodigo, restablecerContrasenia } from '../../services/usuarios'
-import CampoTexto from '../comunes/CampoTexto'
 import { useFormulario } from '../../hooks/useFormulario'
-import MensajeError from '../comunes/MensajeError'
 import { validarContrasenia } from '../../utils/validaciones'
+import PasoCodigo from './PasoCodigo'
+import PasoMail from './PasoMail'
 
-const claseBoton = 'brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container'
 const formularioVacio = { mail: '', codigo: '', contrasenia: '' }
 
 // "Olvidé mi contraseña", en dos pasos:
@@ -52,38 +51,11 @@ const RecuperarContrasenia = ({ onVolver }) => {
   return (
     <div className="bg-surface-container-lowest rounded-xl p-space-xl shadow-md space-y-space-md">
       <h1 className="font-headline-lg text-headline-lg-mobile text-on-surface">Recuperá tu contraseña</h1>
-
-      {paso === 'mail' && (
-        <form onSubmit={pedir} className="space-y-space-md">
-          <p className="font-body-md text-body-md text-on-surface-variant">Escribí el correo de tu cuenta y te mandamos un código para elegir una contraseña nueva.</p>
-          <CampoTexto etiqueta="Correo electrónico" nombre="mail" tipo="email" valor={datos.mail} onCambiar={cambiar} />
-          {error && <MensajeError mensaje={error} />}
-          <button type="submit" className={claseBoton}>
-            Pedir código
-          </button>
-        </form>
-      )}
-
+      {paso === 'mail' && <PasoMail mail={datos.mail} error={error} onCambiar={cambiar} onEnviar={pedir} />}
       {paso === 'codigo' && (
-        <form onSubmit={restablecer} className="space-y-space-md">
-          <p className="bg-secondary-container text-on-secondary-fixed-variant rounded-lg px-space-md py-space-sm font-body-sm text-body-sm">{aviso}</p>
-          <p className="font-body-sm text-body-sm text-on-surface-variant">
-            El código vence a los 5 minutos. Como es una demo, no llega por correo: aparece en la consola del servidor.
-          </p>
-          <CampoTexto etiqueta="Código" nombre="codigo" valor={datos.codigo} onCambiar={cambiar} />
-          <CampoTexto etiqueta="Contraseña nueva" nombre="contrasenia" tipo="password" valor={datos.contrasenia} onCambiar={cambiar} />
-          {error && <MensajeError mensaje={error} />}
-          <button type="submit" className={claseBoton}>
-            Cambiar contraseña
-          </button>
-        </form>
+        <PasoCodigo aviso={aviso} codigo={datos.codigo} contrasenia={datos.contrasenia} error={error} onCambiar={cambiar} onEnviar={restablecer} />
       )}
-
       {paso === 'listo' && <p className="font-body-md text-body-md text-on-surface">¡Listo! Ya podés ingresar con tu contraseña nueva.</p>}
-
-      <button type="button" onClick={onVolver} className="w-full font-label-lg text-label-lg text-secondary hover:underline">
-        Volver a ingresar
-      </button>
     </div>
   )
 }

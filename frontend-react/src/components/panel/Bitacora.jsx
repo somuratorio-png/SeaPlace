@@ -1,5 +1,4 @@
-import { formatearFecha } from '../../utils/fechas'
-import Icono from '../comunes/Icono'
+import NovedadBitacora from './NovedadBitacora'
 
 // Novedades que el refugio fue publicando sobre el animal, de la más nueva a la más vieja
 const Bitacora = ({ nombre, novedades }) => {
@@ -15,15 +14,7 @@ const Bitacora = ({ nombre, novedades }) => {
       )}
 
       {ordenadas.map((novedad) => (
-        <div key={novedad.id} className="flex gap-space-md">
-          <div className="w-10 h-10 shrink-0 rounded-full bg-secondary-container text-secondary flex items-center justify-center">
-            <Icono nombre="edit_note" clase="text-[20px]" />
-          </div>
-          <div className="border-l-2 border-secondary-fixed pl-space-md">
-            <p className="font-label-md text-label-md text-secondary uppercase tracking-wider">{formatearFecha(novedad.fecha)}</p>
-            <p className="font-body-md text-body-md text-on-surface">{novedad.texto}</p>
-          </div>
-        </div>
+        <NovedadBitacora key={novedad.id} novedad={novedad} />
       ))}
     </div>
   )

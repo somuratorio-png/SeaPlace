@@ -1,3 +1,5 @@
+import FilaDato from './FilaDato'
+
 // Datos básicos del animal apadrinado, en formato "etiqueta: valor"
 const FichaAnimal = ({ animal }) => {
 
@@ -12,12 +14,9 @@ const FichaAnimal = ({ animal }) => {
   return (
     <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-sm">
       <h2 className="font-title-lg text-title-lg text-on-surface">Ficha</h2>
-      {datos.map((dato) => (
-        <div key={dato.etiqueta} className="flex justify-between gap-space-md">
-          <span className="font-body-sm text-body-sm text-on-surface-variant">{dato.etiqueta}</span>
-          <span className="font-label-lg text-label-lg text-on-surface text-right">{dato.valor}</span>
-        </div>
-      ))}
+        {datos.map((dato) => (
+          <FilaDato key={dato.etiqueta} etiqueta={dato.etiqueta} valor={dato.valor} />
+        ))}
     </div>
   )
 }

@@ -10,6 +10,7 @@ import { intentar } from '../../utils/intentar'
 import { validarContrasenia } from '../../utils/validaciones'
 import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
+import BotonFormulario from '../comunes/BotonFormulario'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
@@ -82,9 +83,7 @@ const FormularioLogin = () => {
 
         {error && <MensajeError mensaje={error} />}
 
-        <button type="submit" disabled={enviando} className="brillo w-full bg-tertiary text-on-tertiary font-title-lg text-title-lg py-3 rounded-full hover:bg-tertiary-container disabled:opacity-60">
-          {esRegistro ? 'Crear cuenta' : 'Ingresar'}
-        </button>
+        <BotonFormulario deshabilitado={enviando}>{esRegistro ? 'Crear cuenta' : 'Ingresar'}</BotonFormulario>
 
         <button type="button" onClick={cambiarModo} className="w-full font-label-lg text-label-lg text-secondary hover:underline">
           {esRegistro ? '¿Ya tenés cuenta? Ingresá' : '¿No tenés cuenta? Registrate'}

@@ -1,16 +1,11 @@
-import { useState } from 'react'
 import { crearCategoria, traerAnimales, traerCategorias } from '../../services/animales'
 import { intentar } from '../../utils/intentar'
-import Icono from '../comunes/Icono'
-import TituloSeccion from '../comunes/TituloSeccion'
-import CampoTexto from '../comunes/CampoTexto'
-import { useConsulta } from '../../hooks/useConsulta'
-import { useFormulario } from '../../hooks/useFormulario'
-import MensajeError from '../comunes/MensajeError'
 import EstadoCarga from '../comunes/EstadoCarga'
 import MensajeVacio from '../comunes/MensajeVacio'
-
-const formularioVacio = { nombre: '', descripcion: '' }
+import TituloSeccion from '../comunes/TituloSeccion'
+import FormularioCategoria from './FormularioCategoria'
+import TarjetaCategoria from './TarjetaCategoria'
+import { useConsulta } from '../../hooks/useConsulta'
 
 // Sección "Categorías" del administrador: las que existen (con cuántos animales tiene cada una)
 // y el formulario para crear una nueva.
@@ -19,22 +14,15 @@ const SeccionCategorias = () => {
   const { datos: categorias, setDatos: setCategorias, cargando, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
   const { datos: animales, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
   const errorAlCargar = errorCategorias ?? errorAnimales
-  const { datos, cambiar, reiniciar } = useFormulario(formularioVacio)
-  const [error, setError] = useState(null)
 
-  const crear = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
-    // La categoría nueva se agrega a la lista con lo que devuelve el backend. Si falla, el error lo muestra el formulario.
-    const pedido = crearCategoria(datos.nombre.trim(), datos.descripcion.trim()).then((nueva) => {
-      setCategorias((actuales) => [...actuales, nueva])
-    })
-    intentar(pedido).then((mensaje) => {
-      setError(mensaje)
-      if (mensaje === null) {
-        reiniciar()
-      }
-    })
-  }
+  // La categoría nueva se agrega a la lista con lo que devuelve el backend.
+  // Devuelve una promesa con el mensaje de error (lo muestra el formulario), o null si salió bien.
+  const crear = (nombre, descripcion) =>
+    intentar(
+      crearCategoria(nombre, descripcion).then((nueva) => {
+        setCategorias((actuales) => [...actuales, nueva])
+      }),
+    )
 
   if (cargando || errorAlCargar) {
     return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando las categorías…" />
@@ -48,35 +36,12 @@ const SeccionCategorias = () => {
         <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Todavía no hay categorías. Creá la primera con el formulario de abajo.</MensajeVacio>
       )}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-space-md">
-        {categorias.map((categoria) => {
-          const cantidad = animales.filter((animal) => animal.categoria === categoria.id).length
-          return (
-            <div key={categoria.id} className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex items-center gap-space-md">
-              <div className="w-12 h-12 shrink-0 rounded-full bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center">
-                <Icono nombre={categoria.icono} />
-              </div>
-              <div>
-                <h3 className="font-title-lg text-title-lg text-on-surface">{categoria.nombre}</h3>
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  {cantidad} {cantidad === 1 ? 'animal' : 'animales'}
-                </p>
-              </div>
-            </div>
-          )
-        })}
+        {categorias.map((categoria) => (
+          <TarjetaCategoria key={categoria.id} categoria={categoria} cantidad={animales.filter((animal) => animal.categoria === categoria.id).length} />
+        ))}
       </div>
 
-      <form onSubmit={crear} className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md">
-        <h3 className="font-title-lg text-title-lg text-on-surface">Nueva categoría</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-          <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
-          <CampoTexto etiqueta="Descripción" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
-        </div>
-        {error && <MensajeError mensaje={error} />}
-        <button type="submit" className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container">
-          Crear categoría
-        </button>
-      </form>
+      <FormularioCategoria onCrear={crear} />
     </section>
   )
 }
