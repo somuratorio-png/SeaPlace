@@ -1,39 +1,22 @@
 import { useState } from 'react'
-import SeccionCategorias from './SeccionCategorias'
-import SeccionRefugios from './SeccionRefugios'
-import SeccionResumen from './SeccionResumen'
-import SeccionRoles from './SeccionRoles'
-import SeccionUsuarios from './SeccionUsuarios'
+import SeccionesAdmin from './SeccionesAdmin'
 import AvisoError from '../comunes/AvisoError'
 import EstadoCarga from '../comunes/EstadoCarga'
-import MenuLateral from '../comunes/MenuLateral'
 import Portada from '../comunes/Portada'
 import * as usuariosApi from '../../services/usuarios'
 import { ponerEn } from '../../utils/listas'
 import { useSesion } from '../../hooks/useSesion'
 import { useConsulta } from '../../hooks/useConsulta'
 
-// Panel del administrador. Tiene un menú lateral y muestra una sola sección por vez
-// (resumen, refugios, usuarios, categorías o roles).
-// Esta página pide al montarse los usuarios, que usan el menú (el aviso de refugios pendientes) y varias
-// secciones. Lo demás lo pide cada sección cuando se abre: sus animales, sus roles, sus categorías...
+// Panel del administrador. Esta página pide al montarse los usuarios, que usan el menú (el aviso de
+// refugios pendientes) y varias secciones. Lo demás lo pide cada sección cuando se abre: sus animales,
+// sus roles, sus categorías...
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: la lista no se vuelve a pedir.
-// Si una acción falla, onError muestra el mensaje arriba de la página.
+// Si una acción falla, el mensaje se muestra arriba de la página.
 const PanelAdmin = () => {
   const { usuario } = useSesion()
-  const [seccion, setSeccion] = useState('resumen')
   const { datos: usuarios, setDatos: setUsuarios, cargando, error } = useConsulta(usuariosApi.traerUsuarios, undefined, [])
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-
-  const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
-
-  const secciones = [
-    { id: 'resumen', nombre: 'Resumen', icono: 'dashboard' },
-    { id: 'refugios', nombre: 'Refugios', icono: 'home_health', aviso: pendientes.length },
-    { id: 'usuarios', nombre: 'Usuarios', icono: 'group' },
-    { id: 'categorias', nombre: 'Categorías', icono: 'category' },
-    { id: 'roles', nombre: 'Roles y permisos', icono: 'key' },
-  ]
 
   // Pone en la lista al usuario como lo devolvió el backend
   const guardarUsuario = (cambiado) => {
@@ -62,25 +45,7 @@ const PanelAdmin = () => {
       return <EstadoCarga cargando={cargando} error={error} texto="Cargando el panel…" />
     }
 
-    return (
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-lg items-start">
-        <div className="lg:col-span-3">
-          <MenuLateral secciones={secciones} activa={seccion} onCambiar={setSeccion} />
-        </div>
-
-        <div className="lg:col-span-9">
-          {seccion === 'resumen' && <SeccionResumen usuarios={usuarios} />}
-          {seccion === 'refugios' && (
-            <SeccionRefugios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
-          )}
-          {seccion === 'usuarios' && (
-            <SeccionUsuarios usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
-          )}
-          {seccion === 'categorias' && <SeccionCategorias />}
-          {seccion === 'roles' && <SeccionRoles onError={setErrorAccion} />}
-        </div>
-      </div>
-    )
+    return <SeccionesAdmin usuarios={usuarios} onCambiarActivo={cambiarActivo} onGuardarUsuario={guardarUsuario} onError={setErrorAccion} />
   }
 
   return (
@@ -94,7 +59,8 @@ const PanelAdmin = () => {
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg">
         {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
-        {elegirContenido()}</div>
+        {elegirContenido()}
+      </div>
     </>
   )
 }

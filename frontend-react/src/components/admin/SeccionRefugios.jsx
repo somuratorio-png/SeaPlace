@@ -6,9 +6,10 @@ import EstadoCarga from '../comunes/EstadoCarga'
 import Buscador from '../comunes/Buscador'
 import Paginacion from '../comunes/Paginacion'
 import TituloSeccion from '../comunes/TituloSeccion'
-import TarjetaRefugio from './TarjetaRefugio'
 import { useConsulta } from '../../hooks/useConsulta'
 import MensajeVacio from '../comunes/MensajeVacio'
+import TarjetaRefugio from './TarjetaRefugio'
+import AvisoRefugiosPendientes from './AvisoRefugiosPendientes'
 
 const REFUGIOS_POR_PAGINA = 4
 const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
@@ -71,11 +72,7 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
         </p>
       </div>
 
-      {pendientes.length > 0 && (
-        <p className="bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-2xl px-space-lg py-space-md font-body-md text-body-md">
-          Hay {pendientes.length} {pendientes.length === 1 ? 'refugio que espera' : 'refugios que esperan'} tu aprobación. Aparecen primero en la lista.
-        </p>
-      )}
+      {pendientes.length > 0 && <AvisoRefugiosPendientes cantidad={pendientes.length} />}
 
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar refugio por nombre o correo..." />
 

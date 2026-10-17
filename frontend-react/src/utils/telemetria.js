@@ -160,3 +160,21 @@ export const coordenadasDe = (senal) => {
   const longitud = 72.4 - senal.x * 0.0107
   return `${latitud.toFixed(3)}° S, ${longitud.toFixed(3)}° O`
 }
+
+// Los datos que muestra el rastreo, calculados a partir de las señales y de la zona habitual del animal.
+// "ultima" puede ser una señal perdida; "ultimaRecibida" es la última que sí llegó.
+export const resumirSenales = (senales, zona) => {
+  const ultima = senales[senales.length - 1]
+  const recibidas = senales.filter((senal) => !senal.perdida)
+  const ultimaRecibida = recibidas[recibidas.length - 1]
+
+  return {
+    ultima,
+    recibidas,
+    ultimaRecibida,
+    velocidad: ultimaRecibida.tramo / HORAS_ENTRE_SENALES,
+    kmUltimoDia: senales.slice(-12).reduce((suma, senal) => suma + senal.tramo, 0),
+    kmAlRefugio: Math.hypot(ultimaRecibida.x - zona.x, ultimaRecibida.y - zona.y),
+    bateria: Math.max(20, 92 - ultima.n * 0.08),
+  }
+}

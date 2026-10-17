@@ -1,11 +1,10 @@
 import { useState } from 'react'
-import { urgencias } from '../../data/animales'
-import CampoTexto from '../comunes/CampoTexto'
-import { useFormulario } from '../../hooks/useFormulario'
-import MensajeError from '../comunes/MensajeError'
-import CampoSelect from '../comunes/CampoSelect'
-import CampoTextarea from '../comunes/CampoTextarea'
 import CampoArchivo from '../comunes/CampoArchivo'
+import CampoTextarea from '../comunes/CampoTextarea'
+import MensajeError from '../comunes/MensajeError'
+import CamposAnimal from './CamposAnimal'
+import VistaPreviaFotos from './VistaPreviaFotos'
+import { useFormulario } from '../../hooks/useFormulario'
 
 // categoria queda vacía hasta que se elige una: mientras tanto vale la primera de la lista
 const formularioVacio = {
@@ -63,29 +62,11 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
     <form onSubmit={enviar} className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
       <h2 className="font-title-lg text-title-lg text-on-surface">Publicar un animal</h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
-        <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
-        <CampoTexto etiqueta="Especie" nombre="especie" valor={datos.especie} onCambiar={cambiar} />
-
-        <CampoSelect etiqueta="Categoría" nombre="categoria" valor={datos.categoria} onCambiar={cambiar} opciones={categorias.map((categoria) => ({ valor: categoria.id, texto: categoria.nombre }))} />
-        <CampoSelect etiqueta="Condición" nombre="urgencia" valor={datos.urgencia} onCambiar={cambiar} opciones={urgencias.map((urgencia) => ({ valor: urgencia.id, texto: urgencia.estado }))} />
-
-        <CampoTexto etiqueta="Edad" nombre="edad" valor={datos.edad} onCambiar={cambiar} />
-        <CampoTexto etiqueta="Ubicación" nombre="ubicacion" valor={datos.ubicacion} onCambiar={cambiar} />
-        <CampoTexto etiqueta="Cuota mensual (en US$)" nombre="precio" tipo="number" valor={datos.precio} onCambiar={cambiar} />
-        <CampoTexto etiqueta="Cupos (cuántos padrinos admite)" nombre="cuposTotales" tipo="number" valor={datos.cuposTotales} onCambiar={cambiar} />
-      </div>
+      <CamposAnimal datos={datos} categorias={categorias} onCambiar={cambiar} />
 
       <CampoTextarea etiqueta="Su historia" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
       <CampoArchivo key={claveFotos} etiqueta="Fotos (opcional, podés elegir varias)" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
-      
-      {fotos.length > 0 && (
-        <div className="flex flex-wrap gap-space-sm">
-          {fotos.map((foto, indice) => (
-            <img key={foto.vistaPrevia} src={foto.vistaPrevia} alt={`Foto elegida ${indice + 1}`} className="w-20 h-20 object-cover rounded-xl" />
-          ))}
-        </div>
-      )}
+      {fotos.length > 0 && <VistaPreviaFotos fotos={fotos} />}
 
       {error && <MensajeError mensaje={error} />}
 

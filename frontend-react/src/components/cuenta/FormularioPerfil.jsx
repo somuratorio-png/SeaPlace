@@ -1,0 +1,39 @@
+import { useState } from 'react'
+import TarjetaFormularioCuenta from './TarjetaFormularioCuenta'
+import CampoTexto from '../comunes/CampoTexto'
+import { modificarMiPerfil } from '../../services/usuarios'
+import { intentar } from '../../utils/intentar'
+import { useSesion } from '../../hooks/useSesion'
+import { useFormulario } from '../../hooks/useFormulario'
+
+// "Mis datos": el usuario cambia su nombre, su apellido y su correo. Le pide el cambio al backend y muestra
+// acá mismo su mensaje de error. guardarPerfil (de useSesion) actualiza el usuario en toda la página.
+const FormularioPerfil = () => {
+  const { usuario, guardarPerfil } = useSesion()
+  const { datos: perfil, cambiar: cambiarCampo } = useFormulario({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
+  const [error, setError] = useState(null)
+  const [guardado, setGuardado] = useState(false)
+
+  const cambiar = (evento) => {
+    cambiarCampo(evento)
+    setGuardado(false)
+  }
+
+  const handleGuardar = (evento) => {
+    evento.preventDefault() // evita que el formulario recargue la página
+    intentar(modificarMiPerfil({ nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }).then(guardarPerfil)).then((mensaje) => {
+      setError(mensaje)
+      setGuardado(mensaje === null)
+    })
+  }
+
+  return (
+    <TarjetaFormularioCuenta titulo="Mis datos" textoBoton="Guardar cambios" textoExito="¡Datos guardados!" mostrarExito={guardado} error={error} onEnviar={handleGuardar}>
+      <CampoTexto etiqueta="Nombre" nombre="nombre" valor={perfil.nombre} onCambiar={cambiar} />
+      <CampoTexto etiqueta="Apellido" nombre="apellido" valor={perfil.apellido} onCambiar={cambiar} />
+      <CampoTexto etiqueta="Correo electrónico" nombre="mail" tipo="email" valor={perfil.mail} onCambiar={cambiar} />
+    </TarjetaFormularioCuenta>
+  )
+}
+
+export default FormularioPerfil

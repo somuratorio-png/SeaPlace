@@ -1,33 +1,20 @@
+import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import BarraBusqueda from './BarraBusqueda'
 import FiltroCategorias from './FiltroCategorias'
-import TarjetaAnimal from './TarjetaAnimal'
+import ResultadosCatalogo from './ResultadosCatalogo'
 import AvisoError from '../comunes/AvisoError'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import Portada from '../comunes/Portada'
 import { traerAnimales, traerCategorias } from '../../services/animales'
-import { precioFinal } from '../../utils/precios'
-import { useNavigate } from 'react-router-dom'
+import { comparadores } from '../../utils/ordenAnimales'
+import { textoDelAnimal } from '../../utils/texto'
 import { useFavoritos } from '../../hooks/useFavoritos'
 import { useConsulta } from '../../hooks/useConsulta'
-import { useState } from 'react'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
-import MensajeVacio from '../comunes/MensajeVacio'
 
 const ANIMALES_POR_PAGINA = 6
-const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.ubicacion}`
-
-// Cuanto más chico el número, más urgente
-const pesoUrgencia = { critico: 0, recuperacion: 1, listo: 2 }
-
-// Cada forma de ordenar es una función que compara dos animales (como pide .sort)
-const comparadores = {
-  urgencia: (a, b) => pesoUrgencia[a.urgencia] - pesoUrgencia[b.urgencia],
-  progreso: (a, b) => a.progreso - b.progreso,
-  'precio-menor': (a, b) => precioFinal(a) - precioFinal(b),
-  'precio-mayor': (a, b) => precioFinal(b) - precioFinal(a),
-  nombre: (a, b) => a.nombre.localeCompare(b.nombre),
-}
 
 // El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
 // por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
@@ -76,28 +63,13 @@ const CatalogoAnimales = () => {
           soloFavoritos={soloFavoritos}
           onSoloFavoritos={alFiltrar(setSoloFavoritos)}
         />
-
-        <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Mostrando {visibles.length} de {encontrados.length} animales
-        </p>
-
-        {visibles.length === 0 ? (
-          <MensajeVacio clase="py-space-xl">
-            {animales.length === 0 ? 'Todavía no hay animales publicados para apadrinar.' : 'Ningún animal coincide con esos filtros. Probá con otra búsqueda.'}
-          </MensajeVacio>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-space-lg">
-            {visibles.map((animal) => (
-              <TarjetaAnimal
-                key={animal.id}
-                animal={animal}
-                onError={setErrorAccion}
-                onVer={() => navigate(`/animal/${animal.id}`)}
-              />
-            ))}
-          </div>
-        )}
-
+        <ResultadosCatalogo
+          animales={visibles}
+          cantidadEncontrados={encontrados.length}
+          hayPublicados={animales.length > 0}
+          onError={setErrorAccion}
+          onVer={(id) => navigate(`/animal/${id}`)}
+        />
         <Paginacion pagina={paginaActual} totalPaginas={totalPaginas} onCambiar={setPagina} />
       </>
     )

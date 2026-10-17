@@ -4,3 +4,17 @@ const LARGO_MINIMO_CONTRASENIA = 8
 // "sujeto" es cómo se llama en el mensaje (por ejemplo "La contraseña nueva").
 export const validarContrasenia = (contrasenia, sujeto = 'La contraseña') =>
   contrasenia.length < LARGO_MINIMO_CONTRASENIA ? `${sujeto} debe tener al menos ${LARGO_MINIMO_CONTRASENIA} caracteres` : null
+
+// Revisa lo básico de un animal nuevo antes de mandarlo al backend (que valida todo de nuevo).
+// Devuelve el mensaje de error, o null si está bien.
+export const validarAnimalNuevo = (datos) => {
+  if (Number(datos.precio) <= 0) {
+    return 'La cuota mensual tiene que ser mayor a 0'
+  }
+  // Misma regla que el backend: los cupos tienen que ser un número entero mayor a 0
+  const cupos = Number(datos.cuposTotales)
+  if (!Number.isInteger(cupos) || cupos <= 0) {
+    return 'Los cupos tienen que ser un número entero mayor a 0'
+  }
+  return null
+}

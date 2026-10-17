@@ -8,6 +8,7 @@ import CampoTexto from '../comunes/CampoTexto'
 import TarjetaRol from './TarjetaRol'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useFormulario } from '../../hooks/useFormulario'
+import MensajeVacio from '../comunes/MensajeVacio'
 
 const claseFormulario = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg space-y-space-md'
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container'

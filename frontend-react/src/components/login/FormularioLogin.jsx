@@ -1,15 +1,19 @@
 import { useState } from 'react'
 import Bienvenida from './Bienvenida'
-import CampoTexto from '../comunes/CampoTexto'
+import CamposRegistro from './CamposRegistro'
+import CredencialesDePrueba from './CredencialesDePrueba'
 import RecuperarContrasenia from './RecuperarContrasenia'
+import CampoTexto from '../comunes/CampoTexto'
+import MensajeError from '../comunes/MensajeError'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
+import { validarContrasenia } from '../../utils/validaciones'
 import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
-import MensajeError from '../comunes/MensajeError'
-import { validarContrasenia } from '../../utils/validaciones'
 
 const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
+
+const claseDosColumnas = 'max-w-6xl mx-auto px-margin-mobile lg:px-margin py-space-xl grid grid-cols-1 lg:grid-cols-2 gap-space-lg'
 
 // Login y registro. Le pide al backend que valide los datos: si los rechaza, muestra el mensaje
 // que mandó (por ejemplo, "Usuario o contrasenia incorrectos"). Si los acepta, llama a entrar
@@ -22,13 +26,13 @@ const FormularioLogin = () => {
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
   const [recuperando, setRecuperando] = useState(false) // true = se muestra "olvidé mi contraseña"
+
   const cambiarModo = () => {
     setEsRegistro(!esRegistro)
     setError(null)
   }
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
-
   const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario.trim(), datos.contrasenia).then(entrar))
 
   // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
@@ -56,7 +60,7 @@ const FormularioLogin = () => {
   // "Olvidé mi contraseña" reemplaza al formulario hasta que se vuelve
   if (recuperando) {
     return (
-      <div className="max-w-6xl mx-auto px-margin-mobile lg:px-margin py-space-xl grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+      <div className={claseDosColumnas}>
         <Bienvenida />
         <RecuperarContrasenia onVolver={() => setRecuperando(false)} />
       </div>
@@ -64,7 +68,7 @@ const FormularioLogin = () => {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-margin-mobile lg:px-margin py-space-xl grid grid-cols-1 lg:grid-cols-2 gap-space-lg">
+    <div className={claseDosColumnas}>
       <Bienvenida />
 
       <form onSubmit={enviar} className="bg-surface-container-lowest rounded-xl p-space-xl shadow-md space-y-space-md">
@@ -72,33 +76,7 @@ const FormularioLogin = () => {
           {esRegistro ? 'Creá tu cuenta' : '¡Hola de nuevo, guardián del mar!'}
         </h1>
 
-        {esRegistro && (
-          <>
-            <div className="grid grid-cols-2 gap-space-xs bg-primary-fixed/70 rounded-full p-1" role="group" aria-label="Tipo de cuenta">
-              <button type="button" onClick={() => setEsRefugio(false)} aria-pressed={!esRefugio} className={`py-space-sm rounded-full font-label-lg text-label-lg transition ${esRefugio ? 'text-on-surface-variant' : 'bg-primary text-on-primary shadow-sm'}`}>
-                Quiero apadrinar
-              </button>
-              <button type="button" onClick={() => setEsRefugio(true)} aria-pressed={esRefugio} className={`py-space-sm rounded-full font-label-lg text-label-lg transition ${esRefugio ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant'}`}>
-                Soy un refugio
-              </button>
-            </div>
-
-            {esRefugio ? (
-              <>
-                <CampoTexto etiqueta="Nombre del refugio" nombre="apellido" valor={datos.apellido} onCambiar={cambiar} />
-                <p className="font-body-sm text-body-sm text-on-surface-variant">
-                  Un administrador va a revisar tu solicitud antes de que puedas publicar animales.
-                </p>
-              </>
-            ) : (
-              <>
-                <CampoTexto etiqueta="Nombre" nombre="nombre" valor={datos.nombre} onCambiar={cambiar} />
-                <CampoTexto etiqueta="Apellido" nombre="apellido" valor={datos.apellido} onCambiar={cambiar} />
-              </>
-            )}
-            <CampoTexto etiqueta="Correo electrónico" nombre="mail" tipo="email" valor={datos.mail} onCambiar={cambiar} />
-          </>
-        )}
+        {esRegistro && <CamposRegistro datos={datos} esRefugio={esRefugio} onCambiar={cambiar} onCambiarTipo={setEsRefugio} />}
         <CampoTexto etiqueta="Nombre de usuario" nombre="nombreUsuario" valor={datos.nombreUsuario} onCambiar={cambiar} />
         <CampoTexto etiqueta="Contraseña" nombre="contrasenia" tipo="password" valor={datos.contrasenia} onCambiar={cambiar} />
 
@@ -118,15 +96,7 @@ const FormularioLogin = () => {
           </button>
         )}
 
-        {!esRegistro && (
-          <p className="font-body-sm text-body-sm text-on-surface-variant text-center">
-            Para probar: usuario <b>marina</b>, contraseña <b>foquita123</b>
-            <br />
-            Administrador: usuario <b>admin</b>, contraseña <b>admin1234</b>
-            <br />
-            Refugio: usuario <b>ensenada</b>, contraseña <b>refugio123</b>
-          </p>
-        )}
+        {!esRegistro && <CredencialesDePrueba />}
       </form>
     </div>
   )

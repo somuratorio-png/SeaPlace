@@ -1,0 +1,45 @@
+const soloDigitos = (texto) => texto.replace(/\D/g, '')
+
+// Cómo se "limpia" lo que el usuario escribe en cada campo de la tarjeta, mientras lo escribe
+export const limpiarCampoTarjeta = {
+  // Solo letras y espacios
+  titular: (texto) => texto.replace(/[^\p{L} ]/gu, '').slice(0, 40),
+  // Hasta 16 números, separados de a 4: "1234 5678 9012 3456"
+  numero: (texto) => soloDigitos(texto).slice(0, 16).replace(/(\d{4})(?=\d)/g, '$1 '),
+  // Hasta 4 números, con la barra puesta sola: "08/29"
+  vencimiento: (texto) => soloDigitos(texto).slice(0, 4).replace(/(\d{2})(?=\d)/, '$1/'),
+  // Hasta 3 números
+  codigo: (texto) => soloDigitos(texto).slice(0, 3),
+}
+
+// Una tarjeta sirve hasta el último día del mes que figura. Devuelve true si ese mes ya pasó.
+const estaVencida = (mes, anio) => {
+  const hoy = new Date()
+  const anioActual = hoy.getFullYear() % 100
+  const mesActual = hoy.getMonth() + 1
+  return anio < anioActual || (anio === anioActual && mes < mesActual)
+}
+
+// Revisa que el titular, el número, el vencimiento y el código estén bien antes de confirmar.
+// Devuelve el mensaje de error, o null si está todo bien.
+export const validarTarjeta = (datos) => {
+  const mes = Number(datos.vencimiento.slice(0, 2))
+  const anio = Number(datos.vencimiento.slice(3, 5))
+
+  if (datos.titular.trim().length < 3) {
+    return 'Escribí el nombre del titular como figura en la tarjeta'
+  }
+  if (soloDigitos(datos.numero).length !== 16) {
+    return 'El número de tarjeta tiene que tener 16 dígitos'
+  }
+  if (datos.vencimiento.length !== 5 || mes < 1 || mes > 12) {
+    return 'El vencimiento va con el formato MM/AA y un mes entre 01 y 12, por ejemplo 08/29'
+  }
+  if (estaVencida(mes, anio)) {
+    return 'La tarjeta está vencida'
+  }
+  if (datos.codigo.length !== 3) {
+    return 'El código de seguridad son los 3 dígitos del dorso'
+  }
+  return null
+}
