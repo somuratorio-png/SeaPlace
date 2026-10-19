@@ -28,6 +28,8 @@ public class AnimalServiceImpl implements AnimalService {
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
     private static final String ESTADO_PUBLICACION_PAUSADA = "PAUSADA";
     private static final String ESTADO_PUBLICACION_ELIMINADA = "ELIMINADA";
+    // Lo que publica un refugio queda asi hasta que un administrador lo aprueba: no se ve en el catalogo.
+    private static final String ESTADO_PUBLICACION_PENDIENTE = "PENDIENTE";
 
     private static final int LARGO_MAXIMO = 255;
 
@@ -46,6 +48,9 @@ public class AnimalServiceImpl implements AnimalService {
     @Autowired
     private AutorizacionService autorizacionService;
 
+    @Autowired
+    private NotificacionService notificacionService;
+
     @Override
     public Page<Animal> getAnimales(String estado, Long idCategoria, Long idRefugio, Double precioMin, Double precioMax,
                                     String nombre, PageRequest pageRequest) {
@@ -56,20 +61,22 @@ public class AnimalServiceImpl implements AnimalService {
 
         if (!ESTADO_PUBLICACION_ACTIVA.equals(estadoFiltro)
                 && !ESTADO_PUBLICACION_PAUSADA.equals(estadoFiltro)
+                && !ESTADO_PUBLICACION_PENDIENTE.equals(estadoFiltro)
                 && !ESTADO_PUBLICACION_ELIMINADA.equals(estadoFiltro)) {
-            throw new ReglaDeNegocioException("Estado invalido: ACTIVA, PAUSADA o ELIMINADA");
+            throw new ReglaDeNegocioException("Estado invalido: ACTIVA, PAUSADA, PENDIENTE o ELIMINADA");
         }
 
         // Solo las ACTIVAS son publicas. Las demas las ve un admin (todas) o el dueño de un
-        // refugio (solo sus PAUSADAS); para el resto es un 403.
+        // refugio (solo sus PAUSADAS y PENDIENTES); para el resto es un 403.
         Long idRefugioFiltro = idRefugio;
         if (!ESTADO_PUBLICACION_ACTIVA.equals(estadoFiltro)) {
             Usuario actual = autorizacionService.usuarioActualONull();
             boolean esAdmin = actual != null && autorizacionService.esAdmin();
-            boolean duenoConPausadas = actual != null && actual.getRefugio() != null
-                    && ESTADO_PUBLICACION_PAUSADA.equals(estadoFiltro);
+            boolean duenoConPropias = actual != null && actual.getRefugio() != null
+                    && (ESTADO_PUBLICACION_PAUSADA.equals(estadoFiltro)
+                            || ESTADO_PUBLICACION_PENDIENTE.equals(estadoFiltro));
 
-            if (!esAdmin && !duenoConPausadas) {
+            if (!esAdmin && !duenoConPropias) {
                 throw new AccessDeniedException("No tenes permiso para ver publicaciones " + estadoFiltro);
             }
             if (!esAdmin) {
@@ -92,7 +99,7 @@ public class AnimalServiceImpl implements AnimalService {
 
     @Override
     public Optional<Animal> getAnimalById(Long animalId) {
-        // Una publicacion no ACTIVA solo la ve un admin o el dueño de su refugio (si esta PAUSADA);
+        // Una publicacion no ACTIVA solo la ve un admin o el dueño de su refugio (si esta PAUSADA o PENDIENTE);
         // para el resto es como si no existiera (404).
         return animalRepository.findById(animalId).filter(autorizacionService::puedeVerAnimal);
     }
@@ -145,7 +152,8 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
         animal.setCuposTotales(request.getCuposTotales());
         animal.setCuposDisponibles(request.getCuposTotales());
-        animal.setEstado(ESTADO_PUBLICACION_ACTIVA);
+        // Lo que publica un refugio espera la aprobacion de un administrador; lo que publica un admin sale directo.
+        animal.setEstado(autorizacionService.esAdmin() ? ESTADO_PUBLICACION_ACTIVA : ESTADO_PUBLICACION_PENDIENTE);
         animal.setFechaPublicacion(LocalDateTime.now());
 
         String urgencia = urgenciaValida(request.getUrgencia());
@@ -227,6 +235,10 @@ public class AnimalServiceImpl implements AnimalService {
         }
 
         if (request.getEstado() != null) {
+            // Una pendiente no se activa ni se pausa desde aca: la aprueba un administrador (aprobarAnimal)
+            if (ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
+                throw new ReglaDeNegocioException("La publicacion todavia no fue aprobada por un administrador");
+            }
             if (!ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())
                     && !ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
                 throw new ReglaDeNegocioException("Estado invalido: solo ACTIVA o PAUSADA");
@@ -279,6 +291,53 @@ public class AnimalServiceImpl implements AnimalService {
     }
 
     @Override
+    public Animal aprobarAnimal(Long animalId) {
+        if (!autorizacionService.esAdmin()) {
+            throw new AccessDeniedException("Solo un administrador puede aprobar una publicacion");
+        }
+        Animal animal = animalRepository.findById(animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el animal con id " + animalId));
+        if (!ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
+            throw new ReglaDeNegocioException("La publicacion no esta pendiente de aprobacion");
+        }
+        animal.setEstado(ESTADO_PUBLICACION_ACTIVA);
+        Animal aprobado = animalRepository.save(animal);
+        avisarAlRefugio(animal, "Aprobamos la publicación de " + animal.getNombreAnimal() + ": ya aparece en el catálogo.");
+        return aprobado;
+    }
+
+    @Override
+    public void rechazarAnimal(Long animalId, String motivo) {
+        if (!autorizacionService.esAdmin()) {
+            throw new AccessDeniedException("Solo un administrador puede rechazar una publicacion");
+        }
+        Animal animal = animalRepository.findById(animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el animal con id " + animalId));
+        if (!ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
+            throw new ReglaDeNegocioException("La publicacion no esta pendiente de aprobacion");
+        }
+        // No se borra de la base: queda eliminada, igual que cuando se quita una publicacion
+        animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
+        animalRepository.save(animal);
+
+        String texto = "No aprobamos la publicación de " + animal.getNombreAnimal() + ".";
+        if (motivo != null && !motivo.isBlank()) {
+            texto += " Motivo: " + motivo.trim();
+        }
+        avisarAlRefugio(animal, texto);
+    }
+
+    // Le deja una notificacion al dueño del refugio del animal (si el refugio tiene uno)
+    private void avisarAlRefugio(Animal animal, String texto) {
+        Usuario dueno = animal.getRefugio().getUsuario();
+        if (dueno != null) {
+            notificacionService.notificar(dueno, texto);
+        }
+    }
+
+    @Override
     public void deleteAnimal(Long animalId) {
         Animal animal = animalRepository.findById(animalId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
@@ -292,5 +351,12 @@ public class AnimalServiceImpl implements AnimalService {
 
         animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
         animalRepository.save(animal);
+
+        // Si la quito un administrador (y no el propio refugio), se le avisa al refugio
+        Refugio refugioPropio = autorizacionService.usuarioActual().getRefugio();
+        boolean laQuitoSuRefugio = refugioPropio != null && refugioPropio.getIdRefugio().equals(animal.getRefugio().getIdRefugio());
+        if (!laQuitoSuRefugio) {
+            avisarAlRefugio(animal, "Un administrador quitó la publicación de " + animal.getNombreAnimal() + " del catálogo.");
+        }
     }
 }

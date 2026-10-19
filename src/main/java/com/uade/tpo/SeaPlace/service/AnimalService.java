@@ -18,5 +18,11 @@ public interface AnimalService {
 
     Animal updateAnimal(Long animalId, AnimalUpdateRequest request);
 
+    // un administrador aprueba una publicacion PENDIENTE de un refugio: pasa a ACTIVA y aparece en el catalogo
+    Animal aprobarAnimal(Long animalId);
+
+    // un administrador rechaza una publicacion PENDIENTE: queda eliminada y el refugio recibe el aviso (con el motivo, si vino)
+    void rechazarAnimal(Long animalId, String motivo);
+
     void deleteAnimal(Long animalId);
 }

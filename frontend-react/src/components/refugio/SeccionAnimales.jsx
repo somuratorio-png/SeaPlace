@@ -8,10 +8,22 @@ import MensajeVacio from '../comunes/MensajeVacio'
 const ANIMALES_POR_PAGINA = 4
 const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.estado}`
 
-// Sección "Mis animales" del refugio: los busca y los muestra de a una página.
+// Primero las que esperan aprobación y después el resto, de la más nueva a la más vieja.
+// El id lo da la base en orden, así que un id más grande es una publicación más nueva.
+const ordenar = (animales) =>
+  [...animales].sort((a, b) => {
+    const pendienteA = a.publicacion === 'PENDIENTE'
+    const pendienteB = b.publicacion === 'PENDIENTE'
+    if (pendienteA !== pendienteB) {
+      return pendienteA ? -1 : 1
+    }
+    return b.id - a.id
+  })
+
+// Sección "Mis animales" del refugio: los busca y los muestra de a una página (ver "ordenar").
 // "animales" son solo los de este refugio y "apadrinamientos" los activos de esos animales.
 const SeccionAnimales = ({ animales, apadrinamientos, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
-  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(animales, textoDelAnimal, ANIMALES_POR_PAGINA)
+  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenar(animales), textoDelAnimal, ANIMALES_POR_PAGINA)
 
   return (
     <section className="space-y-space-md">
@@ -27,7 +39,7 @@ const SeccionAnimales = ({ animales, apadrinamientos, onQuitar, onEditar, onPubl
         <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl">Todavía no publicaste ningún animal.</MensajeVacio>
       )}
       {animales.length > 0 && encontrados.length === 0 && (
-        <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg">Tocá el corazón de un animal en el catálogo para guardarlo acá.</MensajeVacio>
+        <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg">Ningún animal coincide con esa búsqueda.</MensajeVacio>
       )}
       {items.map((animal) => (
         <TarjetaMiAnimal

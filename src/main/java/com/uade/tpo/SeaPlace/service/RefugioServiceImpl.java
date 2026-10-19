@@ -25,6 +25,9 @@ public class RefugioServiceImpl implements RefugioService {
     private RefugioRepository refugioRepository;
 
     @Autowired
+    private NotificacionService notificacionService;
+
+    @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
@@ -86,7 +89,11 @@ public class RefugioServiceImpl implements RefugioService {
             throw new ReglaDeNegocioException("El refugio ya esta aprobado");
         }
         refugio.setAprobado(true);
-        return refugioRepository.save(refugio);
+        Refugio aprobado = refugioRepository.save(refugio);
+        if (refugio.getUsuario() != null) {
+            notificacionService.notificar(refugio.getUsuario(), "¡Bienvenido a SeaPlace! Aprobamos tu refugio: ya podés publicar animales.");
+        }
+        return aprobado;
     }
 
     private Refugio crear(RefugioRequest request, boolean aprobado) {

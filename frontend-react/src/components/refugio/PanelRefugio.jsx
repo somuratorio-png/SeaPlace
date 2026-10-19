@@ -23,6 +23,8 @@ const PanelRefugio = () => {
   }
 
   const { propios, apadrinamientos } = gestion
+  // En el catálogo solo están las activas: las pausadas y las que esperan aprobación no se cuentan
+  const enCatalogo = propios.filter((animal) => animal.publicacion === 'ACTIVA').length
 
   return (
     <>
@@ -30,7 +32,7 @@ const PanelRefugio = () => {
         icono="home_health"
         etiqueta="Mi refugio"
         titulo={`${usuario.nombre} ${usuario.apellido}`}
-        texto={`Tenés ${propios.length} ${propios.length === 1 ? 'animal publicado' : 'animales publicados'} en el catálogo.`}
+        texto={`Tenés ${enCatalogo} ${enCatalogo === 1 ? 'animal publicado' : 'animales publicados'} en el catálogo.`}
       />
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-lg">
@@ -38,7 +40,7 @@ const PanelRefugio = () => {
         {gestion.error && <AvisoError mensaje={gestion.error} />}
         {gestion.errorAccion && <AvisoError mensaje={gestion.errorAccion} onCerrar={gestion.cerrarErrorAccion} />}
 
-        <ResumenRefugio cantidadAnimales={propios.length} apadrinamientos={apadrinamientos} />
+        <ResumenRefugio cantidadAnimales={enCatalogo} apadrinamientos={apadrinamientos} />
 
         <ContenidoRefugio
           animales={propios}

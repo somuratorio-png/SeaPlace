@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 
-const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', onConfirmar, onCancelar, peligro = false }) => {
+// "children" es opcional: lo que haga falta completar antes de confirmar (por ejemplo, un campo de texto)
+const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', onConfirmar, onCancelar, peligro = false, children }) => {
   const caja = useRef(null)
 
   useEffect(() => {
@@ -29,6 +30,7 @@ const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', on
       <div className="space-y-space-md">
         <h3 className="font-title-lg text-title-lg text-on-surface">{titulo}</h3>
         <p className="font-body-md text-body-md text-on-surface-variant">{mensaje}</p>
+        {children}
         <div className="flex flex-wrap justify-end gap-space-sm">
           <button
             type="button"

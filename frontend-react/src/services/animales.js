@@ -9,7 +9,7 @@ const urlDeFoto = (url) => (url.startsWith('/animales/') ? URL_BASE + url : url)
 
 // Pasa un animal del backend (AnimalResponse) al formato que usan los componentes.
 // urgencia: 'critico' | 'recuperacion' | 'listo'. estado: el texto del cartelito de la tarjeta.
-// publicacion: 'ACTIVA' | 'PAUSADA'. progreso: porcentaje de cupos ya tomados.
+// publicacion: 'ACTIVA' | 'PAUSADA' | 'PENDIENTE' (espera que un administrador la apruebe). progreso: porcentaje de cupos ya tomados.
 // descuento: { id, porcentaje, hasta } si hoy está en oferta, o null.
 // sinFotos: true si el refugio todavía no le subió ninguna (se muestra una genérica).
 const aDescuento = (dato) => ({ id: dato.idDescuento, porcentaje: dato.porcentaje, hasta: dato.fechaFin })
@@ -74,15 +74,27 @@ export const filtroDePrecio = (precioMin, precioMax) => {
 // Un animal por su id. Si no existe (o su publicación no está activa y no es de quien lo pide) el backend responde 404.
 export const traerAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`).then(aAnimal)
 
-// Las publicaciones activas y las pausadas, para los paneles de gestión. En el backend son dos listados
-// (las pausadas solo las ve su refugio o un administrador), así que es un pedido por cada uno.
+// Las publicaciones activas, las pausadas y las pendientes de aprobación, para los paneles de gestión.
+// En el backend es un listado por estado (las no activas solo las ve su refugio o un administrador),
+// así que es un pedido por cada uno.
 // Con idRefugio trae solo las de ese refugio; sin idRefugio, las de todos (para el administrador).
 export const traerPublicaciones = (idRefugio) => {
   const filtro = idRefugio ? `&idRefugio=${idRefugio}` : ''
   return pedirPagina(`/animales?estado=ACTIVA${filtro}`).then((activas) =>
-    pedirPagina(`/animales?estado=PAUSADA${filtro}`).then((pausadas) => [...activas, ...pausadas].map(aAnimal)),
+    pedirPagina(`/animales?estado=PAUSADA${filtro}`).then((pausadas) =>
+      pedirPagina(`/animales?estado=PENDIENTE${filtro}`).then((pendientes) => [...activas, ...pausadas, ...pendientes].map(aAnimal)),
+    ),
   )
 }
+
+// Las publicaciones de todos los refugios que esperan la aprobación del administrador
+export const traerPendientes = () => pedirPagina('/animales?estado=PENDIENTE').then((pendientes) => pendientes.map(aAnimal))
+
+// La aprueba un administrador: pasa a ACTIVA y aparece en el catálogo. Devuelve el animal ya aprobado.
+export const aprobarAnimal = (idAnimal) => pedir(`/animales/${idAnimal}/aprobar`, { metodo: 'PUT' }).then(aAnimal)
+
+// La rechaza un administrador: queda eliminada y el refugio recibe una notificación con el motivo (si se escribió)
+export const rechazarAnimal = (idAnimal, motivo) => pedir(`/animales/${idAnimal}/rechazar`, { metodo: 'PUT', cuerpo: { motivo } })
 
 // datos = lo que carga el formulario del refugio. El refugio no se manda: el backend usa el de la cuenta.
 export const crearAnimal = (datos) =>

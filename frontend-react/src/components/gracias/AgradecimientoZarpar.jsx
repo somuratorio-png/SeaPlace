@@ -4,6 +4,7 @@ import Portada from '../comunes/Portada'
 import Precio from '../comunes/Precio'
 import AccionesGracias from './AccionesGracias'
 import FilaCertificado from './FilaCertificado'
+import TransicionZarpar from './TransicionZarpar'
 
 // Se muestra después de zarpar (confirmar el muelle). zarpar = { apadrinados, total }
 // Acá mismo se entrega el certificado de cada animal apadrinado.
@@ -25,6 +26,7 @@ const AgradecimientoZarpar = () => {
 
   return (
     <>
+      <TransicionZarpar />
       <Portada
         icono="sailing"
         etiqueta="¡Zarpaste!"

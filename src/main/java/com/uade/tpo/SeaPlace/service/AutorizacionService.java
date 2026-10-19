@@ -40,7 +40,7 @@ public class AutorizacionService {
     }
 
     // Una publicacion ACTIVA la ve cualquiera. Una no activa solo la ve un admin o,
-    // si esta PAUSADA, el dueño de su refugio.
+    // si esta PAUSADA o PENDIENTE (de aprobacion), el dueño de su refugio.
     public boolean puedeVerAnimal(Animal animal) {
         if ("ACTIVA".equals(animal.getEstado())) {
             return true;
@@ -52,7 +52,7 @@ public class AutorizacionService {
         if (esAdmin()) {
             return true;
         }
-        return "PAUSADA".equals(animal.getEstado())
+        return ("PAUSADA".equals(animal.getEstado()) || "PENDIENTE".equals(animal.getEstado()))
                 && actual.getRefugio() != null
                 && actual.getRefugio().getIdRefugio().equals(animal.getRefugio().getIdRefugio());
     }

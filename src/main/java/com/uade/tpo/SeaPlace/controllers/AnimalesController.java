@@ -13,6 +13,7 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
+import com.uade.tpo.SeaPlace.entity.dto.RechazoRequest;
 import com.uade.tpo.SeaPlace.service.AnimalService;
 
 @RestController
@@ -56,6 +57,19 @@ public class AnimalesController {
     @PutMapping("/{animalId}")
     public ResponseEntity<AnimalResponse> updateAnimal(@PathVariable Long animalId, @RequestBody AnimalUpdateRequest request) {
         return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.updateAnimal(animalId, request)));
+    }
+
+    // un administrador aprueba lo que publico un refugio; recien ahi se ve en el catalogo
+    @PutMapping("/{animalId}/aprobar")
+    public ResponseEntity<AnimalResponse> aprobarAnimal(@PathVariable Long animalId) {
+        return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.aprobarAnimal(animalId)));
+    }
+
+    // un administrador rechaza lo que publico un refugio; el refugio recibe una notificacion con el motivo
+    @PutMapping("/{animalId}/rechazar")
+    public ResponseEntity<Void> rechazarAnimal(@PathVariable Long animalId, @RequestBody(required = false) RechazoRequest request) {
+        animalService.rechazarAnimal(animalId, request == null ? null : request.getMotivo());
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{animalId}")

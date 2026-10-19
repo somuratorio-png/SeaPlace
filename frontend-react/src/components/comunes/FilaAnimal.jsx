@@ -7,7 +7,7 @@ import Precio from './Precio'
 import { useNavigate } from 'react-router-dom'
 
 
-// Un animal del refugio, con el botón para quitarlo del catálogo
+// Un animal del refugio, con el botón para quitarlo del catálogo (si no se pasa onQuitar, no aparece)
 const FilaAnimal = ({ animal, onQuitar }) => {
   const navigate = useNavigate()
   const [isVisible, setIsVisible] = useState(false)
@@ -22,6 +22,10 @@ const FilaAnimal = ({ animal, onQuitar }) => {
           {/* Las pausadas no se ven en el catálogo: solo las ven su refugio y el administrador */}
           {animal.publicacion === 'PAUSADA' && (
             <span className="ml-space-sm align-middle bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full px-space-sm py-0.5 font-label-md text-label-md">Pausada</span>
+          )}
+          {/* Las pendientes tampoco: esperan que un administrador las apruebe */}
+          {animal.publicacion === 'PENDIENTE' && (
+            <span className="ml-space-sm align-middle bg-secondary-container text-on-secondary-container rounded-full px-space-sm py-0.5 font-label-md text-label-md">Esperando aprobación</span>
           )}
         </h3>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
@@ -39,12 +43,14 @@ const FilaAnimal = ({ animal, onQuitar }) => {
         >
           <Icono nombre="visibility" clase="text-[18px]" /> Ver ficha
         </button>
-        <button
-          onClick={() => setIsVisible(true)}
-          className="inline-flex items-center gap-1 bg-error-container text-on-error-container font-label-lg text-label-lg px-space-md py-space-sm rounded-full"
-        >
-          <Icono nombre="delete" clase="text-[18px]" /> Quitar
-        </button>
+        {onQuitar && (
+          <button
+            onClick={() => setIsVisible(true)}
+            className="inline-flex items-center gap-1 bg-error-container text-on-error-container font-label-lg text-label-lg px-space-md py-space-sm rounded-full"
+          >
+            <Icono nombre="delete" clase="text-[18px]" /> Quitar
+          </button>
+        )}
       </div>
 
       {isVisible && (

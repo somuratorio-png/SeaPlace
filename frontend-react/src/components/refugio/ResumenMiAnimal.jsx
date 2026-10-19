@@ -8,6 +8,7 @@ import { recaudacionMensual } from '../../utils/precios'
 // o abrir su gestión. "apadrinamientos" son solo los activos de este animal.
 const ResumenMiAnimal = ({ animal, apadrinamientos, abierto, onEditar, onAlternarGestion }) => {
   const pausada = animal.publicacion === 'PAUSADA'
+  const pendiente = animal.publicacion === 'PENDIENTE' // hasta que la aprueba un administrador no se puede pausar ni publicar
   const [isVisible, setIsVisible] = useState(false)
 
   return (
@@ -21,13 +22,19 @@ const ResumenMiAnimal = ({ animal, apadrinamientos, abierto, onEditar, onAlterna
       </p>
       <div className="flex flex-wrap items-center gap-space-md">
         {/* Una publicación pausada no se ve en el catálogo, pero conserva sus padrinos y sus datos */}
-        <button
-          onClick={() => (pausada ? onEditar(animal.id, { publicacion: 'ACTIVA' }) : setIsVisible(true))}
-          className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline"
-        >
-          <Icono nombre={pausada ? 'play_circle' : 'pause_circle'} clase="text-[18px]" />
-          {pausada ? 'Volver a publicar' : 'Pausar'}
-        </button>
+        {pendiente ? (
+          <span className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant">
+            <Icono nombre="hourglass_top" clase="text-[18px]" /> Se publica cuando SeaPlace la apruebe
+          </span>
+        ) : (
+          <button
+            onClick={() => (pausada ? onEditar(animal.id, { publicacion: 'ACTIVA' }) : setIsVisible(true))}
+            className="inline-flex items-center gap-1 font-label-lg text-label-lg text-secondary hover:underline"
+          >
+            <Icono nombre={pausada ? 'play_circle' : 'pause_circle'} clase="text-[18px]" />
+            {pausada ? 'Volver a publicar' : 'Pausar'}
+          </button>
+        )}
 
         {isVisible && (
           <Modal
