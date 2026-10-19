@@ -1,4 +1,5 @@
 import { aprobarAnimal, aprobarCambios, rechazarAnimal, rechazarCambios } from '../../services/animales'
+import { useSesion } from '../../hooks/useSesion'
 import EstadoCarga from '../comunes/EstadoCarga'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TituloSeccion from '../comunes/TituloSeccion'
@@ -12,6 +13,7 @@ import TablaCambios from './TablaCambios'
 // En todos los casos el refugio recibe una notificación (al rechazar, con el motivo si se escribió uno).
 // Las dos listas las pide SeccionesAdmin (así el menú puede mostrar cuántas hay); cada acción las actualiza.
 const SeccionPublicaciones = ({ pendientes, setPendientes, cambios, setCambios, cargando, error, onError }) => {
+  const { token } = useSesion()
   // Lo que se resolvió (aprobado o rechazado) sale de su lista
   const resolver = (pedido, setLista, idAnimal) => {
     onError(null)
@@ -39,8 +41,8 @@ const SeccionPublicaciones = ({ pendientes, setPendientes, cambios, setCambios, 
           <RevisionPublicacion
             key={animal.id}
             animal={animal}
-            onAprobar={() => resolver(aprobarAnimal(animal.id), setPendientes, animal.id)}
-            onRechazar={(motivo) => resolver(rechazarAnimal(animal.id, motivo), setPendientes, animal.id)}
+            onAprobar={() => resolver(aprobarAnimal(token, animal.id), setPendientes, animal.id)}
+            onRechazar={(motivo) => resolver(rechazarAnimal(token, animal.id, motivo), setPendientes, animal.id)}
           />
         ))}
       </div>
@@ -55,8 +57,8 @@ const SeccionPublicaciones = ({ pendientes, setPendientes, cambios, setCambios, 
             textoAprobar="Aprobar cambios"
             tituloRechazo={`¿Rechazar los cambios de ${animal.nombre}?`}
             mensajeRechazo="La publicación queda como está y el refugio recibe una notificación. Si querés, contale por qué."
-            onAprobar={() => resolver(aprobarCambios(animal.id), setCambios, animal.id)}
-            onRechazar={(motivo) => resolver(rechazarCambios(animal.id, motivo), setCambios, animal.id)}
+            onAprobar={() => resolver(aprobarCambios(token, animal.id), setCambios, animal.id)}
+            onRechazar={(motivo) => resolver(rechazarCambios(token, animal.id, motivo), setCambios, animal.id)}
           >
             <TablaCambios cambios={campos} />
           </RevisionPublicacion>

@@ -14,7 +14,7 @@ import { useConsulta } from '../../hooks/useConsulta'
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: la lista no se vuelve a pedir.
 // Si una acción falla, el mensaje se muestra arriba de la página.
 const PanelAdmin = () => {
-  const { usuario } = useSesion()
+  const { usuario, token } = useSesion()
   const { datos: usuarios, setDatos: setUsuarios, cargando, error } = useConsulta(usuariosApi.traerUsuarios, undefined, [])
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
@@ -27,7 +27,7 @@ const PanelAdmin = () => {
   // Devuelve una promesa con el usuario como quedó, o null si el pedido falló.
   const cambiarActivo = (nombreUsuario) => {
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
-    const pedido = elegido.activo ? usuariosApi.darDeBaja(elegido.id) : usuariosApi.reactivar(elegido.id)
+    const pedido = elegido.activo ? usuariosApi.darDeBaja(token, elegido.id) : usuariosApi.reactivar(token, elegido.id)
     setErrorAccion(null)
     return pedido
       .then((cambiado) => {

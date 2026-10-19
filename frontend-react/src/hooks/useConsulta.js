@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
+import { useSesion } from './useSesion'
 
 // Pide datos al backend una sola vez, cuando el componente se monta (y de nuevo solo si cambia "argumento").
-// "pedido" es una función de services (por ejemplo traerAnimales) y "inicial" es el valor mientras no llegan los datos.
+// "pedido" es una función de services (por ejemplo traerAnimales): se la llama con el token de quien inició sesión
+// y con "argumento". "inicial" es el valor mientras no llegan los datos.
 // Devuelve los datos, setDatos (para actualizarlos después de un POST/PUT/DELETE sin volver a pedirlos),
 // si todavía está cargando y el mensaje (y el estado HTTP) del error, si lo hubo.
 export const useConsulta = (pedido, argumento, inicial = null) => {
@@ -9,9 +11,10 @@ export const useConsulta = (pedido, argumento, inicial = null) => {
   const [cargando, setCargando] = useState(true)
   const [error, setError] = useState(null)
   const [estadoError, setEstadoError] = useState(null)
+  const { token } = useSesion()
 
   useEffect(() => {
-    pedido(argumento)
+    pedido(token, argumento)
       .then((respuesta) => {
         setDatos(respuesta)
       })
@@ -22,7 +25,7 @@ export const useConsulta = (pedido, argumento, inicial = null) => {
       .then(() => {
         setCargando(false)
       })
-  }, [pedido, argumento])
+  }, [pedido, argumento, token])
 
   return { datos, setDatos, cargando, error, estadoError }
 }

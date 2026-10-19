@@ -63,14 +63,14 @@ const iconoDe = (nombre) => {
 const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
 
 // [{ id, nombre, icono }]
-export const traerCategorias = () => pedirLista('/categorias').then((categorias) => categorias.map(aCategoria))
+export const traerCategorias = (token) => pedirLista(token, '/categorias').then((categorias) => categorias.map(aCategoria))
 
 // Solo la puede crear un administrador. Devuelve la categoría creada.
-export const crearCategoria = (nombreCategoria, descripcion) =>
-  pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } }).then(aCategoria)
+export const crearCategoria = (token, nombreCategoria, descripcion) =>
+  pedir(token, '/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } }).then(aCategoria)
 
 // El catálogo: las publicaciones activas, que son públicas
-export const traerAnimales = (filtro = '') => pedirPagina(`/animales${filtro}`).then((animales) => animales.map(aAnimal))
+export const traerAnimales = (token, filtro = '') => pedirPagina(token, `/animales${filtro}`).then((animales) => animales.map(aAnimal))
 
 export const filtroDePrecio = (precioMin, precioMax) => {
   const parametros = [precioMin === '' ? '' : `precioMin=${precioMin}`, precioMax === '' ? '' : `precioMax=${precioMax}`].filter((parametro) => parametro !== '')
@@ -78,33 +78,33 @@ export const filtroDePrecio = (precioMin, precioMax) => {
 }
 
 // Un animal por su id. Si no existe (o su publicación no está activa y no es de quien lo pide) el backend responde 404.
-export const traerAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`).then(aAnimal)
+export const traerAnimal = (token, idAnimal) => pedir(token, `/animales/${idAnimal}`).then(aAnimal)
 
 // Las publicaciones activas, las pausadas y las pendientes de aprobación, para los paneles de gestión.
 // En el backend es un listado por estado (las no activas solo las ve su refugio o un administrador),
 // así que es un pedido por cada uno.
 // Con idRefugio trae solo las de ese refugio; sin idRefugio, las de todos (para el administrador).
-export const traerPublicaciones = (idRefugio) => {
+export const traerPublicaciones = (token, idRefugio) => {
   const filtro = idRefugio ? `&idRefugio=${idRefugio}` : ''
-  return pedirPagina(`/animales?estado=ACTIVA${filtro}`).then((activas) =>
-    pedirPagina(`/animales?estado=PAUSADA${filtro}`).then((pausadas) =>
-      pedirPagina(`/animales?estado=PENDIENTE${filtro}`).then((pendientes) => [...activas, ...pausadas, ...pendientes].map(aAnimal)),
+  return pedirPagina(token, `/animales?estado=ACTIVA${filtro}`).then((activas) =>
+    pedirPagina(token, `/animales?estado=PAUSADA${filtro}`).then((pausadas) =>
+      pedirPagina(token, `/animales?estado=PENDIENTE${filtro}`).then((pendientes) => [...activas, ...pausadas, ...pendientes].map(aAnimal)),
     ),
   )
 }
 
 // Las publicaciones de todos los refugios que esperan la aprobación del administrador
-export const traerPendientes = () => pedirPagina('/animales?estado=PENDIENTE').then((pendientes) => pendientes.map(aAnimal))
+export const traerPendientes = (token) => pedirPagina(token, '/animales?estado=PENDIENTE').then((pendientes) => pendientes.map(aAnimal))
 
 // La aprueba un administrador: pasa a ACTIVA y aparece en el catálogo. Devuelve el animal ya aprobado.
-export const aprobarAnimal = (idAnimal) => pedir(`/animales/${idAnimal}/aprobar`, { metodo: 'PUT' }).then(aAnimal)
+export const aprobarAnimal = (token, idAnimal) => pedir(token, `/animales/${idAnimal}/aprobar`, { metodo: 'PUT' }).then(aAnimal)
 
 // La rechaza un administrador: queda eliminada y el refugio recibe una notificación con el motivo (si se escribió)
-export const rechazarAnimal = (idAnimal, motivo) => pedir(`/animales/${idAnimal}/rechazar`, { metodo: 'PUT', cuerpo: { motivo } })
+export const rechazarAnimal = (token, idAnimal, motivo) => pedir(token, `/animales/${idAnimal}/rechazar`, { metodo: 'PUT', cuerpo: { motivo } })
 
 // datos = lo que carga el formulario del refugio. El refugio no se manda: el backend usa el de la cuenta.
-export const crearAnimal = (datos) =>
-  pedir('/animales', {
+export const crearAnimal = (token, datos) =>
+  pedir(token, '/animales', {
     metodo: 'POST',
     cuerpo: {
       idCategoria: Number(datos.categoria),
@@ -145,21 +145,21 @@ const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
 
 // Los cambios que pidieron los refugios sobre publicaciones ya aprobadas (solo los ve un administrador):
 // [{ animal, cambios }], con "cambios" como los arma "diferencias"
-export const traerCambiosPendientes = () =>
-  pedirLista('/animales/cambios-pendientes').then((lista) =>
+export const traerCambiosPendientes = (token) =>
+  pedirLista(token, '/animales/cambios-pendientes').then((lista) =>
     lista.map((pendiente) => ({ animal: aAnimal(pendiente.animal), cambios: diferencias(pendiente.animal, pendiente.cambio, pendiente.nombreCategoriaPropuesta) })),
   )
 
 // Un administrador aplica los cambios (o los descarta, con el motivo si escribió uno). Devuelven el animal como queda.
-export const aprobarCambios = (idAnimal) => pedir(`/animales/${idAnimal}/cambios/aprobar`, { metodo: 'PUT' }).then(aAnimal)
+export const aprobarCambios = (token, idAnimal) => pedir(token, `/animales/${idAnimal}/cambios/aprobar`, { metodo: 'PUT' }).then(aAnimal)
 
-export const rechazarCambios = (idAnimal, motivo) => pedir(`/animales/${idAnimal}/cambios/rechazar`, { metodo: 'PUT', cuerpo: { motivo } }).then(aAnimal)
+export const rechazarCambios = (token, idAnimal, motivo) => pedir(token, `/animales/${idAnimal}/cambios/rechazar`, { metodo: 'PUT', cuerpo: { motivo } }).then(aAnimal)
 
 // Corrige los datos de un animal. "datos" tiene los mismos campos que al crearlo. Si todavía espera la aprobación,
 // se aplican enseguida; si ya está publicado, quedan como pedido de cambio hasta que los revise un administrador
 // (el animal vuelve igual, con cambioPendiente: true).
-export const editarAnimal = (idAnimal, datos) =>
-  pedir(`/animales/${idAnimal}`, {
+export const editarAnimal = (token, idAnimal, datos) =>
+  pedir(token, `/animales/${idAnimal}`, {
     metodo: 'PUT',
     cuerpo: {
       idCategoria: Number(datos.categoria),
@@ -177,32 +177,32 @@ export const editarAnimal = (idAnimal, datos) =>
     },
   }).then(aAnimal)
 
-export const quitarAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`, { metodo: 'DELETE' })
+export const quitarAnimal = (token, idAnimal) => pedir(token, `/animales/${idAnimal}`, { metodo: 'DELETE' })
 
 // Las cuatro que siguen modifican un animal y devuelven ese animal ya actualizado, armado con lo
 // que contestó el backend: así quien las llama lo guarda en su estado sin volver a pedir la lista.
 
 // 'ACTIVA' vuelve a mostrarla en el catálogo; 'PAUSADA' la oculta sin eliminarla
-export const cambiarPublicacion = (idAnimal, estado) => pedir(`/animales/${idAnimal}`, { metodo: 'PUT', cuerpo: { estado } }).then(aAnimal)
+export const cambiarPublicacion = (token, idAnimal, estado) => pedir(token, `/animales/${idAnimal}`, { metodo: 'PUT', cuerpo: { estado } }).then(aAnimal)
 
 // "archivo" es el archivo elegido en un <input type="file">, tal cual: se manda sin procesar.
 // El backend agrega la foto al final de la galería.
-export const subirFoto = (animal, archivo) =>
-  pedir(`/animales/${animal.id}/fotos/archivo`, { metodo: 'POST', archivo }).then((foto) => {
+export const subirFoto = (token, animal, archivo) =>
+  pedir(token, `/animales/${animal.id}/fotos/archivo`, { metodo: 'POST', archivo }).then((foto) => {
     const url = urlDeFoto(foto.urlImagen)
     const fotos = animal.sinFotos ? [url] : [...animal.fotos, url]
     return { ...animal, fotos, imagen: fotos[0], sinFotos: false }
   })
 
 // La oferta rige desde hoy hasta la fecha elegida
-export const ponerOferta = (animal, porcentaje, hasta) =>
-  pedir(`/animales/${animal.id}/descuentos`, { metodo: 'POST', cuerpo: { porcentaje, fechaInicio: hoy(), fechaFin: hasta } }).then((descuento) => ({
+export const ponerOferta = (token, animal, porcentaje, hasta) =>
+  pedir(token, `/animales/${animal.id}/descuentos`, { metodo: 'POST', cuerpo: { porcentaje, fechaInicio: hoy(), fechaFin: hasta } }).then((descuento) => ({
     ...animal,
     descuento: aDescuento(descuento),
   }))
 
-export const quitarOferta = (animal) =>
-  pedir(`/animales/${animal.id}/descuentos/${animal.descuento.id}`, { metodo: 'DELETE' }).then(() => ({ ...animal, descuento: null }))
+export const quitarOferta = (token, animal) =>
+  pedir(token, `/animales/${animal.id}/descuentos/${animal.descuento.id}`, { metodo: 'DELETE' }).then(() => ({ ...animal, descuento: null }))
 
 // ---------- Bitácora y ubicación ----------
 
@@ -215,7 +215,7 @@ export const aNovedad = (novedad) => ({ id: novedad.idNovedad, fecha: novedad.fe
 // La última posición que informó el refugio: { latitud, longitud, fecha: 'AAAA-MM-DD' }
 export const aUbicacion = (ubicacion) => ({ latitud: ubicacion.latitud, longitud: ubicacion.longitud, fecha: ubicacion.fechaHora.slice(0, 10) })
 
-export const publicarNovedad = (idAnimal, texto) => pedir(`/animales/${idAnimal}/novedades`, { metodo: 'POST', cuerpo: { texto } })
+export const publicarNovedad = (token, idAnimal, texto) => pedir(token, `/animales/${idAnimal}/novedades`, { metodo: 'POST', cuerpo: { texto } })
 
-export const registrarUbicacion = (idAnimal, latitud, longitud) =>
-  pedir(`/animales/${idAnimal}/ubicaciones`, { metodo: 'POST', cuerpo: { latitud, longitud } })
+export const registrarUbicacion = (token, idAnimal, latitud, longitud) =>
+  pedir(token, `/animales/${idAnimal}/ubicaciones`, { metodo: 'POST', cuerpo: { latitud, longitud } })

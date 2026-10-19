@@ -1,4 +1,5 @@
 import * as usuariosApi from '../../services/usuarios'
+import { useSesion } from '../../hooks/useSesion'
 import { intentar } from '../../utils/intentar'
 import { ponerEn } from '../../utils/listas'
 import EstadoCarga from '../comunes/EstadoCarga'
@@ -15,6 +16,7 @@ import { useConsulta } from '../../hooks/useConsulta'
 // Los roles y los permisos los pide esta sección al backend cuando se abre, un pedido por lista.
 // Cada acción llama al backend y, con lo que contesta, actualiza la lista. Si falla, onError muestra el mensaje.
 const SeccionRoles = ({ onError }) => {
+  const { token } = useSesion()
   const { datos: roles, setDatos: setRoles, cargando, error: errorRoles } = useConsulta(usuariosApi.traerRoles, undefined, [])
   const { datos: permisos, setDatos: setPermisos, error: errorPermisos } = useConsulta(usuariosApi.traerPermisos, undefined, [])
   const errorAlCargar = errorRoles ?? errorPermisos
@@ -26,14 +28,14 @@ const SeccionRoles = ({ onError }) => {
 
   // Reemplaza todos los permisos del rol por los elegidos.
   // Devuelve una promesa con el mensaje de error, o null si salió bien (lo usa la tarjeta del rol).
-  const asignar = (idRol, idsPermisos) => intentar(usuariosApi.asignarPermisos(idRol, idsPermisos).then(guardarRol), onError)
+  const asignar = (idRol, idsPermisos) => intentar(usuariosApi.asignarPermisos(token, idRol, idsPermisos).then(guardarRol), onError)
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien (lo usa el formulario)
-  const crearRol = (nombre) => intentar(usuariosApi.crearRol(nombre).then(guardarRol), onError)
+  const crearRol = (nombre) => intentar(usuariosApi.crearRol(token, nombre).then(guardarRol), onError)
 
   const crearPermiso = (nombre, descripcion) =>
     intentar(
-      usuariosApi.crearPermiso(nombre, descripcion).then((nuevo) => {
+      usuariosApi.crearPermiso(token, nombre, descripcion).then((nuevo) => {
         setPermisos((actuales) => [...actuales, nuevo])
       }),
       onError,

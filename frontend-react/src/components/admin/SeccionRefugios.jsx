@@ -1,5 +1,6 @@
 import { quitarAnimal, traerPublicaciones } from '../../services/animales'
 import { aprobarRefugio } from '../../services/usuarios'
+import { useSesion } from '../../hooks/useSesion'
 import { sacarDe } from '../../utils/listas'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import EstadoCarga from '../comunes/EstadoCarga'
@@ -19,6 +20,7 @@ const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 // "usuarios" los tiene el panel. Las publicaciones (activas y pausadas) las pide esta sección al backend
 // cuando se abre. Cada acción llama al backend y, con lo que contesta, actualiza el estado.
 const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
+  const { token } = useSesion()
   const { datos: animales, setDatos: setAnimales, cargando, error: errorAlCargar } = useConsulta(traerPublicaciones, undefined, [])
 
   // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
@@ -33,7 +35,7 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
   const aprobar = (nombreUsuario) => {
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     onError(null)
-    aprobarRefugio(elegido.idRefugio)
+    aprobarRefugio(token, elegido.idRefugio)
       .then(() => {
         onGuardarUsuario({ ...elegido, aprobado: true })
       })
@@ -45,7 +47,7 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
   // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
     onError(null)
-    quitarAnimal(idAnimal)
+    quitarAnimal(token, idAnimal)
       .then(() => {
         setAnimales((actuales) => sacarDe(actuales, idAnimal))
       })

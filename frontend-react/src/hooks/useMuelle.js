@@ -5,21 +5,21 @@ import { conItem, SIN_MUELLE } from '../utils/muelle'
 import { usePlanes } from './usePlanes'
 
 export const useMuelle = () => {
-  const { muelle, setMuelle } = useContext(ContextoSesion)
+  const { token, muelle, setMuelle } = useContext(ContextoSesion)
   const planes = usePlanes()
 
-  const agregar = (idAnimal, codigoPlan) => ponerEnElMuelle(planes, muelle, idAnimal, codigoPlan).then(setMuelle)
+  const agregar = (idAnimal, codigoPlan) => ponerEnElMuelle(token, planes, muelle, idAnimal, codigoPlan).then(setMuelle)
 
   // La cantidad va de 1 hasta los cupos que le quedan al animal (igual que valida el backend)
   const cambiarCantidad = (item, cantidad) => {
     const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
-    return cambiarItem(planes, muelle.id, item.animal.id, acotada).then((cambiado) => {
+    return cambiarItem(token, planes, muelle.id, item.animal.id, acotada).then((cambiado) => {
       setMuelle((actual) => conItem(actual, cambiado))
     })
   }
 
   const quitar = (item) =>
-    quitarDelMuelle(muelle.id, item.animal.id).then(() => {
+    quitarDelMuelle(token, muelle.id, item.animal.id).then(() => {
       setMuelle((actual) => ({ ...actual, items: actual.items.filter((otro) => otro.animal.id !== item.animal.id) }))
     })
 

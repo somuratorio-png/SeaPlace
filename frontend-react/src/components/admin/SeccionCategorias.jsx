@@ -1,4 +1,5 @@
 import { crearCategoria, traerAnimales, traerCategorias } from '../../services/animales'
+import { useSesion } from '../../hooks/useSesion'
 import { intentar } from '../../utils/intentar'
 import EstadoCarga from '../comunes/EstadoCarga'
 import MensajeVacio from '../comunes/MensajeVacio'
@@ -11,6 +12,7 @@ import { useConsulta } from '../../hooks/useConsulta'
 // y el formulario para crear una nueva.
 // Las categorías y los animales publicados los pide esta sección al backend cuando se abre, un pedido por lista.
 const SeccionCategorias = () => {
+  const { token } = useSesion()
   const { datos: categorias, setDatos: setCategorias, cargando, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
   const { datos: animales, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
   const errorAlCargar = errorCategorias ?? errorAnimales
@@ -19,7 +21,7 @@ const SeccionCategorias = () => {
   // Devuelve una promesa con el mensaje de error (lo muestra el formulario), o null si salió bien.
   const crear = (nombre, descripcion) =>
     intentar(
-      crearCategoria(nombre, descripcion).then((nueva) => {
+      crearCategoria(token, nombre, descripcion).then((nueva) => {
         setCategorias((actuales) => [...actuales, nueva])
       }),
     )

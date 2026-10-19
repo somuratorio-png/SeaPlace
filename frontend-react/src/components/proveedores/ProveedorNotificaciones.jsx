@@ -4,7 +4,7 @@ import * as notificacionesApi from '../../services/notificaciones'
 import { useSesion } from '../../hooks/useSesion'
 
 const ProveedorNotificaciones = ({ children }) => {
-  const { usuario } = useSesion()
+  const { usuario, token } = useSesion()
   const idUsuario = usuario ? usuario.id : null
   const [notificaciones, setNotificaciones] = useState([])
   const [cargando, setCargando] = useState(true)
@@ -20,7 +20,7 @@ const ProveedorNotificaciones = ({ children }) => {
     let vigente = true
 
     notificacionesApi
-      .traerNotificaciones()
+      .traerNotificaciones(token)
       .then((lista) => {
         if (vigente) {
           setNotificaciones(lista)
@@ -44,7 +44,8 @@ const ProveedorNotificaciones = ({ children }) => {
       setError(null)
       setErrorAlMarcar(null)
     }
-  }, [idUsuario])
+    // El token cambia justo cuando cambia quién entró, así que no suma pedidos de más
+  }, [idUsuario, token])
 
   const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
 
@@ -57,14 +58,14 @@ const ProveedorNotificaciones = ({ children }) => {
     }
     setErrorAlMarcar(null)
     notificacionesApi
-      .marcarLeidas()
+      .marcarLeidas(token)
       .then(() => {
         setNotificaciones((actuales) => actuales.map((notificacion) => ({ ...notificacion, nueva: !notificacion.leida, leida: true })))
       })
       .catch((falla) => {
         setErrorAlMarcar(falla.message)
       })
-  }, [sinLeer])
+  }, [sinLeer, token])
 
   const valor = { notificaciones, sinLeer, cargando, error, errorAlMarcar, marcarLeidas }
 

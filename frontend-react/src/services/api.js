@@ -2,16 +2,6 @@
 // /api no existe en el backend: es el prefijo que el proxy de Vite (vite.config.js) reenvía a Spring.
 export const URL_BASE = '/api'
 
-const CLAVE_TOKEN = 'seaplace-token'
-
-export const guardarToken = (token) => {
-  localStorage.setItem(CLAVE_TOKEN, token)
-}
-
-export const borrarToken = () => {
-  localStorage.removeItem(CLAVE_TOKEN)
-}
-
 // El backend manda sus errores como { mensaje: '...' }. Si la respuesta no trae uno
 // (por ejemplo, cuando falta iniciar sesión), se arma un texto según el código.
 const mensajeDeError = (estado, datos) => {
@@ -59,12 +49,12 @@ const interpretar = (respuesta, texto) => {
 
 // Hace un pedido al backend y devuelve una promesa con el cuerpo de la respuesta ya convertido de JSON,
 // o null si la respuesta no trae cuerpo (el backend responde 204 cuando una lista está vacía).
-// Si hay un token guardado (alguien inició sesión), lo manda en el encabezado Authorization.
+// "token" es el de quien inició sesión (lo guarda ProveedorSesion en su estado), o null si no hay nadie:
+// si viene, se manda en el encabezado Authorization.
 // "cuerpo" viaja como JSON; "archivo" viaja como formulario (para subir una foto).
 // Si el pedido sale mal la promesa se rechaza con un Error con el mensaje del backend y el código en error.estado.
-// Ejemplo: pedir('/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } })
-export const pedir = (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
-  const token = localStorage.getItem(CLAVE_TOKEN)
+// Ejemplo: pedir(null, '/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } })
+export const pedir = (token, ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
   const encabezados = {}
   if (token) {
     encabezados.Authorization = `Bearer ${token}`
@@ -82,8 +72,8 @@ export const pedir = (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
 }
 
 // Para los pedidos que devuelven una lista: sin elementos el backend responde 204, y acá se devuelve []
-export const pedirLista = (ruta) => pedir(ruta).then((datos) => datos ?? [])
+export const pedirLista = (token, ruta) => pedir(token, ruta).then((datos) => datos ?? [])
 
 // Para los que devuelven una página de Spring ({ content: [...], totalPages, ... }): devuelve sus elementos.
 // Sin page ni size el backend manda todo en una sola página.
-export const pedirPagina = (ruta) => pedir(ruta).then((datos) => datos?.content ?? [])
+export const pedirPagina = (token, ruta) => pedir(token, ruta).then((datos) => datos?.content ?? [])

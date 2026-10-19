@@ -5,7 +5,7 @@ import { pedir, pedirLista } from './api'
 const aNotificacion = (dato) => ({ id: dato.idNotificacion, texto: dato.texto, fecha: dato.fecha.slice(0, 10), leida: dato.leida })
 
 // Las de quien está logueado, de la más nueva a la más vieja
-export const traerNotificaciones = () => pedirLista('/notificaciones').then((lista) => lista.map(aNotificacion))
+export const traerNotificaciones = (token) => pedirLista(token, '/notificaciones').then((lista) => lista.map(aNotificacion))
 
 // Las marca todas como leídas
-export const marcarLeidas = () => pedir('/notificaciones/leidas', { metodo: 'PUT' })
+export const marcarLeidas = (token) => pedir(token, '/notificaciones/leidas', { metodo: 'PUT' })

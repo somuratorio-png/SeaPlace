@@ -12,7 +12,7 @@ import { useApadrinamientos } from './useApadrinamientos'
 // Cada acción llama al backend y, con lo que contesta, actualiza el estado: el cambio se ve sin volver
 // a pedir la lista. Si una acción falla, su mensaje queda en errorAccion.
 export const useGestionRefugio = () => {
-  const { usuario } = useSesion()
+  const { usuario, token } = useSesion()
   const { datos: animales, setDatos: setAnimales, cargando, error: errorAnimales } = useConsulta(animalesApi.traerPublicaciones, usuario.idRefugio, [])
   const { datos: todos, error: errorApadrinamientos } = useApadrinamientos()
   const { datos: categorias, error: errorCategorias } = useConsulta(animalesApi.traerCategorias, undefined, [])
@@ -35,7 +35,7 @@ export const useGestionRefugio = () => {
     archivos.reduce(
       (anterior, archivo) =>
         anterior
-          .then((actual) => animalesApi.subirFoto(actual, archivo))
+          .then((actual) => animalesApi.subirFoto(token, actual, archivo))
           .then((conFoto) => {
             guardarAnimal(conFoto)
             return conFoto
@@ -52,7 +52,7 @@ export const useGestionRefugio = () => {
     }
 
     return intentar(
-      animalesApi.crearAnimal(datos).then((nuevo) => {
+      animalesApi.crearAnimal(token, datos).then((nuevo) => {
         guardarAnimal(nuevo)
         return subirFotos(nuevo, fotos)
       }),
@@ -66,14 +66,14 @@ export const useGestionRefugio = () => {
     if (errorAnimal !== null) {
       return Promise.resolve(errorAnimal)
     }
-    return intentar(animalesApi.editarAnimal(idAnimal, datos).then(guardarAnimal))
+    return intentar(animalesApi.editarAnimal(token, idAnimal, datos).then(guardarAnimal))
   }
 
   // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
     setErrorAccion(null)
     animalesApi
-      .quitarAnimal(idAnimal)
+      .quitarAnimal(token, idAnimal)
       .then(() => {
         setAnimales((actuales) => sacarDe(actuales, idAnimal))
       })
@@ -91,15 +91,15 @@ export const useGestionRefugio = () => {
 
     const elegirPedido = () => {
       if (cambios.descuento) {
-        return animalesApi.ponerOferta(animal, cambios.descuento.porcentaje, cambios.descuento.hasta)
+        return animalesApi.ponerOferta(token, animal, cambios.descuento.porcentaje, cambios.descuento.hasta)
       }
       if (cambios.descuento === null) {
-        return animalesApi.quitarOferta(animal)
+        return animalesApi.quitarOferta(token, animal)
       }
       if (cambios.fotos) {
         return subirFotos(animal, cambios.fotos)
       }
-      return animalesApi.cambiarPublicacion(idAnimal, cambios.publicacion)
+      return animalesApi.cambiarPublicacion(token, idAnimal, cambios.publicacion)
     }
     const pedido = elegirPedido()
 
@@ -110,9 +110,9 @@ export const useGestionRefugio = () => {
   }
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
-  const publicarNovedad = (idAnimal, texto) => intentar(animalesApi.publicarNovedad(idAnimal, texto), setErrorAccion)
+  const publicarNovedad = (idAnimal, texto) => intentar(animalesApi.publicarNovedad(token, idAnimal, texto), setErrorAccion)
 
-  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(animalesApi.registrarUbicacion(idAnimal, latitud, longitud), setErrorAccion)
+  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(animalesApi.registrarUbicacion(token, idAnimal, latitud, longitud), setErrorAccion)
 
   const cerrarErrorAccion = () => {
     setErrorAccion(null)

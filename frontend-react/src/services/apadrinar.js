@@ -34,30 +34,30 @@ export const aItem = (planes, detalle) => {
 
 // Con idMuelle en null (después de zarpar el muelle pagado queda cerrado) el backend abre uno nuevo:
 // el ítem que devuelve trae su id.
-export const agregarAlMuelle = (planes, idMuelle, idAnimal, codigoPlan) =>
-  pedir('/muelles/items', { metodo: 'POST', cuerpo: { idMuelle, idAnimal, cantidad: 1, plan: codigoPlan } }).then((detalle) => aItem(planes, detalle))
+export const agregarAlMuelle = (token, planes, idMuelle, idAnimal, codigoPlan) =>
+  pedir(token, '/muelles/items', { metodo: 'POST', cuerpo: { idMuelle, idAnimal, cantidad: 1, plan: codigoPlan } }).then((detalle) => aItem(planes, detalle))
 
 // Cambia los cupos que se toman de un animal que ya está en el muelle (y, si se indica, su plan)
-export const cambiarItem = (planes, idMuelle, idAnimal, cantidad, codigoPlan) =>
-  pedir(`/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'PUT', cuerpo: { cantidad, plan: codigoPlan } }).then((detalle) => aItem(planes, detalle))
+export const cambiarItem = (token, planes, idMuelle, idAnimal, cantidad, codigoPlan) =>
+  pedir(token, `/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'PUT', cuerpo: { cantidad, plan: codigoPlan } }).then((detalle) => aItem(planes, detalle))
 
 // Pone el animal en ese muelle y devuelve una promesa con el muelle como queda.
 // Si el animal ya estaba, solo se le cambia el plan (conserva los cupos elegidos).
 // Al zarpar, el muelle que se pagó queda cerrado (id en null): el backend abre el siguiente al
 // agregarle el primer animal, y el ítem que devuelve trae el id del muelle.
-export const ponerEnElMuelle = (planes, muelleActual, idAnimal, codigoPlan) => {
+export const ponerEnElMuelle = (token, planes, muelleActual, idAnimal, codigoPlan) => {
   const yaEstaba = muelleActual.items.find((item) => item.animal.id === idAnimal)
   const pedido = yaEstaba
-    ? cambiarItem(planes, muelleActual.id, idAnimal, yaEstaba.cantidad, codigoPlan)
-    : agregarAlMuelle(planes, muelleActual.id, idAnimal, codigoPlan)
+    ? cambiarItem(token, planes, muelleActual.id, idAnimal, yaEstaba.cantidad, codigoPlan)
+    : agregarAlMuelle(token, planes, muelleActual.id, idAnimal, codigoPlan)
   return pedido.then((item) => conItem({ ...muelleActual, id: item.idMuelle }, item))
 }
 
-export const quitarDelMuelle = (idMuelle, idAnimal) => pedir(`/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'DELETE' })
+export const quitarDelMuelle = (token, idMuelle, idAnimal) => pedir(token, `/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'DELETE' })
 
 // Confirma el muelle: el backend valida los cupos, cobra y crea los apadrinamientos.
 // Devuelve el total que se pagó.
-export const zarpar = (idMuelle, conBotiquin) => pedir('/zarpar', { metodo: 'POST', cuerpo: { idMuelle, conBotiquin } }).then((respuesta) => respuesta.total)
+export const zarpar = (token, idMuelle, conBotiquin) => pedir(token, '/zarpar', { metodo: 'POST', cuerpo: { idMuelle, conBotiquin } }).then((respuesta) => respuesta.total)
 
 // ---------- Apadrinamientos ----------
 
@@ -83,22 +83,22 @@ const aApadrinamiento = (planes, dato) => {
 
 // Los que le corresponden a quien está logueado: un padrino recibe los suyos, un refugio
 // los de sus animales y un administrador todos.
-export const traerApadrinamientos = (planes) => pedirLista('/apadrinamientos').then((datos) => datos.map((dato) => aApadrinamiento(planes, dato)))
+export const traerApadrinamientos = (token, planes) => pedirLista(token, '/apadrinamientos').then((datos) => datos.map((dato) => aApadrinamiento(planes, dato)))
 
 // Las dos que siguen devuelven el apadrinamiento como quedó
 
-export const cambiarPlan = (planes, idApadrinamiento, codigoPlan) =>
-  pedir(`/apadrinamientos/${idApadrinamiento}/plan`, { metodo: 'PUT', cuerpo: { plan: codigoPlan } }).then((dato) => aApadrinamiento(planes, dato))
+export const cambiarPlan = (token, planes, idApadrinamiento, codigoPlan) =>
+  pedir(token, `/apadrinamientos/${idApadrinamiento}/plan`, { metodo: 'PUT', cuerpo: { plan: codigoPlan } }).then((dato) => aApadrinamiento(planes, dato))
 
 // No lo borra: queda inactivo y sus cupos vuelven a estar disponibles (su animal ya viene con los cupos nuevos)
-export const cancelarApadrinamiento = (planes, idApadrinamiento) =>
-  pedir(`/apadrinamientos/${idApadrinamiento}`, { metodo: 'DELETE' }).then((dato) => aApadrinamiento(planes, dato))
+export const cancelarApadrinamiento = (token, planes, idApadrinamiento) =>
+  pedir(token, `/apadrinamientos/${idApadrinamiento}`, { metodo: 'DELETE' }).then((dato) => aApadrinamiento(planes, dato))
 
 // ---------- Favoritos ----------
 
 // Los favoritos del usuario llegan con la sesión (ver aSesion en usuarios.js)
 
 // Devuelve el animal que quedó guardado, para sumarlo al estado sin volver a pedir la lista
-export const agregarFavorito = (idAnimal) => pedir(`/favoritos/${idAnimal}`, { metodo: 'PUT' }).then((favorito) => aAnimal(favorito.animal))
+export const agregarFavorito = (token, idAnimal) => pedir(token, `/favoritos/${idAnimal}`, { metodo: 'PUT' }).then((favorito) => aAnimal(favorito.animal))
 
-export const quitarFavorito = (idAnimal) => pedir(`/favoritos/${idAnimal}`, { metodo: 'DELETE' })
+export const quitarFavorito = (token, idAnimal) => pedir(token, `/favoritos/${idAnimal}`, { metodo: 'DELETE' })

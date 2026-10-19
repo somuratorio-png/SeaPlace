@@ -1,6 +1,6 @@
 import { aAnimal } from './animales'
 import { aItem } from './apadrinar'
-import { borrarToken, guardarToken, pedir, pedirLista, pedirPagina } from './api'
+import { pedir, pedirLista, pedirPagina } from './api'
 
 // El backend llama 'duenioRefugio' al rol que en las pantallas es simplemente 'refugio'
 const rolDelFront = (nombreRol) => (nombreRol === 'duenioRefugio' ? 'refugio' : nombreRol)
@@ -32,52 +32,44 @@ export const aSesion = (planes, dato) => ({
   muelle: { id: dato.idMuelle ?? null, items: (dato.itemsMuelle ?? []).map((detalle) => aItem(planes, detalle)) },
 })
 
-// Los dos devuelven la sesión de quien queda logueado. El token se guarda para los pedidos siguientes.
-
-// La respuesta del login ya trae la sesión: no hace falta pedir nada más
-const entrarCon = (planes, respuesta) => {
-  guardarToken(respuesta.access_token)
-  return aSesion(planes, respuesta.sesion)
-}
+// Los dos devuelven { token, sesion }: el token de quien queda logueado (ProveedorSesion lo guarda en su estado
+// para los pedidos siguientes) y su sesión. La respuesta del login ya trae la sesión: no hace falta pedir nada más.
+const entrarCon = (planes, respuesta) => ({ token: respuesta.access_token, sesion: aSesion(planes, respuesta.sesion) })
 
 export const ingresar = (planes, nombreUsuario, contrasenia) =>
-  pedir('/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } }).then((respuesta) => entrarCon(planes, respuesta))
+  pedir(null, '/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } }).then((respuesta) => entrarCon(planes, respuesta))
 
 // datos = { nombre, apellido, mail, nombreUsuario, contrasenia }. Un refugio se registra por otra ruta,
 // que además crea el refugio: no tiene nombre y apellido, así que se manda "Refugio" + su nombre.
 export const registrar = (planes, datos, esRefugio) => {
   const pedido = esRefugio
-    ? pedir('/auth/register-refugio', { metodo: 'POST', cuerpo: { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido } })
-    : pedir('/auth/register', { metodo: 'POST', cuerpo: datos })
+    ? pedir(null, '/auth/register-refugio', { metodo: 'POST', cuerpo: { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido } })
+    : pedir(null, '/auth/register', { metodo: 'POST', cuerpo: datos })
   return pedido.then((respuesta) => entrarCon(planes, respuesta))
-}
-
-export const salir = () => {
-  borrarToken()
 }
 
 // ---------- Mi cuenta ----------
 
 // Cambia nombre, apellido y mail de quien está logueado. Devuelve el usuario ya modificado.
-export const modificarMiPerfil = ({ nombre, apellido, mail }) => pedir('/usuarios/me', { metodo: 'PUT', cuerpo: { nombre, apellido, mail } }).then(aUsuario)
+export const modificarMiPerfil = (token, { nombre, apellido, mail }) => pedir(token, '/usuarios/me', { metodo: 'PUT', cuerpo: { nombre, apellido, mail } }).then(aUsuario)
 
 // Hay que mandar la contraseña actual: así nadie con la sesión abierta puede cambiarla
-export const cambiarMiContrasenia = (contraseniaActual, contraseniaNueva) =>
-  pedir('/usuarios/me/contrasenia', { metodo: 'PUT', cuerpo: { contraseniaActual, contraseniaNueva } })
+export const cambiarMiContrasenia = (token, contraseniaActual, contraseniaNueva) =>
+  pedir(token, '/usuarios/me/contrasenia', { metodo: 'PUT', cuerpo: { contraseniaActual, contraseniaNueva } })
 
 // ---------- Olvidé mi contraseña ----------
 
 // Pide un código de un solo uso para ese mail (vence a los 5 minutos). Devuelve el mensaje del backend,
 // que es siempre el mismo exista o no el mail. No se manda un correo de verdad: el código sale
 // impreso en la consola del servidor.
-export const pedirCodigo = (mail) => pedir('/auth/olvide-contrasenia', { metodo: 'POST', cuerpo: { mail } }).then((respuesta) => respuesta.mensaje)
+export const pedirCodigo = (mail) => pedir(null, '/auth/olvide-contrasenia', { metodo: 'POST', cuerpo: { mail } }).then((respuesta) => respuesta.mensaje)
 
 export const restablecerContrasenia = (mail, codigo, contraseniaNueva) =>
-  pedir('/auth/restablecer-contrasenia', { metodo: 'POST', cuerpo: { mail, codigo, contraseniaNueva } })
+  pedir(null, '/auth/restablecer-contrasenia', { metodo: 'POST', cuerpo: { mail, codigo, contraseniaNueva } })
 
 // ---------- Administración (solo las puede usar un administrador) ----------
 
-export const traerUsuarios = () => pedirPagina('/usuarios').then((usuarios) => usuarios.map(aUsuario))
+export const traerUsuarios = (token) => pedirPagina(token, '/usuarios').then((usuarios) => usuarios.map(aUsuario))
 
 // Un rol con el nombre que se usa en las pantallas. permisos = los nombres de los permisos
 // que tiene (el backend no manda el campo si no tiene ninguno)
@@ -89,23 +81,23 @@ const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, de
 // usuario, ya en el formato de las pantallas): con eso se actualiza el estado sin volver a pedir la lista.
 
 // [{ id, nombre, permisos }]
-export const traerRoles = () => pedirLista('/roles').then((roles) => roles.map(aRol))
+export const traerRoles = (token) => pedirLista(token, '/roles').then((roles) => roles.map(aRol))
 
-export const crearRol = (nombreRol) => pedir('/roles', { metodo: 'POST', cuerpo: { nombreRol } }).then(aRol)
+export const crearRol = (token, nombreRol) => pedir(token, '/roles', { metodo: 'POST', cuerpo: { nombreRol } }).then(aRol)
 
 // [{ id, nombre, descripcion }]
-export const traerPermisos = () => pedirLista('/permisos').then((permisos) => permisos.map(aPermiso))
+export const traerPermisos = (token) => pedirLista(token, '/permisos').then((permisos) => permisos.map(aPermiso))
 
-export const crearPermiso = (nombrePermiso, descripcion) => pedir('/permisos', { metodo: 'POST', cuerpo: { nombrePermiso, descripcion } }).then(aPermiso)
+export const crearPermiso = (token, nombrePermiso, descripcion) => pedir(token, '/permisos', { metodo: 'POST', cuerpo: { nombrePermiso, descripcion } }).then(aPermiso)
 
 // Reemplaza todos los permisos del rol por los de la lista (ids)
-export const asignarPermisos = (idRol, idPermisos) => pedir(`/roles/${idRol}/permisos`, { metodo: 'POST', cuerpo: { idPermisos } }).then(aRol)
+export const asignarPermisos = (token, idRol, idPermisos) => pedir(token, `/roles/${idRol}/permisos`, { metodo: 'POST', cuerpo: { idPermisos } }).then(aRol)
 
-export const cambiarRol = (idUsuario, idRol) => pedir(`/usuarios/${idUsuario}/rol`, { metodo: 'PUT', cuerpo: { idRol } }).then(aUsuario)
+export const cambiarRol = (token, idUsuario, idRol) => pedir(token, `/usuarios/${idUsuario}/rol`, { metodo: 'PUT', cuerpo: { idRol } }).then(aUsuario)
 
 // No borra al usuario: lo deja inactivo
-export const darDeBaja = (idUsuario) => pedir(`/usuarios/${idUsuario}`, { metodo: 'DELETE' }).then(aUsuario)
+export const darDeBaja = (token, idUsuario) => pedir(token, `/usuarios/${idUsuario}`, { metodo: 'DELETE' }).then(aUsuario)
 
-export const reactivar = (idUsuario) => pedir(`/usuarios/${idUsuario}/reactivar`, { metodo: 'PUT' }).then(aUsuario)
+export const reactivar = (token, idUsuario) => pedir(token, `/usuarios/${idUsuario}/reactivar`, { metodo: 'PUT' }).then(aUsuario)
 
-export const aprobarRefugio = (idRefugio) => pedir(`/refugios/${idRefugio}/aprobar`, { metodo: 'PUT' })
+export const aprobarRefugio = (token, idRefugio) => pedir(token, `/refugios/${idRefugio}/aprobar`, { metodo: 'PUT' })

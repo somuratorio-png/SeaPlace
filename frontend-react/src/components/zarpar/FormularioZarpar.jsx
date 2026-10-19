@@ -4,6 +4,7 @@ import Portada from '../comunes/Portada'
 import FormularioTarjeta from './FormularioTarjeta'
 import ResumenPedido from './ResumenPedido'
 import { zarpar } from '../../services/apadrinar'
+import { useSesion } from '../../hooks/useSesion'
 import { totalMuelle } from '../../utils/precios'
 import { limpiarCampoTarjeta, validarTarjeta } from '../../utils/tarjeta'
 import { useMuelle } from '../../hooks/useMuelle'
@@ -17,6 +18,7 @@ const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 // Los campos de la tarjeta no dejan escribir de más: solo números y hasta el largo justo.
 // Antes de confirmar se revisa que el número esté completo, que la tarjeta no esté vencida y el código.
 const FormularioZarpar = () => {
+  const { token } = useSesion()
   const navigate = useNavigate()
   const { state } = useLocation()
   const { idMuelle, items: muelle, vaciar } = useMuelle()
@@ -44,7 +46,7 @@ const FormularioZarpar = () => {
     // El backend vuelve a validar los cupos, convierte cada ítem en un apadrinamiento y cierra el muelle.
     // Si sale bien, se pasa a la página de gracias y este formulario desaparece
     setEnviando(true)
-    zarpar(idMuelle, conBotiquin)
+    zarpar(token, idMuelle, conBotiquin)
       .then((totalPagado) => {
         const apadrinados = muelle.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan }))
         setZarpado(true)

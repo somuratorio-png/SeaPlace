@@ -17,7 +17,7 @@ const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u
 // Los roles que existen los pide esta sección al backend cuando se abre.
 const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { datos: roles, cargando, error: errorAlCargar } = useConsulta(traerRoles, undefined, [])
-  const { usuario } = useSesion()
+  const { usuario, token } = useSesion()
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
   // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.
@@ -26,7 +26,7 @@ const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     const idRol = roles.find((r) => r.nombre === rol).id
     onError(null)
-    cambiarRol(elegido.id, idRol)
+    cambiarRol(token, elegido.id, idRol)
       .then(onGuardarUsuario)
       .catch((falla) => {
         onError(falla.message)

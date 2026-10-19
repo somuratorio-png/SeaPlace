@@ -2,6 +2,7 @@ import { useState } from 'react'
 import TarjetaFormularioCuenta from './TarjetaFormularioCuenta'
 import CampoTexto from '../comunes/CampoTexto'
 import { cambiarMiContrasenia } from '../../services/usuarios'
+import { useSesion } from '../../hooks/useSesion'
 import { intentar } from '../../utils/intentar'
 import { validarContrasenia } from '../../utils/validaciones'
 import { useFormulario } from '../../hooks/useFormulario'
@@ -11,6 +12,7 @@ const sinContrasenias = { actual: '', nueva: '', repetida: '' }
 // "Cambiar contraseña": pide la actual y la nueva dos veces. Le pide el cambio al backend y muestra
 // acá mismo su mensaje de error.
 const FormularioContrasenia = () => {
+  const { token } = useSesion()
   const { datos: contrasenias, cambiar: cambiarCampo, reiniciar } = useFormulario(sinContrasenias)
   const [error, setError] = useState(null)
   const [cambiada, setCambiada] = useState(false)
@@ -35,7 +37,7 @@ const FormularioContrasenia = () => {
       setError('Las dos contraseñas nuevas no coinciden')
       return
     }
-    intentar(cambiarMiContrasenia(contrasenias.actual, contrasenias.nueva)).then((mensaje) => {
+    intentar(cambiarMiContrasenia(token, contrasenias.actual, contrasenias.nueva)).then((mensaje) => {
       setError(mensaje)
       setCambiada(mensaje === null)
       if (mensaje === null) {
