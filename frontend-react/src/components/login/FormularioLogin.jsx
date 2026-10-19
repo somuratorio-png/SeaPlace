@@ -50,6 +50,13 @@ const FormularioLogin = () => {
   // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página
   const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    const faltan = esRegistro
+      ? !datos.apellido.trim() || !datos.mail.trim() || !datos.nombreUsuario.trim() || !datos.contrasenia.trim() || (!esRefugio && !datos.nombre.trim())
+      : !datos.nombreUsuario.trim() || !datos.contrasenia.trim()
+    if (faltan) {
+      setError('Completá todos los campos')
+      return
+    }
     setEnviando(true)
     const pedido = esRegistro ? registrar() : ingresar()
     pedido.then((mensaje) => {

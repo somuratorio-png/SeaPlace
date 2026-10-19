@@ -6,9 +6,15 @@ import TarjetaFormularioAdmin from './TarjetaFormularioAdmin'
 // con un mensaje de error, o null si salió bien (entonces el campo se vacía).
 const FormularioRol = ({ onCrear }) => {
   const [nombre, setNombre] = useState('')
+  const [error, setError] = useState(null)
 
   const crear = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!nombre.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
+    setError(null)
     onCrear(nombre.trim()).then((mensaje) => {
       if (mensaje === null) {
         setNombre('')
@@ -17,7 +23,7 @@ const FormularioRol = ({ onCrear }) => {
   }
 
   return (
-    <TarjetaFormularioAdmin titulo="Nuevo rol" textoBoton="Crear rol" onEnviar={crear}>
+    <TarjetaFormularioAdmin titulo="Nuevo rol" textoBoton="Crear rol" error={error} onEnviar={crear}>
       <CampoTexto etiqueta="Nombre del rol" nombre="nombreRol" valor={nombre} onCambiar={(evento) => setNombre(evento.target.value)} />
     </TarjetaFormularioAdmin>
   )

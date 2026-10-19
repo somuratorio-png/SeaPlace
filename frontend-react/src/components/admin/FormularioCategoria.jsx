@@ -13,6 +13,10 @@ const FormularioCategoria = ({ onCrear }) => {
 
   const crear = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!datos.nombre.trim() || !datos.descripcion.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
     onCrear(datos.nombre.trim(), datos.descripcion.trim()).then((mensaje) => {
       setError(mensaje)
       if (mensaje === null) {

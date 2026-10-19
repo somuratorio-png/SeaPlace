@@ -36,6 +36,22 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
 
   const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (
+      !datos.nombre.trim() ||
+      !datos.especie.trim() ||
+      !datos.edad.trim() ||
+      !datos.ubicacion.trim() ||
+      !datos.descripcion.trim() ||
+      !datos.precio.trim() ||
+      !datos.cuposTotales.trim()
+    ) {
+      setError('Completá todos los campos')
+      return
+    }
+    if (!categorias.length) {
+      setError('No hay categorías disponibles')
+      return
+    }
     setEnviando(true)
     // Si no tocó el selector de categoría, se manda la primera (la que se ve elegida)
     const limpios = {

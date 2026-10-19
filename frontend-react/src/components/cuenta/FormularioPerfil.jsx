@@ -21,6 +21,10 @@ const FormularioPerfil = () => {
 
   const handleGuardar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!perfil.nombre.trim() || !perfil.apellido.trim() || !perfil.mail.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
     intentar(modificarMiPerfil({ nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }).then(guardarPerfil)).then((mensaje) => {
       setError(mensaje)
       setGuardado(mensaje === null)

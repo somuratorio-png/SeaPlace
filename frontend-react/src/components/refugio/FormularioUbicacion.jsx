@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import MensajeError from '../comunes/MensajeError'
 
 const claseCampo = 'w-full bg-surface-container-lowest rounded-lg px-space-md py-2 font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/40'
 
@@ -8,10 +9,16 @@ const FormularioUbicacion = ({ animal, onRegistrar }) => {
   const [latitud, setLatitud] = useState('')
   const [longitud, setLongitud] = useState('')
   const [registrada, setRegistrada] = useState(false)
+  const [error, setError] = useState(null)
 
   // onRegistrar la manda al backend y devuelve un mensaje de error, o null si salió bien
   const registrar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!latitud.trim() || !longitud.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
+    setError(null)
     onRegistrar(animal.id, Number(latitud), Number(longitud)).then((mensaje) => {
       if (mensaje === null) {
         setLatitud('')
@@ -34,6 +41,7 @@ const FormularioUbicacion = ({ animal, onRegistrar }) => {
           <input type="number" id={`longitud-${animal.id}`} name="longitud" step="any" min="-180" max="180" required placeholder="-71.99" value={longitud} onChange={(evento) => setLongitud(evento.target.value)} className={claseCampo} />
         </label>
       </div>
+      {error && <MensajeError mensaje={error} />}
       <div className="flex flex-wrap items-center gap-space-md">
         <button type="submit" className="bg-secondary text-on-secondary font-label-lg text-label-lg px-space-md py-space-sm rounded-full">
           Registrar

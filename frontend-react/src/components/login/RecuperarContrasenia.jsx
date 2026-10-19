@@ -20,6 +20,10 @@ const RecuperarContrasenia = ({ onVolver }) => {
 
   const pedir = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!datos.mail.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
     pedirCodigo(datos.mail)
       .then((mensaje) => {
         setAviso(mensaje)
@@ -33,6 +37,10 @@ const RecuperarContrasenia = ({ onVolver }) => {
 
   const restablecer = (evento) => {
     evento.preventDefault()
+    if (!datos.codigo.trim() || !datos.contrasenia.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
     const errorClave = validarContrasenia(datos.contrasenia)
     if (errorClave !== null) {
       setError(errorClave)

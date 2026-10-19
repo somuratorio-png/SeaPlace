@@ -22,6 +22,10 @@ const FormularioContrasenia = () => {
 
   const guardar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!contrasenias.actual.trim() || !contrasenias.nueva.trim() || !contrasenias.repetida.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
     const errorClave = validarContrasenia(contrasenias.nueva, 'La contraseña nueva')
     if (errorClave !== null) {
       setError(errorClave)
