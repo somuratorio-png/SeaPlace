@@ -61,7 +61,7 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       !datos.precioMarea.trim() ||
       !datos.cuposTotales.trim()
     ) {
-      setError('Completá todos los campos')
+      setError('Faltan algunos datos: revisá los campos vacíos.')
       return
     }
     if (!categorias.length) {
@@ -94,24 +94,29 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
 
   return (
     <form onSubmit={enviar} className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-md">
-      <h2 className="font-title-lg text-title-lg text-on-surface">Publicar un animal</h2>
+      <div className="space-y-1">
+        <h2 className="font-title-lg text-title-lg text-on-surface">Sumá un nuevo rescatado</h2>
+        <p className="font-body-sm text-body-sm text-on-surface-variant">
+          Contanos quién es, cómo llegó y qué necesita. Con su historia y algunas fotos es más fácil que encuentre padrinos.
+        </p>
+      </div>
 
       <CamposAnimal datos={datos} categorias={categorias} onCambiar={cambiar} />
       <PreciosPlanes datos={datos} onCambiar={cambiar} />
 
-      <CampoTextarea etiqueta="Su historia" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
-      <CampoArchivo key={claveFotos} etiqueta="Fotos (opcional, podés elegir varias)" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
+      <CampoTextarea etiqueta="Su historia (cómo llegó, qué le pasó, cómo está hoy)" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
+      <CampoArchivo key={claveFotos} etiqueta="Fotos: la primera es la que se ve en el catálogo (opcional)" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
       {fotos.length > 0 && <VistaPreviaFotos fotos={fotos} onQuitar={quitarFoto} />}
 
       {error && <MensajeError mensaje={error} />}
       {publicado && (
         <p className="bg-secondary-container text-on-secondary-container rounded-xl px-space-md py-space-sm font-body-sm text-body-sm">
-          ¡Listo! La publicación quedó esperando la aprobación de SeaPlace. Cuando la aprueben va a aparecer en el catálogo.
+          ¡Gracias! Ya nos llegó. Lo revisamos y, apenas lo aprobemos, te avisamos en Notificaciones y aparece en el catálogo.
         </p>
       )}
 
       <button type="submit" disabled={enviando} className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-lg hover:bg-tertiary-container disabled:opacity-60">
-        {enviando ? 'Publicando…' : 'Publicar animal'}
+        {enviando ? 'Enviando…' : 'Enviar a revisión'}
       </button>
     </form>
   )

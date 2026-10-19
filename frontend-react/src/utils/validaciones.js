@@ -16,7 +16,7 @@ export const validarAnimalNuevo = (datos) => {
   }
   // Misma regla que el backend: cada plan incluye lo del anterior, así que tiene que costar más
   if (brisa >= guardian || guardian >= marea) {
-    return 'Cada plan tiene que costar más que el anterior'
+    return 'Los planes van de menor a mayor: Brisa Marina < Guardián de la Bahía < Marea Profunda.'
   }
   // Misma regla que el backend: los cupos tienen que ser un número entero mayor a 0
   const cupos = Number(datos.cuposTotales)

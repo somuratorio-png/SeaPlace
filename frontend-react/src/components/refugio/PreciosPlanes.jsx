@@ -16,8 +16,10 @@ const PreciosPlanes = ({ datos, onCambiar }) => {
 
   return (
     <fieldset className="space-y-space-sm">
-      <legend className="font-label-lg text-label-lg text-on-surface">Cuota mensual de cada plan (en US$)</legend>
-      <p className="font-body-sm text-body-sm text-on-surface-variant">Cada plan incluye lo del anterior, así que tiene que costar más. La del medio es la que se ve en el catálogo.</p>
+      <legend className="font-label-lg text-label-lg text-on-surface">¿Cuánto cuesta acompañarlo cada mes?</legend>
+      <p className="font-body-sm text-body-sm text-on-surface-variant">
+        Cada plan suma beneficios al anterior, así que va de menor a mayor. El de Guardián de la Bahía es el que se muestra en el catálogo. Montos en US$.
+      </p>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-space-md">
         {planes.map((plan) => (
           <div key={plan.codigo} className="space-y-1">

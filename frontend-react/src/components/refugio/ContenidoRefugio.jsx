@@ -16,7 +16,7 @@ const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, o
   const secciones = [
     { id: 'animales', nombre: 'Mis animales', icono: 'pets' },
     { id: 'padrinos', nombre: 'Padrinos', icono: 'group' },
-    { id: 'publicar', nombre: 'Publicar un animal', icono: 'add_circle' },
+    { id: 'publicar', nombre: 'Sumar un rescatado', icono: 'add_circle' },
     { id: 'notificaciones', nombre: 'Notificaciones', icono: 'notifications', aviso: avisos.sinLeer },
   ]
 
