@@ -7,7 +7,7 @@ import AvisoError from '../comunes/AvisoError'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import Portada from '../comunes/Portada'
-import { filtroDePrecio, traerAnimales, traerCategorias } from '../../services/animales'
+import { traerAnimales, traerCategorias } from '../../services/animales'
 import { aDolares } from '../../contexto/Moneda'
 import { comparadores } from '../../utils/ordenAnimales'
 import { textoDelAnimal } from '../../utils/texto'
@@ -28,10 +28,10 @@ const CatalogoAnimales = () => {
   const [precioMin, setPrecioMin] = useState('')
   const [precioMax, setPrecioMax] = useState('')
   const errorPrecio = validarRangoPrecio(precioMin, precioMax)
-  const filtroPrecio = errorPrecio
-    ? ''
-    : filtroDePrecio(precioMin === '' ? '' : aDolares(Number(precioMin), moneda), precioMax === '' ? '' : aDolares(Number(precioMax), moneda))
-  const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, filtroPrecio, [])
+  // El rango se escribe en la moneda elegida y los precios llegan en dólares. Si el rango está mal escrito, no se filtra por precio.
+  const minimo = errorPrecio || precioMin === '' ? null : aDolares(Number(precioMin), moneda)
+  const maximo = errorPrecio || precioMax === '' ? null : aDolares(Number(precioMax), moneda)
+  const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
   const { datos: categorias, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
   const error = errorAnimales ?? errorCategorias
   const [categoria, setCategoria] = useState('todas')
@@ -44,6 +44,7 @@ const CatalogoAnimales = () => {
   const filtrados = animales
     .filter((animal) => categoria === 'todas' || animal.categoria === categoria)
     .filter((animal) => urgencia === 'todas' || animal.urgencia === urgencia)
+    .filter((animal) => (minimo === null || animal.precio >= minimo) && (maximo === null || animal.precio <= maximo))
     .filter((animal) => !soloFavoritos || favoritos.some((guardado) => guardado.id === animal.id))
   const ordenados = orden === 'recomendados' ? filtrados : [...filtrados].sort(comparadores[orden])
 

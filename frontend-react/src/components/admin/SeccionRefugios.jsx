@@ -1,4 +1,4 @@
-import { quitarAnimal, traerPublicaciones } from '../../services/animales'
+import { quitarAnimal } from '../../services/animales'
 import { aprobarRefugio } from '../../services/usuarios'
 import { useSesion } from '../../hooks/useSesion'
 import { sacarDe } from '../../utils/listas'
@@ -7,7 +7,6 @@ import EstadoCarga from '../comunes/EstadoCarga'
 import Buscador from '../comunes/Buscador'
 import Paginacion from '../comunes/Paginacion'
 import EncabezadoLista from './EncabezadoLista'
-import { useConsulta } from '../../hooks/useConsulta'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TarjetaRefugio from './TarjetaRefugio'
 import AvisoRefugiosPendientes from './AvisoRefugiosPendientes'
@@ -17,11 +16,10 @@ const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 
 // Sección "Refugios" del administrador: los busca, los muestra de a una página y permite
 // aprobarlos, darlos de baja y ver sus animales.
-// "usuarios" los tiene el panel. Las publicaciones (activas y pausadas) las pide esta sección al backend
-// cuando se abre. Cada acción llama al backend y, con lo que contesta, actualiza el estado.
-const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
+// "usuarios" los tiene el panel; las publicaciones (activas, pausadas y pendientes), SeccionesAdmin.
+// Cada acción llama al backend y, con lo que contesta, actualiza el estado.
+const SeccionRefugios = ({ usuarios, animales, setAnimales, cargando, error, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { token } = useSesion()
-  const { datos: animales, setDatos: setAnimales, cargando, error: errorAlCargar } = useConsulta(traerPublicaciones, undefined, [])
 
   // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
   const cambiarActivo = (nombreUsuario) => {
@@ -61,8 +59,8 @@ const SeccionRefugios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
   const refugios = [...pendientes, ...usuarios.filter((u) => u.rol === 'refugio' && u.aprobado)]
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(refugios, textoDelRefugio, REFUGIOS_POR_PAGINA)
 
-  if (cargando || errorAlCargar) {
-    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando los refugios…" />
+  if (cargando || error) {
+    return <EstadoCarga cargando={cargando} error={error} texto="Cargando los refugios…" />
   }
 
   return (

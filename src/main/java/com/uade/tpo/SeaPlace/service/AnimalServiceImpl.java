@@ -1,6 +1,7 @@
 package com.uade.tpo.SeaPlace.service;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -63,30 +64,39 @@ public class AnimalServiceImpl implements AnimalService {
     @Override
     public Page<Animal> getAnimales(String estado, Long idCategoria, Long idRefugio, Double precioMin, Double precioMax,
                                     String nombre, PageRequest pageRequest) {
+        // "estado" puede traer varios separados por coma (ej. ACTIVA,PAUSADA,PENDIENTE), para que un panel
+        // de gestion traiga todas sus publicaciones en un solo pedido.
         // Sin estado explicito, el catalogo muestra solo las publicaciones ACTIVAS.
-        String estadoFiltro = (estado == null || estado.isBlank())
-                ? ESTADO_PUBLICACION_ACTIVA
-                : estado.trim().toUpperCase();
+        List<String> estadosFiltro = (estado == null || estado.isBlank())
+                ? List.of(ESTADO_PUBLICACION_ACTIVA)
+                : Arrays.stream(estado.split(","))
+                        .map(e -> e.trim().toUpperCase())
+                        .filter(e -> !e.isEmpty())
+                        .distinct()
+                        .toList();
 
-        if (!ESTADO_PUBLICACION_ACTIVA.equals(estadoFiltro)
-                && !ESTADO_PUBLICACION_PAUSADA.equals(estadoFiltro)
-                && !ESTADO_PUBLICACION_PENDIENTE.equals(estadoFiltro)
-                && !ESTADO_PUBLICACION_ELIMINADA.equals(estadoFiltro)) {
-            throw new ReglaDeNegocioException("Estado invalido: ACTIVA, PAUSADA, PENDIENTE o ELIMINADA");
+        for (String estadoFiltro : estadosFiltro) {
+            if (!ESTADO_PUBLICACION_ACTIVA.equals(estadoFiltro)
+                    && !ESTADO_PUBLICACION_PAUSADA.equals(estadoFiltro)
+                    && !ESTADO_PUBLICACION_PENDIENTE.equals(estadoFiltro)
+                    && !ESTADO_PUBLICACION_ELIMINADA.equals(estadoFiltro)) {
+                throw new ReglaDeNegocioException("Estado invalido: ACTIVA, PAUSADA, PENDIENTE o ELIMINADA");
+            }
         }
 
         // Solo las ACTIVAS son publicas. Las demas las ve un admin (todas) o el dueño de un
         // refugio (solo sus PAUSADAS y PENDIENTES); para el resto es un 403.
+        // Si un refugio pide alguna no ACTIVA, el listado entero se limita a su refugio.
         Long idRefugioFiltro = idRefugio;
-        if (!ESTADO_PUBLICACION_ACTIVA.equals(estadoFiltro)) {
+        boolean pideNoActivas = estadosFiltro.stream().anyMatch(e -> !ESTADO_PUBLICACION_ACTIVA.equals(e));
+        if (pideNoActivas) {
             Usuario actual = autorizacionService.usuarioActualONull();
             boolean esAdmin = actual != null && autorizacionService.esAdmin();
             boolean duenoConPropias = actual != null && actual.getRefugio() != null
-                    && (ESTADO_PUBLICACION_PAUSADA.equals(estadoFiltro)
-                            || ESTADO_PUBLICACION_PENDIENTE.equals(estadoFiltro));
+                    && !estadosFiltro.contains(ESTADO_PUBLICACION_ELIMINADA);
 
             if (!esAdmin && !duenoConPropias) {
-                throw new AccessDeniedException("No tenes permiso para ver publicaciones " + estadoFiltro);
+                throw new AccessDeniedException("No tenes permiso para ver publicaciones " + String.join(", ", estadosFiltro));
             }
             if (!esAdmin) {
                 idRefugioFiltro = actual.getRefugio().getIdRefugio();
@@ -102,7 +112,7 @@ public class AnimalServiceImpl implements AnimalService {
 
         String nombreFiltro = (nombre == null) ? "" : nombre.trim();
 
-        return animalRepository.buscar(estadoFiltro, idCategoria, idRefugioFiltro,
+        return animalRepository.buscar(estadosFiltro, idCategoria, idRefugioFiltro,
                 precioMin, precioMax, nombreFiltro, pageRequest);
     }
 

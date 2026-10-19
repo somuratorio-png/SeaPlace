@@ -21,14 +21,14 @@ public interface AnimalRepository extends JpaRepository<Animal, Long> {
 
     @Query("""
         SELECT a FROM Animal a
-        WHERE a.estado = :estado
+        WHERE a.estado IN :estados
           AND (:idCategoria IS NULL OR a.categoria.idCategoria = :idCategoria)
           AND (:idRefugio IS NULL OR a.refugio.idRefugio = :idRefugio)
           AND (:precioMin IS NULL OR a.cuotaApadrinamiento >= :precioMin)
           AND (:precioMax IS NULL OR a.cuotaApadrinamiento <= :precioMax)
           AND LOWER(a.nombreAnimal) LIKE LOWER(CONCAT('%', :nombre, '%'))
         """)   
-    Page<Animal> buscar(@Param("estado") String estado,
+    Page<Animal> buscar(@Param("estados") List<String> estados,
                         @Param("idCategoria") Long idCategoria,
                         @Param("idRefugio") Long idRefugio,
                         @Param("precioMin") Double precioMin,

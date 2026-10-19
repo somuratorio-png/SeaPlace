@@ -1,10 +1,9 @@
-import { cambiarRol, traerRoles } from '../../services/usuarios'
+import { cambiarRol } from '../../services/usuarios'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import Buscador from '../comunes/Buscador'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import EncabezadoLista from './EncabezadoLista'
-import { useConsulta } from '../../hooks/useConsulta'
 import { useSesion } from '../../hooks/useSesion'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TablaUsuarios from './TablaUsuarios'
@@ -14,9 +13,8 @@ const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u
 
 // Sección "Usuarios" del administrador: tabla paginada para cambiarles el rol o darlos de baja.
 // "usuarios" los tiene el panel y el administrador logueado se lee con useSesion.
-// Los roles que existen los pide esta sección al backend cuando se abre.
-const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
-  const { datos: roles, cargando, error: errorAlCargar } = useConsulta(traerRoles, undefined, [])
+// Los roles que existen los pide SeccionesAdmin.
+const SeccionUsuarios = ({ usuarios, roles, cargando, error, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { usuario, token } = useSesion()
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
@@ -33,8 +31,8 @@ const SeccionUsuarios = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError 
       })
   }
 
-  if (cargando || errorAlCargar) {
-    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando los usuarios…" />
+  if (cargando || error) {
+    return <EstadoCarga cargando={cargando} error={error} texto="Cargando los usuarios…" />
   }
 
   return (

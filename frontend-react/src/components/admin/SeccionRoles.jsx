@@ -8,18 +8,14 @@ import TituloSeccion from '../comunes/TituloSeccion'
 import FormularioPermiso from './FormularioPermiso'
 import FormularioRol from './FormularioRol'
 import TarjetaRol from './TarjetaRol'
-import { useConsulta } from '../../hooks/useConsulta'
 
 // Sección "Roles y permisos" del administrador: qué permisos tiene cada rol, y los formularios
 // para crear un rol o un permiso nuevo. Un permiso es lo que el backend exige para ciertas rutas
 // (por ejemplo GESTIONAR_USUARIOS); un rol es un conjunto de permisos.
-// Los roles y los permisos los pide esta sección al backend cuando se abre, un pedido por lista.
+// Los roles y los permisos los pide SeccionesAdmin.
 // Cada acción llama al backend y, con lo que contesta, actualiza la lista. Si falla, onError muestra el mensaje.
-const SeccionRoles = ({ onError }) => {
+const SeccionRoles = ({ roles, setRoles, permisos, setPermisos, cargando, error, onError }) => {
   const { token } = useSesion()
-  const { datos: roles, setDatos: setRoles, cargando, error: errorRoles } = useConsulta(usuariosApi.traerRoles, undefined, [])
-  const { datos: permisos, setDatos: setPermisos, error: errorPermisos } = useConsulta(usuariosApi.traerPermisos, undefined, [])
-  const errorAlCargar = errorRoles ?? errorPermisos
 
   // Pone en la lista el rol como lo devolvió el backend (uno nuevo, o uno con sus permisos cambiados)
   const guardarRol = (rol) => {
@@ -41,8 +37,8 @@ const SeccionRoles = ({ onError }) => {
       onError,
     )
 
-  if (cargando || errorAlCargar) {
-    return <EstadoCarga cargando={cargando} error={errorAlCargar} texto="Cargando los roles…" />
+  if (cargando || error) {
+    return <EstadoCarga cargando={cargando} error={error} texto="Cargando los roles…" />
   }
 
   return (
