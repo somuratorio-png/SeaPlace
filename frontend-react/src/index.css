@@ -224,7 +224,7 @@
   }
 }
 main > * {
-  animation: aparecer 0.6s ease both;
+  animation: aparecer 0.6s ease backwards;
 }
 
 /* ---------- Animaciones ---------- */
@@ -599,6 +599,13 @@ main > * {
 }
 .transicion-zarpar {
   animation: desvanecer-zarpar 0.7s ease 3.3s both;
+}
+
+/* Con "reducir movimiento" activado en el sistema, la escena del barco no se muestra */
+@media (prefers-reduced-motion: reduce) {
+  .transicion-zarpar {
+    display: none;
+  }
 }
 
 /* ---------- Navegación e impresión ---------- */

@@ -5,7 +5,7 @@ import { pedir, pedirLista, pedirPagina, URL_BASE } from './api'
 
 // Una foto subida como archivo tiene una url de la API (empieza con /animales/): hay que pedirla
 // a través del proxy. Las demás son urls completas o imágenes que sirve el propio front.
-const urlDeFoto = (url) => (url.startsWith('/animales/') ? URL_BASE + url : url)
+const urlDeFoto = (url) => (url.startsWith('/animales/') ? `${URL_BASE}${url}` : url)
 
 // Pasa un animal del backend (AnimalResponse) al formato que usan los componentes.
 // precio: la cuota del plan Guardián de la Bahía (la del catálogo). preciosPorPlan: { BRISA_MARINA: 10, ... }, sin descuentos.

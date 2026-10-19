@@ -8,6 +8,7 @@ import MensajeError from '../comunes/MensajeError'
 import * as usuariosApi from '../../services/usuarios'
 import { intentar } from '../../utils/intentar'
 import { validarContrasenia } from '../../utils/validaciones'
+import { usePlanes } from '../../hooks/usePlanes'
 import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
 import BotonFormulario from '../comunes/BotonFormulario'
@@ -21,6 +22,7 @@ const claseDosColumnas = 'max-w-6xl mx-auto px-margin-mobile lg:px-margin py-spa
 // (de useSesion) con el usuario que entró, y la sesión trae sus datos y muestra otra página.
 const FormularioLogin = () => {
   const { entrar } = useSesion()
+  const planes = usePlanes() // hacen falta para armar el muelle que llega con la sesión
   const [esRegistro, setEsRegistro] = useState(false)
   const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
   const { datos, cambiar } = useFormulario(formularioVacio)
@@ -34,7 +36,7 @@ const FormularioLogin = () => {
   }
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
-  const ingresar = () => intentar(usuariosApi.ingresar(datos.nombreUsuario.trim(), datos.contrasenia).then(entrar))
+  const ingresar = () => intentar(usuariosApi.ingresar(planes, datos.nombreUsuario.trim(), datos.contrasenia).then(entrar))
 
   // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
   const registrar = () => {
@@ -44,7 +46,7 @@ const FormularioLogin = () => {
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
     const limpios = { ...datos, nombre: datos.nombre.trim(), apellido: datos.apellido.trim(), mail: datos.mail.trim(), nombreUsuario: datos.nombreUsuario.trim() }
-    return intentar(usuariosApi.registrar(limpios, esRefugio).then(entrar))
+    return intentar(usuariosApi.registrar(planes, limpios, esRefugio).then(entrar))
   }
 
   // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página

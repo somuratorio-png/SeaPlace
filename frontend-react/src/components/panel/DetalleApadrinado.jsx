@@ -11,6 +11,7 @@ import ResumenApadrinado from './ResumenApadrinado'
 import { cambiarPlan, cancelarApadrinamiento } from '../../services/apadrinar'
 import { ponerEn } from '../../utils/listas'
 import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
+import { usePlanes } from '../../hooks/usePlanes'
 
 // Detalle de un animal que el usuario ya apadrinó.
 // Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
@@ -22,12 +23,13 @@ const DetalleApadrinado = () => {
   const { id } = useParams()
 
   const { item, setApadrinamientos, cargando, error } = useApadrinamientoDe(id)
+  const planes = usePlanes() // para armar el apadrinamiento que devuelve el backend después de cada acción
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
     setErrorAccion(null)
-    cambiarPlan(idApadrinamiento, planNuevo.codigo)
+    cambiarPlan(planes, idApadrinamiento, planNuevo.codigo)
       .then((cambiado) => {
         setApadrinamientos((actuales) => ponerEn(actuales, cambiado))
       })
@@ -40,7 +42,7 @@ const DetalleApadrinado = () => {
   // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
   const cancelar = (idApadrinamiento) => {
     setErrorAccion(null)
-    cancelarApadrinamiento(idApadrinamiento)
+    cancelarApadrinamiento(planes, idApadrinamiento)
       .then(() => {
         navigate('/panel')
       })

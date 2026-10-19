@@ -57,7 +57,7 @@ const ProveedorSesion = ({ children }) => {
     setUsuario(sesion.usuario)
 
     if (state !== null && state.pendiente && puedeApadrinar(sesion.usuario)) {
-      ponerEnElMuelle(sesion.muelle, state.pendiente.idAnimal, state.pendiente.codigoPlan)
+      ponerEnElMuelle(planes, sesion.muelle, state.pendiente.idAnimal, state.pendiente.codigoPlan)
         .then((muelleNuevo) => {
           setMuelle(muelleNuevo)
           navigate('/muelle')

@@ -22,7 +22,7 @@ const SeccionResumen = ({ usuarios }) => {
     .filter((refugio) => refugio.aprobado)
     .map((refugio) => {
       const suyos = apadrinamientos.filter((a) => a.activo && a.animal.idRefugio === refugio.idRefugio)
-      return { nombre: `${refugio.nombre} ${refugio.apellido}`, valor: recaudacionMensual(suyos), padrinos: suyos.length }
+      return { id: refugio.id, nombre: `${refugio.nombre} ${refugio.apellido}`, valor: recaudacionMensual(suyos), padrinos: suyos.length }
     })
 
   if (cargando || errorAlCargar) {

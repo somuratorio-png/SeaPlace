@@ -1,4 +1,4 @@
-import { guardarPlanes } from './apadrinar'
+import { aPlanes } from './apadrinar'
 import { pedir } from './api'
 import { aSesion } from './usuarios'
 
@@ -8,6 +8,6 @@ import { aSesion } from './usuarios'
 export const traerInicio = () =>
   pedir('/inicio').then((datos) => {
     // Los planes se guardan primero: hacen falta para armar los ítems del muelle
-    const planes = guardarPlanes(datos.planes)
-    return { planes, sesion: datos.sesion ? aSesion(datos.sesion) : null }
+    const planes = aPlanes(datos.planes)
+    return { planes, sesion: datos.sesion ? aSesion(planes, datos.sesion) : null }
   })

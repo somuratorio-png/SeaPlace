@@ -51,7 +51,7 @@ const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, o
         {seccion === 'padrinos' && <SeccionPadrinos apadrinamientos={apadrinamientos} />}
         {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={publicar} />}
         {seccion === 'notificaciones' && (
-          <SeccionNotificaciones notificaciones={avisos.notificaciones} cargando={avisos.cargando} error={avisos.error} onMarcarLeidas={avisos.marcarLeidas} />
+          <SeccionNotificaciones notificaciones={avisos.notificaciones} cargando={avisos.cargando} error={avisos.error} errorAlMarcar={avisos.errorAlMarcar} onMarcarLeidas={avisos.marcarLeidas} />
         )}
       </div>
     </div>

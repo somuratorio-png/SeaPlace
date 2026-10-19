@@ -2,16 +2,18 @@ import { useContext } from 'react'
 import { ContextoSesion } from '../contexto/Sesion'
 import { cambiarItem, ponerEnElMuelle, quitarDelMuelle } from '../services/apadrinar'
 import { conItem, SIN_MUELLE } from '../utils/muelle'
+import { usePlanes } from './usePlanes'
 
 export const useMuelle = () => {
   const { muelle, setMuelle } = useContext(ContextoSesion)
+  const planes = usePlanes()
 
-  const agregar = (idAnimal, codigoPlan) => ponerEnElMuelle(muelle, idAnimal, codigoPlan).then(setMuelle)
+  const agregar = (idAnimal, codigoPlan) => ponerEnElMuelle(planes, muelle, idAnimal, codigoPlan).then(setMuelle)
 
   // La cantidad va de 1 hasta los cupos que le quedan al animal (igual que valida el backend)
   const cambiarCantidad = (item, cantidad) => {
     const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
-    return cambiarItem(muelle.id, item.animal.id, acotada).then((cambiado) => {
+    return cambiarItem(planes, muelle.id, item.animal.id, acotada).then((cambiado) => {
       setMuelle((actual) => conItem(actual, cambiado))
     })
   }

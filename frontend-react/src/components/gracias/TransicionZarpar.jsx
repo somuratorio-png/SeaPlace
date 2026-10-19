@@ -73,9 +73,9 @@ const pecesNadando = [
 
 // Se muestra encima de la página de gracias apenas se zarpa: un velero cruza el mar al atardecer, unos peces
 // saltan y nadan alrededor, pasan unas gaviotas y la escena se desvanece dejando ver los certificados. Tocándola se saltea.
-// Si el usuario pidió menos movimiento, no aparece.
+// Si el usuario pidió menos movimiento en su sistema, el CSS la oculta (ver .transicion-zarpar en index.css).
 const TransicionZarpar = () => {
-  const [visible, setVisible] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
+  const [visible, setVisible] = useState(true)
 
   useEffect(() => {
     if (!visible) {

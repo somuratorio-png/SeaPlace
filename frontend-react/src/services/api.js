@@ -32,7 +32,7 @@ const armarContenido = (cuerpo, archivo) => {
   if (cuerpo) {
     return JSON.stringify(cuerpo)
   }
-  return undefined
+  return null
 }
 
 // Convierte el texto de la respuesta de JSON a datos. Sin texto (204) devuelve null, y también
@@ -73,7 +73,7 @@ export const pedir = (ruta, { metodo = 'GET', cuerpo, archivo } = {}) => {
     encabezados['Content-Type'] = 'application/json'
   }
 
-  return fetch(URL_BASE + ruta, { method: metodo, headers: encabezados, body: armarContenido(cuerpo, archivo) })
+  return fetch(`${URL_BASE}${ruta}`, { method: metodo, headers: encabezados, body: armarContenido(cuerpo, archivo) })
     .catch(() => {
       // Solo falla acá si no se pudo llegar al servidor (el proxy apagado, sin red)
       throw new Error('No se pudo conectar con el servidor')

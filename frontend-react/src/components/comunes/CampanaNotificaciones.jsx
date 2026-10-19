@@ -1,47 +1,37 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { formatearFecha } from '../../utils/fechas'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 import Icono from './Icono'
 
 // Campanita del header con el número de notificaciones sin leer. Al tocarla se despliegan
-// y se marcan como leídas (las que eran nuevas se siguen resaltando). Se cierra con Escape o tocando afuera.
+// y se marcan como leídas (las que eran nuevas se siguen resaltando).
+// Se cierra al tocar afuera (cuando el foco sale de la campanita y su panel) o con Escape.
 const CampanaNotificaciones = () => {
-  const { notificaciones, sinLeer, cargando, error, marcarLeidas } = useNotificaciones()
+  const { notificaciones, sinLeer, cargando, error, errorAlMarcar, marcarLeidas } = useNotificaciones()
   const [abierta, setAbierta] = useState(false)
-  const caja = useRef(null)
 
-  // Mientras está abierta: si llegan nuevas, también quedan leídas
+  // Al abrirla se marcan como leídas
   useEffect(() => {
     if (abierta) {
       marcarLeidas()
     }
   }, [abierta, marcarLeidas])
 
-  // Cerrar al tocar afuera o con Escape
-  useEffect(() => {
-    if (!abierta) {
-      return
+  // Si el foco pasa a algo que no es parte de la campanita (se tocó afuera), se cierra
+  const alPerderFoco = (evento) => {
+    if (!evento.currentTarget.contains(evento.relatedTarget)) {
+      setAbierta(false)
     }
-    const alTocar = (evento) => {
-      if (caja.current && !caja.current.contains(evento.target)) {
-        setAbierta(false)
-      }
+  }
+
+  const alTeclear = (evento) => {
+    if (evento.key === 'Escape') {
+      setAbierta(false)
     }
-    const alTeclear = (evento) => {
-      if (evento.key === 'Escape') {
-        setAbierta(false)
-      }
-    }
-    document.addEventListener('mousedown', alTocar)
-    document.addEventListener('keydown', alTeclear)
-    return () => {
-      document.removeEventListener('mousedown', alTocar)
-      document.removeEventListener('keydown', alTeclear)
-    }
-  }, [abierta])
+  }
 
   return (
-    <div ref={caja} className="relative">
+    <div className="relative" onBlur={alPerderFoco} onKeyDown={alTeclear}>
       <button
         onClick={() => setAbierta(!abierta)}
         aria-expanded={abierta}
@@ -57,9 +47,11 @@ const CampanaNotificaciones = () => {
         )}
       </button>
 
+      {/* tabIndex={-1}: tocar adentro del panel le pasa el foco a él, así no cuenta como tocar afuera */}
       {abierta && (
-        <div className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] bg-surface-container-lowest rounded-2xl shadow-lg ring-1 ring-primary-fixed overflow-hidden">
+        <div tabIndex={-1} className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] bg-surface-container-lowest rounded-2xl shadow-lg ring-1 ring-primary-fixed overflow-hidden outline-none">
           <p className="px-space-md py-space-sm font-label-lg text-label-lg text-on-surface border-b border-primary-fixed">Notificaciones</p>
+          {errorAlMarcar && <p className="px-space-md pt-space-sm font-body-sm text-body-sm text-error">{errorAlMarcar}</p>}
           <div className="max-h-96 overflow-y-auto">
             {cargando && <p className="px-space-md py-space-md font-body-sm text-body-sm text-on-surface-variant">Cargando…</p>}
             {!cargando && error && <p className="px-space-md py-space-md font-body-sm text-body-sm text-error">{error}</p>}

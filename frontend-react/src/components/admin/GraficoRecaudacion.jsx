@@ -1,7 +1,8 @@
+import MensajeVacio from '../comunes/MensajeVacio'
 import BarraRecaudacion from './BarraRecaudacion'
 
 // Gráfico de barras horizontales: cuánto recauda por mes cada refugio, de mayor a menor.
-// datos = [{ nombre, valor (en dólares), padrinos }]
+// datos = [{ id, nombre, valor (en dólares), padrinos }]. Sin refugios aprobados se muestra un aviso.
 const GraficoRecaudacion = ({ datos }) => {
   const ordenados = [...datos].sort((a, b) => b.valor - a.valor)
   // La barra más larga ocupa todo el ancho; las demás se miden contra ella
@@ -14,8 +15,9 @@ const GraficoRecaudacion = ({ datos }) => {
         <p className="font-body-sm text-body-sm text-on-surface-variant">Suma de los apadrinamientos activos de cada uno.</p>
       </div>
 
+      {ordenados.length === 0 && <MensajeVacio>Todavía no hay refugios aprobados para mostrar.</MensajeVacio>}
       {ordenados.map((dato) => (
-        <BarraRecaudacion key={dato.nombre} dato={dato} maximo={maximo} />
+        <BarraRecaudacion key={dato.id} dato={dato} maximo={maximo} />
       ))}
     </div>
   )

@@ -2,13 +2,14 @@ import { useEffect } from 'react'
 import { formatearFecha } from '../../utils/fechas'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Icono from '../comunes/Icono'
+import MensajeError from '../comunes/MensajeError'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TituloSeccion from '../comunes/TituloSeccion'
 
 // Sección "Notificaciones" del refugio: los avisos de SeaPlace (por ejemplo, si un administrador aprobó
 // o rechazó una publicación). Al abrirla se marcan como leídas, pero las que eran nuevas (nueva: true,
 // ver useNotificaciones) se siguen resaltando.
-const SeccionNotificaciones = ({ notificaciones, cargando, error, onMarcarLeidas }) => {
+const SeccionNotificaciones = ({ notificaciones, cargando, error, errorAlMarcar, onMarcarLeidas }) => {
   // Apenas terminan de llegar del backend
   useEffect(() => {
     if (!cargando) {
@@ -23,6 +24,7 @@ const SeccionNotificaciones = ({ notificaciones, cargando, error, onMarcarLeidas
   return (
     <section className="space-y-space-md">
       <TituloSeccion>Notificaciones</TituloSeccion>
+      {errorAlMarcar && <MensajeError mensaje={errorAlMarcar} />}
 
       {notificaciones.length === 0 && (
         <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Todavía no tenés notificaciones. Acá te vamos a avisar cuando revisemos tus publicaciones.</MensajeVacio>

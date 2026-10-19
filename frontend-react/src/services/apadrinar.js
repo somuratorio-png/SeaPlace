@@ -7,28 +7,25 @@ import { conItem } from '../utils/muelle'
 // El muelle y los favoritos llegan con la sesión (ver aSesion en usuarios.js); los apadrinamientos
 // los pide la pantalla que los muestra.
 
-// Los planes llegan una sola vez, con el pedido inicial (ver inicio.js), y quedan guardados acá: hacen
-// falta para armar el plan completo (con su nombre y su precio para ese animal) de cada ítem del
-// muelle y de cada apadrinamiento.
-let planes = []
+// Los planes llegan una sola vez, con el pedido inicial (ver inicio.js), y los comparte ContextoPlanes.
+// Hacen falta para armar el plan completo (con su nombre y su precio para ese animal) de cada ítem del
+// muelle y de cada apadrinamiento: por eso las funciones de abajo los reciben como primer parámetro.
 
-// Recibe los planes como los manda el backend, los guarda y los devuelve en el formato de las pantallas.
+// Pasa los planes del backend al formato de las pantallas.
 // Los 3 niveles de apadrinamiento: [{ codigo, nombre, multiplicador, texto, ubicacionEnVivo }]
-export const guardarPlanes = (lista) => {
-  planes = lista.map((plan) => ({
+export const aPlanes = (lista) =>
+  lista.map((plan) => ({
     codigo: plan.codigo,
     nombre: plan.nombre,
     multiplicador: plan.multiplicador,
     texto: plan.descripcion,
     ubicacionEnVivo: plan.ubicacionEnVivo,
   }))
-  return planes
-}
 
 // ---------- Muelle ----------
 
 // Un ítem del muelle: { idMuelle, animal, plan, cantidad }. cantidad = cupos que se toman de ese animal.
-export const aItem = (detalle) => {
+export const aItem = (planes, detalle) => {
   const animal = aAnimal(detalle.animal)
   return { idMuelle: detalle.idMuelle, animal, plan: planDe(animal, planes, detalle.plan), cantidad: detalle.cantidad }
 }
@@ -37,22 +34,22 @@ export const aItem = (detalle) => {
 
 // Con idMuelle en null (después de zarpar el muelle pagado queda cerrado) el backend abre uno nuevo:
 // el ítem que devuelve trae su id.
-export const agregarAlMuelle = (idMuelle, idAnimal, codigoPlan) =>
-  pedir('/muelles/items', { metodo: 'POST', cuerpo: { idMuelle, idAnimal, cantidad: 1, plan: codigoPlan } }).then(aItem)
+export const agregarAlMuelle = (planes, idMuelle, idAnimal, codigoPlan) =>
+  pedir('/muelles/items', { metodo: 'POST', cuerpo: { idMuelle, idAnimal, cantidad: 1, plan: codigoPlan } }).then((detalle) => aItem(planes, detalle))
 
 // Cambia los cupos que se toman de un animal que ya está en el muelle (y, si se indica, su plan)
-export const cambiarItem = (idMuelle, idAnimal, cantidad, codigoPlan) =>
-  pedir(`/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'PUT', cuerpo: { cantidad, plan: codigoPlan } }).then(aItem)
+export const cambiarItem = (planes, idMuelle, idAnimal, cantidad, codigoPlan) =>
+  pedir(`/muelles/${idMuelle}/items/${idAnimal}`, { metodo: 'PUT', cuerpo: { cantidad, plan: codigoPlan } }).then((detalle) => aItem(planes, detalle))
 
 // Pone el animal en ese muelle y devuelve una promesa con el muelle como queda.
 // Si el animal ya estaba, solo se le cambia el plan (conserva los cupos elegidos).
 // Al zarpar, el muelle que se pagó queda cerrado (id en null): el backend abre el siguiente al
 // agregarle el primer animal, y el ítem que devuelve trae el id del muelle.
-export const ponerEnElMuelle = (muelleActual, idAnimal, codigoPlan) => {
+export const ponerEnElMuelle = (planes, muelleActual, idAnimal, codigoPlan) => {
   const yaEstaba = muelleActual.items.find((item) => item.animal.id === idAnimal)
   const pedido = yaEstaba
-    ? cambiarItem(muelleActual.id, idAnimal, yaEstaba.cantidad, codigoPlan)
-    : agregarAlMuelle(muelleActual.id, idAnimal, codigoPlan)
+    ? cambiarItem(planes, muelleActual.id, idAnimal, yaEstaba.cantidad, codigoPlan)
+    : agregarAlMuelle(planes, muelleActual.id, idAnimal, codigoPlan)
   return pedido.then((item) => conItem({ ...muelleActual, id: item.idMuelle }, item))
 }
 
@@ -67,7 +64,7 @@ export const zarpar = (idMuelle, conBotiquin) => pedir('/zarpar', { metodo: 'POS
 // usuario = nombre de usuario del padrino. desde y las fechas de los pagos son texto 'AAAA-MM-DD'.
 // novedades = la bitácora del animal, de la más nueva a la más vieja. ultimaUbicacion = la última
 // posición que informó el refugio, o null si nunca informó una.
-const aApadrinamiento = (dato) => {
+const aApadrinamiento = (planes, dato) => {
   const animal = aAnimal(dato.animal)
   return {
     id: dato.idApadrinamiento,
@@ -86,15 +83,16 @@ const aApadrinamiento = (dato) => {
 
 // Los que le corresponden a quien está logueado: un padrino recibe los suyos, un refugio
 // los de sus animales y un administrador todos.
-export const traerApadrinamientos = () => pedirLista('/apadrinamientos').then((datos) => datos.map(aApadrinamiento))
+export const traerApadrinamientos = (planes) => pedirLista('/apadrinamientos').then((datos) => datos.map((dato) => aApadrinamiento(planes, dato)))
 
 // Las dos que siguen devuelven el apadrinamiento como quedó
 
-export const cambiarPlan = (idApadrinamiento, codigoPlan) =>
-  pedir(`/apadrinamientos/${idApadrinamiento}/plan`, { metodo: 'PUT', cuerpo: { plan: codigoPlan } }).then(aApadrinamiento)
+export const cambiarPlan = (planes, idApadrinamiento, codigoPlan) =>
+  pedir(`/apadrinamientos/${idApadrinamiento}/plan`, { metodo: 'PUT', cuerpo: { plan: codigoPlan } }).then((dato) => aApadrinamiento(planes, dato))
 
 // No lo borra: queda inactivo y sus cupos vuelven a estar disponibles (su animal ya viene con los cupos nuevos)
-export const cancelarApadrinamiento = (idApadrinamiento) => pedir(`/apadrinamientos/${idApadrinamiento}`, { metodo: 'DELETE' }).then(aApadrinamiento)
+export const cancelarApadrinamiento = (planes, idApadrinamiento) =>
+  pedir(`/apadrinamientos/${idApadrinamiento}`, { metodo: 'DELETE' }).then((dato) => aApadrinamiento(planes, dato))
 
 // ---------- Favoritos ----------
 

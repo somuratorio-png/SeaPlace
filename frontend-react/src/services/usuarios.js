@@ -25,30 +25,31 @@ const aUsuario = (dato) => ({
 // (los animales que guardó) y su muelle. Es lo que hace falta en cualquier pantalla; el resto lo pide cada una.
 // Llega con el pedido inicial (si había un token guardado) y en la respuesta del login y del registro.
 // Lo que está vacío o no le corresponde a ese usuario no viene, y acá queda como [] (o sin muelle).
-export const aSesion = (dato) => ({
+// "planes" hacen falta para armar los ítems del muelle (ver aItem).
+export const aSesion = (planes, dato) => ({
   usuario: aUsuario(dato.usuario),
   favoritos: (dato.favoritos ?? []).map((favorito) => aAnimal(favorito.animal)),
-  muelle: { id: dato.idMuelle ?? null, items: (dato.itemsMuelle ?? []).map(aItem) },
+  muelle: { id: dato.idMuelle ?? null, items: (dato.itemsMuelle ?? []).map((detalle) => aItem(planes, detalle)) },
 })
 
 // Los dos devuelven la sesión de quien queda logueado. El token se guarda para los pedidos siguientes.
 
 // La respuesta del login ya trae la sesión: no hace falta pedir nada más
-const entrarCon = (respuesta) => {
+const entrarCon = (planes, respuesta) => {
   guardarToken(respuesta.access_token)
-  return aSesion(respuesta.sesion)
+  return aSesion(planes, respuesta.sesion)
 }
 
-export const ingresar = (nombreUsuario, contrasenia) =>
-  pedir('/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } }).then(entrarCon)
+export const ingresar = (planes, nombreUsuario, contrasenia) =>
+  pedir('/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } }).then((respuesta) => entrarCon(planes, respuesta))
 
 // datos = { nombre, apellido, mail, nombreUsuario, contrasenia }. Un refugio se registra por otra ruta,
 // que además crea el refugio: no tiene nombre y apellido, así que se manda "Refugio" + su nombre.
-export const registrar = (datos, esRefugio) => {
+export const registrar = (planes, datos, esRefugio) => {
   const pedido = esRefugio
     ? pedir('/auth/register-refugio', { metodo: 'POST', cuerpo: { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido } })
     : pedir('/auth/register', { metodo: 'POST', cuerpo: datos })
-  return pedido.then(entrarCon)
+  return pedido.then((respuesta) => entrarCon(planes, respuesta))
 }
 
 export const salir = () => {

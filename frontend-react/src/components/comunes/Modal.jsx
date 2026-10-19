@@ -1,39 +1,38 @@
-import { useEffect, useRef } from 'react'
-
-// "children" es opcional: lo que haga falta completar antes de confirmar (por ejemplo, un campo de texto)
+// Cartel de confirmación sobre toda la pantalla. Se cierra con "Cancelar", con Escape o tocando el fondo.
+// "children" es opcional: lo que haga falta completar antes de confirmar (por ejemplo, un campo de texto).
+// Se dibuja con React (un fondo fijo y la caja encima), sin tocar el DOM a mano. autoFocus pone el foco
+// en "Cancelar" al abrirlo, así Escape funciona enseguida y Enter no confirma algo peligroso sin querer.
 const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', onConfirmar, onCancelar, peligro = false, children }) => {
-  const caja = useRef(null)
-
-  useEffect(() => {
-    caja.current.showModal()
-  }, [])
-
-  const alClicDeFondo = (evento) => {
-    if (evento.target === caja.current) {
+  const alTeclear = (evento) => {
+    if (evento.key === 'Escape') {
       onCancelar()
     }
   }
 
-  const alEscape = (evento) => {
-    evento.preventDefault()
-    onCancelar()
+  // Solo cuenta si se tocó el fondo, no la caja
+  const alClicDeFondo = (evento) => {
+    if (evento.target === evento.currentTarget) {
+      onCancelar()
+    }
   }
 
   return (
-    <dialog
-      ref={caja}
+    <div
+      role="dialog"
+      aria-modal="true"
       aria-label={titulo}
       onClick={alClicDeFondo}
-      onCancel={alEscape}
-      className="m-auto w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-md p-space-lg text-left font-normal normal-case tracking-normal backdrop:bg-black/40"
+      onKeyDown={alTeclear}
+      className="fixed inset-0 z-[90] flex items-center justify-center bg-black/40 px-space-md text-left font-normal normal-case tracking-normal"
     >
-      <div className="space-y-space-md">
+      <div className="w-full max-w-md bg-surface-container-lowest rounded-2xl shadow-md p-space-lg space-y-space-md">
         <h3 className="font-title-lg text-title-lg text-on-surface">{titulo}</h3>
         <p className="font-body-md text-body-md text-on-surface-variant">{mensaje}</p>
         {children}
         <div className="flex flex-wrap justify-end gap-space-sm">
           <button
             type="button"
+            autoFocus
             onClick={onCancelar}
             className="font-label-lg text-label-lg px-space-md py-space-sm rounded-full bg-surface-container-lowest text-on-surface-variant ring-1 ring-primary-fixed"
           >
@@ -48,7 +47,7 @@ const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', on
           </button>
         </div>
       </div>
-    </dialog>
+    </div>
   )
 }
 
