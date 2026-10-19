@@ -16,16 +16,44 @@ const TiraOlas = ({ clase, color }) => {
   )
 }
 
-// El velero, de costado y mirando a la derecha
+// El velero, de costado y mirando a la derecha. La línea de flotación queda a la altura de la franja del casco:
+// de ahí para abajo lo tapan las olas de adelante, así el barco va metido en el agua.
 const Velero = () => {
   return (
-    <svg viewBox="0 0 120 100" aria-hidden="true" className="w-full h-full">
-      <path fill="#f4a95c" d="M61 6 L76 11 L61 16 Z" />
-      <rect x="58" y="6" width="3" height="64" rx="1.5" fill="#3b2a4a" />
-      <path fill="#fff6ea" d="M62 14 L62 66 L102 66 Z" />
-      <path fill="#fff6ea" opacity="0.85" d="M57 22 L57 66 L26 66 Z" />
-      <path fill="#3b2a4a" d="M14 70 L106 70 L92 90 L28 90 Z" />
-      <rect x="22" y="72" width="76" height="3" fill="#a8506b" />
+    <svg viewBox="0 0 120 100" aria-hidden="true" className="w-full h-full overflow-visible">
+      {/* Banderín en la punta del mástil */}
+      <path fill="#e0714a" d="M60 4 Q 68 5 75 9 Q 68 10 60 12 Z" />
+      <rect x="58" y="4" width="2.6" height="66" rx="1.3" fill="#3b2a4a" />
+
+      {/* Vela mayor (atrás del mástil) y foque (adelante), curvas como si las inflara el viento */}
+      <path fill="#fff6ea" d="M62 12 Q 86 36 101 64 L62 64 Z" />
+      <path fill="#f1dcc6" d="M62 12 Q 70 36 72 64 L62 64 Z" />
+      <path fill="#fff6ea" opacity="0.92" d="M56 20 Q 38 42 25 64 L56 64 Z" />
+
+      {/* Casco: curvo, con una franja y dos ojos de buey */}
+      <path fill="#3b2a4a" d="M8 67 Q 60 73 114 65 L100 86 Q 60 93 23 86 Z" />
+      <path fill="#a8506b" d="M10 70 Q 60 76 112 68 L110 72 Q 60 80 12 74 Z" />
+      <circle cx="44" cy="80" r="2.4" fill="#f4a95c" />
+      <circle cx="58" cy="81" r="2.4" fill="#f4a95c" />
+    </svg>
+  )
+}
+
+// La espuma que deja el barco atrás, sobre el agua
+const Estela = () => {
+  return (
+    <svg viewBox="0 0 80 20" aria-hidden="true" className="estela-zarpar absolute -left-14 bottom-[14%] w-20 h-5">
+      <path d="M78 10 Q 60 4 40 9 T 2 8" fill="none" stroke="#fff6ea" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
+      <path d="M74 15 Q 56 11 36 15 T 10 14" fill="none" stroke="#fff6ea" strokeWidth="2" strokeLinecap="round" opacity="0.5" />
+    </svg>
+  )
+}
+
+// Una gaviota de lejos: dos alas en forma de "v" curva
+const Gaviota = ({ clase }) => {
+  return (
+    <svg viewBox="0 0 24 10" aria-hidden="true" className={`planear absolute w-7 ${clase}`}>
+      <path d="M1 7 Q 6 1 12 7 Q 18 1 23 7" fill="none" stroke="#fff6ea" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
   )
 }
@@ -44,7 +72,7 @@ const pecesNadando = [
 ]
 
 // Se muestra encima de la página de gracias apenas se zarpa: un velero cruza el mar al atardecer, unos peces
-// saltan y nadan alrededor, y la escena se desvanece dejando ver los certificados. Tocándola se saltea.
+// saltan y nadan alrededor, pasan unas gaviotas y la escena se desvanece dejando ver los certificados. Tocándola se saltea.
 // Si el usuario pidió menos movimiento, no aparece.
 const TransicionZarpar = () => {
   const [visible, setVisible] = useState(() => !window.matchMedia('(prefers-reduced-motion: reduce)').matches)
@@ -70,6 +98,9 @@ const TransicionZarpar = () => {
     >
       <div className="resplandor absolute left-1/2 top-[38%] -translate-x-1/2 w-40 h-40 lg:w-56 lg:h-56 rounded-full bg-[#f4a95c]/70 blur-sm" />
 
+      <Gaviota clase="left-[18%] top-[30%]" />
+      <Gaviota clase="left-[72%] top-[24%] w-5" />
+
       <p className="absolute inset-x-0 top-[18%] text-center px-margin-mobile font-headline-sm text-headline-sm">Zarpando hacia tus certificados…</p>
 
       <div className="absolute inset-x-0 bottom-0 h-56">
@@ -82,13 +113,21 @@ const TransicionZarpar = () => {
           </div>
         ))}
 
-        <div className="barco-zarpar absolute bottom-16 left-0 w-28 h-24 lg:w-36 lg:h-32">
-          <div className="mecer-barco w-full h-full">
+        <div className="barco-zarpar absolute bottom-8 left-0 w-28 h-24 lg:w-36 lg:h-32">
+          <div className="mecer-barco relative w-full h-full">
+            <Estela />
             <Velero />
           </div>
         </div>
 
         <TiraOlas clase="h-24" color="#1d3f5e" />
+
+        {/* El reflejo del sol sobre el agua, que titila */}
+        <div className="resplandor absolute left-1/2 bottom-2 -translate-x-1/2 flex flex-col items-center gap-1.5" aria-hidden="true">
+          <span className="block h-1 w-28 rounded-full bg-[#f4a95c]/50" />
+          <span className="block h-1 w-20 rounded-full bg-[#f4a95c]/40" />
+          <span className="block h-1 w-12 rounded-full bg-[#f4a95c]/30" />
+        </div>
 
         {pecesNadando.map((pez) => (
           <div key={pez.abajo} className={`pez-nadando absolute left-0 ${pez.abajo}`} style={{ animationDuration: pez.duracion, animationDelay: pez.demora }}>

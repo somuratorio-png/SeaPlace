@@ -498,19 +498,36 @@ main > * {
   animation: navegar 4s ease-in-out both;
 }
 
-/* Mientras avanza, se hamaca sobre las olas */
+/* Mientras avanza, cabecea sobre las olas: se inclina apenas y sube y baja muy poco, sin salir del agua */
 @keyframes mecer-barco {
   0%,
   100% {
-    transform: translateY(0) rotate(-3deg);
+    transform: translateY(0) rotate(-2deg);
   }
   50% {
-    transform: translateY(-8px) rotate(3deg);
+    transform: translateY(3px) rotate(2deg);
   }
 }
 .mecer-barco {
-  transform-origin: bottom center;
-  animation: mecer-barco 1.6s ease-in-out infinite;
+  transform-origin: 50% 80%;
+  animation: mecer-barco 1.8s ease-in-out infinite;
+}
+
+/* La estela late un poco, como espuma que se arma y se deshace */
+@keyframes espumar {
+  0%,
+  100% {
+    opacity: 0.9;
+    transform: scaleX(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scaleX(0.85);
+  }
+}
+.estela-zarpar {
+  transform-origin: right center;
+  animation: espumar 1.2s ease-in-out infinite;
 }
 
 /* Las olas corren hacia atrás (media tira, que es donde se repite la curva) y así parece que el barco avanza */

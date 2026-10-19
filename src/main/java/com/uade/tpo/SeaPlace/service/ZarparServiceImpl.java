@@ -151,9 +151,9 @@ public class ZarparServiceImpl implements ZarparService {
             Animal animal = detalleMuelle.getAnimal();
             int cantidad = detalleMuelle.getCantidad();
 
-            // El precio de un cupo sale de la cuota (con el descuento vigente) y del plan elegido.
+            // El precio de un cupo es el del plan elegido, con el descuento vigente del animal.
             Plan plan = detalleMuelle.getPlan();
-            double precioFinal = plan.precioPara(calcularPrecioFinal(animal, hoy));
+            double precioFinal = calcularPrecioFinal(animal, plan, hoy);
             double subtotal = redondearADosDecimales(precioFinal * cantidad);
 
             animal.setCuposDisponibles(animal.getCuposDisponibles() - cantidad);
@@ -191,8 +191,8 @@ public class ZarparServiceImpl implements ZarparService {
         return zarpar;
     }
 
-    private double calcularPrecioFinal(Animal animal, LocalDate fecha) {
-        double cuota = animal.getCuotaApadrinamiento();
+    private double calcularPrecioFinal(Animal animal, Plan plan, LocalDate fecha) {
+        double cuota = animal.precioDelPlan(plan);
 
         List<Descuento> descuentosVigentes = descuentoRepository
                 .findVigentesByAnimal(animal.getIdAnimal(), fecha);

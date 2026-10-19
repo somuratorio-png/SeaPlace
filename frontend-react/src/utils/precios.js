@@ -9,17 +9,22 @@ const redondear = (valor) => Math.round(valor * 100) / 100
 // animal.descuento = { id, porcentaje: 20, hasta: '2026-12-31' }
 export const tieneDescuento = (animal) => Boolean(animal.descuento) && animal.descuento.hasta >= hoy()
 
-// La cuota mensual que se cobra de verdad: con el descuento aplicado si está en oferta
-export const precioFinal = (animal) => {
+// Un precio con el descuento del animal aplicado, si está en oferta
+const conDescuento = (animal, precio) => {
   if (!tieneDescuento(animal)) {
-    return animal.precio
+    return precio
   }
-  return redondear((animal.precio * (100 - animal.descuento.porcentaje)) / 100)
+  return redondear((precio * (100 - animal.descuento.porcentaje)) / 100)
 }
 
+// La cuota mensual que se cobra de verdad (la del catálogo): con el descuento aplicado si está en oferta
+export const precioFinal = (animal) => conDescuento(animal, animal.precio)
+
 // Los niveles de apadrinamiento de un animal. "planes" es la lista que manda el backend
-// (ver contexto/Planes.js); a cada uno se le agrega su precio, que sale de la cuota del animal.
-export const planesDe = (animal, planes) => planes.map((plan) => ({ ...plan, precio: redondear(precioFinal(animal) * plan.multiplicador) }))
+// (ver contexto/Planes.js); a cada uno se le agrega su precio para este animal, que eligió el refugio
+// (con el descuento, si está en oferta). Si el backend no lo mandó, sale de la cuota y el multiplicador del plan.
+export const planesDe = (animal, planes) =>
+  planes.map((plan) => ({ ...plan, precio: conDescuento(animal, animal.preciosPorPlan?.[plan.codigo] ?? redondear(animal.precio * plan.multiplicador)) }))
 
 // Un solo plan, buscado por su código (por ejemplo 'MAREA_PROFUNDA')
 export const planDe = (animal, planes, codigo) => planesDe(animal, planes).find((plan) => plan.codigo === codigo)

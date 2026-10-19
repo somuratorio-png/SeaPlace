@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Categoria;
+import com.uade.tpo.SeaPlace.entity.Plan;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
@@ -150,6 +151,9 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setNombreAnimal(nombreAnimal);
         animal.setDescripcion(request.getDescripcion());
         animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
+        animal.setPrecioBrisaMarina(precioOpcional(request.getPrecioBrisaMarina(), "Brisa Marina"));
+        animal.setPrecioMareaProfunda(precioOpcional(request.getPrecioMareaProfunda(), "Marea Profunda"));
+        validarOrdenDePrecios(animal);
         animal.setCuposTotales(request.getCuposTotales());
         animal.setCuposDisponibles(request.getCuposTotales());
         // Lo que publica un refugio espera la aprobacion de un administrador; lo que publica un admin sale directo.
@@ -164,6 +168,25 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setCondicion(textoOpcional(request.getCondicion(), "condicion"));
 
         return animalRepository.save(animal);
+    }
+
+    // El precio de un plan que puede no venir (entonces se usa el multiplicador del plan). Si viene, tiene que ser mayor a 0.
+    private Double precioOpcional(Double precio, String plan) {
+        if (precio != null && precio <= 0) {
+            throw new ReglaDeNegocioException("El precio del plan " + plan + " debe ser un monto mayor a 0");
+        }
+        return precio;
+    }
+
+    // Cada plan incluye lo del anterior, asi que tiene que costar mas: Brisa Marina < Guardian de la Bahia < Marea Profunda.
+    private void validarOrdenDePrecios(Animal animal) {
+        double brisa = animal.precioDelPlan(Plan.BRISA_MARINA);
+        double guardian = animal.precioDelPlan(Plan.GUARDIAN_DE_LA_BAHIA);
+        double marea = animal.precioDelPlan(Plan.MAREA_PROFUNDA);
+        if (brisa >= guardian || guardian >= marea) {
+            throw new ReglaDeNegocioException(
+                    "Cada plan tiene que costar mas que el anterior: Brisa Marina < Guardian de la Bahia < Marea Profunda");
+        }
     }
 
     // Recorta un texto opcional de la ficha. Vacio se guarda como null; corta si no entra en la columna.
@@ -233,6 +256,13 @@ public class AnimalServiceImpl implements AnimalService {
             }
             animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
         }
+        if (request.getPrecioBrisaMarina() != null) {
+            animal.setPrecioBrisaMarina(precioOpcional(request.getPrecioBrisaMarina(), "Brisa Marina"));
+        }
+        if (request.getPrecioMareaProfunda() != null) {
+            animal.setPrecioMareaProfunda(precioOpcional(request.getPrecioMareaProfunda(), "Marea Profunda"));
+        }
+        validarOrdenDePrecios(animal);
 
         if (request.getEstado() != null) {
             // Una pendiente no se activa ni se pausa desde aca: la aprueba un administrador (aprobarAnimal)

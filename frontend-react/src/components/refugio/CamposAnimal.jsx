@@ -2,7 +2,7 @@ import CampoSelect from '../comunes/CampoSelect'
 import CampoTexto from '../comunes/CampoTexto'
 import { urgencias } from '../../data/animales'
 
-// Los ocho campos cortos del formulario de un animal, en dos columnas. "categorias" son las del backend.
+// Los siete campos cortos del formulario de un animal, en dos columnas (los precios van aparte, en PreciosPlanes). "categorias" son las del backend.
 const CamposAnimal = ({ datos, categorias, onCambiar }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-space-md">
@@ -14,7 +14,6 @@ const CamposAnimal = ({ datos, categorias, onCambiar }) => {
 
       <CampoTexto etiqueta="Edad" nombre="edad" valor={datos.edad} onCambiar={onCambiar} />
       <CampoTexto etiqueta="Ubicación" nombre="ubicacion" valor={datos.ubicacion} onCambiar={onCambiar} />
-      <CampoTexto etiqueta="Cuota mensual (en US$)" nombre="precio" tipo="number" valor={datos.precio} onCambiar={onCambiar} />
       <CampoTexto etiqueta="Cupos (cuántos padrinos admite)" nombre="cuposTotales" tipo="number" valor={datos.cuposTotales} onCambiar={onCambiar} />
     </div>
   )

@@ -8,6 +8,7 @@ import { pedir, pedirLista, pedirPagina, URL_BASE } from './api'
 const urlDeFoto = (url) => (url.startsWith('/animales/') ? URL_BASE + url : url)
 
 // Pasa un animal del backend (AnimalResponse) al formato que usan los componentes.
+// precio: la cuota del plan Guardián de la Bahía (la del catálogo). preciosPorPlan: { BRISA_MARINA: 10, ... }, sin descuentos.
 // urgencia: 'critico' | 'recuperacion' | 'listo'. estado: el texto del cartelito de la tarjeta.
 // publicacion: 'ACTIVA' | 'PAUSADA' | 'PENDIENTE' (espera que un administrador la apruebe). progreso: porcentaje de cupos ya tomados.
 // descuento: { id, porcentaje, hasta } si hoy está en oferta, o null.
@@ -24,6 +25,7 @@ export const aAnimal = (dato) => {
     nombre: dato.nombreAnimal,
     descripcion: dato.descripcion ?? '',
     precio: dato.cuotaApadrinamiento,
+    preciosPorPlan: dato.preciosPorPlan ?? {},
     cuposTotales: dato.cuposTotales,
     cuposDisponibles: dato.cuposDisponibles,
     publicacion: dato.estado,
@@ -110,6 +112,8 @@ export const crearAnimal = (datos) =>
       condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
       descripcion: datos.descripcion,
       cuotaApadrinamiento: Number(datos.precio),
+      precioBrisaMarina: Number(datos.precioBrisa),
+      precioMareaProfunda: Number(datos.precioMarea),
       cuposTotales: Number(datos.cuposTotales),
     },
   }).then(aAnimal)

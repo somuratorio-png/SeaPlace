@@ -8,8 +8,15 @@ export const validarContrasenia = (contrasenia, sujeto = 'La contraseña') =>
 // Revisa lo básico de un animal nuevo antes de mandarlo al backend (que valida todo de nuevo).
 // Devuelve el mensaje de error, o null si está bien.
 export const validarAnimalNuevo = (datos) => {
-  if (Number(datos.precio) <= 0) {
-    return 'La cuota mensual tiene que ser mayor a 0'
+  const brisa = Number(datos.precioBrisa)
+  const guardian = Number(datos.precio)
+  const marea = Number(datos.precioMarea)
+  if (brisa <= 0 || guardian <= 0 || marea <= 0) {
+    return 'La cuota de cada plan tiene que ser mayor a 0'
+  }
+  // Misma regla que el backend: cada plan incluye lo del anterior, así que tiene que costar más
+  if (brisa >= guardian || guardian >= marea) {
+    return 'Cada plan tiene que costar más que el anterior'
   }
   // Misma regla que el backend: los cupos tienen que ser un número entero mayor a 0
   const cupos = Number(datos.cuposTotales)

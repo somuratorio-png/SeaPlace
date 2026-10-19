@@ -4,11 +4,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Descuento;
 import com.uade.tpo.SeaPlace.entity.FotoAnimal;
+import com.uade.tpo.SeaPlace.entity.Plan;
 
 import lombok.Data;
 
@@ -18,6 +21,8 @@ public class AnimalResponse {
     private String nombreAnimal;
     private String descripcion;
     private Double cuotaApadrinamiento;
+    // Lo que cuesta por mes cada plan, sin descuentos: { "BRISA_MARINA": 10.0, "GUARDIAN_DE_LA_BAHIA": 20.0, ... }
+    private Map<String, Double> preciosPorPlan;
     private Integer cuposTotales;
     private Integer cuposDisponibles;
     private String estado;
@@ -45,6 +50,7 @@ public class AnimalResponse {
         r.setNombreAnimal(animal.getNombreAnimal());
         r.setDescripcion(animal.getDescripcion());
         r.setCuotaApadrinamiento(animal.getCuotaApadrinamiento());
+        r.setPreciosPorPlan(preciosPorPlan(animal));
         r.setCuposTotales(animal.getCuposTotales());
         r.setCuposDisponibles(animal.getCuposDisponibles());
         r.setEstado(animal.getEstado());
@@ -67,6 +73,17 @@ public class AnimalResponse {
         r.setFotos(urlsDeFotos(animal));
         r.setDescuento(descuentoVigente(animal));
         return r;
+    }
+
+    private static Map<String, Double> preciosPorPlan(Animal animal) {
+        Map<String, Double> precios = new LinkedHashMap<>();
+        if (animal.getCuotaApadrinamiento() == null) {
+            return precios;
+        }
+        for (Plan plan : Plan.values()) {
+            precios.put(plan.name(), animal.precioDelPlan(plan));
+        }
+        return precios;
     }
 
     private static Integer calcularProgreso(Animal animal) {

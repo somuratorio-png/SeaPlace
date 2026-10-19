@@ -33,8 +33,18 @@ public class Animal {
     @Column(nullable = false)
     private String nombreAnimal;
 
+    // Lo que cuesta por mes el plan Guardian de la Bahia (el plan por defecto). Es la cuota que se
+    // muestra en el catalogo y la que usa el filtro por precio.
     @Column(nullable = false)
     private Double cuotaApadrinamiento;
+
+    // Lo que cuestan por mes los otros dos planes: los elige el refugio al publicar. Las publicaciones
+    // anteriores a estos campos no los tienen, y para ellas se usa el multiplicador del plan (ver precioDelPlan).
+    @Column
+    private Double precioBrisaMarina;
+
+    @Column
+    private Double precioMareaProfunda;
 
     @Column(nullable = false)
     private Integer cuposTotales;
@@ -88,4 +98,14 @@ public class Animal {
 
     @OneToMany(mappedBy = "animal")
     private List<ZarparDetalle> zarparDetalles;
+
+    // Lo que cuesta por mes un cupo con ese plan, sin descuentos.
+    public double precioDelPlan(Plan plan) {
+        Double elegido = switch (plan) {
+            case BRISA_MARINA -> precioBrisaMarina;
+            case GUARDIAN_DE_LA_BAHIA -> cuotaApadrinamiento;
+            case MAREA_PROFUNDA -> precioMareaProfunda;
+        };
+        return elegido != null ? elegido : plan.precioPara(cuotaApadrinamiento);
+    }
 }

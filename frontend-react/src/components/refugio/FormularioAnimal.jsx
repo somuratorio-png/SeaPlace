@@ -3,6 +3,7 @@ import CampoArchivo from '../comunes/CampoArchivo'
 import CampoTextarea from '../comunes/CampoTextarea'
 import MensajeError from '../comunes/MensajeError'
 import CamposAnimal from './CamposAnimal'
+import PreciosPlanes from './PreciosPlanes'
 import VistaPreviaFotos from './VistaPreviaFotos'
 import { useFormulario } from '../../hooks/useFormulario'
 
@@ -14,7 +15,9 @@ const formularioVacio = {
   urgencia: 'recuperacion',
   edad: '',
   ubicacion: '',
-  precio: '',
+  precioBrisa: '',
+  precio: '', // el del plan Guardián de la Bahía
+  precioMarea: '',
   cuposTotales: '',
   descripcion: '',
 }
@@ -53,7 +56,9 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       !datos.edad.trim() ||
       !datos.ubicacion.trim() ||
       !datos.descripcion.trim() ||
+      !datos.precioBrisa.trim() ||
       !datos.precio.trim() ||
+      !datos.precioMarea.trim() ||
       !datos.cuposTotales.trim()
     ) {
       setError('Completá todos los campos')
@@ -92,6 +97,7 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       <h2 className="font-title-lg text-title-lg text-on-surface">Publicar un animal</h2>
 
       <CamposAnimal datos={datos} categorias={categorias} onCambiar={cambiar} />
+      <PreciosPlanes datos={datos} onCambiar={cambiar} />
 
       <CampoTextarea etiqueta="Su historia" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
       <CampoArchivo key={claveFotos} etiqueta="Fotos (opcional, podés elegir varias)" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
