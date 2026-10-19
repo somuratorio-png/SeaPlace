@@ -14,3 +14,5 @@ export const formatearPrecio = (dolares, moneda) => {
   }
   return `$ ${(dolares * PESOS_POR_DOLAR).toLocaleString('es-AR')}`
 }
+
+export const aDolares = (valor, moneda) => (moneda === 'USD' ? valor : Math.round((valor / PESOS_POR_DOLAR) * 100) / 100)

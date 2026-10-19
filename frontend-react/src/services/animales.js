@@ -64,7 +64,12 @@ export const crearCategoria = (nombreCategoria, descripcion) =>
   pedir('/categorias', { metodo: 'POST', cuerpo: { nombreCategoria, descripcion } }).then(aCategoria)
 
 // El catálogo: las publicaciones activas, que son públicas
-export const traerAnimales = () => pedirPagina('/animales').then((animales) => animales.map(aAnimal))
+export const traerAnimales = (filtro = '') => pedirPagina(`/animales${filtro}`).then((animales) => animales.map(aAnimal))
+
+export const filtroDePrecio = (precioMin, precioMax) => {
+  const parametros = [precioMin === '' ? '' : `precioMin=${precioMin}`, precioMax === '' ? '' : `precioMax=${precioMax}`].filter((parametro) => parametro !== '')
+  return parametros.length > 0 ? `?${parametros.join('&')}` : ''
+}
 
 // Un animal por su id. Si no existe (o su publicación no está activa y no es de quien lo pide) el backend responde 404.
 export const traerAnimal = (idAnimal) => pedir(`/animales/${idAnimal}`).then(aAnimal)

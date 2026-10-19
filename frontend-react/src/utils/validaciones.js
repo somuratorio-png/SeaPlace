@@ -18,3 +18,13 @@ export const validarAnimalNuevo = (datos) => {
   }
   return null
 }
+
+export const validarRangoPrecio = (minimo, maximo) => {
+  if (Number(minimo) < 0 || Number(maximo) < 0) {
+    return 'Las cuotas no pueden ser negativas'
+  }
+  if (minimo !== '' && maximo !== '' && Number(minimo) > Number(maximo)) {
+    return 'La cuota mínima no puede ser mayor que la máxima'
+  }
+  return null
+}

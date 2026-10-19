@@ -7,10 +7,13 @@ import AvisoError from '../comunes/AvisoError'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import Portada from '../comunes/Portada'
-import { traerAnimales, traerCategorias } from '../../services/animales'
+import { filtroDePrecio, traerAnimales, traerCategorias } from '../../services/animales'
+import { aDolares } from '../../contexto/Moneda'
 import { comparadores } from '../../utils/ordenAnimales'
 import { textoDelAnimal } from '../../utils/texto'
+import { validarRangoPrecio } from '../../utils/validaciones'
 import { useFavoritos } from '../../hooks/useFavoritos'
+import { useMoneda } from '../../hooks/useMoneda'
 import { useConsulta } from '../../hooks/useConsulta'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 
@@ -21,7 +24,14 @@ const ANIMALES_POR_PAGINA = 6
 const CatalogoAnimales = () => {
   const navigate = useNavigate()
   const { favoritos } = useFavoritos()
-  const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
+  const { moneda } = useMoneda()
+  const [precioMin, setPrecioMin] = useState('')
+  const [precioMax, setPrecioMax] = useState('')
+  const errorPrecio = validarRangoPrecio(precioMin, precioMax)
+  const filtroPrecio = errorPrecio
+    ? ''
+    : filtroDePrecio(precioMin === '' ? '' : aDolares(Number(precioMin), moneda), precioMax === '' ? '' : aDolares(Number(precioMax), moneda))
+  const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, filtroPrecio, [])
   const { datos: categorias, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
   const error = errorAnimales ?? errorCategorias
   const [categoria, setCategoria] = useState('todas')
@@ -62,6 +72,12 @@ const CatalogoAnimales = () => {
           onOrden={alFiltrar(setOrden)}
           soloFavoritos={soloFavoritos}
           onSoloFavoritos={alFiltrar(setSoloFavoritos)}
+          precioMin={precioMin}
+          onPrecioMin={alFiltrar(setPrecioMin)}
+          precioMax={precioMax}
+          onPrecioMax={alFiltrar(setPrecioMax)}
+          errorPrecio={errorPrecio}
+          simboloMoneda={moneda === 'USD' ? 'US$' : '$'}
         />
         <ResultadosCatalogo
           animales={visibles}
