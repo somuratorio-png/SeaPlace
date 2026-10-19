@@ -1,14 +1,15 @@
 import { useState } from 'react'
 import { planesDe } from '../../utils/precios'
+import Modal from '../comunes/Modal'
 import Precio from '../comunes/Precio'
 import { usePlanes } from '../../hooks/usePlanes'
 
 // Permite pasar a otro plan o cancelar el apadrinamiento.
-// Cancelar pide una segunda confirmación para que no pase por un clic de más.
+// Cancelar pide una segunda confirmación (un modal) para que no pase por un clic de más.
 const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
   const planesBase = usePlanes()
   const planes = planesDe(item.animal, planesBase)
-  const [confirmando, setConfirmando] = useState(false)
+  const [isVisible, setIsVisible] = useState(false)
 
   const elegir = (evento) => {
     const plan = planes.find((p) => p.codigo === evento.target.value)
@@ -39,22 +40,23 @@ const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
         Tu próxima cuota: <Precio valor={item.plan.precio * item.cupos} />. El cambio rige desde el próximo pago.
       </p>
 
-      {confirmando ? (
-        <div className="bg-error-container text-on-error-container rounded-xl p-space-md space-y-space-sm">
-          <p className="font-body-sm text-body-sm">¿Seguro? {item.animal.nombre} va a dejar de recibir tu aporte mensual.</p>
-          <div className="flex flex-wrap gap-space-md">
-            <button onClick={() => onCancelar(item.id)} className="bg-error text-on-error font-label-lg text-label-lg px-space-md py-space-sm rounded-full">
-              Sí, cancelar
-            </button>
-            <button onClick={() => setConfirmando(false)} className="font-label-lg text-label-lg px-space-md py-space-sm rounded-full underline">
-              No, seguir apadrinando
-            </button>
-          </div>
-        </div>
-      ) : (
-        <button onClick={() => setConfirmando(true)} className="font-label-lg text-label-lg text-error hover:underline">
-          Cancelar apadrinamiento
-        </button>
+      <button onClick={() => setIsVisible(true)} className="font-label-lg text-label-lg text-error hover:underline">
+        Cancelar apadrinamiento
+      </button>
+
+      {isVisible && (
+        <Modal
+          titulo="¿Cancelar el apadrinamiento?"
+          mensaje={`${item.animal.nombre} va a dejar de recibir tu aporte mensual. Sus cupos vuelven a estar disponibles y el apadrinamiento queda en tu historial.`}
+          textoConfirmar="Sí, cancelar"
+          textoCancelar="No, seguir apadrinando"
+          peligro={true}
+          onConfirmar={() => {
+            onCancelar(item.id)
+            setIsVisible(false)
+          }}
+          onCancelar={() => setIsVisible(false)}
+        />
       )}
     </div>
   )

@@ -1,6 +1,8 @@
+import { useState } from 'react'
 import { precioFinal, tieneDescuento } from '../../utils/precios'
 import BarraProgreso from './BarraProgreso'
 import Icono from './Icono'
+import Modal from './Modal'
 import Precio from './Precio'
 import { useNavigate } from 'react-router-dom'
 
@@ -8,6 +10,7 @@ import { useNavigate } from 'react-router-dom'
 // Un animal del refugio, con el botón para quitarlo del catálogo
 const FilaAnimal = ({ animal, onQuitar }) => {
   const navigate = useNavigate()
+  const [isVisible, setIsVisible] = useState(false)
 
   return (
     <div className="revelar bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex flex-wrap items-center gap-space-md transition hover:shadow-md">
@@ -37,12 +40,26 @@ const FilaAnimal = ({ animal, onQuitar }) => {
           <Icono nombre="visibility" clase="text-[18px]" /> Ver ficha
         </button>
         <button
-          onClick={() => onQuitar(animal.id)}
+          onClick={() => setIsVisible(true)}
           className="inline-flex items-center gap-1 bg-error-container text-on-error-container font-label-lg text-label-lg px-space-md py-space-sm rounded-full"
         >
           <Icono nombre="delete" clase="text-[18px]" /> Quitar
         </button>
       </div>
+
+      {isVisible && (
+        <Modal
+          titulo={`¿Quitar a ${animal.nombre} del catálogo?`}
+          mensaje="Su publicación se elimina y deja de verse en el catálogo. Esta acción no se puede deshacer."
+          textoConfirmar="Quitar"
+          peligro={true}
+          onConfirmar={() => {
+            onQuitar(animal.id)
+            setIsVisible(false)
+          }}
+          onCancelar={() => setIsVisible(false)}
+        />
+      )}
     </div>
   )
 }

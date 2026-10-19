@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import MensajeError from '../comunes/MensajeError'
+import Modal from '../comunes/Modal'
 import { formatearFecha, hoy } from '../../utils/fechas'
 import { tieneDescuento } from '../../utils/precios'
 
@@ -8,9 +10,16 @@ const claseCampo = 'w-full bg-surface-container-lowest rounded-lg px-space-md py
 const FormularioOferta = ({ animal, onEditar }) => {
   const [porcentaje, setPorcentaje] = useState('20')
   const [hasta, setHasta] = useState('')
+  const [error, setError] = useState(null)
+  const [isVisible, setIsVisible] = useState(false)
 
   const guardar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
+    if (!porcentaje.trim() || !hasta.trim()) {
+      setError('Completá todos los campos')
+      return
+    }
+    setError(null)
     onEditar(animal.id, { descuento: { porcentaje: Number(porcentaje), hasta } })
   }
 
@@ -21,9 +30,23 @@ const FormularioOferta = ({ animal, onEditar }) => {
         <p className="font-body-sm text-body-sm text-on-surface-variant">
           Tiene {animal.descuento.porcentaje}% de descuento hasta el {formatearFecha(animal.descuento.hasta)}.
         </p>
-        <button onClick={() => onEditar(animal.id, { descuento: null })} className="font-label-lg text-label-lg text-error hover:underline">
+        <button onClick={() => setIsVisible(true)} className="font-label-lg text-label-lg text-error hover:underline">
           Quitar oferta
         </button>
+
+        {isVisible && (
+          <Modal
+            titulo="¿Quitar la oferta?"
+            mensaje={`El descuento del ${animal.descuento.porcentaje}% se elimina y la cuota vuelve a su valor original.`}
+            textoConfirmar="Quitar oferta"
+            peligro={true}
+            onConfirmar={() => {
+              onEditar(animal.id, { descuento: null })
+              setIsVisible(false)
+            }}
+            onCancelar={() => setIsVisible(false)}
+          />
+        )}
       </div>
     )
   }
@@ -41,6 +64,7 @@ const FormularioOferta = ({ animal, onEditar }) => {
           <input type="date" id={`hasta-${animal.id}`} name="hasta" min={hoy()} required value={hasta} onChange={(evento) => setHasta(evento.target.value)} className={claseCampo} />
         </label>
       </div>
+      {error && <MensajeError mensaje={error} />}
       <button type="submit" className="bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-md py-space-sm rounded-full hover:bg-tertiary-container">
         Aplicar oferta
       </button>
