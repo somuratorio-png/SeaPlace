@@ -6,8 +6,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.SeaPlace.entity.Animal;
+import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.Notificacion;
 import com.uade.tpo.SeaPlace.entity.Usuario;
+import com.uade.tpo.SeaPlace.repository.ApadrinamientoRepository;
 import com.uade.tpo.SeaPlace.repository.NotificacionRepository;
 
 @Service
@@ -21,6 +24,9 @@ public class NotificacionServiceImpl implements NotificacionService {
     @Autowired
     private AutorizacionService autorizacionService;
 
+    @Autowired
+    private ApadrinamientoRepository apadrinamientoRepository;
+
     @Override
     public Notificacion notificar(Usuario destinatario, String texto) {
         Notificacion notificacion = new Notificacion();
@@ -29,6 +35,14 @@ public class NotificacionServiceImpl implements NotificacionService {
         notificacion.setTexto(texto.length() > LARGO_MAXIMO ? texto.substring(0, LARGO_MAXIMO) : texto);
         notificacion.setFecha(LocalDateTime.now());
         return notificacionRepository.save(notificacion);
+    }
+
+    @Override
+    public void notificarPadrinos(Animal animal, String texto) {
+        // Un padrino tiene a lo sumo un apadrinamiento activo por animal, asi que a cada uno le llega uno solo
+        for (Apadrinamiento apadrinamiento : apadrinamientoRepository.findByAnimal_IdAnimalAndActivoTrue(animal.getIdAnimal())) {
+            notificar(apadrinamiento.getUsuario(), texto);
+        }
     }
 
     @Override

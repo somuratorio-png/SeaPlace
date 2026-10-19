@@ -22,7 +22,7 @@ const ordenar = (animales) =>
 
 // Sección "Mis animales" del refugio: los busca y los muestra de a una página (ver "ordenar").
 // "animales" son solo los de este refugio y "apadrinamientos" los activos de esos animales.
-const SeccionAnimales = ({ animales, apadrinamientos, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
+const SeccionAnimales = ({ animales, apadrinamientos, categorias, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenar(animales), textoDelAnimal, ANIMALES_POR_PAGINA)
 
   return (
@@ -46,8 +46,10 @@ const SeccionAnimales = ({ animales, apadrinamientos, onQuitar, onEditar, onPubl
           key={animal.id}
           animal={animal}
           apadrinamientos={apadrinamientos.filter((a) => a.animal.id === animal.id)}
+          categorias={categorias}
           onQuitar={onQuitar}
           onEditar={onEditar}
+          onGuardarDatos={onGuardarDatos}
           onPublicarNovedad={onPublicarNovedad}
           onRegistrarUbicacion={onRegistrarUbicacion}
         />

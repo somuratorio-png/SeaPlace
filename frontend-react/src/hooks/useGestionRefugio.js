@@ -59,6 +59,16 @@ export const useGestionRefugio = () => {
     )
   }
 
+  // Corrige los datos de un animal ya publicado, con las mismas reglas que al publicarlo.
+  // Devuelve una promesa con el mensaje de error (lo muestra el formulario), o null si salió bien.
+  const guardarDatos = (idAnimal, datos) => {
+    const errorAnimal = validarAnimalNuevo(datos)
+    if (errorAnimal !== null) {
+      return Promise.resolve(errorAnimal)
+    }
+    return intentar(animalesApi.editarAnimal(idAnimal, datos).then(guardarAnimal))
+  }
+
   // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
     setErrorAccion(null)
@@ -108,5 +118,5 @@ export const useGestionRefugio = () => {
     setErrorAccion(null)
   }
 
-  return { propios, apadrinamientos, categorias, cargando, error, errorAccion, cerrarErrorAccion, publicar, quitar, editar, publicarNovedad, registrarUbicacion }
+  return { propios, apadrinamientos, categorias, cargando, error, errorAccion, cerrarErrorAccion, publicar, quitar, editar, guardarDatos, publicarNovedad, registrarUbicacion }
 }

@@ -5,6 +5,7 @@ import lombok.Data;
 // Los campos en null se ignoran; solo se actualiza lo que viene informado.
 @Data
 public class AnimalUpdateRequest {
+    private Long idCategoria;
     private String nombreAnimal;
     private String descripcion;
     private Double cuotaApadrinamiento; // precio del plan Guardian de la Bahia

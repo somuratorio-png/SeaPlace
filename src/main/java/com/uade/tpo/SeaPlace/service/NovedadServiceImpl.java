@@ -28,6 +28,12 @@ public class NovedadServiceImpl implements NovedadService {
     @Autowired
     private AutorizacionService autorizacionService;
 
+    @Autowired
+    private NotificacionService notificacionService;
+
+    // Cuanto de la novedad se copia en la notificacion: el resto se lee en la bitacora
+    private static final int LARGO_ADELANTO = 140;
+
     @Override
     public List<Novedad> getNovedades(Long animalId) {
         animalRepository.findById(animalId)
@@ -59,7 +65,10 @@ public class NovedadServiceImpl implements NovedadService {
         novedad.setAnimal(animal);
         novedad.setTexto(texto);
         novedad.setFecha(LocalDateTime.now());
+        Novedad guardada = novedadRepository.save(novedad);
 
-        return novedadRepository.save(novedad);
+        String adelanto = texto.length() > LARGO_ADELANTO ? texto.substring(0, LARGO_ADELANTO).trim() + "…" : texto;
+        notificacionService.notificarPadrinos(animal, "Hay una novedad de " + animal.getNombreAnimal() + ": \"" + adelanto + "\"");
+        return guardada;
     }
 }

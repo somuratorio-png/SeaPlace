@@ -239,6 +239,12 @@ public class AnimalServiceImpl implements AnimalService {
             throw new ReglaDeNegocioException("No se puede modificar una publicacion eliminada");
         }
 
+        if (request.getIdCategoria() != null) {
+            animal.setCategoria(categoriaRepository.findById(request.getIdCategoria())
+                    .orElseThrow(() -> new RecursoNoEncontradoException(
+                            "No existe la categoria con id " + request.getIdCategoria())));
+        }
+
         if (request.getNombreAnimal() != null) {
             if (request.getNombreAnimal().isBlank()) {
                 throw new ReglaDeNegocioException("El nombre del animal no puede estar vacio");
@@ -273,7 +279,15 @@ public class AnimalServiceImpl implements AnimalService {
                     && !ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
                 throw new ReglaDeNegocioException("Estado invalido: solo ACTIVA o PAUSADA");
             }
+            String estadoAnterior = animal.getEstado();
             animal.setEstado(request.getEstado());
+            // A los padrinos se les avisa si la publicacion se pausa o vuelve al catalogo
+            if (ESTADO_PUBLICACION_ACTIVA.equals(estadoAnterior) && ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
+                notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal()
+                        + " se pausó por un tiempo y no se ve en el catálogo. Tu apadrinamiento sigue igual.");
+            } else if (ESTADO_PUBLICACION_PAUSADA.equals(estadoAnterior) && ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())) {
+                notificacionService.notificarPadrinos(animal, animal.getNombreAnimal() + " volvió a estar publicado en el catálogo.");
+            }
         }
 
         if (request.getCuposTotales() != null) {
@@ -381,6 +395,8 @@ public class AnimalServiceImpl implements AnimalService {
 
         animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
         animalRepository.save(animal);
+
+        notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal() + " fue dada de baja y ya no está en el catálogo.");
 
         // Si la quito un administrador (y no el propio refugio), se le avisa al refugio
         Refugio refugioPropio = autorizacionService.usuarioActual().getRefugio();

@@ -27,6 +27,7 @@ const Header = () => {
 
         <AccionesUsuario
           usuario={usuario}
+          esAdmin={esAdmin}
           pathname={pathname}
           moneda={moneda}
           onCambiarMoneda={cambiarMoneda}

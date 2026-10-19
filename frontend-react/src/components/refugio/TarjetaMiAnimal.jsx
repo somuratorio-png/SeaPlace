@@ -4,9 +4,9 @@ import GestionAnimal from './GestionAnimal'
 import ResumenMiAnimal from './ResumenMiAnimal'
 
 // Un animal del refugio con todo lo que se puede hacer con él: ver cuánto recauda, pausar su
-// publicación, ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
+// publicación, corregir sus datos, ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
 // "apadrinamientos" son solo los activos de este animal.
-const TarjetaMiAnimal = ({ animal, apadrinamientos, onQuitar, onEditar, onPublicarNovedad, onRegistrarUbicacion }) => {
+const TarjetaMiAnimal = ({ animal, apadrinamientos, categorias, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [abierto, setAbierto] = useState(false)
 
   return (
@@ -14,7 +14,16 @@ const TarjetaMiAnimal = ({ animal, apadrinamientos, onQuitar, onEditar, onPublic
       <FilaAnimal animal={animal} onQuitar={onQuitar} />
       <ResumenMiAnimal animal={animal} apadrinamientos={apadrinamientos} abierto={abierto} onEditar={onEditar} onAlternarGestion={() => setAbierto(!abierto)} />
 
-      {abierto && <GestionAnimal animal={animal} onEditar={onEditar} onPublicarNovedad={onPublicarNovedad} onRegistrarUbicacion={onRegistrarUbicacion} />}
+      {abierto && (
+        <GestionAnimal
+          animal={animal}
+          categorias={categorias}
+          onEditar={onEditar}
+          onGuardarDatos={onGuardarDatos}
+          onPublicarNovedad={onPublicarNovedad}
+          onRegistrarUbicacion={onRegistrarUbicacion}
+        />
+      )}
     </div>
   )
 }

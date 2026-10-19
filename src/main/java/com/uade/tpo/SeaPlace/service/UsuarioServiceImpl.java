@@ -52,6 +52,9 @@ public class UsuarioServiceImpl implements UsuarioService {
     private AnimalRepository animalRepository;
 
     @Autowired
+    private NotificacionService notificacionService;
+
+    @Autowired
     private CuentaBajaService cuentaBajaService;
 
     @Autowired
@@ -222,6 +225,8 @@ public class UsuarioServiceImpl implements UsuarioService {
         for (Animal animal : animales) {
             if (ESTADO_PUBLICACION_ACTIVA.equals(animal.getEstado())) {
                 animal.setEstado(ESTADO_PUBLICACION_PAUSADA);
+                notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal()
+                        + " se pausó por un tiempo y no se ve en el catálogo. Tu apadrinamiento sigue igual.");
             }
         }
         animalRepository.saveAll(animales);

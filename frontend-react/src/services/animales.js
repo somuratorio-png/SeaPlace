@@ -39,6 +39,8 @@ export const aAnimal = (dato) => {
     urgencia,
     estado: dato.condicion ?? urgencias.find((u) => u.id === urgencia).estado,
     destacado: dato.destacado,
+    // Los datos de la ficha tal como los cargó el refugio (vacíos si no los tiene), para editarlos
+    ficha: { especie: dato.especie ?? '', edad: dato.edad ?? '', ubicacion: dato.ubicacion ?? '' },
     progreso: dato.progreso,
     imagen: fotos[0],
     fotos,
@@ -102,6 +104,26 @@ export const rechazarAnimal = (idAnimal, motivo) => pedir(`/animales/${idAnimal}
 export const crearAnimal = (datos) =>
   pedir('/animales', {
     metodo: 'POST',
+    cuerpo: {
+      idCategoria: Number(datos.categoria),
+      nombreAnimal: datos.nombre,
+      especie: datos.especie,
+      edad: datos.edad,
+      ubicacion: datos.ubicacion,
+      urgencia: datos.urgencia.toUpperCase(),
+      condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
+      descripcion: datos.descripcion,
+      cuotaApadrinamiento: Number(datos.precio),
+      precioBrisaMarina: Number(datos.precioBrisa),
+      precioMareaProfunda: Number(datos.precioMarea),
+      cuposTotales: Number(datos.cuposTotales),
+    },
+  }).then(aAnimal)
+
+// Corrige los datos de un animal ya publicado. "datos" tiene los mismos campos que al crearlo. Devuelve el animal actualizado.
+export const editarAnimal = (idAnimal, datos) =>
+  pedir(`/animales/${idAnimal}`, {
+    metodo: 'PUT',
     cuerpo: {
       idCategoria: Number(datos.categoria),
       nombreAnimal: datos.nombre,

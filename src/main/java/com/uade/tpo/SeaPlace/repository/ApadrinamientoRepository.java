@@ -17,6 +17,9 @@ public interface ApadrinamientoRepository extends JpaRepository<Apadrinamiento, 
     // los de todos los animales de un refugio
     List<Apadrinamiento> findByAnimal_Refugio_IdRefugio(Long idRefugio);
 
+    // los padrinos que hoy acompañan a un animal (para avisarles novedades)
+    List<Apadrinamiento> findByAnimal_IdAnimalAndActivoTrue(Long idAnimal);
+
     // el apadrinamiento vigente de un padrino para un animal (a lo sumo uno)
     Optional<Apadrinamiento> findByUsuario_IdUsuarioAndAnimal_IdAnimalAndActivoTrue(Long idUsuario, Long idAnimal);
 }

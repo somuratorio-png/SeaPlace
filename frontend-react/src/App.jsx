@@ -5,6 +5,7 @@ import SoloPadrinos from './components/rutas/SoloPadrinos'
 import SoloRefugio from './components/rutas/SoloRefugio'
 import Layout from './components/layout/Layout'
 import ProveedorMoneda from './components/proveedores/ProveedorMoneda'
+import ProveedorNotificaciones from './components/proveedores/ProveedorNotificaciones'
 import ProveedorSesion from './components/proveedores/ProveedorSesion'
 import Admin from './views/Admin'
 import Apadrinado from './views/Apadrinado'
@@ -23,23 +24,25 @@ import Zarpar from './views/Zarpar'
 const App = () => (
   <ProveedorMoneda>
     <ProveedorSesion>
-      <Layout>
-        <Routes>
-          <Route path="/" element={<Inicio />} />
-          <Route path="/catalogo" element={<Catalogo />} />
-          <Route path="/animal/:id" element={<Detalle />} />
-          <Route path="/muelle" element={<SoloPadrinos><Muelle /></SoloPadrinos>} />
-          <Route path="/zarpar" element={<SoloPadrinos><ConSesion><Zarpar /></ConSesion></SoloPadrinos>} />
-          <Route path="/gracias" element={<Gracias />} />
-          <Route path="/panel" element={<SoloPadrinos><ConSesion><Panel /></ConSesion></SoloPadrinos>} />
-          <Route path="/panel/:id" element={<SoloPadrinos><ConSesion><Apadrinado /></ConSesion></SoloPadrinos>} />
-          <Route path="/panel/:id/certificado" element={<SoloPadrinos><ConSesion><Certificado /></ConSesion></SoloPadrinos>} />
-          <Route path="/cuenta" element={<ConSesion><Cuenta /></ConSesion>} />
-          <Route path="/admin" element={<SoloAdmin><Admin /></SoloAdmin>} />
-          <Route path="/refugio" element={<SoloRefugio><Refugio /></SoloRefugio>} />
-          <Route path="*" element={<NoEncontrada />} />
-        </Routes>
-      </Layout>
+      <ProveedorNotificaciones>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Inicio />} />
+            <Route path="/catalogo" element={<Catalogo />} />
+            <Route path="/animal/:id" element={<Detalle />} />
+            <Route path="/muelle" element={<SoloPadrinos><Muelle /></SoloPadrinos>} />
+            <Route path="/zarpar" element={<SoloPadrinos><ConSesion><Zarpar /></ConSesion></SoloPadrinos>} />
+            <Route path="/gracias" element={<Gracias />} />
+            <Route path="/panel" element={<SoloPadrinos><ConSesion><Panel /></ConSesion></SoloPadrinos>} />
+            <Route path="/panel/:id" element={<SoloPadrinos><ConSesion><Apadrinado /></ConSesion></SoloPadrinos>} />
+            <Route path="/panel/:id/certificado" element={<SoloPadrinos><ConSesion><Certificado /></ConSesion></SoloPadrinos>} />
+            <Route path="/cuenta" element={<ConSesion><Cuenta /></ConSesion>} />
+            <Route path="/admin" element={<SoloAdmin><Admin /></SoloAdmin>} />
+            <Route path="/refugio" element={<SoloRefugio><Refugio /></SoloRefugio>} />
+            <Route path="*" element={<NoEncontrada />} />
+          </Routes>
+        </Layout>
+      </ProveedorNotificaciones>
     </ProveedorSesion>
   </ProveedorMoneda>
 )

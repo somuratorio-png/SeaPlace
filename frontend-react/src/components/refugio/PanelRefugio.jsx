@@ -49,6 +49,7 @@ const PanelRefugio = () => {
           onPublicar={gestion.publicar}
           onQuitar={gestion.quitar}
           onEditar={gestion.editar}
+          onGuardarDatos={gestion.guardarDatos}
           onPublicarNovedad={gestion.publicarNovedad}
           onRegistrarUbicacion={gestion.registrarUbicacion}
         />
