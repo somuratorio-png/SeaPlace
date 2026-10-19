@@ -46,6 +46,11 @@ public class Animal {
     @Column
     private Double precioMareaProfunda;
 
+    // Los cambios que pidio el refugio sobre una publicacion ya aprobada y que todavia no reviso un
+    // administrador (un AnimalUpdateRequest en JSON). Mientras tanto se sigue viendo como esta. null = no hay.
+    @Column(columnDefinition = "TEXT")
+    private String cambioPendiente;
+
     @Column(nullable = false)
     private Integer cuposTotales;
 

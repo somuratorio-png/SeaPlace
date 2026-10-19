@@ -4,9 +4,19 @@ import FilaAnimal from '../comunes/FilaAnimal'
 import Icono from '../comunes/Icono'
 import Modal from '../comunes/Modal'
 
-// Una publicación que espera la aprobación del administrador, con los botones para aprobarla o rechazarla.
-// Al rechazar se confirma en un cartel donde se puede escribir el motivo: onRechazar lo recibe (vacío si no escribió nada).
-const RevisionPublicacion = ({ animal, onAprobar, onRechazar }) => {
+// Algo de un refugio que espera la revisión del administrador (una publicación nueva o un pedido de cambios),
+// con los botones para aprobarlo o rechazarlo. "children" es opcional: lo que haga falta mostrar para decidir
+// (por ejemplo, qué campos cambian). Al rechazar se confirma en un cartel donde se puede escribir el motivo:
+// onRechazar lo recibe (vacío si no escribió nada).
+const RevisionPublicacion = ({
+  animal,
+  onAprobar,
+  onRechazar,
+  textoAprobar = 'Aprobar y publicar',
+  tituloRechazo = `¿Rechazar la publicación de ${animal.nombre}?`,
+  mensajeRechazo = 'No se va a publicar y el refugio recibe una notificación. Si querés, contale por qué así puede corregirla.',
+  children,
+}) => {
   const [rechazando, setRechazando] = useState(false) // true mientras está abierto el cartel de rechazo
   const [motivo, setMotivo] = useState('')
 
@@ -18,6 +28,7 @@ const RevisionPublicacion = ({ animal, onAprobar, onRechazar }) => {
   return (
     <div className="bg-surface-container-low rounded-2xl">
       <FilaAnimal animal={animal} />
+      {children}
       <div className="px-space-md py-space-sm flex flex-wrap justify-end gap-space-sm">
         <button
           onClick={() => setRechazando(true)}
@@ -26,14 +37,14 @@ const RevisionPublicacion = ({ animal, onAprobar, onRechazar }) => {
           <Icono nombre="close" clase="text-[18px]" /> Rechazar
         </button>
         <button onClick={onAprobar} className="inline-flex items-center gap-1 bg-secondary text-on-secondary font-label-lg text-label-lg px-space-md py-space-sm rounded-full">
-          <Icono nombre="check" clase="text-[18px]" /> Aprobar y publicar
+          <Icono nombre="check" clase="text-[18px]" /> {textoAprobar}
         </button>
       </div>
 
       {rechazando && (
         <Modal
-          titulo={`¿Rechazar la publicación de ${animal.nombre}?`}
-          mensaje="No se va a publicar y el refugio recibe una notificación. Si querés, contale por qué así puede corregirla."
+          titulo={tituloRechazo}
+          mensaje={mensajeRechazo}
           textoConfirmar="Rechazar"
           peligro={true}
           onConfirmar={() => {

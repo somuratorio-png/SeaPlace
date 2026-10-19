@@ -23,6 +23,10 @@ const FilaAnimal = ({ animal, onQuitar }) => {
           {animal.publicacion === 'PAUSADA' && (
             <span className="ml-space-sm align-middle bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full px-space-sm py-0.5 font-label-md text-label-md">Pausada</span>
           )}
+          {/* Ya publicada, pero con cambios que todavía no revisó un administrador */}
+          {animal.cambioPendiente && (
+            <span className="ml-space-sm align-middle bg-primary-fixed text-on-primary-fixed-variant rounded-full px-space-sm py-0.5 font-label-md text-label-md">Cambios en revisión</span>
+          )}
           {/* Las pendientes tampoco: esperan que un administrador las apruebe */}
           {animal.publicacion === 'PENDIENTE' && (
             <span className="ml-space-sm align-middle bg-secondary-container text-on-secondary-container rounded-full px-space-sm py-0.5 font-label-md text-label-md">Esperando aprobación</span>

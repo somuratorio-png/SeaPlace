@@ -39,6 +39,8 @@ export const aAnimal = (dato) => {
     urgencia,
     estado: dato.condicion ?? urgencias.find((u) => u.id === urgencia).estado,
     destacado: dato.destacado,
+    // true si el refugio pidió cambios sobre la publicación ya aprobada y un administrador todavía no los revisó
+    cambioPendiente: dato.tieneCambioPendiente ?? false,
     // Los datos de la ficha tal como los cargó el refugio (vacíos si no los tiene), para editarlos
     ficha: { especie: dato.especie ?? '', edad: dato.edad ?? '', ubicacion: dato.ubicacion ?? '' },
     progreso: dato.progreso,
@@ -120,7 +122,42 @@ export const crearAnimal = (datos) =>
     },
   }).then(aAnimal)
 
-// Corrige los datos de un animal ya publicado. "datos" tiene los mismos campos que al crearlo. Devuelve el animal actualizado.
+// Lo que cambia entre el animal publicado (AnimalResponse) y lo que pidió su refugio (cambio), campo por campo:
+// [{ campo: 'Edad', antes: '2 años', despues: '3 años', esPrecio: false }]. Solo van los que de verdad cambian.
+const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
+  const campos = [
+    { campo: 'Categoría', antes: actual.nombreCategoria, despues: cambio.idCategoria === actual.idCategoria ? null : nombreCategoriaPropuesta },
+    { campo: 'Nombre', antes: actual.nombreAnimal, despues: cambio.nombreAnimal },
+    { campo: 'Especie', antes: actual.especie, despues: cambio.especie },
+    { campo: 'Salud', antes: actual.condicion, despues: cambio.condicion },
+    { campo: 'Edad', antes: actual.edad, despues: cambio.edad },
+    { campo: 'Ubicación', antes: actual.ubicacion, despues: cambio.ubicacion },
+    { campo: 'Cupos', antes: actual.cuposTotales, despues: cambio.cuposTotales },
+    { campo: 'Brisa Marina', antes: actual.preciosPorPlan?.BRISA_MARINA, despues: cambio.precioBrisaMarina, esPrecio: true },
+    { campo: 'Guardián de la Bahía', antes: actual.cuotaApadrinamiento, despues: cambio.cuotaApadrinamiento, esPrecio: true },
+    { campo: 'Marea Profunda', antes: actual.preciosPorPlan?.MAREA_PROFUNDA, despues: cambio.precioMareaProfunda, esPrecio: true },
+    { campo: 'Historia', antes: actual.descripcion, despues: cambio.descripcion },
+  ]
+  return campos
+    .filter((c) => c.despues !== null && c.despues !== undefined && c.despues !== c.antes)
+    .map((c) => ({ ...c, antes: c.antes ?? '—', esPrecio: c.esPrecio ?? false }))
+}
+
+// Los cambios que pidieron los refugios sobre publicaciones ya aprobadas (solo los ve un administrador):
+// [{ animal, cambios }], con "cambios" como los arma "diferencias"
+export const traerCambiosPendientes = () =>
+  pedirLista('/animales/cambios-pendientes').then((lista) =>
+    lista.map((pendiente) => ({ animal: aAnimal(pendiente.animal), cambios: diferencias(pendiente.animal, pendiente.cambio, pendiente.nombreCategoriaPropuesta) })),
+  )
+
+// Un administrador aplica los cambios (o los descarta, con el motivo si escribió uno). Devuelven el animal como queda.
+export const aprobarCambios = (idAnimal) => pedir(`/animales/${idAnimal}/cambios/aprobar`, { metodo: 'PUT' }).then(aAnimal)
+
+export const rechazarCambios = (idAnimal, motivo) => pedir(`/animales/${idAnimal}/cambios/rechazar`, { metodo: 'PUT', cuerpo: { motivo } }).then(aAnimal)
+
+// Corrige los datos de un animal. "datos" tiene los mismos campos que al crearlo. Si todavía espera la aprobación,
+// se aplican enseguida; si ya está publicado, quedan como pedido de cambio hasta que los revise un administrador
+// (el animal vuelve igual, con cambioPendiente: true).
 export const editarAnimal = (idAnimal, datos) =>
   pedir(`/animales/${idAnimal}`, {
     metodo: 'PUT',

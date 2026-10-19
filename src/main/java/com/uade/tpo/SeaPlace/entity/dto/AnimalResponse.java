@@ -37,6 +37,8 @@ public class AnimalResponse {
     private String urgencia;
     private String condicion;
     private boolean destacado;
+    // true si el refugio pidio cambios que todavia no reviso un administrador
+    private boolean tieneCambioPendiente;
     // Porcentaje de cupos ya tomados por padrinos (0 a 100).
     private Integer progreso;
     // Urls de las fotos, ya ordenadas: la primera es la principal.
@@ -69,6 +71,7 @@ public class AnimalResponse {
         r.setUrgencia(animal.getUrgencia());
         r.setCondicion(animal.getCondicion());
         r.setDestacado(animal.isDestacado());
+        r.setTieneCambioPendiente(animal.getCambioPendiente() != null);
         r.setProgreso(calcularProgreso(animal));
         r.setFotos(urlsDeFotos(animal));
         r.setDescuento(descuentoVigente(animal));

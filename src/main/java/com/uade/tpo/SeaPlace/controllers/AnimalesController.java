@@ -1,6 +1,7 @@
 package com.uade.tpo.SeaPlace.controllers;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CambioPendienteResponse;
 import com.uade.tpo.SeaPlace.entity.dto.RechazoRequest;
 import com.uade.tpo.SeaPlace.service.AnimalService;
 
@@ -36,6 +38,17 @@ public class AnimalesController {
         PageRequest pageRequest = Paginacion.armar(page, size);
         Page<AnimalResponse> resultado = animalService.getAnimales(estado, idCategoria, idRefugio, precioMin, precioMax, nombre, pageRequest).map(AnimalResponse::fromEntity);
         // Si la pagina no trae elementos, se responde 204 (sin cuerpo) en vez de una pagina vacia.
+        if (resultado.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(resultado);
+    }
+
+    // los cambios que pidieron los refugios sobre publicaciones ya aprobadas; solo para un administrador
+    @GetMapping("/cambios-pendientes")
+    public ResponseEntity<List<CambioPendienteResponse>> getCambiosPendientes() {
+        List<CambioPendienteResponse> resultado = animalService.getCambiosPendientes();
+        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -70,6 +83,18 @@ public class AnimalesController {
     public ResponseEntity<Void> rechazarAnimal(@PathVariable Long animalId, @RequestBody(required = false) RechazoRequest request) {
         animalService.rechazarAnimal(animalId, request == null ? null : request.getMotivo());
         return ResponseEntity.noContent().build();
+    }
+
+    // un administrador aplica los cambios que pidio el refugio sobre una publicacion ya aprobada
+    @PutMapping("/{animalId}/cambios/aprobar")
+    public ResponseEntity<AnimalResponse> aprobarCambios(@PathVariable Long animalId) {
+        return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.aprobarCambios(animalId)));
+    }
+
+    // o los descarta: la publicacion queda como estaba y el refugio recibe el motivo
+    @PutMapping("/{animalId}/cambios/rechazar")
+    public ResponseEntity<AnimalResponse> rechazarCambios(@PathVariable Long animalId, @RequestBody(required = false) RechazoRequest request) {
+        return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.rechazarCambios(animalId, request == null ? null : request.getMotivo())));
     }
 
     @DeleteMapping("/{animalId}")

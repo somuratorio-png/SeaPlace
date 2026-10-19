@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -14,7 +17,9 @@ import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.Plan;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalRequest;
+import com.uade.tpo.SeaPlace.entity.dto.AnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CambioPendienteResponse;
 import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
@@ -51,6 +56,9 @@ public class AnimalServiceImpl implements AnimalService {
 
     @Autowired
     private NotificacionService notificacionService;
+
+    // Para guardar en el animal (como JSON) los cambios que pide un refugio hasta que los revise un administrador
+    private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Override
     public Page<Animal> getAnimales(String estado, Long idCategoria, Long idRefugio, Double precioMin, Double precioMax,
@@ -239,6 +247,89 @@ public class AnimalServiceImpl implements AnimalService {
             throw new ReglaDeNegocioException("No se puede modificar una publicacion eliminada");
         }
 
+        if (tieneDatosDeLaFicha(request)) {
+            // Mientras espera la aprobacion, el refugio la corrige libremente. Una vez aprobada, lo que pide
+            // queda guardado aparte hasta que un administrador lo revise; mientras tanto se sigue viendo como esta.
+            boolean necesitaRevision = !autorizacionService.esAdmin()
+                    && !ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado());
+            if (necesitaRevision) {
+                // Se valida sobre una copia, asi la publicacion no cambia; si algo esta mal, el refugio se entera ahora
+                aplicarDatos(copiaDeLaFicha(animal), request);
+                animal.setCambioPendiente(aJson(soloLaFicha(request)));
+            } else {
+                aplicarDatos(animal, request);
+            }
+        }
+
+        if (request.getEstado() != null) {
+            // Una pendiente no se activa ni se pausa desde aca: la aprueba un administrador (aprobarAnimal)
+            if (ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
+                throw new ReglaDeNegocioException("La publicacion todavia no fue aprobada por un administrador");
+            }
+            if (!ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())
+                    && !ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
+                throw new ReglaDeNegocioException("Estado invalido: solo ACTIVA o PAUSADA");
+            }
+            String estadoAnterior = animal.getEstado();
+            animal.setEstado(request.getEstado());
+            // A los padrinos se les avisa si la publicacion se pausa o vuelve al catalogo
+            if (ESTADO_PUBLICACION_ACTIVA.equals(estadoAnterior) && ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
+                notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal()
+                        + " se pausó por un tiempo y no se ve en el catálogo. Tu apadrinamiento sigue igual.");
+            } else if (ESTADO_PUBLICACION_PAUSADA.equals(estadoAnterior) && ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())) {
+                notificacionService.notificarPadrinos(animal, animal.getNombreAnimal() + " volvió a estar publicado en el catálogo.");
+            }
+        }
+
+        // Que animales se destacan en el inicio lo decide un administrador, no cada refugio.
+        if (request.getDestacado() != null) {
+            if (!autorizacionService.esAdmin()) {
+                throw new AccessDeniedException("Solo un administrador puede destacar un animal");
+            }
+            animal.setDestacado(request.getDestacado());
+        }
+
+        return animalRepository.save(animal);
+    }
+
+    // true si el pedido cambia algo de la ficha (todo menos el estado y el destacado)
+    private boolean tieneDatosDeLaFicha(AnimalUpdateRequest request) {
+        return request.getIdCategoria() != null || request.getNombreAnimal() != null || request.getDescripcion() != null
+                || request.getCuotaApadrinamiento() != null || request.getPrecioBrisaMarina() != null
+                || request.getPrecioMareaProfunda() != null || request.getCuposTotales() != null
+                || request.getEspecie() != null || request.getEdad() != null || request.getUbicacion() != null
+                || request.getUrgencia() != null || request.getCondicion() != null;
+    }
+
+    // El mismo pedido, sin el estado ni el destacado: es lo que se guarda para que lo revise un administrador
+    private AnimalUpdateRequest soloLaFicha(AnimalUpdateRequest request) {
+        AnimalUpdateRequest ficha = objectMapper.convertValue(request, AnimalUpdateRequest.class);
+        ficha.setEstado(null);
+        ficha.setDestacado(null);
+        return ficha;
+    }
+
+    // Un animal nuevo (que nunca se guarda) con los datos de la ficha de este, para validar cambios sin tocarlo
+    private Animal copiaDeLaFicha(Animal animal) {
+        Animal copia = new Animal();
+        copia.setCategoria(animal.getCategoria());
+        copia.setNombreAnimal(animal.getNombreAnimal());
+        copia.setDescripcion(animal.getDescripcion());
+        copia.setCuotaApadrinamiento(animal.getCuotaApadrinamiento());
+        copia.setPrecioBrisaMarina(animal.getPrecioBrisaMarina());
+        copia.setPrecioMareaProfunda(animal.getPrecioMareaProfunda());
+        copia.setCuposTotales(animal.getCuposTotales());
+        copia.setCuposDisponibles(animal.getCuposDisponibles());
+        copia.setEspecie(animal.getEspecie());
+        copia.setEdad(animal.getEdad());
+        copia.setUbicacion(animal.getUbicacion());
+        copia.setCondicion(animal.getCondicion());
+        copia.setUrgencia(animal.getUrgencia());
+        return copia;
+    }
+
+    // Aplica los datos de la ficha que vienen informados (los null se ignoran), validando cada uno
+    private void aplicarDatos(Animal animal, AnimalUpdateRequest request) {
         if (request.getIdCategoria() != null) {
             animal.setCategoria(categoriaRepository.findById(request.getIdCategoria())
                     .orElseThrow(() -> new RecursoNoEncontradoException(
@@ -270,26 +361,6 @@ public class AnimalServiceImpl implements AnimalService {
         }
         validarOrdenDePrecios(animal);
 
-        if (request.getEstado() != null) {
-            // Una pendiente no se activa ni se pausa desde aca: la aprueba un administrador (aprobarAnimal)
-            if (ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
-                throw new ReglaDeNegocioException("La publicacion todavia no fue aprobada por un administrador");
-            }
-            if (!ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())
-                    && !ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
-                throw new ReglaDeNegocioException("Estado invalido: solo ACTIVA o PAUSADA");
-            }
-            String estadoAnterior = animal.getEstado();
-            animal.setEstado(request.getEstado());
-            // A los padrinos se les avisa si la publicacion se pausa o vuelve al catalogo
-            if (ESTADO_PUBLICACION_ACTIVA.equals(estadoAnterior) && ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
-                notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal()
-                        + " se pausó por un tiempo y no se ve en el catálogo. Tu apadrinamiento sigue igual.");
-            } else if (ESTADO_PUBLICACION_PAUSADA.equals(estadoAnterior) && ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())) {
-                notificacionService.notificarPadrinos(animal, animal.getNombreAnimal() + " volvió a estar publicado en el catálogo.");
-            }
-        }
-
         if (request.getCuposTotales() != null) {
             if (request.getCuposTotales() <= 0) {
                 throw new ReglaDeNegocioException("Los cupos totales deben ser un numero mayor a 0");
@@ -305,7 +376,6 @@ public class AnimalServiceImpl implements AnimalService {
             animal.setCuposTotales(request.getCuposTotales());
         }
 
-        // Datos de la ficha: igual que el resto, solo se cambia lo que viene informado.
         if (request.getEspecie() != null) {
             animal.setEspecie(textoOpcional(request.getEspecie(), "especie"));
         }
@@ -322,16 +392,77 @@ public class AnimalServiceImpl implements AnimalService {
         if (urgencia != null) {
             animal.setUrgencia(urgencia);
         }
+    }
 
-        // Que animales se destacan en el inicio lo decide un administrador, no cada refugio.
-        if (request.getDestacado() != null) {
-            if (!autorizacionService.esAdmin()) {
-                throw new AccessDeniedException("Solo un administrador puede destacar un animal");
-            }
-            animal.setDestacado(request.getDestacado());
+    private String aJson(AnimalUpdateRequest request) {
+        return objectMapper.writeValueAsString(request);
+    }
+
+    private AnimalUpdateRequest desdeJson(String json) {
+        return objectMapper.readValue(json, AnimalUpdateRequest.class);
+    }
+
+    // Solo un administrador revisa cambios. Esta ruta es publica para el GET (como el resto de /animales),
+    // asi que puede llegar sin sesion: por eso se mira usuarioActualONull antes de esAdmin.
+    private void validarQueEsAdmin(String accion) {
+        if (autorizacionService.usuarioActualONull() == null || !autorizacionService.esAdmin()) {
+            throw new AccessDeniedException("Solo un administrador puede " + accion);
         }
+    }
 
-        return animalRepository.save(animal);
+    private Animal conCambioPendiente(Long animalId) {
+        Animal animal = animalRepository.findById(animalId)
+                .orElseThrow(() -> new RecursoNoEncontradoException(
+                        "No existe el animal con id " + animalId));
+        if (animal.getCambioPendiente() == null) {
+            throw new ReglaDeNegocioException("La publicacion no tiene cambios esperando revision");
+        }
+        return animal;
+    }
+
+    @Override
+    public List<CambioPendienteResponse> getCambiosPendientes() {
+        validarQueEsAdmin("revisar cambios de publicaciones");
+        return animalRepository.findByCambioPendienteIsNotNullAndEstadoNot(ESTADO_PUBLICACION_ELIMINADA).stream()
+                .map(animal -> {
+                    CambioPendienteResponse r = new CambioPendienteResponse();
+                    r.setAnimal(AnimalResponse.fromEntity(animal));
+                    AnimalUpdateRequest cambio = desdeJson(animal.getCambioPendiente());
+                    r.setCambio(cambio);
+                    if (cambio.getIdCategoria() != null) {
+                        categoriaRepository.findById(cambio.getIdCategoria())
+                                .ifPresent(categoria -> r.setNombreCategoriaPropuesta(categoria.getNombreCategoria()));
+                    }
+                    return r;
+                })
+                .toList();
+    }
+
+    @Override
+    public Animal aprobarCambios(Long animalId) {
+        validarQueEsAdmin("aprobar cambios de publicaciones");
+        Animal animal = conCambioPendiente(animalId);
+        // Se vuelve a validar: desde que lo pidio pueden haber cambiado cosas (por ejemplo, los cupos ocupados)
+        aplicarDatos(animal, desdeJson(animal.getCambioPendiente()));
+        animal.setCambioPendiente(null);
+        Animal actualizado = animalRepository.save(animal);
+        avisarAlRefugio(animal, "Aprobamos los cambios que pediste en " + animal.getNombreAnimal() + ": ya se ven en el catálogo.");
+        return actualizado;
+    }
+
+    @Override
+    public Animal rechazarCambios(Long animalId, String motivo) {
+        validarQueEsAdmin("rechazar cambios de publicaciones");
+        Animal animal = conCambioPendiente(animalId);
+        animal.setCambioPendiente(null);
+        Animal actualizado = animalRepository.save(animal);
+
+        String texto = "No aprobamos los cambios que pediste en " + animal.getNombreAnimal() + ": la publicación sigue como estaba.";
+        if (motivo != null && !motivo.isBlank()) {
+            texto += " Motivo: " + motivo.trim();
+        }
+        avisarAlRefugio(animal, texto);
+        return actualizado;
     }
 
     @Override
