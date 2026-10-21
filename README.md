@@ -1,6 +1,6 @@
 # SeaPlace 🐬
 
-Backend en Spring Boot para una plataforma de **apadrinamiento de animales marinos**. Múltiples refugios/ONGs publican animales disponibles, los usuarios los apadrinan, y lo recaudado se destina a la conservación de las especies.
+Backend en Spring Boot para una plataforma de **apadrinamiento de animales marinos**. Múltiples refugios/ONGs presentan animales, los usuarios los apadrinan, y lo recaudado se destina a la conservación de las especies.
 
 Trabajo Práctico Obligatorio (TPO) — 2do cuatrimestre 2026.
 
@@ -27,7 +27,9 @@ La conexión a la base y el secreto JWT están en `src/main/resources/applicatio
 ```properties
 spring.datasource.url=jdbc:mysql://localhost:3306/seaplace?createDatabaseIfNotExist=true
 spring.datasource.username=root
-spring.datasource.password=*****
+spring.datasource.password=
+
+spring.config.import=optional:file:./application-local.properties
 
 spring.jpa.hibernate.ddl-auto=update
 spring.jpa.defer-datasource-initialization=true
@@ -37,7 +39,8 @@ spring.sql.init.mode=always
 - La base `seaplace` se crea sola si no existe (`createDatabaseIfNotExist=true`).
 - `defer-datasource-initialization=true` + `sql.init.mode=always` son necesarios para que `data.sql` corra **después** de que Hibernate genere el schema (si no, falla porque las tablas todavía no existen).
 - **Contraseña de MySQL:** cada integrante tiene la suya, así que no va en `application.properties`. Copiá `application-local.properties.example` como `application-local.properties` (en la raíz, al lado del `pom.xml`) y poné ahí tu contraseña. Ese archivo está en `.gitignore` y pisa lo que diga `application.properties`.
-- ⚠️ El `application.properties` actual tiene usuario/password y el secret de JWT hardcodeados en texto plano. Para una entrega en repo público conviene moverlos a variables de entorno.
+- **Fotos:** las que se suben como archivo pueden pesar hasta 15 MB cada una (`spring.servlet.multipart.max-file-size`); el backend las guarda achicadas.
+- ⚠️ El `application.properties` actual tiene el usuario de MySQL (`root`) y el secret de JWT hardcodeados en texto plano. Para una entrega en repo público conviene moverlos a `application-local.properties` o a variables de entorno.
 
 ## Cómo levantar el proyecto
 
@@ -72,26 +75,28 @@ npm install
 npm run dev      # http://localhost:5173
 ```
 
-- No se usa CORS: el navegador le pide todo a `localhost:5173` y el **proxy de Vite** (`vite.config.js`) reenvía lo que empieza con `/api` a `http://localhost:8080`, sin el prefijo. El backend tiene que estar levantado.
+- El navegador le pide todo a `localhost:5173` y el **proxy de Vite** (`vite.config.js`) reenvía lo que empieza con `/api` a `http://localhost:8080`, sin el prefijo. Por eso en desarrollo no hace falta CORS (igual el backend lo tiene habilitado para `http://localhost:5173` en `SecurityConfig`). El backend tiene que estar levantado.
 - Todos los pedidos pasan por `src/services/api.js` (agrega el token JWT y convierte los errores del backend en mensajes); el resto de `src/services/` tiene una función por endpoint.
 - Las fotos de los animales de demo las sirve el front (`frontend-react/public/img/animales`); las que sube un refugio se guardan en la base y las sirve la API.
 
 ## Modelo de dominio
 
-Entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Archivo_Foto`, `Ubicacion_Animal`, `Descuento`, `Novedad`, `Favorito`, `Muelle`, `Muelle_Detalle`, `Zarpar`, `Zarpar_Detalle` y `Apadrinamiento` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
+Entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Archivo_Foto`, `Ubicacion_Animal`, `Descuento`, `Novedad`, `Favorito`, `Notificacion`, `Muelle`, `Muelle_Detalle`, `Zarpar`, `Zarpar_Detalle` y `Apadrinamiento` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
 
 - **Planes.** Hay tres niveles de apadrinamiento fijos (enum `Plan`): `BRISA_MARINA` (×0,5), `GUARDIAN_DE_LA_BAHIA` (×1, el que se usa si el pedido no indica plan) y `MAREA_PROFUNDA` (×2). El precio de un cupo es la cuota del animal, con su descuento vigente, por el multiplicador del plan. El plan se elige al agregar al muelle.
 - **Apadrinamiento.** Un zarpar es un pago; lo que queda después es el apadrinamiento (padrino, animal, plan, cupos, desde cuándo). Se crea al confirmar el zarpar (o suma cupos si el padrino ya apadrinaba a ese animal), se le puede cambiar el plan y se puede cancelar: no se borra, queda inactivo y devuelve sus cupos al animal.
 - **Botiquín.** El zarpar acepta `conBotiquin`: suma un adicional fijo de 5 al total.
 - **Ficha del animal.** Además de nombre, cuota y cupos, un animal tiene `especie`, `edad`, `ubicacion`, `urgencia` (`CRITICO`, `RECUPERACION` o `LISTO`), `condicion` y `destacado` (lo cambia solo un administrador). La respuesta incluye sus fotos ordenadas, el descuento que rige hoy y `progreso` (porcentaje de cupos tomados).
-- **Aprobación de refugios.** Un refugio que se registra solo queda pendiente (`aprobado = false`) y no puede publicar hasta que un administrador lo aprueba. Los que da de alta un administrador nacen aprobados.
+- **Aprobación de refugios.** Un refugio que se registra solo queda pendiente (`aprobado = false`) y no puede presentar animales hasta que un administrador lo aprueba. Los que da de alta un administrador nacen aprobados.
+- **Aprobación de animales.** Un animal que presenta un refugio nace `PENDIENTE` y no se ve en el catálogo hasta que un administrador lo aprueba (`PUT /animales/{animalId}/aprobar`) o lo rechaza (`/rechazar`, con un motivo). Los que crea un administrador nacen `ACTIVA`. Cuando un refugio edita un animal ya aprobado, los cambios quedan en revisión: el administrador los ve en `GET /animales/cambios-pendientes` y los aprueba o rechaza con `PUT /animales/{animalId}/cambios/aprobar` o `/cambios/rechazar`. Mientras tanto la publicación se sigue viendo como estaba.
+- **Notificaciones.** El dueño del refugio recibe una notificación cuando un administrador aprueba o rechaza un animal o sus cambios, y los padrinos cuando un animal que apadrinan se pausa, vuelve al catálogo o se da de baja. Cada usuario ve las suyas y las marca como leídas.
 
 Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela con `cuposTotales` y `cuposDisponibles` (Integer), no con un booleano de disponibilidad única. Al agregar al muelle se valida que la cantidad no supere los cupos disponibles, pero no se reservan; se descuentan recién al confirmar el zarpar, donde se vuelve a validar.
 
 ## Autenticación y roles
 
 - Login vía JWT. Endpoints públicos: `POST /auth/register`, `POST /auth/register-refugio`, `POST /auth/authenticate`, `POST /auth/olvide-contrasenia` y `POST /auth/restablecer-contrasenia`.
-- Hay tres roles: `padrino` (apadrina animales), `duenioRefugio` (administra su refugio y publica animales, pero no puede apadrinar) y `administrador`.
+- Hay tres roles: `padrino` (apadrina animales), `duenioRefugio` (administra su refugio y presenta animales, pero no puede apadrinar) y `administrador`.
 - `/auth/register` crea un usuario con rol `padrino`. `/auth/register-refugio` crea, en un solo paso, un usuario con rol `duenioRefugio` junto con su refugio, que queda pendiente de aprobación (si algo falla, no se guarda nada).
 - `data.sql` crea un administrador de demo (`admin`). Un administrador puede cambiar el rol de cualquier usuario con `PUT /usuarios/{usuarioId}/rol` (el sistema no deja al último administrador sin su rol). Si le da el rol `duenioRefugio` a alguien que no tiene refugio, se le crea uno ya aprobado.
 - Las autoridades de Spring Security se arman como `ROLE_<NOMBRE_ROL_EN_MAYUSCULAS>` a partir del rol del usuario.
@@ -116,12 +121,15 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Recurso | Método | Acceso |
 |---|---|---|
 | `/auth/**` | POST | Público |
-| `/animales/**`, `/refugios/**`, `/categorias/**`, `/planes` | GET | Público (de los animales, solo las publicaciones activas; el dueño del refugio ve además sus pausadas y el administrador ve todas. De los refugios, solo los aprobados y activos) |
-| `/animales/**` | POST / PUT / DELETE | Autenticado: el administrador o el dueño del refugio del animal (incluye fotos, ubicaciones, descuentos y novedades). Un refugio sin aprobar no puede publicar |
+| `/inicio`, `/animales/**`, `/refugios/**`, `/categorias/**`, `/planes` | GET | Público (de los animales, solo las publicaciones activas; el dueño del refugio ve además sus pausadas y pendientes y el administrador ve todas. De los refugios, solo los aprobados y activos) |
+| `/animales/**` | POST / PUT / DELETE | Autenticado: el administrador o el dueño del refugio del animal (incluye fotos, ubicaciones, descuentos y novedades). Un refugio sin aprobar no puede presentar animales |
+| `/animales/{animalId}/aprobar`, `/rechazar`, `/cambios/aprobar`, `/cambios/rechazar` | PUT | Solo administrador (se valida en el service) |
+| `/animales/cambios-pendientes` | GET | Solo administrador (se valida en el service) |
 | `/refugios/**` | POST / PUT | `GESTIONAR_REFUGIOS` (administrador) |
 | `/apadrinamientos` | GET | Autenticado: el administrador ve todos, el dueño de un refugio los de sus animales y un padrino los suyos |
 | `/apadrinamientos/{id}/plan`, `/apadrinamientos/{id}` | PUT / DELETE | El padrino dueño del apadrinamiento (o un administrador) |
 | `/favoritos/**` | Todos | Autenticado; cada usuario solo ve y modifica los suyos |
+| `/notificaciones/**` | GET / PUT | Autenticado; cada usuario solo ve y marca las suyas |
 | `/usuarios/{usuarioId}/reactivar` | PUT | `GESTIONAR_USUARIOS` (administrador) |
 | `/categorias/**` | POST | Administrador |
 | `/permisos/**`, `/roles/**` | Todos | `GESTIONAR_ROLES` (administrador) |
@@ -140,14 +148,16 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Recurso | Base path | Notas |
 |---|---|---|
 | Auth | `/auth` | `register`, `register-refugio`, `authenticate`, `olvide-contrasenia`, `restablecer-contrasenia` |
-| Animales | `/animales` | CRUD, GET público |
+| Inicio | `/inicio` | GET público: los planes y, si el pedido trae un token, la sesión del usuario (el front lo pide al abrir la página) |
+| Animales | `/animales` | CRUD, GET público; `PUT /{id}/aprobar` y `/rechazar`, `GET /cambios-pendientes`, `PUT /{id}/cambios/aprobar` y `/cambios/rechazar` (administrador) |
 | Refugios | `/refugios` | GET público, POST admin, `PUT /{refugioId}/aprobar` (admin) |
 | Categorías | `/categorias` | GET público, POST admin |
 | Planes | `/planes` | GET público: los tres niveles de apadrinamiento |
-| Fotos de animal | `/animales/{animalId}/fotos` | por url (`POST`) o subiendo el archivo (`POST /archivo`, multipart, campo `archivo`, imagen de hasta 2 MB); `GET /{fotoId}/archivo` devuelve la imagen subida |
+| Fotos de animal | `/animales/{animalId}/fotos` | por url (`POST`) o subiendo el archivo (`POST /archivo`, multipart, campo `archivo`, imagen de hasta 15 MB); `GET /{fotoId}/archivo` devuelve la imagen subida |
 | Ubicaciones de animal | `/animales/{animalId}/ubicaciones` | incluye `/ultima` |
 | Descuentos | `/animales/{animalId}/descuentos` | `DELETE /{descuentoId}` quita la oferta (queda inactiva) |
 | Novedades | `/animales/{animalId}/novedades` | la bitácora del animal: GET público, POST su refugio |
+| Notificaciones | `/notificaciones` | `GET` lista las del usuario logueado (de la más nueva a la más vieja; 204 si no tiene), `PUT /leidas` las marca todas como leídas |
 | Muelle | `/muelles` | agregar/editar/quitar items; cada item lleva su `plan` |
 | Zarpar | `/zarpar` | genera el zarpar a partir del muelle (acepta `conBotiquin`) y crea los apadrinamientos |
 | Apadrinamientos | `/apadrinamientos` | listar (con sus pagos), cambiar de plan (`PUT /{id}/plan`), cancelar (`DELETE /{id}`) |
