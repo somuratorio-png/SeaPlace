@@ -17,7 +17,6 @@ public class ZarparResponse {
     private Double total;
     private String estado;
     private boolean conBotiquin;
-    // Si la lista esta vacia, el campo directamente no se incluye en el JSON.
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<ZarparDetalleResponse> detalles;
 

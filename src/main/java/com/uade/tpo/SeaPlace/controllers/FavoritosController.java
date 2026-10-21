@@ -16,18 +16,15 @@ public class FavoritosController {
     @Autowired
     private FavoritoService favoritoService;
 
-    // favoritos del usuario logueado (el del token)
     @GetMapping
     public ResponseEntity<List<FavoritoResponse>> getFavoritos() {
         List<FavoritoResponse> resultado = favoritoService.getFavoritos().stream().map(FavoritoResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(resultado);
     }
 
-    // PUT y no POST: guardar dos veces el mismo animal deja todo igual
     @PutMapping("/{animalId}")
     public ResponseEntity<FavoritoResponse> agregarFavorito(@PathVariable Long animalId) {
         return ResponseEntity.ok(FavoritoResponse.fromEntity(favoritoService.agregarFavorito(animalId)));

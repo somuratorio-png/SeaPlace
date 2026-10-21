@@ -1,6 +1,5 @@
 import Precio from '../comunes/Precio'
 
-// El plan con el que el usuario apadrinó al animal y cuántos cupos tomó
 const MiPlan = ({ plan, cupos }) => {
   return (
     <div className="bg-surface-container-lowest rounded-xl p-space-lg shadow-sm space-y-space-sm">

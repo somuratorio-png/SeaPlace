@@ -51,7 +51,6 @@ public class RolServiceImpl implements RolService {
                     "El nombre del rol no puede superar los " + LARGO_MAXIMO + " caracteres");
         }
 
-        // El nombre identifica al rol en toda la app, por eso no puede repetirse.
         if (rolRepository.findByNombreRol(nombreRol).isPresent()) {
             throw new RecursoDuplicadoException("Ya existe un rol con el nombre " + nombreRol);
         }
@@ -76,20 +75,14 @@ public class RolServiceImpl implements RolService {
             throw new ReglaDeNegocioException("La lista de permisos no puede tener ids vacios");
         }
 
-        // Sin repetidos: si llega el mismo id dos veces, findAllById lo devuelve una sola vez
-        // y la comparacion de abajo daria un falso "no existe".
         List<Long> idsUnicos = idPermisos.stream().distinct().toList();
 
         List<Permiso> permisos = permisoRepository.findAllById(idsUnicos);
 
-        // Si algun id no corresponde a un permiso existente, no se asigna nada: asignar un
-        // conjunto parcial dejaria al rol con permisos distintos a los pedidos.
         if (permisos.size() != idsUnicos.size()) {
             throw new RecursoNoEncontradoException("Uno o mas ids de permiso no existen");
         }
 
-        // El rol administrador no puede perder GESTIONAR_ROLES: sin ese permiso nadie
-        // podria volver a asignar permisos ni crear roles.
         if (rol.getNombreRol().equalsIgnoreCase(ROL_ADMINISTRADOR)
                 && permisos.stream().noneMatch(
                         p -> PERMISO_GESTIONAR_ROLES.equalsIgnoreCase(p.getNombrePermiso()))) {
@@ -97,7 +90,6 @@ public class RolServiceImpl implements RolService {
                     "El rol administrador debe conservar el permiso " + PERMISO_GESTIONAR_ROLES);
         }
 
-        // La asignacion reemplaza el conjunto completo de permisos del rol.
         rol.setPermisos(permisos);
 
         return rolRepository.save(rol);

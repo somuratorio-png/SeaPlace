@@ -1,7 +1,3 @@
-// Cartel de confirmación sobre toda la pantalla. Se cierra con "Cancelar", con Escape o tocando el fondo.
-// "children" es opcional: lo que haga falta completar antes de confirmar (por ejemplo, un campo de texto).
-// Se dibuja con React (un fondo fijo y la caja encima), sin tocar el DOM a mano. autoFocus pone el foco
-// en "Cancelar" al abrirlo, así Escape funciona enseguida y Enter no confirma algo peligroso sin querer.
 const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', onConfirmar, onCancelar, peligro = false, children }) => {
   const alTeclear = (evento) => {
     if (evento.key === 'Escape') {
@@ -9,7 +5,6 @@ const Modal = ({ titulo, mensaje, textoConfirmar, textoCancelar = 'Cancelar', on
     }
   }
 
-  // Solo cuenta si se tocó el fondo, no la caja
   const alClicDeFondo = (evento) => {
     if (evento.target === evento.currentTarget) {
       onCancelar()

@@ -5,8 +5,6 @@ import MensajeError from '../comunes/MensajeError'
 const claseSelect =
   'w-full bg-surface-container-lowest px-space-md py-3 rounded-full font-body-sm text-body-sm shadow-sm ring-1 ring-primary-fixed focus:outline-none focus:ring-2 focus:ring-secondary'
 
-// Buscador por texto + filtro por urgencia + orden + "solo favoritos" + rango de cuota mensual.
-// No guarda estado propio: recibe los valores y avisa los cambios al Catálogo (componente controlado).
 const BarraBusqueda = ({ busqueda, onBusqueda, urgencia, onUrgencia, orden, onOrden, soloFavoritos, onSoloFavoritos, precioMin, onPrecioMin, precioMax, onPrecioMax, errorPrecio, simboloMoneda }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-space-md">

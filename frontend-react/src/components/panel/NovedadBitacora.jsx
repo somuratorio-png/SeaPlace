@@ -1,7 +1,6 @@
 import Icono from '../comunes/Icono'
 import { formatearFecha } from '../../utils/fechas'
 
-// Una novedad que publicó el refugio: su fecha y su texto
 const NovedadBitacora = ({ novedad }) => {
   return (
     <div className="flex gap-space-md">

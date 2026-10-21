@@ -1,7 +1,6 @@
 import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import PrecioAnimal from '../comunes/PrecioAnimal'
 
-// Un animal guardado en favoritos, todavía sin apadrinar
 const TarjetaFavorito = ({ animal, onError, onVer }) => {
   return (
     <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex items-center gap-space-md transition hover:shadow-md">

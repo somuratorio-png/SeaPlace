@@ -2,7 +2,6 @@ import Atardecer from '../marino/Atardecer'
 import Icono from './Icono'
 import Olas from './Olas'
 
-// Franja con cielo de atardecer y el título de la página, que termina en olas sobre la arena
 const Portada = ({ icono, etiqueta, titulo, texto }) => {
   return (
     <section className="fondo-mar text-on-primary relative overflow-hidden">

@@ -3,9 +3,6 @@ import FilaAnimal from '../comunes/FilaAnimal'
 import GestionAnimal from './GestionAnimal'
 import ResumenMiAnimal from './ResumenMiAnimal'
 
-// Un animal del refugio con todo lo que se puede hacer con él: ver cuánto recauda, pausar su
-// publicación, corregir sus datos, ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
-// "apadrinamientos" son solo los activos de este animal.
 const TarjetaMiAnimal = ({ animal, apadrinamientos, categorias, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [abierto, setAbierto] = useState(false)
 

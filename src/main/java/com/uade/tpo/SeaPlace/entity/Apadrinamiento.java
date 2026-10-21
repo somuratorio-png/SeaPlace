@@ -14,9 +14,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-// El vinculo vivo entre un padrino y un animal: se crea al confirmar un zarpar y dura
-// hasta que el padrino lo cancela. Un zarpar es un pago; el apadrinamiento es lo que
-// queda despues (con que plan, cuantos cupos y desde cuando).
 @Data
 @Entity
 @Table(name = "apadrinamiento")
@@ -37,14 +34,12 @@ public class Apadrinamiento {
     @Column(nullable = false)
     private Plan plan;
 
-    // Cuantos cupos del animal tiene tomados este padrino.
     @Column(nullable = false)
     private Integer cupos;
 
     @Column(nullable = false)
     private LocalDateTime fechaInicio;
 
-    // Al cancelar no se borra: queda inactivo, asi se conserva el historial.
     @Column(nullable = false)
     private boolean activo = true;
 

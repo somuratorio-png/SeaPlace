@@ -1,11 +1,9 @@
 import Precio from '../comunes/Precio'
 import BarraProgreso from '../comunes/BarraProgreso'
 
-// Un animal que el usuario ya apadrinó, con su progreso de rehabilitación
 const TarjetaApadrinado = ({ item, onVer }) => {
   return (
     <div className="revelar group bg-surface-container-lowest rounded-2xl overflow-hidden shadow-md transition hover:-translate-y-1 hover:shadow-xl">
-      {/* El recuadro corta la foto cuando se agranda al pasar el mouse */}
       <div className="overflow-hidden">
         <img src={item.animal.imagen} alt={`Foto de ${item.animal.nombre}`} className="w-full h-48 object-cover transition duration-500 group-hover:scale-105" />
       </div>

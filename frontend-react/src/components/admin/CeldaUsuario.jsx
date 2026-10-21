@@ -1,6 +1,5 @@
 import { colorDelRol } from '../../utils/roles'
 
-// El círculo con la inicial del usuario, su nombre completo y su nombre de usuario
 const CeldaUsuario = ({ usuario }) => {
   return (
     <div className="flex items-center gap-space-sm">

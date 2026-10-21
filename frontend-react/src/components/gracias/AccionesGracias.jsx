@@ -1,4 +1,3 @@
-// Los dos botones del final de la página de gracias: ir al panel o seguir viendo animales
 const AccionesGracias = ({ onPanel, onCatalogo }) => {
   return (
     <div className="flex flex-wrap justify-center gap-space-md">

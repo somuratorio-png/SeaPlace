@@ -3,17 +3,14 @@ import MensajeError from '../comunes/MensajeError'
 
 const claseCampo = 'w-full bg-surface-container-lowest rounded-lg px-space-md py-2 font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/40'
 
-// Informa la última posición conocida del animal (la que marca su transmisor).
-// Es la que ven en el mapa de rastreo los padrinos con el plan más alto.
 const FormularioUbicacion = ({ animal, onRegistrar }) => {
   const [latitud, setLatitud] = useState('')
   const [longitud, setLongitud] = useState('')
   const [registrada, setRegistrada] = useState(false)
   const [error, setError] = useState(null)
 
-  // onRegistrar la manda al backend y devuelve un mensaje de error, o null si salió bien
   const registrar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!latitud.trim() || !longitud.trim()) {
       setError('Completá todos los campos')
       return

@@ -7,19 +7,14 @@ import PasoMail from './PasoMail'
 
 const formularioVacio = { mail: '', codigo: '', contrasenia: '' }
 
-// "Olvidé mi contraseña", en dos pasos:
-// 1) se escribe el mail y el backend genera un código de un solo uso (vence a los 5 minutos);
-// 2) con ese código se elige la contraseña nueva.
-// El proyecto no manda correos de verdad: el código sale impreso en la consola del backend.
-// onVolver vuelve al formulario de ingreso.
 const RecuperarContrasenia = ({ onVolver }) => {
-  const [paso, setPaso] = useState('mail') // 'mail' | 'codigo' | 'listo'
+  const [paso, setPaso] = useState('mail')
   const { datos, cambiar } = useFormulario(formularioVacio)
-  const [aviso, setAviso] = useState(null) // lo que contestó el backend al pedir el código
+  const [aviso, setAviso] = useState(null)
   const [error, setError] = useState(null)
 
   const pedir = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!datos.mail.trim()) {
       setError('Completá todos los campos')
       return

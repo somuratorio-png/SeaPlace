@@ -1,4 +1,3 @@
-// La escala (10 km) abajo a la izquierda y la rosa del norte arriba a la izquierda. Va dentro de un <svg>.
 const EscalaYNorte = () => {
   return (
     <>

@@ -3,13 +3,10 @@ import EstadoCarga from '../comunes/EstadoCarga'
 import GraficoRecaudacion from './GraficoRecaudacion'
 import TarjetaDato from '../comunes/TarjetaDato'
 
-// Sección "Resumen" del administrador: los números generales y el gráfico de recaudación.
-// "usuarios" los tiene el panel; los animales publicados y los apadrinamientos, SeccionesAdmin.
 const SeccionResumen = ({ usuarios, publicados, apadrinamientos, cargando, error }) => {
   const refugios = usuarios.filter((u) => u.rol === 'refugio')
   const dadosDeBaja = usuarios.filter((u) => !u.activo)
 
-  // Un renglón del gráfico por cada refugio aprobado
   const recaudacionPorRefugio = refugios
     .filter((refugio) => refugio.aprobado)
     .map((refugio) => {

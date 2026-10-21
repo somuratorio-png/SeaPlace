@@ -1,7 +1,6 @@
 import FilaPago from './FilaPago'
 import Precio from '../comunes/Precio'
 
-// Lista de los pagos ya hechos por un apadrinamiento (uno por cada zarpar donde se pagó ese animal)
 const HistorialPagos = ({ pagos }) => {
   const total = pagos.reduce((suma, pago) => suma + pago.monto, 0)
 

@@ -1,6 +1,5 @@
 import Portada from '../comunes/Portada'
 
-// Lo que se ve cuando el muelle no tiene ningún animal, con un botón para ir al catálogo
 const MuelleVacio = ({ onVerCatalogo }) => {
   return (
     <>

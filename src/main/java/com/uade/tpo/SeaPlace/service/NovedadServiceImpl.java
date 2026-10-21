@@ -31,7 +31,6 @@ public class NovedadServiceImpl implements NovedadService {
     @Autowired
     private NotificacionService notificacionService;
 
-    // Cuanto de la novedad se copia en la notificacion: el resto se lee en la bitacora
     private static final int LARGO_ADELANTO = 140;
 
     @Override
@@ -49,7 +48,6 @@ public class NovedadServiceImpl implements NovedadService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + animalId));
 
-        // Solo el refugio dueño del animal (o un admin) puede publicarle novedades.
         autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         String texto = request.getTexto() == null ? "" : request.getTexto().trim();

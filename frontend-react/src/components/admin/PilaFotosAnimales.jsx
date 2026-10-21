@@ -1,4 +1,3 @@
-// Fotos chiquitas de los animales de un refugio, una encima de la otra
 const PilaFotosAnimales = ({ animales }) => {
   return (
     <div className="flex -space-x-3">

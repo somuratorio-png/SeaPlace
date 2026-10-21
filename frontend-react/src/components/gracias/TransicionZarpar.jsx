@@ -1,11 +1,8 @@
 import { useEffect, useState } from 'react'
 import Pez from '../marino/Pez'
 
-// Lo que dura la escena, en milisegundos. Las animaciones de index.css (navegar, desvanecer-zarpar, saltar-pez...)
-// están pensadas para este tiempo: si se cambia acá, hay que cambiarlas allá.
 const DURACION = 4000
 
-// Una tira de olas que se repite: son dos copias de la misma curva, así al correrla media tira vuelve a empezar sin salto.
 const TiraOlas = ({ clase, color }) => {
   const curva = 'Q 180 10 360 40 T 720 40 T 1080 40 T 1440 40'
   return (
@@ -16,21 +13,16 @@ const TiraOlas = ({ clase, color }) => {
   )
 }
 
-// El velero, de costado y mirando a la derecha. La línea de flotación queda a la altura de la franja del casco:
-// de ahí para abajo lo tapan las olas de adelante, así el barco va metido en el agua.
 const Velero = () => {
   return (
     <svg viewBox="0 0 120 100" aria-hidden="true" className="w-full h-full overflow-visible">
-      {/* Banderín en la punta del mástil */}
       <path fill="#e0714a" d="M60 4 Q 68 5 75 9 Q 68 10 60 12 Z" />
       <rect x="58" y="4" width="2.6" height="66" rx="1.3" fill="#3b2a4a" />
 
-      {/* Vela mayor (atrás del mástil) y foque (adelante), curvas como si las inflara el viento */}
       <path fill="#fff6ea" d="M62 12 Q 86 36 101 64 L62 64 Z" />
       <path fill="#f1dcc6" d="M62 12 Q 70 36 72 64 L62 64 Z" />
       <path fill="#fff6ea" opacity="0.92" d="M56 20 Q 38 42 25 64 L56 64 Z" />
 
-      {/* Casco: curvo, con una franja y dos ojos de buey */}
       <path fill="#3b2a4a" d="M8 67 Q 60 73 114 65 L100 86 Q 60 93 23 86 Z" />
       <path fill="#a8506b" d="M10 70 Q 60 76 112 68 L110 72 Q 60 80 12 74 Z" />
       <circle cx="44" cy="80" r="2.4" fill="#f4a95c" />
@@ -39,7 +31,6 @@ const Velero = () => {
   )
 }
 
-// La espuma que deja el barco atrás, sobre el agua
 const Estela = () => {
   return (
     <svg viewBox="0 0 80 20" aria-hidden="true" className="estela-zarpar absolute -left-14 bottom-[14%] w-20 h-5">
@@ -49,7 +40,6 @@ const Estela = () => {
   )
 }
 
-// Una gaviota de lejos: dos alas en forma de "v" curva
 const Gaviota = ({ clase }) => {
   return (
     <svg viewBox="0 0 24 10" aria-hidden="true" className={`planear absolute w-7 ${clase}`}>
@@ -58,22 +48,17 @@ const Gaviota = ({ clase }) => {
   )
 }
 
-// Los que saltan fuera del agua: dónde (desde la izquierda), cuándo empiezan (s) y de qué color
 const pecesSaltando = [
   { izquierda: '22%', demora: '0.9s', color: '#8fdcd2' },
   { izquierda: '62%', demora: '2s', color: '#f4a95c' },
 ]
 
-// Los que nadan bajo el agua: a qué altura, cuánto tardan en cruzar (s), cuándo arrancan y su tamaño
 const pecesNadando = [
   { abajo: 'bottom-3', duracion: '4.5s', demora: '0s', clase: 'w-10' },
   { abajo: 'bottom-9', duracion: '5.5s', demora: '0.4s', clase: 'w-7' },
   { abajo: 'bottom-5', duracion: '3.8s', demora: '1.2s', clase: 'w-8' },
 ]
 
-// Se muestra encima de la página de gracias apenas se zarpa: un velero cruza el mar al atardecer, unos peces
-// saltan y nadan alrededor, pasan unas gaviotas y la escena se desvanece dejando ver los certificados. Tocándola se saltea.
-// Si el usuario pidió menos movimiento en su sistema, el CSS la oculta (ver .transicion-zarpar en index.css).
 const TransicionZarpar = () => {
   const [visible, setVisible] = useState(true)
 
@@ -106,7 +91,6 @@ const TransicionZarpar = () => {
       <div className="absolute inset-x-0 bottom-0 h-56">
         <TiraOlas clase="h-32 olas-zarpar-lentas" color="#4a6a8f" />
 
-        {/* Saltan desde atrás de la ola de adelante: así entran y salen del agua */}
         {pecesSaltando.map((pez) => (
           <div key={pez.izquierda} className="pez-saltando absolute bottom-10" style={{ left: pez.izquierda, animationDelay: pez.demora }}>
             <Pez clase="w-10 lg:w-12" color={pez.color} />
@@ -122,7 +106,6 @@ const TransicionZarpar = () => {
 
         <TiraOlas clase="h-24" color="#1d3f5e" />
 
-        {/* El reflejo del sol sobre el agua, que titila */}
         <div className="resplandor absolute left-1/2 bottom-2 -translate-x-1/2 flex flex-col items-center gap-1.5" aria-hidden="true">
           <span className="block h-1 w-28 rounded-full bg-[#f4a95c]/50" />
           <span className="block h-1 w-20 rounded-full bg-[#f4a95c]/40" />

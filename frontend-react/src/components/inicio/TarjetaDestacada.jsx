@@ -2,11 +2,9 @@ import { precioFinal } from '../../utils/precios'
 import BarraProgreso from '../comunes/BarraProgreso'
 import Precio from '../comunes/Precio'
 
-// Tarjeta de un animal destacado en el inicio
 const TarjetaDestacada = ({ animal, onVer }) => {
   return (
     <div className="revelar group bg-surface-container-lowest rounded-2xl overflow-hidden shadow-md flex flex-col transition hover:-translate-y-1 hover:shadow-xl">
-      {/* El recuadro corta la foto cuando se agranda al pasar el mouse */}
       <div className="overflow-hidden">
         <img src={animal.imagen} alt={`Foto de ${animal.nombre}`} className="w-full aspect-square object-cover transition duration-500 group-hover:scale-105" />
       </div>

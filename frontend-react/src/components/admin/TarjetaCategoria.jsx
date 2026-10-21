@@ -1,6 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Una categoría con su ícono y cuántos animales publicados tiene
 const TarjetaCategoria = ({ categoria, cantidad }) => {
   return (
     <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-md flex items-center gap-space-md">

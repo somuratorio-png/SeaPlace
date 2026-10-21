@@ -9,24 +9,15 @@ import FormularioPermiso from './FormularioPermiso'
 import FormularioRol from './FormularioRol'
 import TarjetaRol from './TarjetaRol'
 
-// Sección "Roles y permisos" del administrador: qué permisos tiene cada rol, y los formularios
-// para crear un rol o un permiso nuevo. Un permiso es lo que el backend exige para ciertas rutas
-// (por ejemplo GESTIONAR_USUARIOS); un rol es un conjunto de permisos.
-// Los roles y los permisos los pide SeccionesAdmin.
-// Cada acción llama al backend y, con lo que contesta, actualiza la lista. Si falla, onError muestra el mensaje.
 const SeccionRoles = ({ roles, setRoles, permisos, setPermisos, cargando, error, onError }) => {
   const { token } = useSesion()
 
-  // Pone en la lista el rol como lo devolvió el backend (uno nuevo, o uno con sus permisos cambiados)
   const guardarRol = (rol) => {
     setRoles((actuales) => ponerEn(actuales, rol))
   }
 
-  // Reemplaza todos los permisos del rol por los elegidos.
-  // Devuelve una promesa con el mensaje de error, o null si salió bien (lo usa la tarjeta del rol).
   const asignar = (idRol, idsPermisos) => intentar(usuariosApi.asignarPermisos(token, idRol, idsPermisos).then(guardarRol), onError)
 
-  // Las dos devuelven una promesa con el mensaje de error, o null si salió bien (lo usa el formulario)
   const crearRol = (nombre) => intentar(usuariosApi.crearRol(token, nombre).then(guardarRol), onError)
 
   const crearPermiso = (nombre, descripcion) =>
@@ -49,7 +40,6 @@ const SeccionRoles = ({ roles, setRoles, permisos, setPermisos, cargando, error,
         <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Todavía no hay roles. Creá el primero con el formulario de abajo.</MensajeVacio>
       )}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md items-start">
-        {/* La key es el id del rol: cada tarjeta guarda los tildes que el usuario va eligiendo */}
         {roles.map((rol) => (
           <TarjetaRol key={rol.id} rol={rol} permisos={permisos} onAsignar={asignar} />
         ))}

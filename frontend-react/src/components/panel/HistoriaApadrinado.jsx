@@ -1,7 +1,6 @@
 import Galeria from '../comunes/Galeria'
 import Bitacora from './Bitacora'
 
-// Columna de la izquierda del detalle de un apadrinado: las fotos, su historia y las novedades del refugio
 const HistoriaApadrinado = ({ animal, novedades }) => {
   return (
     <div className="lg:col-span-7 space-y-space-lg">

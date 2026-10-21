@@ -1,6 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Una pregunta del acordeón. "abierta" es true si se está mostrando su respuesta; onTocar la abre o la cierra.
 const PreguntaFrecuente = ({ pregunta, respuesta, abierta, onTocar }) => {
   return (
     <div className="bg-surface-container-lowest rounded-xl shadow-sm">

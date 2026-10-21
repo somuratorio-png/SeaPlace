@@ -1,6 +1,5 @@
 import FilaDato from './FilaDato'
 
-// Datos básicos del animal apadrinado, en formato "etiqueta: valor"
 const FichaAnimal = ({ animal }) => {
 
   const datos = [

@@ -1,7 +1,5 @@
 import Precio from '../comunes/Precio'
 
-// Una de las opciones de nivel de custodia: se elige con un botón de radio.
-// "elegido" es true si es el plan que está tildado.
 const OpcionPlan = ({ plan, elegido, onElegir }) => {
   return (
     <label

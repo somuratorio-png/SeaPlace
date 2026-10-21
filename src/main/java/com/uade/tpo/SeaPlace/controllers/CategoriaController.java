@@ -23,7 +23,6 @@ public class CategoriaController {
     @GetMapping
     public ResponseEntity<List<CategoriaResponse>> getCategorias() {
         List<CategoriaResponse> resultado = categoriaService.getCategorias().stream().map(CategoriaResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

@@ -1,7 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Los botones de un refugio: aprobarlo (si todavía no está aprobado), mostrar u ocultar sus animales,
-// y darlo de baja o reactivarlo. onAprobar y onCambiarActivo reciben su nombre de usuario.
 const AccionesRefugio = ({ refugio, abierto, onAprobar, onAlternarAnimales, onCambiarActivo }) => {
   return (
     <div className="flex flex-wrap items-center gap-space-md">

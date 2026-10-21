@@ -1,4 +1,3 @@
-// La zona habitual del animal (círculo punteado), con el refugio en el centro. Va dentro de un <svg>.
 const ZonaHabitual = ({ zona }) => {
   return (
     <>

@@ -1,6 +1,5 @@
 import Icono from './Icono'
 
-// La marca de SeaPlace con su descripción y el derecho de autor, en el footer
 const MarcaFooter = () => {
   return (
     <div className="space-y-space-sm">

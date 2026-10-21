@@ -14,11 +14,9 @@ const beneficios = [
 const KitProtector = () => {
   return (
     <section>
-      {/* Las olas abren una franja de arena */}
       <Olas clase="text-primary-fixed -mb-px" />
 
       <div className="bg-primary-fixed py-space-xl relative overflow-hidden">
-        {/* Arena con una estrella y una concha en las esquinas */}
         <Estrella clase="w-20 absolute -left-4 top-6 rotate-12 opacity-80" />
         <Concha clase="w-16 absolute right-6 bottom-6 -rotate-12 opacity-90" />
 

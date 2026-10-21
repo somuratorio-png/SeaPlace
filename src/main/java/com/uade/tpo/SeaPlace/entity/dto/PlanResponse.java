@@ -6,7 +6,6 @@ import lombok.Data;
 
 @Data
 public class PlanResponse {
-    // El codigo es lo que se manda en los pedidos (ej: "MAREA_PROFUNDA"); el nombre es el que se muestra.
     private String codigo;
     private String nombre;
     private double multiplicador;

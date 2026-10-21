@@ -1,7 +1,6 @@
 import Precio from '../comunes/Precio'
 import { formatearFecha } from '../../utils/fechas'
 
-// Un pago del historial: la fecha y el monto
 const FilaPago = ({ pago }) => {
   return (
     <div className="flex justify-between font-body-md text-body-md">

@@ -1,10 +1,6 @@
 import { useState } from 'react'
 
-// Un rol con sus permisos: se tildan los que tiene que tener y se guardan todos juntos
-// (la asignación reemplaza el conjunto completo). "permisos" son todos los que existen.
-// onAsignar(idRol, idsPermisos) devuelve el mensaje de error del backend, o null si salió bien.
 const TarjetaRol = ({ rol, permisos, onAsignar }) => {
-  // Arranca con los que el rol ya tiene. rol.permisos trae los nombres, y acá se guardan los ids.
   const [elegidos, setElegidos] = useState(() => permisos.filter((permiso) => rol.permisos.includes(permiso.nombre)).map((permiso) => permiso.id))
   const [guardado, setGuardado] = useState(false)
 
@@ -46,7 +42,6 @@ const TarjetaRol = ({ rol, permisos, onAsignar }) => {
       ))}
 
       <div className="flex flex-wrap items-center gap-space-md">
-        {/* El backend no acepta dejar a un rol sin ningún permiso por esta vía */}
         <button
           onClick={guardar}
           disabled={elegidos.length === 0}

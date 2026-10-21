@@ -1,9 +1,7 @@
-// Concha de mar en forma de abanico. "clase" define el tamaño y la posición.
 const Concha = ({ clase = 'w-14' }) => {
   return (
     <svg viewBox="0 0 100 90" aria-hidden="true" className={`pointer-events-none ${clase}`}>
       <path d="M50 84 C 20 80 4 56 6 34 C 8 16 26 6 50 6 C 74 6 92 16 94 34 C 96 56 80 80 50 84 Z" fill="#fbe1cf" stroke="#d9a183" strokeWidth="2" />
-      {/* Las estrías salen todas desde la base */}
       <g fill="none" stroke="#d9a183" strokeWidth="2" strokeLinecap="round">
         <path d="M50 82 L 50 8" />
         <path d="M50 82 C 40 56 32 30 30 11" />

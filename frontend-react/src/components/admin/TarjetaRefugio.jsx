@@ -5,8 +5,6 @@ import AnimalesDelRefugio from './AnimalesDelRefugio'
 import Chip from './Chip'
 import PilaFotosAnimales from './PilaFotosAnimales'
 
-// Un refugio en la lista del administrador. Al tocar "Ver animales" se despliegan los suyos.
-// Si el refugio todavía no fue aprobado, aparece el botón para aprobarlo.
 const TarjetaRefugio = ({ refugio, animales, onCambiarActivo, onAprobar, onQuitarAnimal }) => {
   const [abierto, setAbierto] = useState(false)
 

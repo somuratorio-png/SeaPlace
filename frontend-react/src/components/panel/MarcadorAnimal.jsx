@@ -1,5 +1,3 @@
-// El pulso de la última señal y el marcador con la foto del animal en la última posición conocida.
-// "ultima" es la última señal recibida. Va dentro de un <svg>.
 const MarcadorAnimal = ({ animal, ultima }) => {
   return (
     <>
@@ -9,8 +7,6 @@ const MarcadorAnimal = ({ animal, ultima }) => {
         </clipPath>
       </defs>
 
-      {/* Pulso: dos ondas que se expanden una sola vez cuando llega la señal.
-          La "key" cambia con cada señal, y por eso la animación vuelve a empezar. */}
       <g key={ultima.n}>
         <circle className="pulso-gps" cx={ultima.x} cy={ultima.y} r="9" fill="none" stroke="#ffffff" strokeWidth="0.4" />
         <circle className="pulso-gps pulso-gps-tarde" cx={ultima.x} cy={ultima.y} r="9" fill="none" stroke="#ffffff" strokeWidth="0.4" />

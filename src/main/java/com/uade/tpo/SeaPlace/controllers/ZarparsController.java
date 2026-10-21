@@ -33,7 +33,6 @@ public class ZarparsController {
         Page<ZarparResponse> resultado = zarparService
                 .getZarparsByUsuario(autorizacionService.idUsuarioActual(), pageRequest)
                 .map(ZarparResponse::fromEntity);
-        // Si la pagina no trae elementos, se responde 204 (sin cuerpo) en vez de una pagina vacia.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -46,7 +45,6 @@ public class ZarparsController {
         return result.map(c -> ResponseEntity.ok(ZarparResponse.fromEntity(c))).orElse(ResponseEntity.notFound().build());
     }
 
-    // confirma la compra a partir del carrito (acá vive la lógica: valida disponibilidad, aplica descuentos, arma el detalle)
     @PostMapping
     public ResponseEntity<ZarparResponse> confirmarZarpar(@RequestBody ZarparRequest request) {
         Zarpar result = zarparService.confirmarZarpar(autorizacionService.idUsuarioActual(), request);

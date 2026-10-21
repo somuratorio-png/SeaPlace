@@ -1,6 +1,5 @@
 import { loginFondo } from '../../data/imagenes'
 
-// Mitad izquierda del login: foto de fondo con una frase
 const Bienvenida = () => {
   return (
     <div className="relative min-h-64 lg:min-h-full rounded-xl overflow-hidden">

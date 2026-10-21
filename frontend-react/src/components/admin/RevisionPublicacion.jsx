@@ -4,10 +4,6 @@ import FilaAnimal from '../comunes/FilaAnimal'
 import Icono from '../comunes/Icono'
 import Modal from '../comunes/Modal'
 
-// Algo de un refugio que espera la revisión del administrador (una publicación nueva o un pedido de cambios),
-// con los botones para aprobarlo o rechazarlo. "children" es opcional: lo que haga falta mostrar para decidir
-// (por ejemplo, qué campos cambian). Al rechazar se confirma en un cartel donde se puede escribir el motivo:
-// onRechazar lo recibe (vacío si no escribió nada).
 const RevisionPublicacion = ({
   animal,
   onAprobar,
@@ -17,7 +13,7 @@ const RevisionPublicacion = ({
   mensajeRechazo = 'No se va a publicar y el refugio recibe una notificación. Si querés, contale por qué así puede corregirla.',
   children,
 }) => {
-  const [rechazando, setRechazando] = useState(false) // true mientras está abierto el cartel de rechazo
+  const [rechazando, setRechazando] = useState(false)
   const [motivo, setMotivo] = useState('')
 
   const cerrar = () => {

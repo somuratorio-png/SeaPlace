@@ -7,8 +7,6 @@ import SinApadrinados from './SinApadrinados'
 import TarjetaApadrinado from './TarjetaApadrinado'
 import { paraBuscar, textoDelAnimal } from '../../utils/texto'
 
-// La sección "Tus apadrinados": el aviso de espera, el error del backend, el mensaje de lista vacía
-// o las tarjetas con un buscador. "apadrinados" son los apadrinamientos activos.
 const SeccionApadrinados = ({ cargando, error, apadrinados, onVer, onElegir }) => {
   const [busqueda, setBusqueda] = useState('')
 

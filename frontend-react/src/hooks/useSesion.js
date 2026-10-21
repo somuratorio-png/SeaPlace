@@ -7,7 +7,7 @@ export const useSesion = () => {
 
   return {
     usuario,
-    token, // el de quien inició sesión (o null): cada llamada al backend lo recibe
+    token,
     esAdmin: esAdmin(usuario),
     esRefugio: esRefugio(usuario),
     puedeApadrinar: puedeApadrinar(usuario),

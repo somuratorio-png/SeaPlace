@@ -23,7 +23,6 @@ public class MuellesController {
     @Autowired
     private AutorizacionService autorizacionService;
 
-    // muelle activo del usuario logueado (el del token)
     @GetMapping
     public ResponseEntity<MuelleResponse> getMuelleActivo() {
         return ResponseEntity.ok(MuelleResponse.fromEntity(
@@ -50,7 +49,6 @@ public class MuellesController {
     @GetMapping("/{muelleId}/items")
     public ResponseEntity<List<MuelleDetalleResponse>> getItems(@PathVariable Long muelleId) {
         List<MuelleDetalleResponse> resultado = muelleService.getItems(muelleId).stream().map(MuelleDetalleResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }

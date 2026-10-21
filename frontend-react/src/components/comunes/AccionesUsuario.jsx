@@ -2,9 +2,6 @@ import BotonMoneda from './BotonMoneda'
 import CampanaNotificaciones from './CampanaNotificaciones'
 import Icono from './Icono'
 
-// Lo de la derecha del header: la moneda, las notificaciones, el botón de ingresar (o el nombre del usuario),
-// "Mi cuenta" y "Salir". "usuario" es null si no hay nadie logueado. Un administrador no recibe notificaciones,
-// así que a él no se le muestra la campanita.
 const AccionesUsuario = ({ usuario, esAdmin, pathname, moneda, onCambiarMoneda, onIngresar, onCuenta, onSalir }) => {
   return (
     <div className="flex flex-wrap items-center gap-space-md">

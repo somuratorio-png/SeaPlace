@@ -14,14 +14,9 @@ import AvisoRefugiosPendientes from './AvisoRefugiosPendientes'
 const REFUGIOS_POR_PAGINA = 4
 const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 
-// Sección "Refugios" del administrador: los busca, los muestra de a una página y permite
-// aprobarlos, darlos de baja y ver sus animales.
-// "usuarios" los tiene el panel; las publicaciones (activas, pausadas y pendientes), SeccionesAdmin.
-// Cada acción llama al backend y, con lo que contesta, actualiza el estado.
 const SeccionRefugios = ({ usuarios, animales, setAnimales, cargando, error, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { token } = useSesion()
 
-  // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
   const cambiarActivo = (nombreUsuario) => {
     onCambiarActivo(nombreUsuario).then((cambiado) => {
       if (cambiado && !cambiado.activo && cambiado.idRefugio) {
@@ -42,7 +37,6 @@ const SeccionRefugios = ({ usuarios, animales, setAnimales, cargando, error, onC
       })
   }
 
-  // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
     onError(null)
     quitarAnimal(token, idAnimal)
@@ -55,7 +49,6 @@ const SeccionRefugios = ({ usuarios, animales, setAnimales, cargando, error, onC
   }
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
-  // Los que esperan aprobación van primero en la lista
   const refugios = [...pendientes, ...usuarios.filter((u) => u.rol === 'refugio' && u.aprobado)]
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(refugios, textoDelRefugio, REFUGIOS_POR_PAGINA)
 

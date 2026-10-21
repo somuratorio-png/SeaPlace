@@ -1,4 +1,3 @@
-// repository/FotoAnimalRepository.java
 package com.uade.tpo.SeaPlace.repository;
 
 import java.util.List;

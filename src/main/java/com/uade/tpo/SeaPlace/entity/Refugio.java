@@ -31,8 +31,6 @@ public class Refugio {
     @Column
     private String descripcion;
 
-    // Un refugio que se registra solo queda pendiente hasta que un administrador lo aprueba;
-    // mientras tanto no puede publicar animales.
     @Column(nullable = false, columnDefinition = "boolean default true")
     private boolean aprobado = true;
 

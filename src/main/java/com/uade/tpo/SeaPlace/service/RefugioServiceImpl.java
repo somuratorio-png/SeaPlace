@@ -52,8 +52,6 @@ public class RefugioServiceImpl implements RefugioService {
         return refugioRepository.findById(refugioId).filter(this::puedeVer);
     }
 
-    // Un refugio cuyo usuario esta dado de baja, o que todavia no fue aprobado, solo lo ve
-    // un admin o su propio dueño; para el resto es como si no existiera (404 en el detalle).
     private boolean puedeVer(Refugio refugio) {
         if (refugio.getUsuario().isActivo() && refugio.isAprobado()) {
             return true;
@@ -66,14 +64,12 @@ public class RefugioServiceImpl implements RefugioService {
                 || actual.getIdUsuario().equals(refugio.getUsuario().getIdUsuario());
     }
 
-    // Alta hecha por un administrador: el refugio queda aprobado desde el inicio.
     @Override
     @Transactional
     public Refugio createRefugio(RefugioRequest request) {
         return crear(request, true);
     }
 
-    // Alta del registro publico (/auth/register-refugio): queda esperando la aprobacion.
     @Override
     @Transactional
     public Refugio createRefugioPendiente(RefugioRequest request) {
@@ -120,20 +116,15 @@ public class RefugioServiceImpl implements RefugioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + request.getIdUsuario()));
 
-        // Un usuario puede administrar a lo sumo un refugio: la cuenta del refugio es la
-        // identidad con la que publica sus animales.
         if (refugioRepository.findByUsuario_IdUsuario(usuario.getIdUsuario()).isPresent()) {
             throw new RecursoDuplicadoException(
                     "El usuario con id " + usuario.getIdUsuario() + " ya tiene un refugio asociado");
         }
 
-        // Dos refugios con el mismo nombre se confundirian en el catalogo.
         if (refugioRepository.findByNombreRefugio(nombreRefugio).isPresent()) {
             throw new RecursoDuplicadoException("Ya existe un refugio con el nombre " + nombreRefugio);
         }
 
-        // Una cuenta de refugio administra animales, no los apadrina: si el usuario era
-        // padrino, pasa a tener el rol refugio (un administrador conserva el suyo).
         if (usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_PADRINO)) {
             Rol rolRefugio = rolRepository.findByNombreRol(ROL_REFUGIO)
                     .orElseThrow(() -> new RecursoNoEncontradoException(

@@ -3,7 +3,6 @@ import Icono from '../comunes/Icono'
 import Olas from '../comunes/Olas'
 import Atardecer from '../marino/Atardecer'
 
-// Portada del inicio: título, texto y botón hacia el catálogo, sobre un cielo de atardecer
 const Hero = ({ onVerCatalogo }) => {
   return (
     <section className="fondo-mar text-on-primary relative overflow-hidden">

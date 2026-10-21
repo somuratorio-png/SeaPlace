@@ -2,7 +2,6 @@ import BotonFormulario from '../comunes/BotonFormulario'
 import CampoTexto from '../comunes/CampoTexto'
 import MensajeError from '../comunes/MensajeError'
 
-// Paso 1 de "olvidé mi contraseña": se escribe el correo de la cuenta para pedir el código
 const PasoMail = ({ mail, error, onCambiar, onEnviar }) => {
   return (
     <form onSubmit={onEnviar} className="space-y-space-md">

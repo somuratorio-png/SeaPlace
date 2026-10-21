@@ -13,7 +13,6 @@ import lombok.Data;
 public class RolResponse {
     private Long idRol;
     private String nombreRol;
-    // Si la lista esta vacia, el campo directamente no se incluye en el JSON.
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<String> permisos;
 

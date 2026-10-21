@@ -6,7 +6,6 @@ import { useMoneda } from '../../hooks/useMoneda'
 import { useMuelle } from '../../hooks/useMuelle'
 import { useSesion } from '../../hooks/useSesion'
 
-// El menú son <Link>; los botones de la derecha navegan con useNavigate
 const Header = () => {
   const navigate = useNavigate()
   const { pathname } = useLocation()
@@ -15,7 +14,6 @@ const Header = () => {
   const { moneda, cambiarMoneda } = useMoneda()
 
   return (
-    // Barra flotante: queda pegada arriba, separada de los bordes y con fondo de vidrio esmerilado
     <header className="sticky top-0 z-50 w-full px-space-sm lg:px-margin py-space-sm print:hidden">
       <div className="max-w-7xl mx-auto py-space-sm px-space-md lg:px-space-lg flex flex-wrap items-center justify-between gap-space-sm bg-white/75 backdrop-blur-xl rounded-3xl shadow-lg ring-1 ring-white/60">
         <Link to="/" className="flex items-center gap-space-sm">

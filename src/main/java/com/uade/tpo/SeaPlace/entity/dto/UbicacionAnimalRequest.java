@@ -7,5 +7,4 @@ public class UbicacionAnimalRequest {
     private Long idAnimal;
     private Double latitud;
     private Double longitud;
-    // fechaHora la setea el service (LocalDateTime.now())
 }

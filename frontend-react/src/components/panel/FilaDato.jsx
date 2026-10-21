@@ -1,4 +1,3 @@
-// Una línea "etiqueta: valor" de la ficha de un animal
 const FilaDato = ({ etiqueta, valor }) => {
   return (
     <div className="flex justify-between gap-space-md">

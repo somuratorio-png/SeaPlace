@@ -1,7 +1,6 @@
 import Precio from '../comunes/Precio'
 import { PRECIO_BOTIQUIN } from '../../utils/precios'
 
-// El resumen de lo que se va a pagar: cada animal con su plan, el botiquín si se eligió y el total mensual
 const ResumenPedido = ({ muelle, conBotiquin, total }) => {
   return (
     <div className="lg:col-span-5 bg-surface-container-lowest rounded-2xl p-space-lg shadow-md space-y-space-sm">

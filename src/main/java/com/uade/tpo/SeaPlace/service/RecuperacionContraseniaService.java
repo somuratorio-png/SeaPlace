@@ -23,9 +23,6 @@ public class RecuperacionContraseniaService {
     private final UsuarioRepository usuarioRepository;
     private final PasswordEncoder passwordEncoder;
 
-    // Genera un codigo de un solo uso y lo "envia". Como el proyecto no manda mails reales,
-    // el mail se imprime en la consola del servidor. Si el mail no existe no se avisa:
-    // asi nadie puede averiguar que mails estan registrados.
     public void solicitarCodigo(String mailCrudo) {
         String mail = ValidadorUsuarioService.mailValido(mailCrudo);
 
@@ -44,14 +41,12 @@ public class RecuperacionContraseniaService {
         String mail = ValidadorUsuarioService.mailValido(mailCrudo);
         ValidadorUsuarioService.validarContrasenia(contraseniaNueva);
 
-        // Un unico mensaje para cualquier fallo: asi no se sabe si fallo el mail o el codigo.
         Usuario usuario = usuarioRepository.findByMail(mail)
                 .filter(Usuario::isActivo)
                 .filter(u -> codigoValido(u, codigo))
                 .orElseThrow(() -> new ReglaDeNegocioException("El codigo es incorrecto o ya vencio"));
 
         usuario.setContrasenia(passwordEncoder.encode(contraseniaNueva));
-        // El codigo es de un solo uso.
         usuario.setCodigoRecuperacion(null);
         usuario.setCodigoRecuperacionVence(null);
         usuarioRepository.save(usuario);

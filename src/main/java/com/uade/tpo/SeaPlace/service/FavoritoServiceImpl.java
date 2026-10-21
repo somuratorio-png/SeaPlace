@@ -13,7 +13,6 @@ import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.repository.AnimalRepository;
 import com.uade.tpo.SeaPlace.repository.FavoritoRepository;
 
-// Los favoritos son siempre los del usuario logueado (el del token): nadie ve ni toca los de otro.
 @Service
 public class FavoritoServiceImpl implements FavoritoService {
 
@@ -39,7 +38,6 @@ public class FavoritoServiceImpl implements FavoritoService {
                 .filter(autorizacionService::puedeVerAnimal)
                 .orElseThrow(() -> new RecursoNoEncontradoException("No existe el animal con id " + animalId));
 
-        // Guardar dos veces el mismo animal no es un error: se devuelve el que ya estaba.
         Optional<Favorito> existente = favoritoRepository
                 .findByUsuario_IdUsuarioAndAnimal_IdAnimal(usuario.getIdUsuario(), animalId);
         if (existente.isPresent()) {
@@ -54,7 +52,6 @@ public class FavoritoServiceImpl implements FavoritoService {
 
     @Override
     public void quitarFavorito(Long animalId) {
-        // Si no estaba en favoritos no hay nada que hacer.
         favoritoRepository
                 .findByUsuario_IdUsuarioAndAnimal_IdAnimal(autorizacionService.idUsuarioActual(), animalId)
                 .ifPresent(favoritoRepository::delete);

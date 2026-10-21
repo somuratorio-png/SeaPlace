@@ -1,9 +1,6 @@
-// Líneas de la grilla del mapa (meridianos y paralelos)
 const verticales = [10, 20, 30, 40, 50, 60, 70, 80, 90]
 const horizontales = [10, 20, 30, 40, 50]
 
-// El fondo del mapa: el mar con su degradé, la grilla de coordenadas y la costa de arena
-// con su espuma, arriba a la derecha y abajo a la izquierda. Va dentro de un <svg>.
 const FondoMapa = () => {
   return (
     <>

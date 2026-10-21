@@ -1,7 +1,5 @@
 import MuelleDetalle from './MuelleDetalle'
 
-// La tarjeta "Tus elegidos": los animales del muelle y un botón para sumar otro.
-// onCantidad recibe el ítem y la cantidad nueva; onQuitar recibe el ítem.
 const ListaMuelle = ({ muelle, onCantidad, onQuitar, onVerCatalogo }) => {
   return (
     <div className="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm">

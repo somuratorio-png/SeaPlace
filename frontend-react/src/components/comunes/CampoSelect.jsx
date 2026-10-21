@@ -1,6 +1,5 @@
 import { claseCampo } from '../../utils/clasesCampo'
 
-// Desplegable con su etiqueta. "opciones" es una lista de { valor, texto }. Es "controlado", como CampoTexto.
 const CampoSelect = ({ etiqueta, nombre, valor, onCambiar, opciones }) => {
   return (
     <label htmlFor={nombre} className="flex flex-col gap-1.5">

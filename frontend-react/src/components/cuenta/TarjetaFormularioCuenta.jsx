@@ -4,8 +4,6 @@ const claseTarjeta = 'bg-surface-container-lowest rounded-2xl shadow-sm p-space-
 const claseBoton = 'bg-tertiary text-on-tertiary font-label-lg text-label-lg px-space-lg py-space-sm rounded-full hover:bg-tertiary-container disabled:opacity-60'
 const claseExito = 'font-label-lg text-label-lg text-secondary'
 
-// Tarjeta con el título, los campos (children), el error, el botón de guardar y el aviso de que se guardó.
-// Es la misma para "Mis datos" y para "Cambiar contraseña".
 const TarjetaFormularioCuenta = ({ titulo, textoBoton, textoExito, mostrarExito, error, onEnviar, children }) => {
   return (
     <form onSubmit={onEnviar} className={claseTarjeta}>

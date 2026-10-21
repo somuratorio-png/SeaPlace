@@ -6,7 +6,6 @@ import Olas from './Olas'
 const Footer = () => {
   return (
     <footer className="w-full mt-space-xl print:hidden">
-      {/* Las olas tienen el mismo color con el que arranca el fondo del footer */}
       <Olas clase="text-primary -mb-px" />
 
       <div className="fondo-mar-profundo text-on-primary relative overflow-hidden">

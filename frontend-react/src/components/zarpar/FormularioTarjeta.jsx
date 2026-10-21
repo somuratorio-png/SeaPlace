@@ -3,8 +3,6 @@ import Icono from '../comunes/Icono'
 import MensajeError from '../comunes/MensajeError'
 import Precio from '../comunes/Precio'
 
-// Los datos de la tarjeta y los botones para zarpar o volver al muelle. Es "controlado": los datos y el
-// error los guarda el padre. "total" es lo que se muestra en el botón de zarpar.
 const FormularioTarjeta = ({ datos, error, enviando, total, onCambiar, onConfirmar, onVolver }) => {
   return (
     <form onSubmit={onConfirmar} className="lg:col-span-7 bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-space-md">

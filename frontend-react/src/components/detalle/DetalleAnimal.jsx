@@ -11,13 +11,12 @@ import PreguntasFrecuentes from './PreguntasFrecuentes'
 import { traerAnimal } from '../../services/animales'
 import { useConsulta } from '../../hooks/useConsulta'
 
-// La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
 const DetalleAnimal = () => {
   const navigate = useNavigate()
   const { id } = useParams()
 
   const { datos: animal, cargando, error, estadoError } = useConsulta(traerAnimal, id)
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+  const [errorAccion, setErrorAccion] = useState(null)
 
   const volverAlCatalogo = () => {
     navigate('/catalogo')

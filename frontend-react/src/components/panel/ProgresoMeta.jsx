@@ -1,6 +1,5 @@
 import BarraProgreso from '../comunes/BarraProgreso'
 
-// Cuánto de la meta mensual del animal ya está cubierta
 const ProgresoMeta = ({ progreso }) => {
   return (
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-space-sm">

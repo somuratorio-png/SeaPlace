@@ -58,7 +58,6 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
-        // Solo el refugio dueño del animal (o un admin) puede registrarle ubicaciones.
         autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         Double latitud = request.getLatitud();
@@ -71,7 +70,6 @@ public class UbicacionAnimalServiceImpl implements UbicacionAnimalService {
             throw new ReglaDeNegocioException("La longitud es obligatoria");
         }
 
-        // NaN e infinito pasan los "<" y ">" sin quejarse, por eso se chequean aparte.
         if (latitud.isNaN() || latitud.isInfinite() || latitud < LATITUD_MINIMA || latitud > LATITUD_MAXIMA) {
             throw new ReglaDeNegocioException("La latitud debe estar entre -90 y 90");
         }

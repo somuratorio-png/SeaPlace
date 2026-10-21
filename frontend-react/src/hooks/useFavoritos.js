@@ -7,7 +7,6 @@ export const useFavoritos = () => {
 
   const esFavorito = (idAnimal) => favoritos.some((guardado) => guardado.id === idAnimal)
 
-  // Devuelve la promesa: quien lo llama decide qué mostrar si el pedido falla
   const alternarFavorito = (animal) =>
     esFavorito(animal.id)
       ? apadrinarApi.quitarFavorito(token, animal.id).then(() => {

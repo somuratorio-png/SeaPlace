@@ -1,6 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Un animal recién apadrinado con el botón para ver su certificado. "item" es el apadrinamiento.
 const FilaCertificado = ({ item, onVer }) => {
   return (
     <div className="flex flex-wrap items-center gap-space-md">

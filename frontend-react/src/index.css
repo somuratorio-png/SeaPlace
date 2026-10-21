@@ -1,12 +1,6 @@
-/*
-  Tailwind v4 se configura desde CSS: no hay tailwind.config.js.
-  Todo lo que antes estaba en el <script id="tailwind-config"> de cada HTML
-  vive ahora acá, UNA sola vez, dentro de @theme.
-*/
 @import "tailwindcss";
 
 @theme {
-  /* ---------- Colores: azul noche (primary, títulos), turquesa (secondary), coral (tertiary, botones) y arena (surface) ---------- */
   --color-primary: #12303f;
   --color-on-primary: #ffffff;
   --color-primary-container: #24566b;
@@ -59,7 +53,6 @@
   --color-outline: #7b8a90;
   --color-outline-variant: #d6dcd6;
 
-  /* ---------- Espaciados con nombre (px-margin, gap-space-md, etc.) ---------- */
   --spacing-gutter: 1.5rem;
   --spacing-gutter-mobile: 1rem;
   --spacing-margin: 4rem;
@@ -70,7 +63,6 @@
   --spacing-space-lg: 2rem;
   --spacing-space-xl: 4.5rem;
 
-  /* ---------- Bordes más redondeados y sombras suaves en un tono cálido ---------- */
   --radius-lg: 0.875rem;
   --radius-xl: 1.25rem;
   --radius-2xl: 1.75rem;
@@ -79,7 +71,6 @@
   --shadow-lg: 0 4px 8px rgb(60 40 25 / 0.08), 0 18px 40px rgb(60 40 25 / 0.14);
   --shadow-xl: 0 6px 12px rgb(60 40 25 / 0.08), 0 28px 60px rgb(60 40 25 / 0.18);
 
-  /* ---------- Familias tipográficas (font-headline-lg, font-body-md, ...) ---------- */
   --font-display-lg: "Plus Jakarta Sans", sans-serif;
   --font-display-lg-mobile: "Plus Jakarta Sans", sans-serif;
   --font-headline-lg: "Plus Jakarta Sans", sans-serif;
@@ -93,7 +84,6 @@
   --font-label-lg: "Be Vietnam Pro", sans-serif;
   --font-label-md: "Be Vietnam Pro", sans-serif;
 
-  /* ---------- Tamaños de texto (text-headline-lg, text-body-sm, ...) ---------- */
   --text-display-lg: 4.25rem;
   --text-display-lg--line-height: 4.6rem;
   --text-display-lg--letter-spacing: -0.03em;
@@ -127,7 +117,6 @@
   --text-title-lg--line-height: 1.7rem;
   --text-title-lg--font-weight: 600;
 
-  /* Textos de lectura: se agrandaron un escalón para que se lean mejor */
   --text-body-lg: 1.3rem;
   --text-body-lg--line-height: 2rem;
   --text-body-lg--font-weight: 400;
@@ -151,7 +140,6 @@
   --text-label-md--font-weight: 600;
 }
 
-/* Estilos base que antes estaban en el <style> inline de cada página */
 @layer base {
   html,
   body {
@@ -161,7 +149,6 @@
   body {
     overscroll-behavior: none;
   }
-  /* Tailwind v4 deja los botones con cursor normal; el diseño original usaba la manito */
   button:not(:disabled),
   [role="button"] {
     cursor: pointer;
@@ -172,8 +159,6 @@
   display: none;
 }
 
-/* fondo-mar: cielo de atardecer sobre el agua, para la portada de cada página.
-   fondo-mar-profundo: el fondo del mar de noche, para el footer. */
 .fondo-mar {
   background: linear-gradient(135deg, #14304d 0%, #4a3f73 34%, #a8506b 62%, #e0714a 84%, #f4a95c 100%);
 }
@@ -181,7 +166,6 @@
   background: linear-gradient(180deg, #12303f 0%, #081a24 100%);
 }
 
-/* Burbujas decorativas que suben despacio (se apagan si el usuario pidió menos movimiento) */
 @keyframes flotar {
   0%,
   100% {
@@ -203,7 +187,6 @@
   }
 }
 
-/* Fondo general: arena con dos manchas suaves de agua y coral que quedan fijas al hacer scroll */
 .fondo-playa {
   background:
     radial-gradient(60rem 40rem at 100% 0%, rgb(255 214 170 / 0.5), transparent 60%),
@@ -212,7 +195,6 @@
   background-attachment: fixed;
 }
 
-/* Cada página entra subiendo apenas y apareciendo */
 @keyframes aparecer {
   from {
     opacity: 0;
@@ -227,10 +209,6 @@ main > * {
   animation: aparecer 0.6s ease backwards;
 }
 
-/* ---------- Animaciones ---------- */
-
-/* .revelar: la tarjeta aparece subiendo cuando entra en pantalla al hacer scroll.
-   En navegadores que no lo soportan, simplemente aparece al cargar la página. */
 .revelar {
   animation: aparecer 0.7s ease backwards;
 }
@@ -242,7 +220,6 @@ main > * {
   }
 }
 
-/* .escalonar: los hijos de una grilla entran uno atrás del otro */
 .escalonar > * {
   animation: aparecer 0.6s ease backwards;
 }
@@ -259,7 +236,6 @@ main > * {
   animation-delay: 0.32s;
 }
 
-/* .mecer: sube y baja despacio, como algo que flota (la foto de la portada) */
 @keyframes mecer {
   0%,
   100% {
@@ -273,7 +249,6 @@ main > * {
   animation: mecer 6s ease-in-out infinite;
 }
 
-/* La barra de progreso se llena desde cero al aparecer */
 @keyframes llenar {
   from {
     transform: scaleX(0);
@@ -284,7 +259,6 @@ main > * {
   animation: llenar 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) backwards;
 }
 
-/* .latido: el corazón de favoritos "salta" al tocarlo */
 @keyframes latido {
   0% {
     transform: scale(1);
@@ -300,7 +274,6 @@ main > * {
   animation: latido 0.45s ease;
 }
 
-/* Brillo que cruza los botones principales al pasar el mouse */
 .brillo {
   position: relative;
   overflow: hidden;
@@ -317,8 +290,6 @@ main > * {
   transform: translateX(120%);
 }
 
-/* Todos los botones se hunden apenas al apretarlos.
-   Va en la capa "base" para que las clases de Tailwind puedan pisarlo cuando haga falta. */
 @layer base {
   button {
     transition:
@@ -332,9 +303,6 @@ main > * {
   }
 }
 
-/* ---------- GPS (ver MapaRastreo.jsx) ---------- */
-
-/* Onda que se expande una sola vez cuando llega una señal nueva */
 @keyframes pulso-gps {
   from {
     transform: scale(0.3);
@@ -354,7 +322,6 @@ main > * {
   animation-delay: 0.5s;
 }
 
-/* El tramo nuevo del recorrido se dibuja de punta a punta */
 @keyframes trazar {
   from {
     stroke-dashoffset: 1;
@@ -368,12 +335,10 @@ main > * {
   animation: trazar 1.2s ease-out both;
 }
 
-/* El marcador del animal se desliza hasta la última posición conocida */
 .marcador-gps {
   transition: transform 1.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Barrita que se vacía mientras se espera la próxima señal */
 @keyframes esperar {
   from {
     transform: scaleX(1);
@@ -387,7 +352,6 @@ main > * {
   animation: esperar linear both;
 }
 
-/* Si el usuario pidió menos movimiento en su sistema, se apaga todo lo decorativo */
 @media (prefers-reduced-motion: reduce) {
   main > *,
   .revelar,
@@ -404,9 +368,7 @@ main > * {
     transition: none;
   }
 }
-/* ---------- Decoración marina (ver components/marino) ---------- */
 
-/* Un pez que cruza de izquierda a derecha y vuelve a empezar */
 @keyframes nadar {
   from {
     transform: translateX(-15vw);
@@ -421,7 +383,6 @@ main > * {
   animation: nadar 38s linear infinite;
 }
 
-/* Las algas se hamacan desde la base, como con la corriente */
 @keyframes ondular {
   0%,
   100% {
@@ -437,7 +398,6 @@ main > * {
   animation: ondular 5s ease-in-out infinite;
 }
 
-/* El sol del atardecer late muy despacio */
 @keyframes resplandor {
   0%,
   100% {
@@ -451,7 +411,6 @@ main > * {
   animation: resplandor 6s ease-in-out infinite;
 }
 
-/* Las gaviotas planean de un lado al otro */
 @keyframes planear {
   0%,
   100% {
@@ -477,9 +436,6 @@ main > * {
   }
 }
 
-/* ---------- Transición al zarpar (ver gracias/TransicionZarpar.jsx) ---------- */
-/* Toda la escena dura 4s: el barco entra, se toma su tiempo en el medio de la pantalla y recién ahí se va. */
-
 @keyframes navegar {
   0% {
     transform: translateX(-12rem);
@@ -498,7 +454,6 @@ main > * {
   animation: navegar 4s ease-in-out both;
 }
 
-/* Mientras avanza, cabecea sobre las olas: se inclina apenas y sube y baja muy poco, sin salir del agua */
 @keyframes mecer-barco {
   0%,
   100% {
@@ -513,7 +468,6 @@ main > * {
   animation: mecer-barco 1.8s ease-in-out infinite;
 }
 
-/* La estela late un poco, como espuma que se arma y se deshace */
 @keyframes espumar {
   0%,
   100% {
@@ -530,7 +484,6 @@ main > * {
   animation: espumar 1.2s ease-in-out infinite;
 }
 
-/* Las olas corren hacia atrás (media tira, que es donde se repite la curva) y así parece que el barco avanza */
 @keyframes correr-olas {
   from {
     transform: translateX(0);
@@ -547,7 +500,6 @@ main > * {
   animation-duration: 6.5s;
 }
 
-/* Un pez salta fuera del agua haciendo un arco y vuelve a meterse. Antes de saltar y después no se ve. */
 @keyframes saltar-pez {
   0% {
     opacity: 0;
@@ -577,7 +529,6 @@ main > * {
   animation: saltar-pez 1.3s ease-in-out both;
 }
 
-/* Los peces de abajo cruzan bajo el agua, cada uno a su ritmo */
 @keyframes nadar-zarpar {
   from {
     transform: translateX(-4rem);
@@ -591,7 +542,6 @@ main > * {
   animation: nadar-zarpar linear both;
 }
 
-/* Al final, toda la escena se desvanece y deja ver la página de gracias */
 @keyframes desvanecer-zarpar {
   to {
     opacity: 0;
@@ -601,17 +551,12 @@ main > * {
   animation: desvanecer-zarpar 0.7s ease 3.3s both;
 }
 
-/* Con "reducir movimiento" activado en el sistema, la escena del barco no se muestra */
 @media (prefers-reduced-motion: reduce) {
   .transicion-zarpar {
     display: none;
   }
 }
 
-/* ---------- Navegación e impresión ---------- */
-
-/* Botón invisible al comienzo de <main>: al cambiar de página React lo enfoca y el navegador
-   lleva la pantalla hasta arriba. scroll-margin-top compensa el header, que es sticky y tapa el inicio. */
 .ancla-arriba {
   position: absolute;
   width: 1px;
@@ -624,7 +569,6 @@ main > * {
   scroll-margin-top: 10rem;
 }
 
-/* Al imprimir (Ctrl+P) queda solo el contenido: sin header, footer ni botones */
 @media print {
   header,
   footer,

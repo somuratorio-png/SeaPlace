@@ -1,5 +1,3 @@
-// Selector para sumar fotos a la galería de un animal. Las fotos nuevas se suben al elegirlas
-// (los archivos tal cual) y el backend las agrega al final de su galería.
 const SumarFotos = ({ animal, onEditar }) => {
   const sumarFotos = (evento) => {
     onEditar(animal.id, { fotos: [...evento.target.files] })

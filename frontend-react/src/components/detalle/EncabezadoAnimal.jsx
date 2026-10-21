@@ -1,7 +1,6 @@
 import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import PrecioAnimal from '../comunes/PrecioAnimal'
 
-// El título de la ficha de un animal: dónde está, su nombre, su precio y el botón de favorito
 const EncabezadoAnimal = ({ animal, onError }) => {
   return (
     <div className="flex items-start justify-between gap-space-md">

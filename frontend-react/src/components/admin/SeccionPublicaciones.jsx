@@ -7,16 +7,8 @@ import TituloSeccion from '../comunes/TituloSeccion'
 import RevisionPublicacion from './RevisionPublicacion'
 import TablaCambios from './TablaCambios'
 
-// Sección "Publicaciones" del administrador, con lo que los refugios mandaron a revisar:
-// - las publicaciones nuevas: al aprobarlas aparecen en el catálogo; al rechazarlas quedan eliminadas.
-// - los cambios que pidieron sobre publicaciones ya aprobadas: al aprobarlos se aplican; al rechazarlos
-//   la publicación queda como estaba.
-// En todos los casos el refugio recibe una notificación (al rechazar, con el motivo si se escribió uno).
-// Las listas las pide SeccionesAdmin (así el menú puede mostrar cuántas hay): "pendientes" son las publicaciones
-// en estado PENDIENTE, así que cada acción actualiza las publicaciones y los cambios, sin volver a pedirlos.
 const SeccionPublicaciones = ({ pendientes, setPublicaciones, cambios, setCambios, cargando, error, onError }) => {
   const { token } = useSesion()
-  // Con lo que contesta el backend se actualiza el estado (alTerminar); si falla, se muestra el mensaje
   const resolver = (pedido, alTerminar) => {
     onError(null)
     pedido.then(alTerminar).catch((falla) => {
@@ -24,7 +16,6 @@ const SeccionPublicaciones = ({ pendientes, setPublicaciones, cambios, setCambio
     })
   }
 
-  // Aprobada, la publicación queda como la devuelve el backend (ACTIVA); rechazada, se quita
   const aprobarNueva = (idAnimal) =>
     resolver(aprobarAnimal(token, idAnimal), (aprobado) => {
       setPublicaciones((actuales) => ponerEn(actuales, aprobado))
@@ -35,7 +26,6 @@ const SeccionPublicaciones = ({ pendientes, setPublicaciones, cambios, setCambio
       setPublicaciones((actuales) => sacarDe(actuales, idAnimal))
     })
 
-  // Con los cambios aprobados o rechazados, el pedido sale de la lista y el animal queda como lo devuelve el backend
   const resolverCambios = (pedido, idAnimal) =>
     resolver(pedido, (animal) => {
       setCambios((actuales) => actuales.filter((cambio) => cambio.animal.id !== idAnimal))

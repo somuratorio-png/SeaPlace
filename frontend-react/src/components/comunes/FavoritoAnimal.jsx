@@ -3,7 +3,6 @@ import { useFavoritos } from '../../hooks/useFavoritos'
 import { useSesion } from '../../hooks/useSesion'
 import BotonFavorito from './BotonFavorito'
 
-// El corazón de un animal. Si no hay nadie logueado, lleva al login.
 const FavoritoAnimal = ({ animal, onError, clase }) => {
   const navigate = useNavigate()
   const { usuario } = useSesion()

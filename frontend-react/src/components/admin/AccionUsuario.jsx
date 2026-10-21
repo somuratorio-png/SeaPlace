@@ -2,8 +2,6 @@ import { useState } from 'react'
 import Chip from './Chip'
 import Modal from '../comunes/Modal'
 
-// Lo que se puede hacer con un usuario en la tabla: nada si es uno mismo (se ve "Sos vos"),
-// nada si es administrador (no se puede dar de baja), o dar de baja (con confirmación) / reactivar.
 const AccionUsuario = ({ usuario, esUnoMismo, onCambiarActivo }) => {
   const [isVisible, setIsVisible] = useState(false)
 

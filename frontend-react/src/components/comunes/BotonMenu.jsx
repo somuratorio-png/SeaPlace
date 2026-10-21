@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 
-// Un link del menú. Es un <Link>: cambia de página sin recargarla. Si es la página actual, se ve resaltado.
 const BotonMenu = ({ texto, ruta, activo, onClick }) => {
   const estilo = activo
     ? 'bg-primary text-on-primary shadow-sm'

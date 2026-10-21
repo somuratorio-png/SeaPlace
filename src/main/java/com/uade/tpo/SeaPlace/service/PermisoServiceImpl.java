@@ -38,7 +38,6 @@ public class PermisoServiceImpl implements PermisoService {
             throw new ReglaDeNegocioException("El nombre del permiso no puede superar los 255 caracteres");
         }
 
-        // El nombre identifica al permiso al momento de autorizar, por eso no puede repetirse.
         if (permisoRepository.findByNombrePermiso(nombrePermiso).isPresent()) {
             throw new RecursoDuplicadoException(
                     "Ya existe un permiso con el nombre " + nombrePermiso);

@@ -38,7 +38,6 @@ public class AuthenticationController {
     @PostMapping("/olvide-contrasenia")
     public ResponseEntity<Map<String, String>> olvideContrasenia(@RequestBody OlvideContraseniaRequest request) {
         recuperacionService.solicitarCodigo(request.getMail());
-        // La misma respuesta exista o no el mail, para no revelar que mails estan registrados.
         return ResponseEntity.ok(Map.of("mensaje",
                 "Si el mail esta registrado, te enviamos las instrucciones para restablecer tu contrasenia"));
     }

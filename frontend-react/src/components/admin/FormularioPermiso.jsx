@@ -5,14 +5,12 @@ import { useFormulario } from '../../hooks/useFormulario'
 
 const formularioVacio = { nombre: '', descripcion: '' }
 
-// Formulario para crear un permiso. onCrear le pide el permiso al backend y devuelve una promesa
-// con un mensaje de error, o null si salió bien (entonces los campos se vacían).
 const FormularioPermiso = ({ onCrear }) => {
   const { datos, cambiar, reiniciar } = useFormulario(formularioVacio)
   const [error, setError] = useState(null)
 
   const crear = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!datos.nombre.trim() || !datos.descripcion.trim()) {
       setError('Completá todos los campos')
       return

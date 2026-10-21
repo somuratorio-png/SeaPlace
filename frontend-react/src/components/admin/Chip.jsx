@@ -1,4 +1,3 @@
-// Etiqueta redondeada de color. tono: 'verde' | 'azul' | 'coral' | 'rojo'
 const tonos = {
   verde: 'bg-secondary-container text-on-secondary-fixed-variant',
   azul: 'bg-primary-fixed text-on-primary-fixed-variant',

@@ -3,9 +3,6 @@ import CeldaUsuario from './CeldaUsuario'
 import Chip from './Chip'
 import SelectorRol from './SelectorRol'
 
-// Una fila de la tabla de usuarios. esUnoMismo = es el admin que está logueado,
-// que no puede cambiarse el rol ni darse de baja a sí mismo.
-// "roles" son los que existen en el backend: [{ id, nombre }]. Un administrador no se puede dar de baja.
 const FilaUsuario = ({ usuario, roles, esUnoMismo, onCambiarRol, onCambiarActivo }) => {
   return (
     <tr className="border-t border-outline-variant hover:bg-surface-container-low">

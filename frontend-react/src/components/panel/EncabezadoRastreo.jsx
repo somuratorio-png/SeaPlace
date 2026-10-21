@@ -1,8 +1,6 @@
 import Icono from '../comunes/Icono'
 import { HORAS_ENTRE_SENALES } from '../../utils/telemetria'
 
-// Título del rastreo, el estado de la última señal y el botón para pausar o reanudar.
-// "perdida" es true si la última señal no llegó.
 const EncabezadoRastreo = ({ nombre, perdida, enMarcha, onAlternar }) => {
   return (
     <div className="flex flex-wrap items-center justify-between gap-space-sm">

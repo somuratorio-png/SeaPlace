@@ -19,9 +19,6 @@ import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
 import com.uade.tpo.SeaPlace.repository.NovedadRepository;
 import com.uade.tpo.SeaPlace.repository.UbicacionAnimalRepository;
 
-// Arma, para el usuario logueado, lo que el front necesita tener de el en cualquier pantalla
-// (quien es, sus favoritos y su muelle). Asi lo recibe en una sola respuesta: la de /inicio
-// o la del login.
 @Service
 public class SesionService {
 
@@ -56,7 +53,6 @@ public class SesionService {
         sesion.setUsuario(UsuarioResponse.fromEntity(usuarioService.getMiPerfil()));
         sesion.setFavoritos(favoritoService.getFavoritos().stream().map(FavoritoResponse::fromEntity).toList());
 
-        // Admin y refugio no apadrinan: no tienen muelle.
         if (!autorizacionService.esAdmin() && !esRefugio) {
             Muelle muelle = muelleService.getOrCreateMuelleActivo(actual.getIdUsuario());
             sesion.setIdMuelle(muelle.getIdMuelle());
@@ -65,18 +61,14 @@ public class SesionService {
         return sesion;
     }
 
-    // Los apadrinamientos que le corresponden al usuario logueado, listos para responder.
     public List<ApadrinamientoResponse> getApadrinamientos() {
         return apadrinamientoService.getApadrinamientos().stream().map(this::aRespuesta).toList();
     }
 
-    // Un apadrinamiento con sus pagos y con la bitacora y la ultima ubicacion de su animal,
-    // para que el cliente no tenga que pedirlas aparte.
     public ApadrinamientoResponse aRespuesta(Apadrinamiento apadrinamiento) {
         ApadrinamientoResponse r = ApadrinamientoResponse.fromEntity(apadrinamiento, apadrinamientoService.getPagos(apadrinamiento));
 
         Animal animal = apadrinamiento.getAnimal();
-        // La misma regla que /animales/{id}/novedades y /ubicaciones: solo si puede ver la publicacion.
         if (animal != null && autorizacionService.puedeVerAnimal(animal)) {
             r.setNovedades(novedadRepository.findByAnimal_IdAnimalOrderByFechaDesc(animal.getIdAnimal())
                     .stream().map(NovedadResponse::fromEntity).toList());

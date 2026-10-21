@@ -1,7 +1,6 @@
 import Icono from '../comunes/Icono'
 import { useNavigate } from 'react-router-dom'
 
-// Página 404: se muestra cuando la dirección no coincide con ninguna ruta
 const MensajeNoEncontrada = () => {
   const navigate = useNavigate()
 

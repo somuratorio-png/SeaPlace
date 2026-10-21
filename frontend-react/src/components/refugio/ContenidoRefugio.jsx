@@ -6,11 +6,8 @@ import SeccionNotificaciones from './SeccionNotificaciones'
 import SeccionPadrinos from './SeccionPadrinos'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 
-// Menú lateral del refugio y la sección elegida (una sola por vez): sus animales, sus padrinos,
-// el formulario para publicar uno nuevo o sus notificaciones. Todo lo que cambia datos sube por las funciones "on...".
 const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [seccion, setSeccion] = useState('animales')
-  // Se piden acá (y no al abrir la sección) para poder mostrar en el menú cuántas no leyó
   const avisos = useNotificaciones()
 
   const secciones = [
@@ -20,7 +17,6 @@ const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, o
     { id: 'notificaciones', nombre: 'Notificaciones', icono: 'notifications', aviso: avisos.sinLeer },
   ]
 
-  // Si el animal se publicó bien, se muestra la lista para que lo vea
   const publicar = (datos, fotos) =>
     onPublicar(datos, fotos).then((mensaje) => {
       if (mensaje === null) {

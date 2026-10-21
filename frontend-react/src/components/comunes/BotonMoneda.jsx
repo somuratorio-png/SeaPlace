@@ -1,4 +1,3 @@
-// Interruptor para ver los precios en pesos argentinos o en dólares
 const BotonMoneda = ({ moneda, onCambiar }) => {
   const estilo = (opcion) => (opcion === moneda ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant hover:text-primary')
 

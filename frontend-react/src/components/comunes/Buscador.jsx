@@ -1,6 +1,5 @@
 import Icono from './Icono'
 
-// Barra de búsqueda con lupa. Es "controlada": el texto lo guarda la página que la usa.
 const Buscador = ({ valor, onCambiar, textoAyuda }) => {
   return (
     <label htmlFor="busqueda" className="relative block">

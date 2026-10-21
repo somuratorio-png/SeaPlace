@@ -11,15 +11,9 @@ import SeccionRoles from './SeccionRoles'
 import SeccionUsuarios from './SeccionUsuarios'
 import MenuLateral from '../comunes/MenuLateral'
 
-// Menú lateral del administrador y la sección elegida (una sola por vez): resumen, refugios, publicaciones
-// por aprobar, usuarios, categorías o roles. "usuarios" los tiene el panel; lo que cambia datos sube por las funciones "on...".
-// Las listas se piden acá, una vez cada una, y las reciben las secciones: así cambiar de sección no vuelve a pedirlas
-// y una lista que usan dos secciones (los roles, las publicaciones) se pide una sola vez.
 const SeccionesAdmin = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }) => {
   const [seccion, setSeccion] = useState('resumen')
 
-  // Las publicaciones de todos los refugios (activas, pausadas y pendientes): de acá salen los animales publicados,
-  // los de cada refugio y las publicaciones nuevas que esperan aprobación
   const publicaciones = useConsulta(traerPublicaciones, undefined, [])
   const cambios = useConsulta(traerCambiosPendientes, undefined, [])
   const apadrinamientos = useApadrinamientos()
@@ -30,8 +24,6 @@ const SeccionesAdmin = ({ usuarios, onCambiarActivo, onGuardarUsuario, onError }
   const publicados = publicaciones.datos.filter((animal) => animal.publicacion === 'ACTIVA')
   const nuevas = publicaciones.datos.filter((animal) => animal.publicacion === 'PENDIENTE')
 
-  // Los refugios que esperan aprobación se avisan con un número en el menú, y lo mismo con lo que mandaron
-  // a revisar (publicaciones nuevas y cambios en las ya aprobadas)
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
 
   const secciones = [

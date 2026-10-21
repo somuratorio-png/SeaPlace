@@ -31,7 +31,6 @@ public class NotificacionServiceImpl implements NotificacionService {
     public Notificacion notificar(Usuario destinatario, String texto) {
         Notificacion notificacion = new Notificacion();
         notificacion.setUsuario(destinatario);
-        // El texto lo arma el sistema, pero puede llevar el motivo que escribio un administrador: se corta si no entra
         notificacion.setTexto(texto.length() > LARGO_MAXIMO ? texto.substring(0, LARGO_MAXIMO) : texto);
         notificacion.setFecha(LocalDateTime.now());
         return notificacionRepository.save(notificacion);
@@ -39,7 +38,6 @@ public class NotificacionServiceImpl implements NotificacionService {
 
     @Override
     public void notificarPadrinos(Animal animal, String texto) {
-        // Un padrino tiene a lo sumo un apadrinamiento activo por animal, asi que a cada uno le llega uno solo
         for (Apadrinamiento apadrinamiento : apadrinamientoRepository.findByAnimal_IdAnimalAndActivoTrue(animal.getIdAnimal())) {
             notificar(apadrinamiento.getUsuario(), texto);
         }

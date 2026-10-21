@@ -1,4 +1,3 @@
-// Los usuarios de prueba, para poder entrar sin registrarse
 const CredencialesDePrueba = () => {
   return (
     <p className="font-body-sm text-body-sm text-on-surface-variant text-center">

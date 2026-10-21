@@ -7,10 +7,6 @@ import { planesDe } from '../../utils/precios'
 import AccionApadrinar from './AccionApadrinar'
 import OpcionPlan from './OpcionPlan'
 
-// Muestra los 3 niveles de apadrinamiento (los que manda el backend). El precio de cada uno sale
-// de la cuota del animal (con el descuento ya aplicado si está en oferta).
-// puedeApadrinar es false para un administrador o un refugio: ven los planes pero no el botón.
-// Tampoco hay botón si al animal no le quedan cupos disponibles.
 const ElegirPlan = ({ animal, onError }) => {
   const navigate = useNavigate()
   const { usuario, puedeApadrinar } = useSesion()
@@ -18,7 +14,7 @@ const ElegirPlan = ({ animal, onError }) => {
   const planesBase = usePlanes()
   const planes = planesDe(animal, planesBase)
 
-  const [planElegido, setPlanElegido] = useState('') // '' = todavía no eligió: vale el primero de la lista
+  const [planElegido, setPlanElegido] = useState('')
   const codigoElegido = planElegido === '' ? planes[0]?.codigo : planElegido
 
   const sinCupos = animal.cuposDisponibles === 0

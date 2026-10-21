@@ -10,8 +10,6 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 import lombok.Data;
 
-// Un animal que un usuario guardo en sus favoritos. La restriccion unica evita
-// que el mismo animal quede guardado dos veces para el mismo usuario.
 @Data
 @Entity
 @Table(name = "favorito", uniqueConstraints = @UniqueConstraint(columnNames = { "id_usuario", "id_animal" }))

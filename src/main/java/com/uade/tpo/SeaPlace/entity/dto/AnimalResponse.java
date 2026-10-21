@@ -21,7 +21,6 @@ public class AnimalResponse {
     private String nombreAnimal;
     private String descripcion;
     private Double cuotaApadrinamiento;
-    // Lo que cuesta por mes cada plan, sin descuentos: { "BRISA_MARINA": 10.0, "GUARDIAN_DE_LA_BAHIA": 20.0, ... }
     private Map<String, Double> preciosPorPlan;
     private Integer cuposTotales;
     private Integer cuposDisponibles;
@@ -37,13 +36,9 @@ public class AnimalResponse {
     private String urgencia;
     private String condicion;
     private boolean destacado;
-    // true si el refugio pidio cambios que todavia no reviso un administrador
     private boolean tieneCambioPendiente;
-    // Porcentaje de cupos ya tomados por padrinos (0 a 100).
     private Integer progreso;
-    // Urls de las fotos, ya ordenadas: la primera es la principal.
     private List<String> fotos;
-    // El descuento que rige hoy (el mayor, si hay varios), o null si no esta en oferta.
     private DescuentoResponse descuento;
 
     public static AnimalResponse fromEntity(Animal animal) {
@@ -98,7 +93,6 @@ public class AnimalResponse {
     }
 
     private static List<String> urlsDeFotos(Animal animal) {
-        // Un animal recien creado todavia no tiene la lista cargada.
         if (animal.getFotos() == null) {
             return new ArrayList<>();
         }
@@ -108,8 +102,6 @@ public class AnimalResponse {
                 .toList();
     }
 
-    // Misma regla que usa el zarpar para cobrar: de los descuentos activos cuya vigencia
-    // incluye el dia de hoy, se aplica el de mayor porcentaje.
     private static DescuentoResponse descuentoVigente(Animal animal) {
         if (animal.getDescuentos() == null) {
             return null;

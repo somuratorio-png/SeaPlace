@@ -1,4 +1,3 @@
-// Mata de algas que se hamaca con la corriente. Se apoya en el borde de abajo de quien la contenga.
 const Algas = ({ clase = 'w-20' }) => {
   return (
     <svg viewBox="0 0 100 140" aria-hidden="true" className={`pointer-events-none ${clase}`}>

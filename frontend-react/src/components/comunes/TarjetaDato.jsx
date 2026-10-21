@@ -1,6 +1,5 @@
 import Icono from './Icono'
 
-// Número grande del resumen del administrador. clase = colores de fondo y de texto de la tarjeta
 const TarjetaDato = ({ icono, valor, titulo, clase }) => {
   return (
     <div className={`rounded-2xl p-space-lg shadow-sm transition hover:-translate-y-1 hover:shadow-lg ${clase}`}>

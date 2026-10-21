@@ -1,4 +1,3 @@
-// Pez visto de costado, mirando a la derecha. "color" es el del cuerpo.
 const Pez = ({ clase = 'w-12', color = '#8fdcd2' }) => {
   return (
     <svg viewBox="0 0 100 50" aria-hidden="true" className={`pointer-events-none ${clase}`}>

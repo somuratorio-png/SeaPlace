@@ -3,8 +3,6 @@ import Concha from '../marino/Concha'
 import Estrella from '../marino/Estrella'
 import Pez from '../marino/Pez'
 
-// Fondo del mar del footer: peces que cruzan, algas en los costados, una estrella y una concha.
-// Es solo decoración: va detrás del contenido.
 const FondoMarino = () => {
   return (
     <>

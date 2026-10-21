@@ -1,4 +1,3 @@
-// repository/UbicacionAnimalRepository.java
 package com.uade.tpo.SeaPlace.repository;
 
 import java.util.List;
@@ -13,6 +12,5 @@ import com.uade.tpo.SeaPlace.entity.UbicacionAnimal;
 public interface UbicacionAnimalRepository extends JpaRepository<UbicacionAnimal, Long> {
     List<UbicacionAnimal> findByAnimal_IdAnimalOrderByFechaHoraDesc(Long idAnimal);
 
-    // última ubicación conocida del animal
     Optional<UbicacionAnimal> findTopByAnimal_IdAnimalOrderByFechaHoraDesc(Long idAnimal);
 }

@@ -1,7 +1,5 @@
 import Precio from '../comunes/Precio'
 
-// Qué pide cambiar el refugio en una publicación ya aprobada: cada campo como está hoy y como quedaría.
-// "cambios" = [{ campo, antes, despues, esPrecio }], ver diferencias en services/animales.js
 const TablaCambios = ({ cambios }) => {
   if (cambios.length === 0) {
     return <p className="px-space-md font-body-sm text-body-sm text-on-surface-variant">Mandó el formulario sin cambiar nada: podés aprobarlo o rechazarlo igual.</p>

@@ -17,41 +17,34 @@ const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '',
 
 const claseDosColumnas = 'max-w-6xl mx-auto px-margin-mobile lg:px-margin py-space-xl grid grid-cols-1 lg:grid-cols-2 gap-space-lg'
 
-// Login y registro. Le pide al backend que valide los datos: si los rechaza, muestra el mensaje
-// que mandó (por ejemplo, "Usuario o contrasenia incorrectos"). Si los acepta, llama a entrar
-// (de useSesion) con el usuario que entró, y la sesión trae sus datos y muestra otra página.
 const FormularioLogin = () => {
   const { entrar } = useSesion()
-  const planes = usePlanes() // hacen falta para armar el muelle que llega con la sesión
+  const planes = usePlanes()
   const [esRegistro, setEsRegistro] = useState(false)
-  const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
+  const [esRefugio, setEsRefugio] = useState(false)
   const { datos, cambiar } = useFormulario(formularioVacio)
   const [error, setError] = useState(null)
-  const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
-  const [recuperando, setRecuperando] = useState(false) // true = se muestra "olvidé mi contraseña"
+  const [enviando, setEnviando] = useState(false)
+  const [recuperando, setRecuperando] = useState(false)
 
   const cambiarModo = () => {
     setEsRegistro(!esRegistro)
     setError(null)
   }
 
-  // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
   const ingresar = () => intentar(usuariosApi.ingresar(planes, datos.nombreUsuario.trim(), datos.contrasenia).then(entrar))
 
-  // Un padrino entra directo. Un refugio queda pendiente hasta que un administrador lo apruebe.
   const registrar = () => {
     const errorClave = validarContrasenia(datos.contrasenia)
     if (errorClave !== null) {
       return Promise.resolve(errorClave)
     }
-    // Que el usuario o el correo no estén repetidos lo controla el backend
     const limpios = { ...datos, nombre: datos.nombre.trim(), apellido: datos.apellido.trim(), mail: datos.mail.trim(), nombreUsuario: datos.nombreUsuario.trim() }
     return intentar(usuariosApi.registrar(planes, limpios, esRefugio).then(entrar))
   }
 
-  // Si todo sale bien no hay nada más que hacer acá: App ya sabe quién entró y muestra otra página
   const enviar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     const faltan = esRegistro
       ? !datos.apellido.trim() || !datos.mail.trim() || !datos.nombreUsuario.trim() || !datos.contrasenia.trim() || (!esRefugio && !datos.nombre.trim())
       : !datos.nombreUsuario.trim() || !datos.contrasenia.trim()
@@ -67,7 +60,6 @@ const FormularioLogin = () => {
     })
   }
 
-  // "Olvidé mi contraseña" reemplaza al formulario hasta que se vuelve
   if (recuperando) {
     return (
       <div className={claseDosColumnas}>

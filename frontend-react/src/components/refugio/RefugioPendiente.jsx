@@ -1,7 +1,6 @@
 import Icono from '../comunes/Icono'
 import Portada from '../comunes/Portada'
 
-// Lo que ve un refugio recién registrado: no puede publicar hasta que un administrador lo apruebe
 const RefugioPendiente = ({ usuario }) => {
   return (
     <>

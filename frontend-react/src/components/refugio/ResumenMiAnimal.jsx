@@ -4,11 +4,9 @@ import Modal from '../comunes/Modal'
 import Precio from '../comunes/Precio'
 import { recaudacionMensual } from '../../utils/precios'
 
-// Cuánto recauda un animal del refugio, y los botones para pausar su publicación (con confirmación)
-// o abrir su gestión. "apadrinamientos" son solo los activos de este animal.
 const ResumenMiAnimal = ({ animal, apadrinamientos, abierto, onEditar, onAlternarGestion }) => {
   const pausada = animal.publicacion === 'PAUSADA'
-  const pendiente = animal.publicacion === 'PENDIENTE' // hasta que la aprueba un administrador no se puede pausar ni publicar
+  const pendiente = animal.publicacion === 'PENDIENTE'
   const [isVisible, setIsVisible] = useState(false)
 
   return (
@@ -21,7 +19,6 @@ const ResumenMiAnimal = ({ animal, apadrinamientos, abierto, onEditar, onAlterna
         por mes · {animal.fotos.length} {animal.fotos.length === 1 ? 'foto' : 'fotos'}
       </p>
       <div className="flex flex-wrap items-center gap-space-md">
-        {/* Una publicación pausada no se ve en el catálogo, pero conserva sus padrinos y sus datos */}
         {pendiente ? (
           <span className="inline-flex items-center gap-1 font-label-lg text-label-lg text-on-surface-variant">
             <Icono nombre="hourglass_top" clase="text-[18px]" /> Se publica cuando SeaPlace la apruebe

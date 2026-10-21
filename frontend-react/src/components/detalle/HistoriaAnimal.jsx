@@ -1,7 +1,6 @@
 import BarraProgreso from '../comunes/BarraProgreso'
 import Galeria from '../comunes/Galeria'
 
-// Columna de la izquierda de la ficha de un animal: sus fotos, su historia y cuánto de su meta está cubierta
 const HistoriaAnimal = ({ animal }) => {
   return (
     <div className="lg:col-span-7 space-y-space-lg">

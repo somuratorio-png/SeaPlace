@@ -1,6 +1,5 @@
 import { conductas } from '../../utils/telemetria'
 
-// Qué significa el color de cada punto del mapa
 const LeyendaConductas = () => {
   return (
     <div className="flex flex-wrap gap-x-space-md gap-y-1 font-label-md text-label-md text-on-surface-variant">

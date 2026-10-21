@@ -1,6 +1,5 @@
 import BotonMenu from './BotonMenu'
 
-// Los links del menú. Admin y refugio no apadrinan, así que no ven el muelle; cada uno ve su propio panel.
 const MenuPrincipal = ({ pathname, esAdmin, esRefugio, cantidadMuelle }) => {
   return (
     <nav className="order-last w-full lg:order-none lg:w-auto flex flex-wrap items-center gap-space-sm">

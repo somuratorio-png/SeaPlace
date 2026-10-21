@@ -1,8 +1,5 @@
 import { claseCampo } from '../../utils/clasesCampo'
 
-// Campo de formulario con su etiqueta. Es "controlado": el valor lo maneja el formulario padre.
-// "maximo" es la cantidad máxima de caracteres, "teclado" el tipo de teclado en el celular
-// (por ejemplo "numeric") y "ejemplo" el texto gris que se ve cuando está vacío.
 const CampoTexto = ({ etiqueta, nombre, tipo = 'text', valor, onCambiar, maximo, teclado, ejemplo }) => {
   return (
     <label htmlFor={nombre} className="flex flex-col gap-1.5">

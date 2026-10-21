@@ -13,9 +13,6 @@ public class CuentaBajaService {
 
     private final UsuarioRepository usuarioRepository;
 
-    // Si el mail o el nombre de usuario pertenecen a una cuenta de baja cuyo plazo ya vencio,
-    // se los libera para que se puedan volver a usar. La fila no se borra (conserva sus
-    // zarpar): solo se le cambian el mail y el nombre de usuario por valores sin sentido.
     public void liberarSiVencida(String mail, String nombreUsuario) {
         usuarioRepository.findByMail(mail).ifPresent(this::liberar);
         usuarioRepository.findByNombreUsuario(nombreUsuario).ifPresent(this::liberar);

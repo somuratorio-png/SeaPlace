@@ -43,7 +43,6 @@ public class DescuentoServiceImpl implements DescuentoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
-        // Solo el refugio dueño del animal (o un admin) puede crearle descuentos.
         autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         if (request.getPorcentaje() == null || request.getPorcentaje() <= 0 || request.getPorcentaje() > 100) {
@@ -68,7 +67,6 @@ public class DescuentoServiceImpl implements DescuentoService {
         return descuentoRepository.save(descuento);
     }
 
-    // Quitar una oferta no borra la fila: el descuento queda inactivo y deja de aplicarse.
     @Override
     public void desactivarDescuento(Long animalId, Long descuentoId) {
         Descuento descuento = descuentoRepository.findById(descuentoId)
@@ -76,7 +74,6 @@ public class DescuentoServiceImpl implements DescuentoService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el descuento con id " + descuentoId + " para el animal con id " + animalId));
 
-        // Solo el refugio dueño del animal (o un admin) puede quitarle descuentos.
         autorizacionService.validarPermisoSobreRefugio(descuento.getAnimal().getRefugio().getIdRefugio());
 
         descuento.setActivo(false);

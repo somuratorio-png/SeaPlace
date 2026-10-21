@@ -1,8 +1,6 @@
 import CampoTexto from '../comunes/CampoTexto'
 import SelectorTipoCuenta from './SelectorTipoCuenta'
 
-// Los datos que se piden de más al crear una cuenta: el tipo de cuenta, el nombre y el correo.
-// Un refugio escribe solo el nombre del refugio (se guarda como apellido).
 const CamposRegistro = ({ datos, esRefugio, onCambiar, onCambiarTipo }) => {
   return (
     <>

@@ -1,7 +1,5 @@
 import Precio from '../comunes/Precio'
 
-// Una barra del gráfico: el nombre del refugio, la barra y lo que recauda por mes.
-// "maximo" es el valor de la barra más larga: la barra se mide contra él.
 const BarraRecaudacion = ({ dato, maximo }) => {
   return (
     <div

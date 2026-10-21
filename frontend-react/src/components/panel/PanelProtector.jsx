@@ -8,7 +8,6 @@ import { useApadrinamientos } from '../../hooks/useApadrinamientos'
 import { useFavoritos } from '../../hooks/useFavoritos'
 import { useSesion } from '../../hooks/useSesion'
 
-// Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
 const PanelProtector = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
@@ -16,12 +15,10 @@ const PanelProtector = () => {
   const { favoritos } = useFavoritos()
 
   const { datos: apadrinamientos, cargando, error } = useApadrinamientos()
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+  const [errorAccion, setErrorAccion] = useState(null)
 
-  // Los favoritos que se muestran son los que siguen publicados
   const animalesFavoritos = favoritos.filter((animal) => animal.publicacion === 'ACTIVA')
 
-  // El backend manda también los cancelados (para el historial): acá se muestran los activos
   const apadrinados = apadrinamientos.filter((a) => a.activo)
 
   return (
@@ -35,7 +32,6 @@ const PanelProtector = () => {
 
       <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
         {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
-        {/* Si al entrar no se pudo agregar al muelle el animal que se había elegido, el mensaje llega con la navegación */}
         {state !== null && state.error && <AvisoError mensaje={state.error} />}
 
         <SeccionApadrinados

@@ -41,8 +41,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         jwt = authHeader.substring(7);
-        // Un token vencido o mal formado no corta el pedido: sigue como si no hubiera sesion.
-        // Asi las rutas publicas siguen funcionando y las protegidas responden que falta autenticarse.
         try {
             username = jwtService.extractUsername(jwt);
         } catch (JwtException | IllegalArgumentException ex) {

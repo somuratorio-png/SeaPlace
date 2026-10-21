@@ -1,6 +1,5 @@
 import Concha from '../marino/Concha'
 
-// Título de una sección: una conchita, el texto y una olita de subrayado
 const TituloSeccion = ({ children, centrado = false }) => {
   return (
     <div className={`space-y-1 ${centrado ? 'text-center' : ''}`}>

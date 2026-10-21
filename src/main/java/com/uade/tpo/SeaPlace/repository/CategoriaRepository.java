@@ -1,4 +1,3 @@
-// repository/CategoriaRepository.java
 package com.uade.tpo.SeaPlace.repository;
 
 import java.util.Optional;

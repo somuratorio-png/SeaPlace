@@ -1,4 +1,3 @@
-// Un dato del certificado: la etiqueta chica arriba y el valor debajo
 const DatoCertificado = ({ titulo, valor }) => {
   return (
     <div>

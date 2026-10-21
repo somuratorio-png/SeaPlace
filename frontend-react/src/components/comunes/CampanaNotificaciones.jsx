@@ -3,21 +3,16 @@ import { formatearFecha } from '../../utils/fechas'
 import { useNotificaciones } from '../../hooks/useNotificaciones'
 import Icono from './Icono'
 
-// Campanita del header con el número de notificaciones sin leer. Al tocarla se despliegan
-// y se marcan como leídas (las que eran nuevas se siguen resaltando).
-// Se cierra al tocar afuera (cuando el foco sale de la campanita y su panel) o con Escape.
 const CampanaNotificaciones = () => {
   const { notificaciones, sinLeer, cargando, error, errorAlMarcar, marcarLeidas } = useNotificaciones()
   const [abierta, setAbierta] = useState(false)
 
-  // Al abrirla se marcan como leídas
   useEffect(() => {
     if (abierta) {
       marcarLeidas()
     }
   }, [abierta, marcarLeidas])
 
-  // Si el foco pasa a algo que no es parte de la campanita (se tocó afuera), se cierra
   const alPerderFoco = (evento) => {
     if (!evento.currentTarget.contains(evento.relatedTarget)) {
       setAbierta(false)
@@ -47,7 +42,6 @@ const CampanaNotificaciones = () => {
         )}
       </button>
 
-      {/* tabIndex={-1}: tocar adentro del panel le pasa el foco a él, así no cuenta como tocar afuera */}
       {abierta && (
         <div tabIndex={-1} className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] bg-surface-container-lowest rounded-2xl shadow-lg ring-1 ring-primary-fixed overflow-hidden outline-none">
           <p className="px-space-md py-space-sm font-label-lg text-label-lg text-on-surface border-b border-primary-fixed">Notificaciones</p>

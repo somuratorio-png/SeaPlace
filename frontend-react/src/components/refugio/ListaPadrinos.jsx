@@ -1,8 +1,6 @@
 import { formatearFecha } from '../../utils/fechas'
 import Precio from '../comunes/Precio'
 
-// Tabla con quién apadrina a cada animal del refugio, con qué plan y desde cuándo.
-// El nombre completo de cada padrino ya viene en el apadrinamiento.
 const ListaPadrinos = ({ apadrinamientos }) => {
   if (apadrinamientos.length === 0) {
     return (

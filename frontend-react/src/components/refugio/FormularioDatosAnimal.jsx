@@ -5,11 +5,8 @@ import CamposAnimal from './CamposAnimal'
 import PreciosPlanes from './PreciosPlanes'
 import { useFormulario } from '../../hooks/useFormulario'
 
-// Los campos que no pueden quedar vacíos (los mismos que al publicarlo)
 const OBLIGATORIOS = ['nombre', 'especie', 'edad', 'ubicacion', 'descripcion', 'precioBrisa', 'precio', 'precioMarea', 'cuposTotales']
 
-// Los datos del animal tal como los cargó el refugio, en el formato del formulario.
-// Se usa "ficha" y no especie/edad/ubicación directamente porque esos traen un texto de relleno cuando faltan.
 const datosDe = (animal) => ({
   nombre: animal.nombre,
   especie: animal.ficha.especie,
@@ -24,19 +21,15 @@ const datosDe = (animal) => ({
   descripcion: animal.descripcion,
 })
 
-// Corrige los datos de un animal: su ficha, su historia, los precios de los planes y los cupos.
-// Mientras espera la aprobación los cambios se aplican enseguida. Si ya está publicado, se mandan a revisión:
-// un administrador los aprueba y, mientras tanto, la publicación se sigue viendo como está.
-// onGuardar lo manda al backend y devuelve un mensaje de error, o null si salió bien.
 const FormularioDatosAnimal = ({ animal, categorias, onGuardar }) => {
   const { datos, cambiar } = useFormulario(datosDe(animal))
   const [error, setError] = useState(null)
-  const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
+  const [enviando, setEnviando] = useState(false)
   const [guardado, setGuardado] = useState(false)
   const conRevision = animal.publicacion !== 'PENDIENTE'
 
   const guardar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (OBLIGATORIOS.some((campo) => !String(datos[campo]).trim())) {
       setError('Faltan algunos datos: revisá los campos vacíos.')
       return

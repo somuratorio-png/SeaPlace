@@ -1,2 +1,1 @@
-// Estilo de la caja de los campos de formulario (texto, desplegable, texto largo y archivos)
 export const claseCampo = 'w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40'

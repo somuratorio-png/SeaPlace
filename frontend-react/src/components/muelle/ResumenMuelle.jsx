@@ -1,9 +1,7 @@
 import { PRECIO_BOTIQUIN, totalMuelle } from '../../utils/precios'
 import Precio from '../comunes/Precio'
 
-// Suma los precios, permite agregar el botiquín opcional y pasar a zarpar (el pago)
 const ResumenMuelle = ({ muelle, conBotiquin, onBotiquin, onZarpar }) => {
-  // Los totales se calculan cada vez que se dibuja: no hace falta guardarlos en el estado
   const subtotal = totalMuelle(muelle, false)
   const total = totalMuelle(muelle, conBotiquin)
 

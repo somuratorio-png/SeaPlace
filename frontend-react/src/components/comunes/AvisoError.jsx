@@ -1,6 +1,5 @@
 import Icono from './Icono'
 
-// Cartel con el mensaje de un pedido al backend que falló. onCerrar es opcional: si se pasa, aparece el botón.
 const AvisoError = ({ mensaje, onCerrar }) => {
   return (
     <div role="alert" className="bg-error-container text-on-error-container rounded-2xl px-space-lg py-space-md flex items-center justify-between gap-space-md shadow-sm">

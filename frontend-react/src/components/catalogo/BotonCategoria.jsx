@@ -1,6 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Un botón de categoría ("pill"). La activa se ve en color primario.
 const BotonCategoria = ({ nombre, icono, cantidad, activa, onClick }) => {
   const estilo = activa
     ? 'bg-primary text-on-primary shadow-md'

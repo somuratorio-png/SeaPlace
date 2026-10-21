@@ -9,7 +9,6 @@ import { traerAnimales } from '../../services/animales'
 import { useNavigate } from 'react-router-dom'
 import { useConsulta } from '../../hooks/useConsulta'
 
-// Página de inicio. Pide el catálogo al backend cuando se monta y de ahí muestra los destacados.
 const PaginaInicio = () => {
   const navigate = useNavigate()
   const { datos: animales, cargando, error } = useConsulta(traerAnimales, undefined, [])
@@ -24,7 +23,6 @@ const PaginaInicio = () => {
 
   const destacados = animales.filter((animal) => animal.destacado)
 
-  // La sección de destacados: el aviso de espera, el error del backend o las tarjetas
   const elegirDestacados = () => {
     if (cargando) {
       return <Cargando texto="Buscando a los animales destacados…" />

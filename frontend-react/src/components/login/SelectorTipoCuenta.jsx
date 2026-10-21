@@ -1,5 +1,3 @@
-// Interruptor del registro: "Quiero apadrinar" o "Soy un refugio".
-// esRefugio es true cuando está elegido el refugio; onCambiar recibe el valor nuevo (true o false).
 const SelectorTipoCuenta = ({ esRefugio, onCambiar }) => {
   return (
     <div className="grid grid-cols-2 gap-space-xs bg-primary-fixed/70 rounded-full p-1" role="group" aria-label="Tipo de cuenta">

@@ -1,6 +1,5 @@
 import FilaAnimal from '../comunes/FilaAnimal'
 
-// La lista desplegable con los animales de un refugio, o un aviso si todavía no publicó ninguno
 const AnimalesDelRefugio = ({ animales, onQuitar }) => {
   return (
     <div className="bg-surface-container-low rounded-b-2xl p-space-md space-y-space-sm">

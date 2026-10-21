@@ -13,7 +13,6 @@ import com.uade.tpo.SeaPlace.entity.dto.PlanResponse;
 @RequestMapping("planes")
 public class PlanesController {
 
-    // los niveles de apadrinamiento, del mas barato al mas caro (son fijos, no hay alta ni baja)
     @GetMapping
     public ResponseEntity<List<PlanResponse>> getPlanes() {
         return ResponseEntity.ok(Arrays.stream(Plan.values()).map(PlanResponse::fromPlan).toList());

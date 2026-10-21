@@ -23,7 +23,6 @@ public class RefugiosController {
     @GetMapping
     public ResponseEntity<List<RefugioResponse>> getRefugios() {
         List<RefugioResponse> resultado = refugioService.getRefugios().stream().map(RefugioResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -42,7 +41,6 @@ public class RefugiosController {
         return ResponseEntity.created(URI.create("/refugios/" + result.getIdRefugio())).body(RefugioResponse.fromEntity(result));
     }
 
-    // un administrador aprueba a un refugio que se registro solo; recien ahi puede publicar animales
     @PutMapping("/{refugioId}/aprobar")
     public ResponseEntity<RefugioResponse> aprobarRefugio(@PathVariable Long refugioId) {
         return ResponseEntity.ok(RefugioResponse.fromEntity(refugioService.aprobarRefugio(refugioId)));

@@ -1,4 +1,3 @@
-// repository/DescuentoRepository.java
 package com.uade.tpo.SeaPlace.repository;
 
 import java.time.LocalDate;

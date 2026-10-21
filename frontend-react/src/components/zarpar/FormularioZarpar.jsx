@@ -11,12 +11,6 @@ import { useMuelle } from '../../hooks/useMuelle'
 
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
-// Zarpar = confirmar el muelle y pagar (igual que la clase Zarpar del backend).
-// El pago es simulado: no se cobra nada ni se guardan los datos de la tarjeta (no se mandan al backend).
-// Lo que sí es real es la confirmación: se le pide al backend que registre el zarpar. Si falla (por ejemplo,
-// si a un animal ya no le quedan cupos) se muestra su mensaje; si sale bien, se pasa a la página de gracias.
-// Los campos de la tarjeta no dejan escribir de más: solo números y hasta el largo justo.
-// Antes de confirmar se revisa que el número esté completo, que la tarjeta no esté vencida y el código.
 const FormularioZarpar = () => {
   const { token } = useSesion()
   const navigate = useNavigate()
@@ -26,8 +20,8 @@ const FormularioZarpar = () => {
 
   const [datos, setDatos] = useState(formularioVacio)
   const [error, setError] = useState(null)
-  const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
-  const [zarpado, setZarpado] = useState(false) // true cuando el pago salió bien y ya se va a gracias
+  const [enviando, setEnviando] = useState(false)
+  const [zarpado, setZarpado] = useState(false)
 
   const cambiar = (evento) => {
     const { name, value } = evento.target
@@ -35,7 +29,7 @@ const FormularioZarpar = () => {
   }
 
   const confirmar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
 
     const errorTarjeta = validarTarjeta(datos)
     if (errorTarjeta !== null) {
@@ -43,8 +37,6 @@ const FormularioZarpar = () => {
       return
     }
 
-    // El backend vuelve a validar los cupos, convierte cada ítem en un apadrinamiento y cierra el muelle.
-    // Si sale bien, se pasa a la página de gracias y este formulario desaparece
     setEnviando(true)
     zarpar(token, idMuelle, conBotiquin)
       .then((totalPagado) => {
@@ -59,8 +51,6 @@ const FormularioZarpar = () => {
       })
   }
 
-  // Con el muelle vacío no hay nada que pagar. Justo después de zarpar también queda vacío,
-  // pero ahí ya se está yendo a la página de gracias.
   if (muelle.length === 0) {
     return zarpado ? null : <Navigate to="/muelle" replace />
   }

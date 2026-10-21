@@ -1,9 +1,6 @@
 import TarjetaAnimal from './TarjetaAnimal'
 import MensajeVacio from '../comunes/MensajeVacio'
 
-// Cuántos animales se muestran y las tarjetas de la página actual; si no hay ninguno, un mensaje.
-// "cantidadEncontrados" son todos los que cumplen la búsqueda (en todas las páginas) y
-// "hayPublicados" es false si el refugio todavía no publicó ningún animal.
 const ResultadosCatalogo = ({ animales, cantidadEncontrados, hayPublicados, onError, onVer }) => {
   return (
     <>

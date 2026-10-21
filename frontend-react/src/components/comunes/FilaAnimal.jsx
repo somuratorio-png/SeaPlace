@@ -7,7 +7,6 @@ import Precio from './Precio'
 import { useNavigate } from 'react-router-dom'
 
 
-// Un animal del refugio, con el botón para quitarlo del catálogo (si no se pasa onQuitar, no aparece)
 const FilaAnimal = ({ animal, onQuitar }) => {
   const navigate = useNavigate()
   const [isVisible, setIsVisible] = useState(false)
@@ -20,15 +19,12 @@ const FilaAnimal = ({ animal, onQuitar }) => {
         <div className="flex-1 min-w-40 space-y-1">
           <h3 className="font-title-lg text-title-lg text-primary">
             {animal.nombre}
-            {/* Las pausadas no se ven en el catálogo: solo las ven su refugio y el administrador */}
             {animal.publicacion === 'PAUSADA' && (
               <span className="ml-space-sm align-middle bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full px-space-sm py-0.5 font-label-md text-label-md">Pausada</span>
             )}
-            {/* Ya publicada, pero con cambios que todavía no revisó un administrador */}
             {animal.cambioPendiente && (
               <span className="ml-space-sm align-middle bg-primary-fixed text-on-primary-fixed-variant rounded-full px-space-sm py-0.5 font-label-md text-label-md">Cambios en revisión</span>
             )}
-            {/* Las pendientes tampoco: esperan que un administrador las apruebe */}
             {animal.publicacion === 'PENDIENTE' && (
               <span className="ml-space-sm align-middle bg-secondary-container text-on-secondary-container rounded-full px-space-sm py-0.5 font-label-md text-label-md">Esperando aprobación</span>
             )}
@@ -59,7 +55,6 @@ const FilaAnimal = ({ animal, onQuitar }) => {
         </div>
       </div>
 
-      {/* Fuera de la tarjeta: la animación de entrada (.revelar) usa transform, y eso desubicaría el cartel */}
       {isVisible && (
         <Modal
           titulo={`¿Quitar a ${animal.nombre} del catálogo?`}

@@ -41,14 +41,11 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
-    // Login fallido (BadCredentialsException y demas): 401, sin detalles de cual dato fallo.
     @ExceptionHandler(AuthenticationException.class)
     public ResponseEntity<Object> handleAutenticacion(AuthenticationException ex) {
         return construirRespuesta(HttpStatus.UNAUTHORIZED, "Usuario o contrasenia incorrectos");
     }
 
-    // JSON mal formado, body vacio o un tipo que no coincide (ej: "idAnimal": "abc"),
-    // y ids de la url que no son numericos (ej: /animales/abc/fotos).
     @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class,
         MissingServletRequestParameterException.class })
     public ResponseEntity<Object> handleRequestInvalido(Exception ex) {
@@ -56,7 +53,6 @@ public class GlobalExceptionHandler {
                 "Solicitud invalida: revisa el formato del JSON y los parametros");
     }
 
-    // Subida de archivos: falta el archivo, el pedido no es multipart o supera el tamaño permitido.
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<Object> handleArchivoInvalido(MultipartException ex) {
         return construirRespuesta(HttpStatus.BAD_REQUEST,
@@ -78,7 +74,6 @@ public class GlobalExceptionHandler {
         return construirRespuesta(HttpStatus.NOT_FOUND, "La ruta solicitada no existe");
     }
 
-    // Se dispara cuando falla la validacion de un DTO anotado con @Valid (@NotNull, @NotBlank, etc).
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Object> handleValidacion(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new LinkedHashMap<>();
@@ -94,7 +89,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    // Catch-all: cualquier excepcion no contemplada no debe filtrar el stack trace al cliente.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenerica(Exception ex) {
         log.error("Error inesperado", ex);

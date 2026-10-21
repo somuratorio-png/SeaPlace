@@ -12,7 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-// Una entrada de la bitacora del animal: la publica su refugio y la leen sus padrinos.
 @Data
 @Entity
 @Table(name = "novedad")

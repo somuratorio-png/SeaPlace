@@ -1,8 +1,5 @@
 import Icono from './Icono'
 
-// Menú de secciones de un panel. En pantallas grandes queda fijo al costado (sidebar);
-// en el celular se acomoda arriba, en una fila.
-// secciones = [{ id, nombre, icono, aviso }]. "aviso" es un número opcional que se muestra en un globito.
 const MenuLateral = ({ secciones, activa, onCambiar }) => {
   return (
     <nav className="lg:sticky lg:top-28 bg-surface-container-lowest rounded-2xl shadow-sm p-space-sm flex lg:flex-col flex-wrap gap-space-sm" aria-label="Secciones del panel">

@@ -6,13 +6,10 @@ import AccionesGracias from './AccionesGracias'
 import FilaCertificado from './FilaCertificado'
 import TransicionZarpar from './TransicionZarpar'
 
-// Se muestra después de zarpar (confirmar el muelle). zarpar = { apadrinados, total }
-// Acá mismo se entrega el certificado de cada animal apadrinado.
 const AgradecimientoZarpar = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
 
-  // Sin un pago recién hecho no hay nada que agradecer: se vuelve al panel
   if (state === null) {
     return <Navigate to="/panel" replace />
   }

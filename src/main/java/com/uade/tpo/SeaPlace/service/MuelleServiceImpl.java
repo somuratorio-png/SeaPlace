@@ -44,7 +44,6 @@ public class MuelleServiceImpl implements MuelleService {
 
     @Override
     public Muelle getOrCreateMuelleActivo(Long idUsuario) {
-        // Un usuario solo puede pedir su propio carrito (o un admin, cualquiera).
         autorizacionService.validarPropietarioOAdmin(idUsuario);
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
@@ -72,15 +71,12 @@ public class MuelleServiceImpl implements MuelleService {
             throw new ReglaDeNegocioException("La cantidad debe ser un numero mayor a 0");
         }
 
-        // Sin idMuelle se usa el muelle activo del usuario logueado (si no tiene, se crea):
-        // es el caso de quien acaba de zarpar y empieza un pedido nuevo.
         Muelle muelle = request.getIdMuelle() == null
                 ? getOrCreateMuelleActivo(autorizacionService.idUsuarioActual())
                 : muelleRepository.findById(request.getIdMuelle())
                         .orElseThrow(() -> new RecursoNoEncontradoException(
                                 "No existe el muelle con id " + request.getIdMuelle()));
 
-        // Solo el dueño del carrito (o un admin) puede agregarle items.
         autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
         
         autorizacionService.validarPuedeApadrinar(muelle.getUsuario());
@@ -117,7 +113,6 @@ public class MuelleServiceImpl implements MuelleService {
         if (detalleExistente.isPresent()) {
             detalle = detalleExistente.get();
             detalle.setCantidad(cantidadFinal);
-            // Si el animal ya estaba en el muelle, el plan solo cambia si el pedido trae uno.
             if (indicaPlan) {
                 detalle.setPlan(Plan.desde(request.getPlan()));
             }
@@ -143,7 +138,6 @@ public class MuelleServiceImpl implements MuelleService {
                 .findByMuelle_IdMuelleAndAnimal_IdAnimal(muelleId, animalId)
                 .orElseThrow(() -> new RecursoNoEncontradoException("El animal no esta en el muelle"));
 
-        // Solo el dueño del carrito (o un admin) puede modificarlo.
         autorizacionService.validarPropietarioOAdmin(detalle.getMuelle().getUsuario().getIdUsuario());
 
         if (!ESTADO_MUELLE_ACTIVO.equals(detalle.getMuelle().getEstado())) {
@@ -165,7 +159,6 @@ public class MuelleServiceImpl implements MuelleService {
         }
 
         detalle.setCantidad(cantidad);
-        // El plan es opcional: si no viene, queda el que tenia.
         if (plan != null && !plan.isBlank()) {
             detalle.setPlan(Plan.desde(plan));
         }
@@ -179,7 +172,6 @@ public class MuelleServiceImpl implements MuelleService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el muelle con id " + muelleId));
 
-        // Solo el dueño del carrito (o un admin) puede sacarle items.
         autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
 
         if (!ESTADO_MUELLE_ACTIVO.equals(muelle.getEstado())) {
@@ -195,7 +187,6 @@ public class MuelleServiceImpl implements MuelleService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el muelle con id " + muelleId));
 
-        // Solo el dueño del carrito (o un admin) puede ver sus items.
         autorizacionService.validarPropietarioOAdmin(muelle.getUsuario().getIdUsuario());
 
         return muelleDetalleRepository.findByMuelle_IdMuelle(muelleId);

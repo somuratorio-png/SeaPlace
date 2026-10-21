@@ -22,7 +22,6 @@ public class DescuentosController {
     @GetMapping
     public ResponseEntity<List<DescuentoResponse>> getDescuentosActivos(@PathVariable Long animalId) {
         List<DescuentoResponse> resultado = descuentoService.getDescuentosActivos(animalId).stream().map(DescuentoResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -36,7 +35,6 @@ public class DescuentosController {
         return ResponseEntity.created(URI.create("/animales/" + animalId + "/descuentos/" + result.getIdDescuento())).body(DescuentoResponse.fromEntity(result));
     }
 
-    // quita la oferta: el descuento no se borra, queda inactivo
     @DeleteMapping("/{descuentoId}")
     public ResponseEntity<Void> desactivarDescuento(@PathVariable Long animalId, @PathVariable Long descuentoId) {
         descuentoService.desactivarDescuento(animalId, descuentoId);

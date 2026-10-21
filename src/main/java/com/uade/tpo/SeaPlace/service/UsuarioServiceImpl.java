@@ -127,8 +127,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el rol con id " + idRol));
 
-        // Si el usuario es administrador y el rol nuevo no lo es, tiene que quedar
-        // al menos otro administrador: si no, nadie podria volver a gestionar roles.
         boolean eraAdmin = usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_ADMINISTRADOR);
         boolean seguiraSiendoAdmin = rol.getNombreRol().equalsIgnoreCase(ROL_ADMINISTRADOR);
         if (eraAdmin && !seguiraSiendoAdmin
@@ -143,9 +141,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    // Una cuenta con rol de refugio necesita un refugio para poder publicar animales.
-    // Cuando un administrador le da ese rol a un usuario, lo esta habilitando: si no tenia
-    // refugio se le crea uno, y en cualquier caso queda aprobado.
     private void habilitarRefugio(Usuario usuario) {
         Optional<Refugio> existente = refugioRepository.findByUsuario_IdUsuario(usuario.getIdUsuario());
         if (existente.isPresent()) {
@@ -155,7 +150,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         }
 
         String nombreRefugio = "Refugio de " + usuario.getNombre() + " " + usuario.getApellido();
-        // El nombre del refugio no se puede repetir: si ya existe, se distingue con el nombre de usuario.
         if (refugioRepository.findByNombreRefugio(nombreRefugio).isPresent()) {
             nombreRefugio = nombreRefugio + " (" + usuario.getNombreUsuario() + ")";
         }
@@ -167,12 +161,9 @@ public class UsuarioServiceImpl implements UsuarioService {
         refugio.setUsuario(usuario);
         refugio.setNombreRefugio(nombreRefugio);
         refugio.setAprobado(true);
-        // Se enlaza tambien del lado del usuario, para que la respuesta ya traiga su refugio.
         usuario.setRefugio(refugioRepository.save(refugio));
     }
 
-    // Reactiva una cuenta dada de baja, mientras este dentro del plazo. Lo hace un administrador;
-    // el propio usuario se reactiva solo, iniciando sesion.
     @Override
     public Usuario reactivar(Long usuarioId) {
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -194,7 +185,6 @@ public class UsuarioServiceImpl implements UsuarioService {
     @Override
     @Transactional
     public Usuario darDeBaja(Long usuarioId) {
-        // Solo el propio usuario (o un admin) puede darlo de baja.
         autorizacionService.validarPropietarioOAdmin(usuarioId);
 
         Usuario usuario = usuarioRepository.findById(usuarioId)
@@ -214,8 +204,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         return usuarioRepository.save(usuario);
     }
 
-    // Si el usuario administraba un refugio, sus publicaciones activas se pausan
-    // para que dejen de verse en el catalogo.
     private void pausarPublicaciones(Usuario usuario) {
         if (usuario.getRefugio() == null) {
             return;
@@ -239,8 +227,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
 
-        // Solo se cambia lo que viene en el pedido. El nombre de usuario (que es el que lleva
-        // el token), el rol y el estado de la cuenta no se pueden modificar desde aca.
         if (request.getNombre() != null) {
             usuario.setNombre(ValidadorUsuarioService.textoObligatorio(request.getNombre(), "nombre"));
         }
@@ -250,8 +236,6 @@ public class UsuarioServiceImpl implements UsuarioService {
         if (request.getMail() != null) {
             String mail = ValidadorUsuarioService.mailValido(request.getMail());
             if (!mail.equalsIgnoreCase(usuario.getMail())) {
-                // Si el mail era de una cuenta de baja con el plazo vencido, se libera.
-                // (El nombre de usuario que se pasa es el propio: al estar activo, no se toca.)
                 cuentaBajaService.liberarSiVencida(mail, usuario.getNombreUsuario());
                 if (usuarioRepository.existsByMail(mail)) {
                     throw new RecursoDuplicadoException("Ya existe un usuario con el mail " + mail);
@@ -278,7 +262,6 @@ public class UsuarioServiceImpl implements UsuarioService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el usuario con id " + idUsuario));
 
-        // Hay que conocer la contrasenia actual: asi nadie con la sesion abierta puede cambiarla.
         if (request.getContraseniaActual() == null
                 || !passwordEncoder.matches(request.getContraseniaActual(), usuario.getContrasenia())) {
             throw new ReglaDeNegocioException("La contrasenia actual es incorrecta");

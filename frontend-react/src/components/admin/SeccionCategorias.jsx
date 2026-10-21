@@ -7,13 +7,9 @@ import TituloSeccion from '../comunes/TituloSeccion'
 import FormularioCategoria from './FormularioCategoria'
 import TarjetaCategoria from './TarjetaCategoria'
 
-// Sección "Categorías" del administrador: las que existen (con cuántos animales publicados tiene cada una)
-// y el formulario para crear una nueva. Las categorías y los animales publicados los pide SeccionesAdmin.
 const SeccionCategorias = ({ categorias, setCategorias, publicados, cargando, error }) => {
   const { token } = useSesion()
 
-  // La categoría nueva se agrega a la lista con lo que devuelve el backend.
-  // Devuelve una promesa con el mensaje de error (lo muestra el formulario), o null si salió bien.
   const crear = (nombre, descripcion) =>
     intentar(
       crearCategoria(token, nombre, descripcion).then((nueva) => {

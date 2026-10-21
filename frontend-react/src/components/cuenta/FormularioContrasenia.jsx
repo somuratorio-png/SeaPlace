@@ -9,8 +9,6 @@ import { useFormulario } from '../../hooks/useFormulario'
 
 const sinContrasenias = { actual: '', nueva: '', repetida: '' }
 
-// "Cambiar contraseña": pide la actual y la nueva dos veces. Le pide el cambio al backend y muestra
-// acá mismo su mensaje de error.
 const FormularioContrasenia = () => {
   const { token } = useSesion()
   const { datos: contrasenias, cambiar: cambiarCampo, reiniciar } = useFormulario(sinContrasenias)
@@ -23,7 +21,7 @@ const FormularioContrasenia = () => {
   }
 
   const guardar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!contrasenias.actual.trim() || !contrasenias.nueva.trim() || !contrasenias.repetida.trim()) {
       setError('Completá todos los campos')
       return

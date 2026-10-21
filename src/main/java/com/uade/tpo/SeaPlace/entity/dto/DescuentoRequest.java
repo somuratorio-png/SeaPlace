@@ -10,5 +10,4 @@ public class DescuentoRequest {
     private Double porcentaje;
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
-    // activo lo setea el service (true por defecto)
 }

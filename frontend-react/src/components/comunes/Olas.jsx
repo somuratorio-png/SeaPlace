@@ -1,4 +1,3 @@
-// Borde con forma de olas (quieto). Se pinta del color de texto que reciba en "clase" (por ejemplo "text-surface").
 const Olas = ({ clase = 'text-surface' }) => {
   return (
     <svg viewBox="0 0 1440 90" preserveAspectRatio="none" aria-hidden="true" className={`block w-full h-10 lg:h-16 ${clase}`}>

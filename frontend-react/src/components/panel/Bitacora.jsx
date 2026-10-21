@@ -1,8 +1,6 @@
 import NovedadBitacora from './NovedadBitacora'
 
-// Novedades que el refugio fue publicando sobre el animal, de la más nueva a la más vieja
 const Bitacora = ({ nombre, novedades }) => {
-  // Las fechas son texto 'AAAA-MM-DD', así que se pueden ordenar comparándolas como texto
   const ordenadas = [...novedades].sort((a, b) => b.fecha.localeCompare(a.fecha))
 
   return (

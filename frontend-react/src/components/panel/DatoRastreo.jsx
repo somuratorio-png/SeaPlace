@@ -1,6 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Un dato en vivo del rastreo (velocidad, profundidad, etc.)
 const DatoRastreo = ({ icono, titulo, valor }) => {
   return (
     <div className="bg-primary-fixed/60 rounded-xl p-space-md flex items-center gap-space-sm">
@@ -9,7 +8,6 @@ const DatoRastreo = ({ icono, titulo, valor }) => {
       </div>
       <div>
         <div className="font-label-md text-label-md text-on-surface-variant uppercase tracking-wider">{titulo}</div>
-        {/* tabular-nums evita que el texto "baile" cuando cambian los números */}
         <div className="font-title-lg text-title-lg text-primary tabular-nums">{valor}</div>
       </div>
     </div>

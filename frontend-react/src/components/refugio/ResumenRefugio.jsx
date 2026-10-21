@@ -3,8 +3,6 @@ import { formatearPrecio } from '../../contexto/Moneda'
 import { recaudacionMensual } from '../../utils/precios'
 import { useMoneda } from '../../hooks/useMoneda'
 
-// Las tres tarjetas de arriba del panel del refugio: animales publicados, padrinos y recaudación mensual.
-// "apadrinamientos" son los activos de los animales de este refugio.
 const ResumenRefugio = ({ cantidadAnimales, apadrinamientos }) => {
   const { moneda } = useMoneda()
   const cantidadPadrinos = new Set(apadrinamientos.map((a) => a.usuario)).size

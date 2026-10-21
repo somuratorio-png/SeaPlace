@@ -1,7 +1,5 @@
 import { coordenadasDe, horaDe } from '../../utils/telemetria'
 
-// Cuándo llegó la última señal y una barrita que se vacía hasta la próxima.
-// "numeroSenal" es el número de la última señal: al cambiar, la "key" reinicia la barrita.
 const BarraProximaSenal = ({ ultimaRecibida, numeroSenal, enMarcha, segundosEntrePulsos }) => {
   return (
     <div className="space-y-1">

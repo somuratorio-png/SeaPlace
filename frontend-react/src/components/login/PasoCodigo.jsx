@@ -2,8 +2,6 @@ import BotonFormulario from '../comunes/BotonFormulario'
 import CampoTexto from '../comunes/CampoTexto'
 import MensajeError from '../comunes/MensajeError'
 
-// Paso 2 de "olvidé mi contraseña": con el código que generó el backend se elige la contraseña nueva.
-// "aviso" es lo que contestó el backend al pedir el código.
 const PasoCodigo = ({ aviso, codigo, contrasenia, error, onCambiar, onEnviar }) => {
   return (
     <form onSubmit={onEnviar} className="space-y-space-md">

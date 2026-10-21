@@ -12,8 +12,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.Data;
 
-// Un aviso para un usuario: por ejemplo, a un refugio cuando un administrador aprueba o rechaza
-// una publicacion suya. Queda sin leer hasta que el usuario abre sus notificaciones.
 @Data
 @Entity
 @Table(name = "notificacion")

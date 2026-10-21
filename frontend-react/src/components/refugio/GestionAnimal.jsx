@@ -6,8 +6,6 @@ import FormularioOferta from './FormularioOferta'
 import FormularioUbicacion from './FormularioUbicacion'
 import SumarFotos from './SumarFotos'
 
-// Lo que se despliega al gestionar un animal: corregir sus datos (se abre aparte, porque es largo),
-// ponerlo en oferta, publicar novedades, informar su ubicación y sumarle fotos.
 const GestionAnimal = ({ animal, categorias, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [editando, setEditando] = useState(false)
 

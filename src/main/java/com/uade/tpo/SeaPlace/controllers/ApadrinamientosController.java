@@ -22,12 +22,9 @@ public class ApadrinamientosController {
     @Autowired
     private SesionService sesionService;
 
-    // los que le corresponden al usuario logueado: un admin ve todos, un refugio los de sus
-    // animales y un padrino los propios (activos y cancelados)
     @GetMapping
     public ResponseEntity<List<ApadrinamientoResponse>> getApadrinamientos() {
         List<ApadrinamientoResponse> resultado = sesionService.getApadrinamientos();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -39,7 +36,6 @@ public class ApadrinamientosController {
         return ResponseEntity.ok(aRespuesta(apadrinamientoService.cambiarPlan(apadrinamientoId, request.getPlan())));
     }
 
-    // cancelar no borra el apadrinamiento: lo deja inactivo y libera sus cupos
     @DeleteMapping("/{apadrinamientoId}")
     public ResponseEntity<ApadrinamientoResponse> cancelar(@PathVariable Long apadrinamientoId) {
         return ResponseEntity.ok(aRespuesta(apadrinamientoService.cancelar(apadrinamientoId)));

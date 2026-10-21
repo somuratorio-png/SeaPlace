@@ -1,7 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Las miniaturas de las fotos elegidas, cada una con una cruz para sacarla.
-// "fotos" es una lista de { archivo, vistaPrevia }; onQuitar recibe la posición de la foto a sacar.
 const VistaPreviaFotos = ({ fotos, onQuitar }) => {
   return (
     <div className="flex flex-wrap gap-space-sm">

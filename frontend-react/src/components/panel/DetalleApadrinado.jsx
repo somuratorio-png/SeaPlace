@@ -14,21 +14,15 @@ import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
 import { usePlanes } from '../../hooks/usePlanes'
 import { useSesion } from '../../hooks/useSesion'
 
-// Detalle de un animal que el usuario ya apadrinó.
-// Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
-// y la última ubicación de su animal, así que alcanza con ese pedido.
-// Si una acción falla, el mensaje se muestra arriba de la página.
 const DetalleApadrinado = () => {
-  // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const navigate = useNavigate()
   const { id } = useParams()
 
   const { item, setApadrinamientos, cargando, error } = useApadrinamientoDe(id)
-  const planes = usePlanes() // para armar el apadrinamiento que devuelve el backend después de cada acción
+  const planes = usePlanes()
   const { token } = useSesion()
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+  const [errorAccion, setErrorAccion] = useState(null)
 
-  // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
     setErrorAccion(null)
     cambiarPlan(token, planes, idApadrinamiento, planNuevo.codigo)
@@ -40,8 +34,6 @@ const DetalleApadrinado = () => {
       })
   }
 
-  // No se borra: queda inactivo, así el historial no se pierde.
-  // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
   const cancelar = (idApadrinamiento) => {
     setErrorAccion(null)
     cancelarApadrinamiento(token, planes, idApadrinamiento)
@@ -61,7 +53,6 @@ const DetalleApadrinado = () => {
     return <ErrorConVolver mensaje={error} textoVolver="Volver a mis apadrinados" onVolver={() => navigate('/panel')} />
   }
 
-  // Si ese animal no está apadrinado (o se canceló), se vuelve al panel
   if (!item) {
     return <Navigate to="/panel" replace />
   }
@@ -83,7 +74,6 @@ const DetalleApadrinado = () => {
         />
       </div>
 
-      {/* La ubicación solo se muestra con el plan más alto. Va a todo el ancho para que el mapa luzca. */}
       {plan.ubicacionEnVivo ? <Rastreo key={animal.id} animal={animal} posicion={item.ultimaUbicacion} /> : <RastreoBloqueado nombre={animal.nombre} />}
     </div>
   )

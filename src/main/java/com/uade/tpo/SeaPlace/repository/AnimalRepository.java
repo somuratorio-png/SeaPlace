@@ -1,4 +1,3 @@
-// repository/AnimalRepository.java
 package com.uade.tpo.SeaPlace.repository;
 
 import java.util.List;
@@ -16,7 +15,6 @@ import com.uade.tpo.SeaPlace.entity.Animal;
 public interface AnimalRepository extends JpaRepository<Animal, Long> {
     List<Animal> findByRefugio_IdRefugio(Long idRefugio);
 
-    // los que tienen cambios esperando la revision de un administrador (sin contar los eliminados)
     List<Animal> findByCambioPendienteIsNotNullAndEstadoNot(String estado);
 
     @Query("""

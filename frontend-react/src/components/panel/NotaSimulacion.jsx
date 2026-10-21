@@ -1,8 +1,6 @@
 import { formatearFecha } from '../../utils/fechas'
 import { HORAS_ENTRE_SENALES } from '../../utils/telemetria'
 
-// Aclara de dónde parte el mapa y que el recorrido es una simulación acelerada.
-// "posicion" es la última que informó el refugio, o null si nunca informó una.
 const NotaSimulacion = ({ posicion, segundosEntrePulsos }) => {
   return (
     <p className="font-body-sm text-body-sm text-on-surface-variant">

@@ -1,4 +1,3 @@
-// Barra horizontal que se llena según el porcentaje recibido (0 a 100)
 const BarraProgreso = ({ porcentaje }) => {
   return (
     <div className="w-full h-2.5 bg-primary-fixed rounded-full overflow-hidden">

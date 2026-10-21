@@ -35,7 +35,6 @@ public class AnimalServiceImpl implements AnimalService {
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
     private static final String ESTADO_PUBLICACION_PAUSADA = "PAUSADA";
     private static final String ESTADO_PUBLICACION_ELIMINADA = "ELIMINADA";
-    // Lo que publica un refugio queda asi hasta que un administrador lo aprueba: no se ve en el catalogo.
     private static final String ESTADO_PUBLICACION_PENDIENTE = "PENDIENTE";
 
     private static final int LARGO_MAXIMO = 255;
@@ -58,15 +57,11 @@ public class AnimalServiceImpl implements AnimalService {
     @Autowired
     private NotificacionService notificacionService;
 
-    // Para guardar en el animal (como JSON) los cambios que pide un refugio hasta que los revise un administrador
     private final ObjectMapper objectMapper = JsonMapper.builder().build();
 
     @Override
     public Page<Animal> getAnimales(String estado, Long idCategoria, Long idRefugio, Double precioMin, Double precioMax,
                                     String nombre, PageRequest pageRequest) {
-        // "estado" puede traer varios separados por coma (ej. ACTIVA,PAUSADA,PENDIENTE), para que un panel
-        // de gestion traiga todas sus publicaciones en un solo pedido.
-        // Sin estado explicito, el catalogo muestra solo las publicaciones ACTIVAS.
         List<String> estadosFiltro = (estado == null || estado.isBlank())
                 ? List.of(ESTADO_PUBLICACION_ACTIVA)
                 : Arrays.stream(estado.split(","))
@@ -84,9 +79,6 @@ public class AnimalServiceImpl implements AnimalService {
             }
         }
 
-        // Solo las ACTIVAS son publicas. Las demas las ve un admin (todas) o el dueño de un
-        // refugio (solo sus PAUSADAS y PENDIENTES); para el resto es un 403.
-        // Si un refugio pide alguna no ACTIVA, el listado entero se limita a su refugio.
         Long idRefugioFiltro = idRefugio;
         boolean pideNoActivas = estadosFiltro.stream().anyMatch(e -> !ESTADO_PUBLICACION_ACTIVA.equals(e));
         if (pideNoActivas) {
@@ -118,8 +110,6 @@ public class AnimalServiceImpl implements AnimalService {
 
     @Override
     public Optional<Animal> getAnimalById(Long animalId) {
-        // Una publicacion no ACTIVA solo la ve un admin o el dueño de su refugio (si esta PAUSADA o PENDIENTE);
-        // para el resto es como si no existiera (404).
         return animalRepository.findById(animalId).filter(autorizacionService::puedeVerAnimal);
     }
 
@@ -150,7 +140,6 @@ public class AnimalServiceImpl implements AnimalService {
 
         autorizacionService.validarPermisoSobreRefugio(refugio.getIdRefugio());
 
-        // Un refugio que se registro solo no publica hasta que un administrador lo aprueba.
         if (!refugio.isAprobado()) {
             throw new ReglaDeNegocioException("El refugio todavia no fue aprobado por un administrador");
         }
@@ -174,7 +163,6 @@ public class AnimalServiceImpl implements AnimalService {
         validarOrdenDePrecios(animal);
         animal.setCuposTotales(request.getCuposTotales());
         animal.setCuposDisponibles(request.getCuposTotales());
-        // Lo que publica un refugio espera la aprobacion de un administrador; lo que publica un admin sale directo.
         animal.setEstado(autorizacionService.esAdmin() ? ESTADO_PUBLICACION_ACTIVA : ESTADO_PUBLICACION_PENDIENTE);
         animal.setFechaPublicacion(LocalDateTime.now());
 
@@ -188,7 +176,6 @@ public class AnimalServiceImpl implements AnimalService {
         return animalRepository.save(animal);
     }
 
-    // El precio de un plan que puede no venir (entonces se usa el multiplicador del plan). Si viene, tiene que ser mayor a 0.
     private Double precioOpcional(Double precio, String plan) {
         if (precio != null && precio <= 0) {
             throw new ReglaDeNegocioException("El precio del plan " + plan + " debe ser un monto mayor a 0");
@@ -196,7 +183,6 @@ public class AnimalServiceImpl implements AnimalService {
         return precio;
     }
 
-    // Cada plan incluye lo del anterior, asi que tiene que costar mas: Brisa Marina < Guardian de la Bahia < Marea Profunda.
     private void validarOrdenDePrecios(Animal animal) {
         double brisa = animal.precioDelPlan(Plan.BRISA_MARINA);
         double guardian = animal.precioDelPlan(Plan.GUARDIAN_DE_LA_BAHIA);
@@ -207,7 +193,6 @@ public class AnimalServiceImpl implements AnimalService {
         }
     }
 
-    // Recorta un texto opcional de la ficha. Vacio se guarda como null; corta si no entra en la columna.
     private String textoOpcional(String valor, String campo) {
         if (valor == null || valor.isBlank()) {
             return null;
@@ -220,7 +205,6 @@ public class AnimalServiceImpl implements AnimalService {
         return limpio;
     }
 
-    // Devuelve la urgencia en mayusculas, o null si no vino. Corta si no es una de las validas.
     private String urgenciaValida(String valor) {
         if (valor == null || valor.isBlank()) {
             return null;
@@ -232,8 +216,6 @@ public class AnimalServiceImpl implements AnimalService {
         return urgencia;
     }
 
-    // Un dueño de refugio no manda idRefugio: se usa el de su cuenta (el del token).
-    // Un admin, que no tiene refugio propio, tiene que indicar para cuál publica.
     private Long resolverIdRefugio(Long idRefugioPedido) {
         if (idRefugioPedido != null) {
             return idRefugioPedido;
@@ -258,12 +240,9 @@ public class AnimalServiceImpl implements AnimalService {
         }
 
         if (tieneDatosDeLaFicha(request)) {
-            // Mientras espera la aprobacion, el refugio la corrige libremente. Una vez aprobada, lo que pide
-            // queda guardado aparte hasta que un administrador lo revise; mientras tanto se sigue viendo como esta.
             boolean necesitaRevision = !autorizacionService.esAdmin()
                     && !ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado());
             if (necesitaRevision) {
-                // Se valida sobre una copia, asi la publicacion no cambia; si algo esta mal, el refugio se entera ahora
                 aplicarDatos(copiaDeLaFicha(animal), request);
                 animal.setCambioPendiente(aJson(soloLaFicha(request)));
             } else {
@@ -272,7 +251,6 @@ public class AnimalServiceImpl implements AnimalService {
         }
 
         if (request.getEstado() != null) {
-            // Una pendiente no se activa ni se pausa desde aca: la aprueba un administrador (aprobarAnimal)
             if (ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
                 throw new ReglaDeNegocioException("La publicacion todavia no fue aprobada por un administrador");
             }
@@ -282,7 +260,6 @@ public class AnimalServiceImpl implements AnimalService {
             }
             String estadoAnterior = animal.getEstado();
             animal.setEstado(request.getEstado());
-            // A los padrinos se les avisa si la publicacion se pausa o vuelve al catalogo
             if (ESTADO_PUBLICACION_ACTIVA.equals(estadoAnterior) && ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
                 notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal()
                         + " se pausó por un tiempo y no se ve en el catálogo. Tu apadrinamiento sigue igual.");
@@ -291,7 +268,6 @@ public class AnimalServiceImpl implements AnimalService {
             }
         }
 
-        // Que animales se destacan en el inicio lo decide un administrador, no cada refugio.
         if (request.getDestacado() != null) {
             if (!autorizacionService.esAdmin()) {
                 throw new AccessDeniedException("Solo un administrador puede destacar un animal");
@@ -302,7 +278,6 @@ public class AnimalServiceImpl implements AnimalService {
         return animalRepository.save(animal);
     }
 
-    // true si el pedido cambia algo de la ficha (todo menos el estado y el destacado)
     private boolean tieneDatosDeLaFicha(AnimalUpdateRequest request) {
         return request.getIdCategoria() != null || request.getNombreAnimal() != null || request.getDescripcion() != null
                 || request.getCuotaApadrinamiento() != null || request.getPrecioBrisaMarina() != null
@@ -311,7 +286,6 @@ public class AnimalServiceImpl implements AnimalService {
                 || request.getUrgencia() != null || request.getCondicion() != null;
     }
 
-    // El mismo pedido, sin el estado ni el destacado: es lo que se guarda para que lo revise un administrador
     private AnimalUpdateRequest soloLaFicha(AnimalUpdateRequest request) {
         AnimalUpdateRequest ficha = objectMapper.convertValue(request, AnimalUpdateRequest.class);
         ficha.setEstado(null);
@@ -319,7 +293,6 @@ public class AnimalServiceImpl implements AnimalService {
         return ficha;
     }
 
-    // Un animal nuevo (que nunca se guarda) con los datos de la ficha de este, para validar cambios sin tocarlo
     private Animal copiaDeLaFicha(Animal animal) {
         Animal copia = new Animal();
         copia.setCategoria(animal.getCategoria());
@@ -338,7 +311,6 @@ public class AnimalServiceImpl implements AnimalService {
         return copia;
     }
 
-    // Aplica los datos de la ficha que vienen informados (los null se ignoran), validando cada uno
     private void aplicarDatos(Animal animal, AnimalUpdateRequest request) {
         if (request.getIdCategoria() != null) {
             animal.setCategoria(categoriaRepository.findById(request.getIdCategoria())
@@ -412,8 +384,6 @@ public class AnimalServiceImpl implements AnimalService {
         return objectMapper.readValue(json, AnimalUpdateRequest.class);
     }
 
-    // Solo un administrador revisa cambios. Esta ruta es publica para el GET (como el resto de /animales),
-    // asi que puede llegar sin sesion: por eso se mira usuarioActualONull antes de esAdmin.
     private void validarQueEsAdmin(String accion) {
         if (autorizacionService.usuarioActualONull() == null || !autorizacionService.esAdmin()) {
             throw new AccessDeniedException("Solo un administrador puede " + accion);
@@ -452,7 +422,6 @@ public class AnimalServiceImpl implements AnimalService {
     public Animal aprobarCambios(Long animalId) {
         validarQueEsAdmin("aprobar cambios de publicaciones");
         Animal animal = conCambioPendiente(animalId);
-        // Se vuelve a validar: desde que lo pidio pueden haber cambiado cosas (por ejemplo, los cupos ocupados)
         aplicarDatos(animal, desdeJson(animal.getCambioPendiente()));
         animal.setCambioPendiente(null);
         Animal actualizado = animalRepository.save(animal);
@@ -503,7 +472,6 @@ public class AnimalServiceImpl implements AnimalService {
         if (!ESTADO_PUBLICACION_PENDIENTE.equals(animal.getEstado())) {
             throw new ReglaDeNegocioException("La publicacion no esta pendiente de aprobacion");
         }
-        // No se borra de la base: queda eliminada, igual que cuando se quita una publicacion
         animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
         animalRepository.save(animal);
 
@@ -514,7 +482,6 @@ public class AnimalServiceImpl implements AnimalService {
         avisarAlRefugio(animal, texto);
     }
 
-    // Le deja una notificacion al dueño del refugio del animal (si el refugio tiene uno)
     private void avisarAlRefugio(Animal animal, String texto) {
         Usuario dueno = animal.getRefugio().getUsuario();
         if (dueno != null) {
@@ -539,7 +506,6 @@ public class AnimalServiceImpl implements AnimalService {
 
         notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal() + " fue dada de baja y ya no está en el catálogo.");
 
-        // Si la quito un administrador (y no el propio refugio), se le avisa al refugio
         Refugio refugioPropio = autorizacionService.usuarioActual().getRefugio();
         boolean laQuitoSuRefugio = refugioPropio != null && refugioPropio.getIdRefugio().equals(animal.getRefugio().getIdRefugio());
         if (!laQuitoSuRefugio) {

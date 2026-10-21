@@ -34,8 +34,6 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
     @Autowired
     private AutorizacionService autorizacionService;
 
-    // Cada uno ve los apadrinamientos que le corresponden: un administrador ve todos,
-    // el dueño de un refugio los de sus animales, y un padrino los propios.
     @Override
     public List<Apadrinamiento> getApadrinamientos() {
         Usuario actual = autorizacionService.usuarioActual();
@@ -49,9 +47,6 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
         return apadrinamientoRepository.findByUsuario_IdUsuario(actual.getIdUsuario());
     }
 
-    // Los pagos de un apadrinamiento son los renglones de zarpar de ese padrino para ese
-    // animal hechos mientras estuvo vigente (si lo cancelo y volvio a apadrinar, cada
-    // apadrinamiento muestra solo los suyos).
     @Override
     public List<ZarparDetalle> getPagos(Apadrinamiento apadrinamiento) {
         LocalDateTime desde = apadrinamiento.getFechaInicio();
@@ -75,7 +70,6 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
             throw new ReglaDeNegocioException("El campo 'plan' es obligatorio");
         }
 
-        // El cambio rige desde el proximo pago: lo ya pagado no se toca.
         apadrinamiento.setPlan(Plan.desde(plan));
         return apadrinamientoRepository.save(apadrinamiento);
     }
@@ -85,11 +79,9 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
     public Apadrinamiento cancelar(Long apadrinamientoId) {
         Apadrinamiento apadrinamiento = buscarVigente(apadrinamientoId);
 
-        // No se borra: queda inactivo, asi el historial no se pierde.
         apadrinamiento.setActivo(false);
         apadrinamiento.setFechaCancelacion(LocalDateTime.now());
 
-        // Los cupos que tenia tomados vuelven a quedar disponibles para ese animal.
         Animal animal = apadrinamiento.getAnimal();
         int cuposLiberados = animal.getCuposDisponibles() + apadrinamiento.getCupos();
         animal.setCuposDisponibles(Math.min(cuposLiberados, animal.getCuposTotales()));
@@ -98,7 +90,6 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
         return apadrinamientoRepository.save(apadrinamiento);
     }
 
-    // Busca el apadrinamiento y controla que sea de quien lo pide (o de un admin) y que siga activo.
     private Apadrinamiento buscarVigente(Long apadrinamientoId) {
         Apadrinamiento apadrinamiento = apadrinamientoRepository.findById(apadrinamientoId)
                 .orElseThrow(() -> new RecursoNoEncontradoException(
@@ -112,8 +103,6 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
         return apadrinamiento;
     }
 
-    // La llama el zarpar por cada animal pagado. Si el usuario ya apadrinaba a ese animal,
-    // se le suman los cupos nuevos al que tenia (y pasa al plan nuevo); si no, se crea uno.
     @Override
     public Apadrinamiento registrar(Usuario usuario, Animal animal, Plan plan, int cupos, LocalDateTime fecha) {
         Optional<Apadrinamiento> existente = apadrinamientoRepository

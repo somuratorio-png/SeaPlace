@@ -6,8 +6,6 @@ import { intentar } from '../../utils/intentar'
 import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
 
-// "Mis datos": el usuario cambia su nombre, su apellido y su correo. Le pide el cambio al backend y muestra
-// acá mismo su mensaje de error. guardarPerfil (de useSesion) actualiza el usuario en toda la página.
 const FormularioPerfil = () => {
   const { usuario, token, guardarPerfil } = useSesion()
   const { datos: perfil, cambiar: cambiarCampo } = useFormulario({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
@@ -20,7 +18,7 @@ const FormularioPerfil = () => {
   }
 
   const handleGuardar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!perfil.nombre.trim() || !perfil.apellido.trim() || !perfil.mail.trim()) {
       setError('Completá todos los campos')
       return

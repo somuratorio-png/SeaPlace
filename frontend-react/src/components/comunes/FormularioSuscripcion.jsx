@@ -1,7 +1,5 @@
 import { useState } from 'react'
 
-// "Ecos del Océano": el formulario del footer para recibir novedades por correo.
-// No manda nada al backend: solo revisa que el correo no esté vacío y agradece.
 const FormularioSuscripcion = () => {
   const [mail, setMail] = useState('')
   const [error, setError] = useState(null)

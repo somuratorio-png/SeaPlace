@@ -6,8 +6,6 @@ import MiPlan from './MiPlan'
 import ProgresoMeta from './ProgresoMeta'
 import { formatearFecha } from '../../utils/fechas'
 
-// Columna de la derecha del detalle de un apadrinado: el nombre, el certificado, la meta, la ficha,
-// el plan, los pagos y la gestión del plan. "item" es el apadrinamiento.
 const ResumenApadrinado = ({ item, onVerCertificado, onCambiarPlan, onCancelar }) => {
   const { animal, plan } = item
 

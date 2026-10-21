@@ -1,6 +1,5 @@
 import Icono from '../comunes/Icono'
 
-// Lo que ve el usuario cuando su plan no incluye la ubicación en vivo
 const RastreoBloqueado = ({ nombre }) => {
   return (
     <div className="fondo-mar text-on-primary relative overflow-hidden rounded-2xl shadow-md p-space-xl text-center space-y-space-sm">

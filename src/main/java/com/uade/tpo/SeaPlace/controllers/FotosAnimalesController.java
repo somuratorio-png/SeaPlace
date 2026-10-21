@@ -25,7 +25,6 @@ public class FotosAnimalesController {
     @GetMapping
     public ResponseEntity<List<FotoAnimalResponse>> getFotos(@PathVariable Long animalId) {
         List<FotoAnimalResponse> resultado = fotoAnimalService.getFotosByAnimal(animalId).stream().map(FotoAnimalResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -39,14 +38,12 @@ public class FotosAnimalesController {
         return ResponseEntity.created(URI.create("/animales/" + animalId + "/fotos/" + result.getIdFoto())).body(FotoAnimalResponse.fromEntity(result));
     }
 
-    // sube la foto como archivo (multipart, campo "archivo") en vez de indicar una url
     @PostMapping(path = "/archivo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<FotoAnimalResponse> subirFoto(@PathVariable Long animalId, @RequestParam("archivo") MultipartFile archivo) {
         FotoAnimal result = fotoAnimalService.subirFoto(animalId, archivo);
         return ResponseEntity.created(URI.create(result.getUrlImagen())).body(FotoAnimalResponse.fromEntity(result));
     }
 
-    // devuelve la imagen de una foto subida como archivo (es a donde apunta su urlImagen)
     @GetMapping("/{fotoId}/archivo")
     public ResponseEntity<byte[]> getArchivo(@PathVariable Long animalId, @PathVariable Long fotoId) {
         ArchivoFoto archivo = fotoAnimalService.getArchivo(animalId, fotoId);

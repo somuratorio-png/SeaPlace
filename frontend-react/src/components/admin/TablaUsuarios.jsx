@@ -1,7 +1,5 @@
 import FilaUsuario from './FilaUsuario'
 
-// Tabla con los usuarios de una página: su rol (que se puede cambiar) y su estado.
-// "nombreLogueado" es el administrador que mira la tabla: no puede darse de baja a sí mismo.
 const TablaUsuarios = ({ usuarios, roles, nombreLogueado, onCambiarRol, onCambiarActivo }) => {
   return (
     <div className="bg-surface-container-lowest rounded-2xl shadow-sm overflow-x-auto">

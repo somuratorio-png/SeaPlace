@@ -9,6 +9,5 @@ import com.uade.tpo.SeaPlace.entity.Muelle;
 
 @Repository
 public interface MuelleRepository extends JpaRepository<Muelle, Long> {
-    // carrito activo de un usuario
     Optional<Muelle> findByUsuario_IdUsuarioAndEstado(Long idUsuario, String estado);
 }

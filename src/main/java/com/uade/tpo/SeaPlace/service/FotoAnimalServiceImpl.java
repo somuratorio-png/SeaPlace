@@ -38,9 +38,7 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
 
     private static final int LARGO_MAXIMO_URL = 255;
 
-    // Para las fotos subidas como archivo. Solo formatos de imagen que el navegador muestra tal cual.
     private static final List<String> TIPOS_DE_IMAGEN = List.of("image/jpeg", "image/png", "image/webp", "image/gif");
-    // Toda foto subida se guarda achicada: lado mas largo de hasta 800 px, en JPEG con calidad 0.8.
     private static final int LADO_MAXIMO = 800;
     private static final float CALIDAD_JPEG = 0.8f;
 
@@ -74,7 +72,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + request.getIdAnimal()));
 
-        // Solo el refugio dueño del animal (o un admin) puede cargarle fotos.
         autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         String urlImagen = request.getUrlImagen() == null ? "" : request.getUrlImagen().trim();
@@ -86,7 +83,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
                     "La url de la imagen no puede superar los " + LARGO_MAXIMO_URL + " caracteres");
         }
 
-        // Se aceptan urls completas o rutas del propio sitio (por si el front sirve las imagenes).
         String urlMinuscula = urlImagen.toLowerCase();
         boolean formatoValido = (urlMinuscula.startsWith("http://")
                 || urlMinuscula.startsWith("https://")
@@ -102,8 +98,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
 
         Integer orden = request.getOrden();
         if (orden == null) {
-            // Sin posicion: va al final. Se usa el maximo actual (y no la cantidad) para no
-            // chocar con un orden ya ocupado si hay huecos en la galeria.
             orden = fotosActuales.stream()
                     .map(FotoAnimal::getOrden)
                     .filter(Objects::nonNull)
@@ -130,8 +124,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
         return fotoAnimalRepository.save(foto);
     }
 
-    // Sube una foto como archivo (en vez de indicar una url). El contenido se guarda en la base
-    // y la foto queda con una url propia de la API, desde donde despues se sirve el archivo.
     @Override
     @Transactional
     public FotoAnimal subirFoto(Long animalId, MultipartFile archivo) {
@@ -139,7 +131,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
                 .orElseThrow(() -> new RecursoNoEncontradoException(
                         "No existe el animal con id " + animalId));
 
-        // Solo el refugio dueño del animal (o un admin) puede cargarle fotos.
         autorizacionService.validarPermisoSobreRefugio(animal.getRefugio().getIdRefugio());
 
         if (archivo == null || archivo.isEmpty()) {
@@ -157,7 +148,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
         }
         byte[] contenido = achicarAJpeg(original);
 
-        // Va al final de la galeria.
         int orden = fotoAnimalRepository.findByAnimal_IdAnimalOrderByOrdenAsc(animalId).stream()
                 .map(FotoAnimal::getOrden)
                 .filter(Objects::nonNull)
@@ -165,8 +155,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
                 .max()
                 .orElse(0) + 1;
 
-        // La url lleva el id de la foto, que recien existe despues de guardarla:
-        // por eso se guarda primero con un valor provisorio.
         FotoAnimal foto = new FotoAnimal();
         foto.setAnimal(animal);
         foto.setOrden(orden);
@@ -184,8 +172,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
         return foto;
     }
 
-    // Achica la imagen sin agrandar las chicas, la endereza segun su orientacion EXIF y la pasa a
-    // JPEG. Se dibuja sobre fondo blanco porque JPEG no admite transparencia (PNG con alfa).
     private byte[] achicarAJpeg(byte[] original) {
         BufferedImage imagen;
         try {
@@ -226,8 +212,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
         }
     }
 
-    // Las fotos de celular suelen guardarse "acostadas" con una marca EXIF (1 a 8) que indica
-    // como girarlas. ImageIO no la aplica, asi que se gira o espeja la imagen a mano.
     private BufferedImage enderezar(BufferedImage imagen, int orientacion) {
         if (orientacion < 2 || orientacion > 8) {
             return imagen;
@@ -251,7 +235,6 @@ public class FotoAnimalServiceImpl implements FotoAnimalService {
         return girada;
     }
 
-    // Busca la marca de orientacion (tag 0x0112) en el bloque EXIF de un JPEG. Si no hay, devuelve 1.
     private int leerOrientacionExif(byte[] b) {
         if (b.length < 4 || (b[0] & 0xFF) != 0xFF || (b[1] & 0xFF) != 0xD8) {
             return 1;

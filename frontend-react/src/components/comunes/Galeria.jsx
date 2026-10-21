@@ -1,6 +1,5 @@
 import { useState } from 'react'
 
-// Foto grande + miniaturas. Al tocar una miniatura, pasa a ser la foto grande.
 const Galeria = ({ fotos, nombre }) => {
   const [fotoActiva, setFotoActiva] = useState(0)
 

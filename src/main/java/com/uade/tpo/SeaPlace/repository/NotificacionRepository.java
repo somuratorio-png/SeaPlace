@@ -10,7 +10,6 @@ import com.uade.tpo.SeaPlace.entity.Notificacion;
 @Repository
 public interface NotificacionRepository extends JpaRepository<Notificacion, Long> {
 
-    // las de un usuario, de la mas nueva a la mas vieja
     List<Notificacion> findByUsuario_IdUsuarioOrderByFechaDesc(Long idUsuario);
 
     List<Notificacion> findByUsuario_IdUsuarioAndLeidaFalse(Long idUsuario);

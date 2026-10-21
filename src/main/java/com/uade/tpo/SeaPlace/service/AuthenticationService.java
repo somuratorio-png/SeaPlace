@@ -49,8 +49,6 @@ public class AuthenticationService {
         return responder(usuario);
     }
 
-    // La respuesta de entrar o registrarse: el token y los datos de la sesion de ese usuario.
-    // Lo deja como el usuario actual de este pedido, para armar su sesion igual que en /inicio.
     private AuthenticationResponse responder(Usuario usuario) {
         SecurityContextHolder.getContext().setAuthentication(
                 new UsernamePasswordAuthenticationToken(usuario, null, usuario.getAuthorities()));
@@ -59,8 +57,6 @@ public class AuthenticationService {
         return AuthenticationResponse.builder().accessToken(jwtToken).sesion(sesionService.armarSesion()).build();
     }
 
-    // Crea el usuario con rol refugio y su refugio en un solo paso. Es transaccional:
-    // si el refugio es invalido (por ejemplo, nombre repetido), el usuario tampoco se guarda.
     @Transactional
     public AuthenticationResponse registerRefugio(RegisterRefugioRequest request) {
         Usuario usuario = crearUsuario(request.getNombre(), request.getApellido(), request.getMail(),
@@ -70,15 +66,12 @@ public class AuthenticationService {
         refugioRequest.setIdUsuario(usuario.getIdUsuario());
         refugioRequest.setNombreRefugio(request.getNombreRefugio());
         refugioRequest.setDescripcion(request.getDescripcion());
-        // Queda pendiente: un administrador lo tiene que aprobar antes de que pueda publicar.
         Refugio refugio = refugioService.createRefugioPendiente(refugioRequest);
-        // Para que la sesion que se responde ya muestre su refugio (pendiente de aprobacion).
         usuario.setRefugio(refugio);
 
         return responder(usuario);
     }
 
-    // Valida los datos, controla duplicados y guarda un usuario nuevo con el rol indicado.
     private Usuario crearUsuario(String nombreCrudo, String apellidoCrudo, String mailCrudo,
                                 String nombreUsuarioCrudo, String contrasenia, String nombreRol) {
         String nombre = ValidadorUsuarioService.textoObligatorio(nombreCrudo, "nombre");
@@ -132,8 +125,6 @@ public class AuthenticationService {
         return responder(usuario);
     }
 
-    // Si la cuenta esta de baja pero dentro del plazo, entrar con la contrasenia
-    // correcta la reactiva. Con contrasenia incorrecta no cambia nada.
     private void reactivarSiCorresponde(String nombreUsuario, String contrasenia) {
         usuarioRepository.findByNombreUsuario(nombreUsuario).ifPresent(usuario -> {
             if (!usuario.isActivo() && !usuario.bajaVencida()

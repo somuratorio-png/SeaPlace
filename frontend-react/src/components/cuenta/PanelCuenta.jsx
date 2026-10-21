@@ -3,8 +3,6 @@ import FormularioPerfil from './FormularioPerfil'
 import Portada from '../comunes/Portada'
 import { useSesion } from '../../hooks/useSesion'
 
-// "Mi cuenta": el usuario logueado cambia sus datos y su contraseña.
-// El nombre de usuario no se puede cambiar (es el que lleva el token), y el rol tampoco.
 const PanelCuenta = () => {
   const { usuario } = useSesion()
 

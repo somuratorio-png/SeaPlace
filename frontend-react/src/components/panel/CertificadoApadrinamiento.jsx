@@ -7,11 +7,7 @@ import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
 import BotonVolver from '../comunes/BotonVolver'
 import CertificadoImprimible from './CertificadoImprimible'
 
-// Certificado de apadrinamiento listo para imprimir o guardar como PDF con Ctrl+P.
-// Al imprimir, el header, el footer y los botones se ocultan (ver @media print en index.css).
-// Los apadrinamientos del usuario los pide esta página al backend cuando se monta.
 const CertificadoApadrinamiento = () => {
-  // El id sale de la URL (/panel/:id/certificado)
   const navigate = useNavigate()
   const { usuario } = useSesion()
   const { id } = useParams()
@@ -30,7 +26,6 @@ const CertificadoApadrinamiento = () => {
     )
   }
 
-  // Si ese animal no está apadrinado, se vuelve al panel
   if (!item) {
     return <Navigate to="/panel" replace />
   }

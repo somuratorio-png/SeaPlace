@@ -1,8 +1,6 @@
 import DatoRastreo from './DatoRastreo'
 import { conductas } from '../../utils/telemetria'
 
-// Los ocho datos en vivo del rastreo. "resumen" sale de resumirSenales; "totalSenales" es la cantidad
-// de señales que se esperaban, lleguen o no.
 const DatosRastreo = ({ resumen, totalSenales }) => {
   const { ultima, recibidas, ultimaRecibida, velocidad, kmUltimoDia, kmAlRefugio, bateria } = resumen
 

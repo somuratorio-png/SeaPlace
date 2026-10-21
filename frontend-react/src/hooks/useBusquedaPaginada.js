@@ -2,9 +2,6 @@ import { useState } from 'react'
 import { paginar } from '../utils/paginar'
 import { paraBuscar } from '../utils/texto'
 
-// Búsqueda por texto + paginación de una lista.
-// "textoDe" arma, para cada elemento, el texto donde se busca (por ejemplo `${a.nombre} ${a.especie}`).
-// Al buscar se vuelve a la primera página.
 export const useBusquedaPaginada = (lista, textoDe, tamanio) => {
   const [busqueda, setBusqueda] = useState('')
   const [pagina, setPagina] = useState(0)

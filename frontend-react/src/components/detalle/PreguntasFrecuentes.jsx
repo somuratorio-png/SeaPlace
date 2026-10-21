@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import PreguntaFrecuente from './PreguntaFrecuente'
 
-// Acordeón: se abre una pregunta por vez. Al tocar la abierta, se cierra.
 const PreguntasFrecuentes = ({ nombre }) => {
   const preguntas = [
     { pregunta: `¿Puedo visitar a ${nombre}?`, respuesta: 'Para evitar que se acostumbre a las personas, solo entra el personal médico. Los videos te mantienen conectado.' },
@@ -9,7 +8,6 @@ const PreguntasFrecuentes = ({ nombre }) => {
     { pregunta: '¿Cuánto dura el compromiso?', respuesta: 'No hay plazos: podés pausar o cancelar cuando quieras.' },
   ]
 
-  // Guardamos cuál está abierta; null significa que no hay ninguna abierta
   const [abierta, setAbierta] = useState(null)
 
   const tocar = (pregunta) => {

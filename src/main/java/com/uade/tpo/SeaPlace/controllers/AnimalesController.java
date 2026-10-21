@@ -37,18 +37,15 @@ public class AnimalesController {
             @RequestParam(required = false) String nombre) {
         PageRequest pageRequest = Paginacion.armar(page, size);
         Page<AnimalResponse> resultado = animalService.getAnimales(estado, idCategoria, idRefugio, precioMin, precioMax, nombre, pageRequest).map(AnimalResponse::fromEntity);
-        // Si la pagina no trae elementos, se responde 204 (sin cuerpo) en vez de una pagina vacia.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(resultado);
     }
 
-    // los cambios que pidieron los refugios sobre publicaciones ya aprobadas; solo para un administrador
     @GetMapping("/cambios-pendientes")
     public ResponseEntity<List<CambioPendienteResponse>> getCambiosPendientes() {
         List<CambioPendienteResponse> resultado = animalService.getCambiosPendientes();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -72,26 +69,22 @@ public class AnimalesController {
         return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.updateAnimal(animalId, request)));
     }
 
-    // un administrador aprueba lo que publico un refugio; recien ahi se ve en el catalogo
     @PutMapping("/{animalId}/aprobar")
     public ResponseEntity<AnimalResponse> aprobarAnimal(@PathVariable Long animalId) {
         return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.aprobarAnimal(animalId)));
     }
 
-    // un administrador rechaza lo que publico un refugio; el refugio recibe una notificacion con el motivo
     @PutMapping("/{animalId}/rechazar")
     public ResponseEntity<Void> rechazarAnimal(@PathVariable Long animalId, @RequestBody(required = false) RechazoRequest request) {
         animalService.rechazarAnimal(animalId, request == null ? null : request.getMotivo());
         return ResponseEntity.noContent().build();
     }
 
-    // un administrador aplica los cambios que pidio el refugio sobre una publicacion ya aprobada
     @PutMapping("/{animalId}/cambios/aprobar")
     public ResponseEntity<AnimalResponse> aprobarCambios(@PathVariable Long animalId) {
         return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.aprobarCambios(animalId)));
     }
 
-    // o los descarta: la publicacion queda como estaba y el refugio recibe el motivo
     @PutMapping("/{animalId}/cambios/rechazar")
     public ResponseEntity<AnimalResponse> rechazarCambios(@PathVariable Long animalId, @RequestBody(required = false) RechazoRequest request) {
         return ResponseEntity.ok(AnimalResponse.fromEntity(animalService.rechazarCambios(animalId, request == null ? null : request.getMotivo())));

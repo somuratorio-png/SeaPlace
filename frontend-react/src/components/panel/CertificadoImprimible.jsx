@@ -2,7 +2,6 @@ import Icono from '../comunes/Icono'
 import DatoCertificado from './DatoCertificado'
 import { formatearFecha } from '../../utils/fechas'
 
-// La hoja del certificado. "protector" es el usuario que apadrina e "item" es el apadrinamiento.
 const CertificadoImprimible = ({ protector, item }) => {
   const { animal, plan } = item
 

@@ -15,6 +15,5 @@ import lombok.NoArgsConstructor;
 public class AuthenticationResponse {
     @JsonProperty("access_token")
     private String accessToken;
-    // Los datos de quien acaba de entrar, para que el cliente no tenga que pedirlos aparte.
     private SesionResponse sesion;
 }

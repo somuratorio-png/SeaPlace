@@ -14,7 +14,6 @@ public class ApadrinamientoResponse {
     private Long idApadrinamiento;
     private Long idUsuario;
     private String nombreUsuario;
-    // Nombre y apellido del padrino, para que el refugio sepa quien apadrina a sus animales.
     private String nombrePadrino;
     private AnimalResponse animal;
     private String plan;
@@ -23,14 +22,11 @@ public class ApadrinamientoResponse {
     private boolean activo;
     private LocalDateTime fechaCancelacion;
     private List<PagoResponse> pagos;
-    // La bitacora del animal (de la mas nueva a la mas vieja) y la ultima posicion que informo
-    // el refugio. Si no hay, el campo directamente no se incluye en el JSON.
     @JsonInclude(JsonInclude.Include.NON_EMPTY)
     private List<NovedadResponse> novedades;
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private UbicacionAnimalResponse ultimaUbicacion;
 
-    // "pagos" son los renglones de zarpar con los que ese padrino pago por ese animal.
     public static ApadrinamientoResponse fromEntity(Apadrinamiento apadrinamiento, List<ZarparDetalle> pagos) {
         ApadrinamientoResponse r = new ApadrinamientoResponse();
         r.setIdApadrinamiento(apadrinamiento.getIdApadrinamiento());

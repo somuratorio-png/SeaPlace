@@ -40,7 +40,6 @@ public class ZarparServiceImpl implements ZarparService {
     private static final String ESTADO_ZARPAR_CONFIRMADA = "CONFIRMADA";
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
 
-    // Adicional opcional de precio fijo (en dolares, como las cuotas) que se suma al total.
     private static final double PRECIO_BOTIQUIN = 5.0;
 
     @Autowired
@@ -72,7 +71,6 @@ public class ZarparServiceImpl implements ZarparService {
 
     @Override
     public Page<Zarpar> getZarparsByUsuario(Long idUsuario, PageRequest pageRequest) {
-        // Un usuario solo puede ver sus propias compras (o un admin, cualquiera).
         autorizacionService.validarPropietarioOAdmin(idUsuario);
         return zarparRepository.findByUsuario_IdUsuario(idUsuario, pageRequest);
     }
@@ -91,8 +89,6 @@ public class ZarparServiceImpl implements ZarparService {
             throw new ReglaDeNegocioException("El campo 'idMuelle' es obligatorio");
         }
 
-        // El usuario solo puede confirmar zarpar a su propio nombre (o un admin, en nombre
-        // de cualquiera).
         autorizacionService.validarPropietarioOAdmin(idUsuario);
 
         Usuario usuario = usuarioRepository.findById(idUsuario)
@@ -151,7 +147,6 @@ public class ZarparServiceImpl implements ZarparService {
             Animal animal = detalleMuelle.getAnimal();
             int cantidad = detalleMuelle.getCantidad();
 
-            // El precio de un cupo es el del plan elegido, con el descuento vigente del animal.
             Plan plan = detalleMuelle.getPlan();
             double precioFinal = calcularPrecioFinal(animal, plan, hoy);
             double subtotal = redondearADosDecimales(precioFinal * cantidad);
@@ -168,7 +163,6 @@ public class ZarparServiceImpl implements ZarparService {
             detalleZarpar.setPlan(plan);
             detallesCreados.add(zarparDetalleRepository.save(detalleZarpar));
 
-            // El pago deja al usuario como padrino del animal (o le suma cupos, si ya lo era).
             apadrinamientoService.registrar(usuario, animal, plan, cantidad, zarpar.getFechaZarpar());
 
             totalZarpar += subtotal;

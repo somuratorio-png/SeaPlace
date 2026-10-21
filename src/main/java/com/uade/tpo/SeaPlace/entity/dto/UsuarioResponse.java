@@ -6,7 +6,6 @@ import com.uade.tpo.SeaPlace.entity.Usuario;
 
 import lombok.Data;
 
-// Sin contrasenia a proposito: este DTO existe para que no viaje en las respuestas.
 @Data
 public class UsuarioResponse {
     private Long idUsuario;
@@ -18,7 +17,6 @@ public class UsuarioResponse {
     private Long idRol;
     private String nombreRol;
     private boolean activo;
-    // Solo para las cuentas que administran un refugio; en el resto vienen en null.
     private Long idRefugio;
     private String nombreRefugio;
     private Boolean refugioAprobado;

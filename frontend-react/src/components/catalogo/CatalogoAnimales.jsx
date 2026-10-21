@@ -19,8 +19,6 @@ import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 
 const ANIMALES_POR_PAGINA = 6
 
-// El catálogo. Pide al backend, cuando se monta, los animales publicados y las categorías (un pedido
-// por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
 const CatalogoAnimales = () => {
   const navigate = useNavigate()
   const { favoritos } = useFavoritos()
@@ -28,7 +26,6 @@ const CatalogoAnimales = () => {
   const [precioMin, setPrecioMin] = useState('')
   const [precioMax, setPrecioMax] = useState('')
   const errorPrecio = validarRangoPrecio(precioMin, precioMax)
-  // El rango se escribe en la moneda elegida y los precios llegan en dólares. Si el rango está mal escrito, no se filtra por precio.
   const minimo = errorPrecio || precioMin === '' ? null : aDolares(Number(precioMin), moneda)
   const maximo = errorPrecio || precioMax === '' ? null : aDolares(Number(precioMax), moneda)
   const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
@@ -38,9 +35,8 @@ const CatalogoAnimales = () => {
   const [urgencia, setUrgencia] = useState('todas')
   const [orden, setOrden] = useState('recomendados')
   const [soloFavoritos, setSoloFavoritos] = useState(false)
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+  const [errorAccion, setErrorAccion] = useState(null)
 
-  // Nos quedamos con los animales que cumplen los filtros a la vez y los ordenamos.
   const filtrados = animales
     .filter((animal) => categoria === 'todas' || animal.categoria === categoria)
     .filter((animal) => urgencia === 'todas' || animal.urgencia === urgencia)
@@ -55,7 +51,6 @@ const CatalogoAnimales = () => {
     setPagina(0)
   }
 
-  // Debajo de la portada: el aviso de espera, el error del backend o el catálogo con sus filtros
   const elegirContenido = () => {
     if (cargando || error) {
       return <EstadoCarga cargando={cargando} error={error} texto="Cargando el catálogo…" />

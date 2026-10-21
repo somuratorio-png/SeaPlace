@@ -2,7 +2,6 @@ import BarraProgreso from '../comunes/BarraProgreso'
 import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import PrecioAnimal from '../comunes/PrecioAnimal'
 
-// Color del cartelito de estado según la urgencia del animal
 const coloresUrgencia = {
   critico: 'bg-error text-on-error',
   recuperacion: 'bg-secondary text-on-secondary',
@@ -10,7 +9,6 @@ const coloresUrgencia = {
 }
 
 const TarjetaAnimal = ({ animal, onError, onVer }) => {
-  // Si no le quedan cupos, no se puede apadrinar
   const sinCupos = animal.cuposDisponibles === 0
 
   return (

@@ -34,8 +34,6 @@ public class MuelleDetalle {
     @Column(nullable = false)
     private Integer cantidad;
 
-    // Nivel de apadrinamiento elegido. Puede venir vacio en filas anteriores a los planes:
-    // en ese caso vale el plan por defecto.
     @Enumerated(EnumType.STRING)
     @Column
     private Plan plan;

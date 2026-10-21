@@ -11,15 +11,10 @@ import TablaUsuarios from './TablaUsuarios'
 const USUARIOS_POR_PAGINA = 5
 const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.mail} ${u.rol}`
 
-// Sección "Usuarios" del administrador: tabla paginada para cambiarles el rol o darlos de baja.
-// "usuarios" los tiene el panel y el administrador logueado se lee con useSesion.
-// Los roles que existen los pide SeccionesAdmin.
 const SeccionUsuarios = ({ usuarios, roles, cargando, error, onCambiarActivo, onGuardarUsuario, onError }) => {
   const { usuario, token } = useSesion()
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
-  // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.
-  // El cambio se ve con el usuario que devuelve el backend.
   const elegirRol = (nombreUsuario, rol) => {
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     const idRol = roles.find((r) => r.nombre === rol).id

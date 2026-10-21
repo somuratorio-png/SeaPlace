@@ -3,8 +3,6 @@ import Icono from './Icono'
 const claseBoton =
   'inline-flex items-center gap-1 bg-surface-container-lowest text-primary font-label-lg text-label-lg px-space-md py-space-sm rounded-full shadow-sm ring-1 ring-primary-fixed disabled:opacity-40'
 
-// Botones "Anterior" y "Siguiente" con el número de página. "pagina" empieza en 0, como en el backend.
-// Si todo entra en una sola página, no se muestra nada.
 const Paginacion = ({ pagina, totalPaginas, onCambiar }) => {
   if (totalPaginas <= 1) {
     return null

@@ -8,8 +8,6 @@ import MensajeVacio from '../comunes/MensajeVacio'
 const ANIMALES_POR_PAGINA = 4
 const textoDelAnimal = (animal) => `${animal.nombre} ${animal.especie} ${animal.estado}`
 
-// Primero las que esperan aprobación y después el resto, de la más nueva a la más vieja.
-// El id lo da la base en orden, así que un id más grande es una publicación más nueva.
 const ordenar = (animales) =>
   [...animales].sort((a, b) => {
     const pendienteA = a.publicacion === 'PENDIENTE'
@@ -20,8 +18,6 @@ const ordenar = (animales) =>
     return b.id - a.id
   })
 
-// Sección "Mis animales" del refugio: los busca y los muestra de a una página (ver "ordenar").
-// "animales" son solo los de este refugio y "apadrinamientos" los activos de esos animales.
 const SeccionAnimales = ({ animales, apadrinamientos, categorias, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenar(animales), textoDelAnimal, ANIMALES_POR_PAGINA)
 

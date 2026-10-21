@@ -10,7 +10,6 @@ import { puedeApadrinar } from '../../utils/roles'
 const ProveedorSesion = ({ children }) => {
   const [planes, setPlanes] = useState([])
   const [usuario, setUsuario] = useState(null)
-  // El token de quien inició sesión. Vive solo en memoria: al recargar la página se pierde y hay que volver a entrar.
   const [token, setToken] = useState(null)
   const [favoritos, setFavoritos] = useState([])
   const [muelle, setMuelle] = useState(SIN_MUELLE)
@@ -21,8 +20,6 @@ const ProveedorSesion = ({ children }) => {
   const navigate = useNavigate()
   const { state } = useLocation()
 
-  // Una sola vez al abrir la página (y de nuevo solo con "Volver a intentar"): los planes.
-  // Al abrir la página nunca hay nadie logueado (el token se pierde al recargar), así que no hay sesión que recuperar.
   useEffect(() => {
     traerInicio()
       .then((inicio) => {
@@ -42,8 +39,6 @@ const ProveedorSesion = ({ children }) => {
     setIntento(intento + 1)
   }
 
-  // La llama el login cuando el backend aceptó los datos, con { token, sesion }. Si antes de entrar había
-  // elegido un animal (viaja en la navegación), se lo agrega al muelle y lo lleva ahí.
   const entrar = ({ token: tokenNuevo, sesion }) => {
     setToken(tokenNuevo)
     setFavoritos(sesion.favoritos)

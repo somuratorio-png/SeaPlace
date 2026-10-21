@@ -1,4 +1,3 @@
-// Estrella de mar. "clase" define el tamaño y la posición (por ejemplo "w-16 absolute left-4 top-4").
 const Estrella = ({ clase = 'w-16' }) => {
   return (
     <svg viewBox="0 0 100 100" aria-hidden="true" className={`pointer-events-none ${clase}`}>
@@ -9,7 +8,6 @@ const Estrella = ({ clase = 'w-16' }) => {
         strokeWidth="2"
         strokeLinejoin="round"
       />
-      {/* Puntitos claros sobre los brazos */}
       <g fill="#ffd9c7">
         <circle cx="50" cy="28" r="2.5" />
         <circle cx="50" cy="48" r="3.5" />

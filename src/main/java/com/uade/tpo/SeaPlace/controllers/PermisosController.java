@@ -29,7 +29,6 @@ public class PermisosController {
     @GetMapping("permisos")
     public ResponseEntity<List<PermisoResponse>> getPermisos() {
         List<PermisoResponse> resultado = permisoService.getPermisos().stream().map(PermisoResponse::fromEntity).toList();
-        // Si no hay nada para devolver, se responde 204 (sin cuerpo) en vez de un array vacio.
         if (resultado.isEmpty()) {
             return ResponseEntity.noContent().build();
         }
@@ -48,7 +47,6 @@ public class PermisosController {
         return ResponseEntity.created(URI.create("/permisos/" + result.getIdPermiso())).body(PermisoResponse.fromEntity(result));
     }
 
-    // asigna permisos a un rol (reemplaza a RolPermiso)
     @PostMapping("roles/{rolId}/permisos")
     public ResponseEntity<RolResponse> asignarPermisos(@PathVariable Long rolId, @RequestBody AsignarPermisosRequest request) {
         Rol result = rolService.asignarPermisos(rolId, request);

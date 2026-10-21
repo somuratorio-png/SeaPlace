@@ -7,17 +7,13 @@ import MuelleVacio from './MuelleVacio'
 import ResumenMuelle from './ResumenMuelle'
 import { useMuelle } from '../../hooks/useMuelle'
 
-// El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
-// Cada cambio llama al backend (useMuelle) y, con lo que contesta, se actualizan los ítems.
-// Si falla, el mensaje se muestra arriba de la página.
 const PanelMuelle = () => {
   const navigate = useNavigate()
   const { state } = useLocation()
   const { items: muelle, cambiarCantidad, quitar } = useMuelle()
 
-  // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
   const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+  const [errorAccion, setErrorAccion] = useState(null)
 
   const verCatalogo = () => {
     navigate('/catalogo')

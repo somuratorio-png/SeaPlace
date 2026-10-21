@@ -22,8 +22,6 @@ public class InicioController {
     @Autowired
     private SesionService sesionService;
 
-    // lo que el front pide al abrir la pagina: los planes y, si el pedido trae el token de
-    // alguien, su sesion (ver SesionResponse). Es publico. Los listados los pide cada pantalla.
     @GetMapping
     public ResponseEntity<InicioResponse> getInicio() {
         InicioResponse respuesta = new InicioResponse();

@@ -6,7 +6,6 @@ import { tieneDescuento } from '../../utils/precios'
 
 const claseCampo = 'w-full bg-surface-container-lowest rounded-lg px-space-md py-2 font-body-sm text-body-sm focus:outline-none focus:ring-2 focus:ring-secondary/40'
 
-// Pone o quita la oferta de un animal: un porcentaje de descuento hasta una fecha
 const FormularioOferta = ({ animal, onEditar }) => {
   const [porcentaje, setPorcentaje] = useState('20')
   const [hasta, setHasta] = useState('')
@@ -14,7 +13,7 @@ const FormularioOferta = ({ animal, onEditar }) => {
   const [isVisible, setIsVisible] = useState(false)
 
   const guardar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!porcentaje.trim() || !hasta.trim()) {
       setError('Completá todos los campos')
       return

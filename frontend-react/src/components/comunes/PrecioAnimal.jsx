@@ -1,7 +1,6 @@
 import { precioFinal, tieneDescuento } from '../../utils/precios'
 import Precio from './Precio'
 
-// Cuota mensual de un animal. Si está en oferta, muestra el precio viejo tachado y el descuento.
 const PrecioAnimal = ({ animal }) => {
   if (!tieneDescuento(animal)) {
     return (

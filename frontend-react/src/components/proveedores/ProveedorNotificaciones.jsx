@@ -8,11 +8,9 @@ const ProveedorNotificaciones = ({ children }) => {
   const idUsuario = usuario ? usuario.id : null
   const [notificaciones, setNotificaciones] = useState([])
   const [cargando, setCargando] = useState(true)
-  const [error, setError] = useState(null) // si no se pudieron traer
-  const [errorAlMarcar, setErrorAlMarcar] = useState(null) // si no se pudieron marcar como leídas
+  const [error, setError] = useState(null)
+  const [errorAlMarcar, setErrorAlMarcar] = useState(null)
 
-  // Un solo pedido cuando alguien entra (y otro solo si después entra otro usuario).
-  // Si cierra la sesión mientras se espera la respuesta, esa respuesta ya no se usa.
   useEffect(() => {
     if (idUsuario === null) {
       return
@@ -44,14 +42,10 @@ const ProveedorNotificaciones = ({ children }) => {
       setError(null)
       setErrorAlMarcar(null)
     }
-    // El token cambia justo cuando cambia quién entró, así que no suma pedidos de más
   }, [idUsuario, token])
 
   const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
 
-  // Avisa al backend y, si sale bien, las marca acá también (sin volver a pedirlas). Las que recién se
-  // marcaron quedan con nueva: true, para seguir resaltándolas mientras se miran.
-  // Si falla, el mensaje queda en errorAlMarcar para mostrarlo.
   const marcarLeidas = useCallback(() => {
     if (sinLeer === 0) {
       return

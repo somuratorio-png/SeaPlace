@@ -1,7 +1,5 @@
 import { conductas, coordenadasDe, horaDe } from '../../utils/telemetria'
 
-// Lista de las últimas señales recibidas, de la más nueva a la más vieja.
-// También aparecen las que se perdieron, para que se entienda por qué hay huecos en el mapa.
 const RegistroSenales = ({ senales }) => {
   const recientes = [...senales].reverse()
 

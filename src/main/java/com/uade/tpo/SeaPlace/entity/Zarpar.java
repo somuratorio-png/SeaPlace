@@ -35,7 +35,6 @@ public class Zarpar {
     @Column(nullable = false)
     private String estado;
 
-    // Si se sumo el botiquin de rescate (un adicional de precio fijo que va incluido en el total).
     @Column(nullable = false, columnDefinition = "boolean default false")
     private boolean conBotiquin = false;
 

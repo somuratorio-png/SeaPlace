@@ -4,8 +4,6 @@ import Modal from '../comunes/Modal'
 import Precio from '../comunes/Precio'
 import { usePlanes } from '../../hooks/usePlanes'
 
-// Permite pasar a otro plan o cancelar el apadrinamiento.
-// Cancelar pide una segunda confirmación (un modal) para que no pase por un clic de más.
 const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
   const planesBase = usePlanes()
   const planes = planesDe(item.animal, planesBase)

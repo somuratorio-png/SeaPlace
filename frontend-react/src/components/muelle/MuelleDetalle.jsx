@@ -3,8 +3,6 @@ import Precio from '../comunes/Precio'
 
 const claseBoton = 'w-9 h-9 rounded-full bg-primary-fixed text-on-primary-fixed-variant flex items-center justify-center disabled:opacity-40'
 
-// Un animal dentro del muelle: el plan elegido, los botones de más y menos para elegir cuántos
-// cupos de ese animal se toman (hasta los que le quedan disponibles), y el botón para sacarlo
 const MuelleDetalle = ({ item, onCantidad, onQuitar }) => {
   return (
     <li className="flex flex-wrap gap-space-md items-center py-space-md">

@@ -1,16 +1,12 @@
 import CampoTexto from '../comunes/CampoTexto'
 import { usePlanes } from '../../hooks/usePlanes'
 
-// Qué campo del formulario guarda el precio de cada plan. El de Guardián de la Bahía es "precio":
-// es la cuota que se muestra en el catálogo.
 const CAMPO_DEL_PLAN = {
   BRISA_MARINA: 'precioBrisa',
   GUARDIAN_DE_LA_BAHIA: 'precio',
   MAREA_PROFUNDA: 'precioMarea',
 }
 
-// Un precio por cada plan de apadrinamiento, de menor a mayor (cada plan incluye lo del anterior).
-// Los planes (nombre y qué incluye) vienen del backend; ver contexto/Planes.js.
 const PreciosPlanes = ({ datos, onCambiar }) => {
   const planes = usePlanes()
 

@@ -1,4 +1,3 @@
-// Lo que ve un protector que todavía no apadrinó a nadie, con un botón para ir a elegir un animal
 const SinApadrinados = ({ onElegir }) => {
   return (
     <div className="bg-surface-container-lowest rounded-2xl shadow-sm p-space-xl text-center space-y-space-md">

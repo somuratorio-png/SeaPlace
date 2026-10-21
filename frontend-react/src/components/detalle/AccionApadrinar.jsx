@@ -1,5 +1,3 @@
-// Lo que va debajo de los planes: el botón para apadrinar, o el motivo por el que no se puede
-// (la cuenta es de administrador o de refugio, o al animal no le quedan cupos).
 const AccionApadrinar = ({ animal, puedeApadrinar, sinCupos, onApadrinar }) => {
   if (!puedeApadrinar) {
     return (

@@ -10,7 +10,6 @@ export const useMuelle = () => {
 
   const agregar = (idAnimal, codigoPlan) => ponerEnElMuelle(token, planes, muelle, idAnimal, codigoPlan).then(setMuelle)
 
-  // La cantidad va de 1 hasta los cupos que le quedan al animal (igual que valida el backend)
   const cambiarCantidad = (item, cantidad) => {
     const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
     return cambiarItem(token, planes, muelle.id, item.animal.id, acotada).then((cambiado) => {

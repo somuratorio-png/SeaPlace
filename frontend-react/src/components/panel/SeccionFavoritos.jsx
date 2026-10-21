@@ -2,7 +2,6 @@ import MensajeVacio from '../comunes/MensajeVacio'
 import TituloSeccion from '../comunes/TituloSeccion'
 import TarjetaFavorito from './TarjetaFavorito'
 
-// La sección "Tus favoritos": las tarjetas de los animales guardados, o un mensaje si no hay ninguno
 const SeccionFavoritos = ({ animales, onError, onVer }) => {
   return (
     <section className="space-y-space-md">

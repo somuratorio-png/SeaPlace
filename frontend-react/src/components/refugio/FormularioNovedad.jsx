@@ -1,15 +1,13 @@
 import { useState } from 'react'
 import MensajeError from '../comunes/MensajeError'
 
-// Publica una novedad del animal, que sus padrinos leen en la bitácora
 const FormularioNovedad = ({ animal, onPublicar }) => {
   const [texto, setTexto] = useState('')
   const [publicada, setPublicada] = useState(false)
   const [error, setError] = useState(null)
 
-  // onPublicar la manda al backend y devuelve un mensaje de error, o null si salió bien
   const publicar = (evento) => {
-    evento.preventDefault() // evita que el formulario recargue la página
+    evento.preventDefault()
     if (!texto.trim()) {
       setError('Completá todos los campos')
       return
