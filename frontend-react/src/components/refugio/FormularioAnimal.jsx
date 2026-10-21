@@ -105,8 +105,13 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       <PreciosPlanes datos={datos} onCambiar={cambiar} />
 
       <CampoTextarea etiqueta="Su historia (cómo llegó, qué le pasó, cómo está hoy)" nombre="descripcion" valor={datos.descripcion} onCambiar={cambiar} />
-      <CampoArchivo key={claveFotos} etiqueta="Fotos: la primera es la que se ve en el catálogo (opcional)" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
-      {fotos.length > 0 && <VistaPreviaFotos fotos={fotos} onQuitar={quitarFoto} />}
+      {/* La primera foto es la que se ve en el catálogo */}
+      <div className="flex flex-col gap-1.5">
+        <span className="font-label-lg text-label-lg text-on-surface">Fotos (opcional)</span>
+        <VistaPreviaFotos fotos={fotos} onQuitar={quitarFoto}>
+          <CampoArchivo key={claveFotos} etiqueta="Sumar fotos" nombre="fotos" aceptar="image/*" multiple onCambiar={elegirFotos} />
+        </VistaPreviaFotos>
+      </div>
 
       {error && <MensajeError mensaje={error} />}
       {publicado && (

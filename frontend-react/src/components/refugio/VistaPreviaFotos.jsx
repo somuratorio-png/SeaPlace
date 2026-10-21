@@ -2,7 +2,8 @@ import Icono from '../comunes/Icono'
 
 // Las miniaturas de las fotos elegidas, cada una con una cruz para sacarla.
 // "fotos" es una lista de { archivo, vistaPrevia }; onQuitar recibe la posición de la foto a sacar.
-const VistaPreviaFotos = ({ fotos, onQuitar }) => {
+// "children" va al final de la fila (el botón para sumar más fotos).
+const VistaPreviaFotos = ({ fotos, onQuitar, children }) => {
   return (
     <div className="flex flex-wrap gap-space-sm">
       {fotos.map((foto, indice) => (
@@ -19,6 +20,7 @@ const VistaPreviaFotos = ({ fotos, onQuitar }) => {
           </button>
         </div>
       ))}
+      {children}
     </div>
   )
 }

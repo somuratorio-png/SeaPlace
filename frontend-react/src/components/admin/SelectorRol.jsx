@@ -1,4 +1,4 @@
-import { colorDelRol } from '../../utils/roles'
+import { colorDelRol, sinGuiones } from '../../utils/roles'
 
 // Desplegable para cambiarle el rol a un usuario. "roles" son los que existen en el backend: [{ id, nombre }].
 // onCambiar recibe el nombre del rol elegido.
@@ -14,7 +14,7 @@ const SelectorRol = ({ usuario, roles, deshabilitado, onCambiar }) => {
     >
       {roles.map((rol) => (
         <option key={rol.id} value={rol.nombre}>
-          {rol.nombre}
+          {sinGuiones(rol.nombre)}
         </option>
       ))}
     </select>

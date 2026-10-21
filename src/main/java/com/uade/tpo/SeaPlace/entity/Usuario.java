@@ -9,6 +9,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -45,6 +47,8 @@ public class Usuario implements UserDetails {
     @Column(nullable = false, unique = true)
     private String nombreUsuario;
 
+    // @JsonIgnore: si alguna vez se devuelve la entidad en vez del DTO, la contrasenia no viaja.
+    @JsonIgnore
     @Column(nullable = false)
     private String contrasenia;
 
@@ -58,7 +62,9 @@ public class Usuario implements UserDetails {
     private LocalDateTime fechaBaja;
 
     // Recuperacion de contrasenia: el codigo se guarda encriptado, junto con hasta cuando sirve.
+    @JsonIgnore
     private String codigoRecuperacion;
+    @JsonIgnore
     private LocalDateTime codigoRecuperacionVence;
 
     @OneToOne(mappedBy = "usuario")
@@ -102,6 +108,7 @@ public class Usuario implements UserDetails {
         return nombreUsuario;
     }
 
+    @JsonIgnore
     @Override
     public String getPassword() {
         return contrasenia;

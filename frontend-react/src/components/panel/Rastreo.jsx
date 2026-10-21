@@ -46,11 +46,15 @@ const Rastreo = ({ animal, posicion }) => {
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-md space-y-space-md">
       <EncabezadoRastreo nombre={animal.nombre} perdida={ultima.perdida} enMarcha={enMarcha} onAlternar={() => setEnMarcha(!enMarcha)} />
 
-      <MapaRastreo animal={animal} senales={recibidas.slice(-SENALES_EN_EL_MAPA)} zona={zona} />
-
-      <BarraProximaSenal ultimaRecibida={ultimaRecibida} numeroSenal={ultima.n} enMarcha={enMarcha} segundosEntrePulsos={SEGUNDOS_ENTRE_PULSOS} />
-      <LeyendaConductas />
-      <DatosRastreo resumen={resumen} totalSenales={senales.length} />
+      {/* En pantallas grandes, el mapa a la izquierda y los datos en vivo en una columna a su lado */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-space-md items-start">
+        <div className="lg:col-span-2 space-y-space-sm">
+          <MapaRastreo animal={animal} senales={recibidas.slice(-SENALES_EN_EL_MAPA)} zona={zona} />
+          <BarraProximaSenal ultimaRecibida={ultimaRecibida} numeroSenal={ultima.n} enMarcha={enMarcha} segundosEntrePulsos={SEGUNDOS_ENTRE_PULSOS} />
+          <LeyendaConductas />
+        </div>
+        <DatosRastreo resumen={resumen} totalSenales={senales.length} />
+      </div>
 
       <RegistroSenales senales={senales.slice(-SENALES_EN_EL_REGISTRO)} />
       <NotaSimulacion posicion={posicion} segundosEntrePulsos={SEGUNDOS_ENTRE_PULSOS} />

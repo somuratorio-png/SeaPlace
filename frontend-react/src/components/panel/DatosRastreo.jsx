@@ -7,7 +7,7 @@ const DatosRastreo = ({ resumen, totalSenales }) => {
   const { ultima, recibidas, ultimaRecibida, velocidad, kmUltimoDia, kmAlRefugio, bateria } = resumen
 
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-4 gap-space-sm">
+    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-2 gap-space-sm">
       <DatoRastreo icono="pets" titulo="Qué está haciendo" valor={ultima.perdida ? 'Buceando' : conductas[ultima.conducta].nombre} />
       <DatoRastreo icono="speed" titulo="Velocidad media" valor={`${velocidad.toFixed(1)} km/h`} />
       <DatoRastreo icono="route" titulo="Últimas 24 h" valor={`${kmUltimoDia.toFixed(1)} km`} />
