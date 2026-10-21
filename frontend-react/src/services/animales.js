@@ -8,7 +8,7 @@ import { pedir, pedirLista, pedirPagina, URL_BASE } from './api'
 const urlDeFoto = (url) => (url.startsWith('/animales/') ? `${URL_BASE}${url}` : url)
 
 // Pasa un animal del backend (AnimalResponse) al formato que usan los componentes.
-// precio: la cuota del plan Guardián de la Bahía (la del catálogo). preciosPorPlan: { BRISA_MARINA: 10, ... }, sin descuentos.
+// precio: la cuota del plan Guardián de la Bahía (la del catálogo). preciosPorPlan: { GUARDIAN_DE_LA_BAHIA: 20, MAREA_PROFUNDA: 40 }, sin descuentos.
 // urgencia: 'critico' | 'recuperacion' | 'listo'. estado: el texto del cartelito de la tarjeta.
 // publicacion: 'ACTIVA' | 'PAUSADA' | 'PENDIENTE' (espera que un administrador la apruebe). progreso: porcentaje de cupos ya tomados.
 // descuento: { id, porcentaje, hasta } si hoy está en oferta, o null.
@@ -103,7 +103,6 @@ export const crearAnimal = (token, datos) =>
       condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
       descripcion: datos.descripcion,
       cuotaApadrinamiento: Number(datos.precio),
-      precioBrisaMarina: Number(datos.precioBrisa),
       precioMareaProfunda: Number(datos.precioMarea),
       cuposTotales: Number(datos.cuposTotales),
     },
@@ -120,7 +119,6 @@ const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
     { campo: 'Edad', antes: actual.edad, despues: cambio.edad },
     { campo: 'Ubicación', antes: actual.ubicacion, despues: cambio.ubicacion },
     { campo: 'Cupos', antes: actual.cuposTotales, despues: cambio.cuposTotales },
-    { campo: 'Brisa Marina', antes: actual.preciosPorPlan?.BRISA_MARINA, despues: cambio.precioBrisaMarina, esPrecio: true },
     { campo: 'Guardián de la Bahía', antes: actual.cuotaApadrinamiento, despues: cambio.cuotaApadrinamiento, esPrecio: true },
     { campo: 'Marea Profunda', antes: actual.preciosPorPlan?.MAREA_PROFUNDA, despues: cambio.precioMareaProfunda, esPrecio: true },
     { campo: 'Historia', antes: actual.descripcion, despues: cambio.descripcion },
@@ -158,7 +156,6 @@ export const editarAnimal = (token, idAnimal, datos) =>
       condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
       descripcion: datos.descripcion,
       cuotaApadrinamiento: Number(datos.precio),
-      precioBrisaMarina: Number(datos.precioBrisa),
       precioMareaProfunda: Number(datos.precioMarea),
       cuposTotales: Number(datos.cuposTotales),
     },

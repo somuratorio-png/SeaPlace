@@ -9,7 +9,6 @@ public class AnimalUpdateRequest {
     private String nombreAnimal;
     private String descripcion;
     private Double cuotaApadrinamiento; // precio del plan Guardian de la Bahia
-    private Double precioBrisaMarina;
     private Double precioMareaProfunda;
     private Integer cuposTotales;
     private String estado;

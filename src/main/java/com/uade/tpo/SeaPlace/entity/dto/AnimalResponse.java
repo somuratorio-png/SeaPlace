@@ -21,7 +21,7 @@ public class AnimalResponse {
     private String nombreAnimal;
     private String descripcion;
     private Double cuotaApadrinamiento;
-    // Lo que cuesta por mes cada plan, sin descuentos: { "BRISA_MARINA": 10.0, "GUARDIAN_DE_LA_BAHIA": 20.0, ... }
+    // Lo que cuesta por mes cada plan, sin descuentos: { "GUARDIAN_DE_LA_BAHIA": 20.0, "MAREA_PROFUNDA": 40.0 }
     private Map<String, Double> preciosPorPlan;
     private Integer cuposTotales;
     private Integer cuposDisponibles;

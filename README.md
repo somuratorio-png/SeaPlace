@@ -83,7 +83,7 @@ npm run dev      # http://localhost:5173
 
 Entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Archivo_Foto`, `Ubicacion_Animal`, `Descuento`, `Novedad`, `Favorito`, `Notificacion`, `Muelle`, `Muelle_Detalle`, `Zarpar`, `Zarpar_Detalle` y `Apadrinamiento` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
 
-- **Planes.** Hay tres niveles de apadrinamiento fijos (enum `Plan`): `BRISA_MARINA` (×0,5), `GUARDIAN_DE_LA_BAHIA` (×1, el que se usa si el pedido no indica plan) y `MAREA_PROFUNDA` (×2). El precio de un cupo es la cuota del animal, con su descuento vigente, por el multiplicador del plan. El plan se elige al agregar al muelle.
+- **Planes.** Hay dos niveles de apadrinamiento fijos (enum `Plan`): `GUARDIAN_DE_LA_BAHIA` (×1, el que se usa si el pedido no indica plan) y `MAREA_PROFUNDA` (×2). El precio de un cupo es la cuota del animal, con su descuento vigente, por el multiplicador del plan. El plan se elige al agregar al muelle.
 - **Apadrinamiento.** Un zarpar es un pago; lo que queda después es el apadrinamiento (padrino, animal, plan, cupos, desde cuándo). Se crea al confirmar el zarpar (o suma cupos si el padrino ya apadrinaba a ese animal), se le puede cambiar el plan y se puede cancelar: no se borra, queda inactivo y devuelve sus cupos al animal.
 - **Botiquín.** El zarpar acepta `conBotiquin`: suma un adicional fijo de 5 al total.
 - **Ficha del animal.** Además de nombre, cuota y cupos, un animal tiene `especie`, `edad`, `ubicacion`, `urgencia` (`CRITICO`, `RECUPERACION` o `LISTO`), `condicion` y `destacado` (lo cambia solo un administrador). La respuesta incluye sus fotos ordenadas, el descuento que rige hoy y `progreso` (porcentaje de cupos tomados).
@@ -152,7 +152,7 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Animales | `/animales` | CRUD, GET público; `PUT /{id}/aprobar` y `/rechazar`, `GET /cambios-pendientes`, `PUT /{id}/cambios/aprobar` y `/cambios/rechazar` (administrador) |
 | Refugios | `/refugios` | GET público, POST admin, `PUT /{refugioId}/aprobar` (admin) |
 | Categorías | `/categorias` | GET público, POST admin |
-| Planes | `/planes` | GET público: los tres niveles de apadrinamiento |
+| Planes | `/planes` | GET público: los dos niveles de apadrinamiento |
 | Fotos de animal | `/animales/{animalId}/fotos` | por url (`POST`) o subiendo el archivo (`POST /archivo`, multipart, campo `archivo`, imagen de hasta 15 MB); `GET /{fotoId}/archivo` devuelve la imagen subida |
 | Ubicaciones de animal | `/animales/{animalId}/ubicaciones` | incluye `/ultima` |
 | Descuentos | `/animales/{animalId}/descuentos` | `DELETE /{descuentoId}` quita la oferta (queda inactiva) |

@@ -6,7 +6,7 @@ import PreciosPlanes from './PreciosPlanes'
 import { useFormulario } from '../../hooks/useFormulario'
 
 // Los campos que no pueden quedar vacíos (los mismos que al publicarlo)
-const OBLIGATORIOS = ['nombre', 'especie', 'edad', 'ubicacion', 'descripcion', 'precioBrisa', 'precio', 'precioMarea', 'cuposTotales']
+const OBLIGATORIOS = ['nombre', 'especie', 'edad', 'ubicacion', 'descripcion', 'precio', 'precioMarea', 'cuposTotales']
 
 // Los datos del animal tal como los cargó el refugio, en el formato del formulario.
 // Se usa "ficha" y no especie/edad/ubicación directamente porque esos traen un texto de relleno cuando faltan.
@@ -17,7 +17,6 @@ const datosDe = (animal) => ({
   urgencia: animal.urgencia,
   edad: animal.ficha.edad,
   ubicacion: animal.ficha.ubicacion,
-  precioBrisa: String(animal.preciosPorPlan.BRISA_MARINA ?? ''),
   precio: String(animal.precio),
   precioMarea: String(animal.preciosPorPlan.MAREA_PROFUNDA ?? ''),
   cuposTotales: String(animal.cuposTotales),

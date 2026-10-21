@@ -15,7 +15,6 @@ const formularioVacio = {
   urgencia: 'recuperacion',
   edad: '',
   ubicacion: '',
-  precioBrisa: '',
   precio: '', // el del plan Guardián de la Bahía
   precioMarea: '',
   cuposTotales: '',
@@ -56,7 +55,6 @@ const FormularioAnimal = ({ categorias, onGuardar }) => {
       !datos.edad.trim() ||
       !datos.ubicacion.trim() ||
       !datos.descripcion.trim() ||
-      !datos.precioBrisa.trim() ||
       !datos.precio.trim() ||
       !datos.precioMarea.trim() ||
       !datos.cuposTotales.trim()

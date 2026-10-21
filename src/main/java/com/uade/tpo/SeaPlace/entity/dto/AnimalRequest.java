@@ -8,7 +8,6 @@ public class AnimalRequest {
     private Long idRefugio;
     private String nombreAnimal;
     private Double cuotaApadrinamiento; // precio del plan Guardian de la Bahia
-    private Double precioBrisaMarina;
     private Double precioMareaProfunda;
     private Integer cuposTotales;
     private String descripcion;

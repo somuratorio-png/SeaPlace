@@ -38,11 +38,8 @@ public class Animal {
     @Column(nullable = false)
     private Double cuotaApadrinamiento;
 
-    // Lo que cuestan por mes los otros dos planes: los elige el refugio al publicar. Las publicaciones
-    // anteriores a estos campos no los tienen, y para ellas se usa el multiplicador del plan (ver precioDelPlan).
-    @Column
-    private Double precioBrisaMarina;
-
+    // Lo que cuesta por mes el otro plan: lo elige el refugio al publicar. Las publicaciones
+    // anteriores a este campo no lo tienen, y para ellas se usa el multiplicador del plan (ver precioDelPlan).
     @Column
     private Double precioMareaProfunda;
 
@@ -107,7 +104,6 @@ public class Animal {
     // Lo que cuesta por mes un cupo con ese plan, sin descuentos.
     public double precioDelPlan(Plan plan) {
         Double elegido = switch (plan) {
-            case BRISA_MARINA -> precioBrisaMarina;
             case GUARDIAN_DE_LA_BAHIA -> cuotaApadrinamiento;
             case MAREA_PROFUNDA -> precioMareaProfunda;
         };

@@ -169,7 +169,6 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setNombreAnimal(nombreAnimal);
         animal.setDescripcion(request.getDescripcion());
         animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
-        animal.setPrecioBrisaMarina(precioOpcional(request.getPrecioBrisaMarina(), "Brisa Marina"));
         animal.setPrecioMareaProfunda(precioOpcional(request.getPrecioMareaProfunda(), "Marea Profunda"));
         validarOrdenDePrecios(animal);
         animal.setCuposTotales(request.getCuposTotales());
@@ -196,14 +195,13 @@ public class AnimalServiceImpl implements AnimalService {
         return precio;
     }
 
-    // Cada plan incluye lo del anterior, asi que tiene que costar mas: Brisa Marina < Guardian de la Bahia < Marea Profunda.
+    // Marea Profunda incluye todo lo de Guardian de la Bahia, asi que tiene que costar mas.
     private void validarOrdenDePrecios(Animal animal) {
-        double brisa = animal.precioDelPlan(Plan.BRISA_MARINA);
         double guardian = animal.precioDelPlan(Plan.GUARDIAN_DE_LA_BAHIA);
         double marea = animal.precioDelPlan(Plan.MAREA_PROFUNDA);
-        if (brisa >= guardian || guardian >= marea) {
+        if (guardian >= marea) {
             throw new ReglaDeNegocioException(
-                    "Cada plan tiene que costar mas que el anterior: Brisa Marina < Guardian de la Bahia < Marea Profunda");
+                    "Marea Profunda tiene que costar mas que Guardian de la Bahia");
         }
     }
 
@@ -305,7 +303,7 @@ public class AnimalServiceImpl implements AnimalService {
     // true si el pedido cambia algo de la ficha (todo menos el estado y el destacado)
     private boolean tieneDatosDeLaFicha(AnimalUpdateRequest request) {
         return request.getIdCategoria() != null || request.getNombreAnimal() != null || request.getDescripcion() != null
-                || request.getCuotaApadrinamiento() != null || request.getPrecioBrisaMarina() != null
+                || request.getCuotaApadrinamiento() != null
                 || request.getPrecioMareaProfunda() != null || request.getCuposTotales() != null
                 || request.getEspecie() != null || request.getEdad() != null || request.getUbicacion() != null
                 || request.getUrgencia() != null || request.getCondicion() != null;
@@ -326,7 +324,6 @@ public class AnimalServiceImpl implements AnimalService {
         copia.setNombreAnimal(animal.getNombreAnimal());
         copia.setDescripcion(animal.getDescripcion());
         copia.setCuotaApadrinamiento(animal.getCuotaApadrinamiento());
-        copia.setPrecioBrisaMarina(animal.getPrecioBrisaMarina());
         copia.setPrecioMareaProfunda(animal.getPrecioMareaProfunda());
         copia.setCuposTotales(animal.getCuposTotales());
         copia.setCuposDisponibles(animal.getCuposDisponibles());
@@ -362,9 +359,6 @@ public class AnimalServiceImpl implements AnimalService {
                 throw new ReglaDeNegocioException("La cuota de apadrinamiento debe ser un monto mayor a 0");
             }
             animal.setCuotaApadrinamiento(request.getCuotaApadrinamiento());
-        }
-        if (request.getPrecioBrisaMarina() != null) {
-            animal.setPrecioBrisaMarina(precioOpcional(request.getPrecioBrisaMarina(), "Brisa Marina"));
         }
         if (request.getPrecioMareaProfunda() != null) {
             animal.setPrecioMareaProfunda(precioOpcional(request.getPrecioMareaProfunda(), "Marea Profunda"));
