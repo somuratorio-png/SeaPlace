@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BotonVolver from '../comunes/BotonVolver'
@@ -8,11 +9,8 @@ import HistoriaApadrinado from './HistoriaApadrinado'
 import Rastreo from './Rastreo'
 import RastreoBloqueado from './RastreoBloqueado'
 import ResumenApadrinado from './ResumenApadrinado'
-import { cambiarPlan, cancelarApadrinamiento } from '../../services/apadrinar'
-import { ponerEn } from '../../utils/listas'
-import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
-import { usePlanes } from '../../hooks/usePlanes'
-import { useSesion } from '../../hooks/useSesion'
+import { cambiarPlan, cancelarApadrinamiento, traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
+import { intentar } from '../../utils/intentar'
 
 // Detalle de un animal que el usuario ya apadrinó.
 // Esta página pide al backend, al montarse, los apadrinamientos del usuario: cada uno trae la bitácora
@@ -21,39 +19,41 @@ import { useSesion } from '../../hooks/useSesion'
 const DetalleApadrinado = () => {
   // El id sale de la URL (/panel/:id) y con eso se busca entre los apadrinados
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { id } = useParams()
 
-  const { item, setApadrinamientos, cargando, error } = useApadrinamientoDe(id)
-  const planes = usePlanes() // para armar el apadrinamiento que devuelve el backend después de cada acción
-  const { token } = useSesion()
+  const { items: apadrinamientos, loading, error } = useSelector((state) => state.apadrinamientos)
+  // false hasta que termina el pedido de esta página: con la lista vieja del estado global
+  // podría parecer que el animal no está apadrinado y mandar al usuario al panel
+  const [listo, setListo] = useState(false)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+
+  useEffect(() => {
+    dispatch(traerApadrinamientos()).then(() => {
+      setListo(true)
+    })
+  }, [dispatch])
+
+  const item = apadrinamientos.find((a) => a.activo && a.animal.id === Number(id))
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
     setErrorAccion(null)
-    cambiarPlan(token, planes, idApadrinamiento, planNuevo.codigo)
-      .then((cambiado) => {
-        setApadrinamientos((actuales) => ponerEn(actuales, cambiado))
-      })
-      .catch((falla) => {
-        setErrorAccion(falla.message)
-      })
+    intentar(dispatch(cambiarPlan({ idApadrinamiento, codigoPlan: planNuevo.codigo })), setErrorAccion)
   }
 
   // No se borra: queda inactivo, así el historial no se pierde.
   // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
   const cancelar = (idApadrinamiento) => {
     setErrorAccion(null)
-    cancelarApadrinamiento(token, planes, idApadrinamiento)
-      .then(() => {
+    intentar(dispatch(cancelarApadrinamiento(idApadrinamiento)), setErrorAccion).then((mensaje) => {
+      if (mensaje === null) {
         navigate('/panel')
-      })
-      .catch((falla) => {
-        setErrorAccion(falla.message)
-      })
+      }
+    })
   }
 
-  if (cargando) {
+  if (loading || !listo) {
     return <Cargando texto="Buscando a tu apadrinado…" />
   }
 

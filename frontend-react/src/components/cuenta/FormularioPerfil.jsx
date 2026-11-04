@@ -1,15 +1,16 @@
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import TarjetaFormularioCuenta from './TarjetaFormularioCuenta'
 import CampoTexto from '../comunes/CampoTexto'
-import { modificarMiPerfil } from '../../services/usuarios'
+import { modificarMiPerfil } from '../../Redux/usuarioSlice'
 import { intentar } from '../../utils/intentar'
-import { useSesion } from '../../hooks/useSesion'
 import { useFormulario } from '../../hooks/useFormulario'
 
 // "Mis datos": el usuario cambia su nombre, su apellido y su correo. Le pide el cambio al backend y muestra
-// acá mismo su mensaje de error. guardarPerfil (de useSesion) actualiza el usuario en toda la página.
+// acá mismo su mensaje de error. El usuario modificado queda en el estado global: se ve en toda la página.
 const FormularioPerfil = () => {
-  const { usuario, token, guardarPerfil } = useSesion()
+  const dispatch = useDispatch()
+  const { usuario } = useSelector((state) => state.usuario)
   const { datos: perfil, cambiar: cambiarCampo } = useFormulario({ nombre: usuario.nombre, apellido: usuario.apellido, mail: usuario.mail })
   const [error, setError] = useState(null)
   const [guardado, setGuardado] = useState(false)
@@ -25,7 +26,7 @@ const FormularioPerfil = () => {
       setError('Completá todos los campos')
       return
     }
-    intentar(modificarMiPerfil(token, { nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }).then(guardarPerfil)).then((mensaje) => {
+    intentar(dispatch(modificarMiPerfil({ nombre: perfil.nombre.trim(), apellido: perfil.apellido.trim(), mail: perfil.mail.trim() }))).then((mensaje) => {
       setError(mensaje)
       setGuardado(mensaje === null)
     })

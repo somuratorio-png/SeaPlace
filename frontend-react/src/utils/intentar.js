@@ -1,12 +1,16 @@
-// Espera un pedido al backend y devuelve una promesa con lo que necesitan los formularios:
-// null si salió bien, o el mensaje de error que mandó el backend.
-// "mostrarError" es opcional: si se pasa, además se le avisa el mensaje (App lo muestra arriba de la página).
-export const intentar = (pedido, mostrarError) =>
-  pedido
-    .then(() => null)
-    .catch((falla) => {
+// dispatch(accionAsincronica()) devuelve una promesa con la action con la que terminó el thunk:
+// la "fulfilled" (con lo que contestó el backend en action.payload) o la "rejected" (con el mensaje
+// en action.error.message). Esto la convierte en lo que necesitan los formularios:
+// null si salió bien, o el mensaje de error.
+// "mostrarError" es opcional: si se pasa, además se le avisa el mensaje (la página lo muestra arriba).
+// Ejemplo: intentar(dispatch(crearRol(nombre))).then((mensaje) => { if (mensaje === null) ... })
+export const intentar = (despacho, mostrarError) =>
+  despacho.then((accion) => {
+    if (accion.error) {
       if (mostrarError) {
-        mostrarError(falla.message)
+        mostrarError(accion.error.message)
       }
-      return falla.message
-    })
+      return accion.error.message
+    }
+    return null
+  })

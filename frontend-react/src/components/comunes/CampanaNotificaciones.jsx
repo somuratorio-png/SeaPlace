@@ -1,21 +1,31 @@
 import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { formatearFecha } from '../../utils/fechas'
-import { useNotificaciones } from '../../hooks/useNotificaciones'
+import { marcarLeidas, traerNotificaciones } from '../../Redux/notificacionesSlice'
 import Icono from './Icono'
 
 // Campanita del header con el número de notificaciones sin leer. Al tocarla se despliegan
 // y se marcan como leídas (las que eran nuevas se siguen resaltando).
 // Se cierra al tocar afuera (cuando el foco sale de la campanita y su panel) o con Escape.
+// Se muestra solo con alguien logueado: al aparecer (cuando alguien entra) pide sus notificaciones.
 const CampanaNotificaciones = () => {
-  const { notificaciones, sinLeer, cargando, error, errorAlMarcar, marcarLeidas } = useNotificaciones()
+  const dispatch = useDispatch()
+  const { items: notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
   const [abierta, setAbierta] = useState(false)
 
-  // Al abrirla se marcan como leídas
   useEffect(() => {
-    if (abierta) {
-      marcarLeidas()
+    dispatch(traerNotificaciones())
+  }, [dispatch])
+
+  const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
+
+  // Al abrirla se marcan como leídas
+  const alternar = () => {
+    if (!abierta && sinLeer > 0) {
+      dispatch(marcarLeidas())
     }
-  }, [abierta, marcarLeidas])
+    setAbierta(!abierta)
+  }
 
   // Si el foco pasa a algo que no es parte de la campanita (se tocó afuera), se cierra
   const alPerderFoco = (evento) => {
@@ -33,7 +43,7 @@ const CampanaNotificaciones = () => {
   return (
     <div className="relative" onBlur={alPerderFoco} onKeyDown={alTeclear}>
       <button
-        onClick={() => setAbierta(!abierta)}
+        onClick={alternar}
         aria-expanded={abierta}
         aria-label={sinLeer > 0 ? `Notificaciones: ${sinLeer} sin leer` : 'Notificaciones'}
         title="Notificaciones"

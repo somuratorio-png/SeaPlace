@@ -1,10 +1,20 @@
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
 import { useLocation } from 'react-router-dom'
+import { traerPlanes } from '../../Redux/planesSlice'
 import Footer from '../comunes/Footer'
 import Header from '../comunes/Header'
 import PantallaArranque from './PantallaArranque'
 
 const Layout = ({ children }) => {
   const { pathname } = useLocation()
+  const dispatch = useDispatch()
+
+  // Una sola vez al abrir la página: los planes (hacen falta en cualquier pantalla para armar los precios).
+  // Va acá y no en PantallaArranque porque <main> se vuelve a montar en cada cambio de ruta (ver la key).
+  useEffect(() => {
+    dispatch(traerPlanes())
+  }, [dispatch])
 
   return (
     <div className="min-h-screen flex flex-col fondo-playa font-body-md text-on-surface">

@@ -1,11 +1,4 @@
-import { pedir, pedirLista } from './api'
-
-// Una notificación del backend (NotificacionResponse) en el formato de los componentes:
+// Conversor: una notificación del backend (NotificacionResponse) en el formato de los componentes.
+// No le habla al backend: el pedido lo hace notificacionesSlice con axios.
 // { id, texto, fecha: 'AAAA-MM-DD', leida }
 export const aNotificacion = (dato) => ({ id: dato.idNotificacion, texto: dato.texto, fecha: dato.fecha.slice(0, 10), leida: dato.leida })
-
-// Las de quien está logueado, de la más nueva a la más vieja
-export const traerNotificaciones = (token) => pedirLista(token, '/notificaciones').then((lista) => lista.map(aNotificacion))
-
-// Las marca todas como leídas
-export const marcarLeidas = (token) => pedir(token, '/notificaciones/leidas', { metodo: 'PUT' })

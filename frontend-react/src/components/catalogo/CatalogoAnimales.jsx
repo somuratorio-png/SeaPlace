@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import BarraBusqueda from './BarraBusqueda'
 import FiltroCategorias from './FiltroCategorias'
@@ -7,14 +8,13 @@ import AvisoError from '../comunes/AvisoError'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import Portada from '../comunes/Portada'
-import { traerAnimales, traerCategorias } from '../../services/animales'
+import { traerAnimales } from '../../Redux/animalesSlice'
+import { traerCategorias } from '../../Redux/categoriasSlice'
 import { aDolares } from '../../contexto/Moneda'
 import { comparadores } from '../../utils/ordenAnimales'
 import { textoDelAnimal } from '../../utils/texto'
 import { validarRangoPrecio } from '../../utils/validaciones'
-import { useFavoritos } from '../../hooks/useFavoritos'
 import { useMoneda } from '../../hooks/useMoneda'
-import { useConsulta } from '../../hooks/useConsulta'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 
 const ANIMALES_POR_PAGINA = 6
@@ -23,7 +23,8 @@ const ANIMALES_POR_PAGINA = 6
 // por lista). Los filtros y el orden se aplican acá, sobre la lista ya recibida.
 const CatalogoAnimales = () => {
   const navigate = useNavigate()
-  const { favoritos } = useFavoritos()
+  const dispatch = useDispatch()
+  const { items: favoritos } = useSelector((state) => state.favoritos)
   const { moneda } = useMoneda()
   const [precioMin, setPrecioMin] = useState('')
   const [precioMax, setPrecioMax] = useState('')
@@ -31,14 +32,19 @@ const CatalogoAnimales = () => {
   // El rango se escribe en la moneda elegida y los precios llegan en dólares. Si el rango está mal escrito, no se filtra por precio.
   const minimo = errorPrecio || precioMin === '' ? null : aDolares(Number(precioMin), moneda)
   const maximo = errorPrecio || precioMax === '' ? null : aDolares(Number(precioMax), moneda)
-  const { datos: animales, cargando, error: errorAnimales } = useConsulta(traerAnimales, undefined, [])
-  const { datos: categorias, error: errorCategorias } = useConsulta(traerCategorias, undefined, [])
+  const { items: animales, loading: cargando, error: errorAnimales } = useSelector((state) => state.animales)
+  const { items: categorias, error: errorCategorias } = useSelector((state) => state.categorias)
   const error = errorAnimales ?? errorCategorias
   const [categoria, setCategoria] = useState('todas')
   const [urgencia, setUrgencia] = useState('todas')
   const [orden, setOrden] = useState('recomendados')
   const [soloFavoritos, setSoloFavoritos] = useState(false)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+
+  useEffect(() => {
+    dispatch(traerAnimales())
+    dispatch(traerCategorias())
+  }, [dispatch])
 
   // Nos quedamos con los animales que cumplen los filtros a la vez y los ordenamos.
   const filtrados = animales

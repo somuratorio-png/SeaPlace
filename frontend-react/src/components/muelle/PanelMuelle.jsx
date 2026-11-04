@@ -1,19 +1,22 @@
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import Portada from '../comunes/Portada'
 import ListaMuelle from './ListaMuelle'
 import MuelleVacio from './MuelleVacio'
 import ResumenMuelle from './ResumenMuelle'
-import { useMuelle } from '../../hooks/useMuelle'
+import { cambiarCantidad, quitarDelMuelle } from '../../Redux/muelleSlice'
+import { intentar } from '../../utils/intentar'
 
 // El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
-// Cada cambio llama al backend (useMuelle) y, con lo que contesta, se actualizan los ítems.
-// Si falla, el mensaje se muestra arriba de la página.
+// Llegó con la sesión, así que no hay nada que pedir al montarse. Cada cambio llama al backend
+// (muelleSlice) y, con lo que contesta, se actualizan los ítems. Si falla, el mensaje se muestra arriba de la página.
 const PanelMuelle = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { state } = useLocation()
-  const { items: muelle, cambiarCantidad, quitar } = useMuelle()
+  const { items: muelle } = useSelector((state) => state.muelle)
 
   // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
   const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
@@ -25,16 +28,12 @@ const PanelMuelle = () => {
 
   const handleCantidad = (item, cantidad) => {
     setErrorAccion(null)
-    cambiarCantidad(item, cantidad).catch((falla) => {
-      setErrorAccion(falla.message)
-    })
+    intentar(dispatch(cambiarCantidad({ item, cantidad })), setErrorAccion)
   }
 
   const handleQuitar = (item) => {
     setErrorAccion(null)
-    quitar(item).catch((falla) => {
-      setErrorAccion(falla.message)
-    })
+    intentar(dispatch(quitarDelMuelle(item.animal.id)), setErrorAccion)
   }
 
   if (muelle.length === 0) {

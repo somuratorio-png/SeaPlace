@@ -1,11 +1,19 @@
+import { useSelector } from 'react-redux'
 import { recaudacionMensual } from '../../utils/precios'
 import EstadoCarga from '../comunes/EstadoCarga'
 import GraficoRecaudacion from './GraficoRecaudacion'
 import TarjetaDato from '../comunes/TarjetaDato'
 
 // Sección "Resumen" del administrador: los números generales y el gráfico de recaudación.
-// "usuarios" los tiene el panel; los animales publicados y los apadrinamientos, SeccionesAdmin.
-const SeccionResumen = ({ usuarios, publicados, apadrinamientos, cargando, error }) => {
+// Las listas las pidieron PanelAdmin y SeccionesAdmin: acá se leen del estado global.
+const SeccionResumen = () => {
+  const { items: usuarios } = useSelector((state) => state.usuarios)
+  const animales = useSelector((state) => state.animales)
+  const { items: apadrinamientos, loading: cargandoApadrinamientos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
+  const cargando = animales.loading || cargandoApadrinamientos
+  const error = animales.error ?? errorApadrinamientos
+
+  const publicados = animales.publicaciones.filter((animal) => animal.publicacion === 'ACTIVA')
   const refugios = usuarios.filter((u) => u.rol === 'refugio')
   const dadosDeBaja = usuarios.filter((u) => !u.activo)
 

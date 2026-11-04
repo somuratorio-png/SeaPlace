@@ -1,4 +1,6 @@
 import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
+import { marcarLeidas } from '../../Redux/notificacionesSlice'
 import { formatearFecha } from '../../utils/fechas'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Icono from '../comunes/Icono'
@@ -8,14 +10,19 @@ import TituloSeccion from '../comunes/TituloSeccion'
 
 // Sección "Notificaciones" del refugio: los avisos de SeaPlace (por ejemplo, si un administrador aprobó
 // o rechazó una publicación). Al abrirla se marcan como leídas, pero las que eran nuevas (nueva: true,
-// ver useNotificaciones) se siguen resaltando.
-const SeccionNotificaciones = ({ notificaciones, cargando, error, errorAlMarcar, onMarcarLeidas }) => {
-  // Apenas terminan de llegar del backend
+// ver notificacionesSlice) se siguen resaltando. Las pide la campanita del header y se leen del estado global.
+const SeccionNotificaciones = () => {
+  const dispatch = useDispatch()
+  const { items: notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
+  const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
+
+  // Apenas terminan de llegar del backend, si hay alguna sin leer. Después de marcarlas sinLeer queda en 0
+  // y esto no se vuelve a despachar.
   useEffect(() => {
-    if (!cargando) {
-      onMarcarLeidas()
+    if (!cargando && sinLeer > 0) {
+      dispatch(marcarLeidas())
     }
-  }, [cargando, onMarcarLeidas])
+  }, [cargando, sinLeer, dispatch])
 
   if (cargando || error) {
     return <EstadoCarga cargando={cargando} error={error} texto="Cargando tus notificaciones…" />

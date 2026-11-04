@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { pedirCodigo, restablecerContrasenia } from '../../services/usuarios'
+import { useDispatch, useSelector } from 'react-redux'
+import { pedirCodigo, restablecerContrasenia } from '../../Redux/usuarioSlice'
+import { intentar } from '../../utils/intentar'
 import { useFormulario } from '../../hooks/useFormulario'
 import { validarContrasenia } from '../../utils/validaciones'
 import PasoCodigo from './PasoCodigo'
@@ -13,10 +15,22 @@ const formularioVacio = { mail: '', codigo: '', contrasenia: '' }
 // El proyecto no manda correos de verdad: el código sale impreso en la consola del backend.
 // onVolver vuelve al formulario de ingreso.
 const RecuperarContrasenia = ({ onVolver }) => {
+  const dispatch = useDispatch()
+  // Lo que contestó el backend al pedir el código: queda en el estado global (usuarioSlice)
+  const { mensaje: aviso } = useSelector((state) => state.usuario)
   const [paso, setPaso] = useState('mail') // 'mail' | 'codigo' | 'listo'
   const { datos, cambiar } = useFormulario(formularioVacio)
-  const [aviso, setAviso] = useState(null) // lo que contestó el backend al pedir el código
   const [error, setError] = useState(null)
+
+  // Si el pedido sale bien se pasa al paso siguiente; si no, se muestra el mensaje del backend
+  const avanzar = (despacho, pasoSiguiente) => {
+    intentar(despacho).then((mensaje) => {
+      setError(mensaje)
+      if (mensaje === null) {
+        setPaso(pasoSiguiente)
+      }
+    })
+  }
 
   const pedir = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
@@ -24,15 +38,7 @@ const RecuperarContrasenia = ({ onVolver }) => {
       setError('Completá todos los campos')
       return
     }
-    pedirCodigo(datos.mail)
-      .then((mensaje) => {
-        setAviso(mensaje)
-        setError(null)
-        setPaso('codigo')
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
+    avanzar(dispatch(pedirCodigo(datos.mail)), 'codigo')
   }
 
   const restablecer = (evento) => {
@@ -46,14 +52,7 @@ const RecuperarContrasenia = ({ onVolver }) => {
       setError(errorClave)
       return
     }
-    restablecerContrasenia(datos.mail, datos.codigo.trim(), datos.contrasenia)
-      .then(() => {
-        setError(null)
-        setPaso('listo')
-      })
-      .catch((falla) => {
-        setError(falla.message)
-      })
+    avanzar(dispatch(restablecerContrasenia({ mail: datos.mail, codigo: datos.codigo.trim(), contraseniaNueva: datos.contrasenia })), 'listo')
   }
 
   return (

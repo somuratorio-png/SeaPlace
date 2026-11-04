@@ -1,9 +1,10 @@
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { useMuelle } from '../../hooks/useMuelle'
-import { usePlanes } from '../../hooks/usePlanes'
-import { useSesion } from '../../hooks/useSesion'
+import { agregarAlMuelle } from '../../Redux/muelleSlice'
+import { intentar } from '../../utils/intentar'
 import { planesDe } from '../../utils/precios'
+import { puedeApadrinar } from '../../utils/roles'
 import AccionApadrinar from './AccionApadrinar'
 import OpcionPlan from './OpcionPlan'
 
@@ -13,9 +14,9 @@ import OpcionPlan from './OpcionPlan'
 // Tampoco hay botón si al animal no le quedan cupos disponibles.
 const ElegirPlan = ({ animal, onError }) => {
   const navigate = useNavigate()
-  const { usuario, puedeApadrinar } = useSesion()
-  const { agregar } = useMuelle()
-  const planesBase = usePlanes()
+  const dispatch = useDispatch()
+  const { usuario } = useSelector((state) => state.usuario)
+  const { items: planesBase } = useSelector((state) => state.planes)
   const planes = planesDe(animal, planesBase)
 
   const [planElegido, setPlanElegido] = useState('') // '' = todavía no eligió: vale el primero de la lista
@@ -29,13 +30,11 @@ const ElegirPlan = ({ animal, onError }) => {
       return
     }
     onError(null)
-    agregar(animal.id, codigoElegido)
-      .then(() => {
+    intentar(dispatch(agregarAlMuelle({ idAnimal: animal.id, codigoPlan: codigoElegido })), onError).then((mensaje) => {
+      if (mensaje === null) {
         navigate('/muelle')
-      })
-      .catch((falla) => {
-        onError(falla.message)
-      })
+      }
+    })
   }
 
   return (
@@ -49,7 +48,7 @@ const ElegirPlan = ({ animal, onError }) => {
         <OpcionPlan key={plan.codigo} plan={plan} elegido={plan.codigo === codigoElegido} onElegir={() => setPlanElegido(plan.codigo)} />
       ))}
 
-      <AccionApadrinar animal={animal} puedeApadrinar={puedeApadrinar} sinCupos={sinCupos} onApadrinar={handleAgregar} />
+      <AccionApadrinar animal={animal} puedeApadrinar={puedeApadrinar(usuario)} sinCupos={sinCupos} onApadrinar={handleAgregar} />
     </div>
   )
 }

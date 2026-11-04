@@ -1,47 +1,32 @@
 import { useState } from 'react'
-import * as animalesApi from '../services/animales'
+import { useDispatch } from 'react-redux'
+import * as animales from '../Redux/animalesSlice'
 import { intentar } from '../utils/intentar'
-import { ponerEn, sacarDe } from '../utils/listas'
 import { validarAnimalNuevo } from '../utils/validaciones'
-import { useSesion } from './useSesion'
-import { useConsulta } from './useConsulta'
-import { useApadrinamientos } from './useApadrinamientos'
 
-// Todo lo que necesita el panel del refugio: lo que pide al backend al montarse (las publicaciones de este
-// refugio, sus apadrinamientos y las categorías, un pedido por lista) y las acciones que cambian los datos.
-// Cada acción llama al backend y, con lo que contesta, actualiza el estado: el cambio se ve sin volver
-// a pedir la lista. Si una acción falla, su mensaje queda en errorAccion.
-export const useGestionRefugio = () => {
-  const { usuario, token } = useSesion()
-  const { datos: animales, setDatos: setAnimales, cargando, error: errorAnimales } = useConsulta(animalesApi.traerPublicaciones, usuario.idRefugio, [])
-  const { datos: todos, error: errorApadrinamientos } = useApadrinamientos()
-  const { datos: categorias, error: errorCategorias } = useConsulta(animalesApi.traerCategorias, undefined, [])
-  const error = errorAnimales ?? errorApadrinamientos ?? errorCategorias
+// Las acciones del panel del refugio: cada una despacha la acción de animalesSlice y, con lo que contesta
+// el backend, el estado global se actualiza solo (el cambio se ve sin volver a pedir la lista).
+// Si una acción falla, su mensaje queda en errorAccion. "propios" son los animales de este refugio.
+// Lo que se pide al montarse (publicaciones, apadrinamientos y categorías) lo despacha PanelRefugio.
+export const useGestionRefugio = (propios) => {
+  const dispatch = useDispatch()
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
-
-  // Pone en la lista al animal como lo devolvió el backend
-  const guardarAnimal = (animal) => {
-    setAnimales((actuales) => ponerEn(actuales, animal))
-  }
-
-  const propios = animales.filter((animal) => animal.idRefugio === usuario.idRefugio)
-
-  // Apadrinamientos activos de los animales de este refugio
-  const apadrinamientos = todos.filter((a) => a.activo && a.animal.idRefugio === usuario.idRefugio)
 
   // Sube las fotos de a una y en orden: cada una espera a que termine la anterior.
   // Cada vez que el backend guarda una, el animal se actualiza en pantalla con esa foto.
+  // Devuelve una promesa con el mensaje de error, o null si se subieron todas.
   const subirFotos = (animal, archivos) =>
     archivos.reduce(
       (anterior, archivo) =>
-        anterior
-          .then((actual) => animalesApi.subirFoto(token, actual, archivo))
-          .then((conFoto) => {
-            guardarAnimal(conFoto)
-            return conFoto
-          }),
-      Promise.resolve(animal),
-    )
+        anterior.then((resultado) => {
+          // Si una falló, las que siguen ya no se suben
+          if (resultado.error) {
+            return resultado
+          }
+          return dispatch(animales.subirFoto({ animal: resultado.payload, archivo }))
+        }),
+      Promise.resolve({ payload: animal }),
+    ).then((resultado) => (resultado.error ? resultado.error.message : null))
 
   // Revisa lo básico, publica el animal y después le sube las fotos elegidas.
   // Devuelve una promesa con un mensaje de error (lo muestra el formulario), o null si salió bien.
@@ -51,12 +36,12 @@ export const useGestionRefugio = () => {
       return Promise.resolve(errorAnimal)
     }
 
-    return intentar(
-      animalesApi.crearAnimal(token, datos).then((nuevo) => {
-        guardarAnimal(nuevo)
-        return subirFotos(nuevo, fotos)
-      }),
-    )
+    return dispatch(animales.crearAnimal(datos)).then((accion) => {
+      if (accion.error) {
+        return accion.error.message
+      }
+      return subirFotos(accion.payload, fotos)
+    })
   }
 
   // Corrige los datos de un animal ya publicado, con las mismas reglas que al publicarlo.
@@ -66,20 +51,13 @@ export const useGestionRefugio = () => {
     if (errorAnimal !== null) {
       return Promise.resolve(errorAnimal)
     }
-    return intentar(animalesApi.editarAnimal(token, idAnimal, datos).then(guardarAnimal))
+    return intentar(dispatch(animales.editarAnimal({ idAnimal, datos })))
   }
 
   // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
     setErrorAccion(null)
-    animalesApi
-      .quitarAnimal(token, idAnimal)
-      .then(() => {
-        setAnimales((actuales) => sacarDe(actuales, idAnimal))
-      })
-      .catch((falla) => {
-        setErrorAccion(falla.message)
-      })
+    intentar(dispatch(animales.quitarAnimal(idAnimal)), setErrorAccion)
   }
 
   // "cambios" trae lo que se modifica, y cada cosa va a su propio endpoint:
@@ -88,35 +66,33 @@ export const useGestionRefugio = () => {
   // y { publicacion: 'PAUSADA' | 'ACTIVA' } pausa o republica.
   const editar = (idAnimal, cambios) => {
     const animal = propios.find((a) => a.id === idAnimal)
+    setErrorAccion(null)
 
-    const elegirPedido = () => {
+    if (cambios.fotos) {
+      subirFotos(animal, cambios.fotos).then(setErrorAccion)
+      return
+    }
+
+    const elegirAccion = () => {
       if (cambios.descuento) {
-        return animalesApi.ponerOferta(token, animal, cambios.descuento.porcentaje, cambios.descuento.hasta)
+        return animales.ponerOferta({ animal, porcentaje: cambios.descuento.porcentaje, hasta: cambios.descuento.hasta })
       }
       if (cambios.descuento === null) {
-        return animalesApi.quitarOferta(token, animal)
+        return animales.quitarOferta(animal)
       }
-      if (cambios.fotos) {
-        return subirFotos(animal, cambios.fotos)
-      }
-      return animalesApi.cambiarPublicacion(token, idAnimal, cambios.publicacion)
+      return animales.cambiarPublicacion({ idAnimal, estado: cambios.publicacion })
     }
-    const pedido = elegirPedido()
-
-    setErrorAccion(null)
-    pedido.then(guardarAnimal).catch((falla) => {
-      setErrorAccion(falla.message)
-    })
+    intentar(dispatch(elegirAccion()), setErrorAccion)
   }
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien
-  const publicarNovedad = (idAnimal, texto) => intentar(animalesApi.publicarNovedad(token, idAnimal, texto), setErrorAccion)
+  const publicarNovedad = (idAnimal, texto) => intentar(dispatch(animales.publicarNovedad({ idAnimal, texto })), setErrorAccion)
 
-  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(animalesApi.registrarUbicacion(token, idAnimal, latitud, longitud), setErrorAccion)
+  const registrarUbicacion = (idAnimal, latitud, longitud) => intentar(dispatch(animales.registrarUbicacion({ idAnimal, latitud, longitud })), setErrorAccion)
 
   const cerrarErrorAccion = () => {
     setErrorAccion(null)
   }
 
-  return { propios, apadrinamientos, categorias, cargando, error, errorAccion, cerrarErrorAccion, publicar, quitar, editar, guardarDatos, publicarNovedad, registrarUbicacion }
+  return { errorAccion, cerrarErrorAccion, publicar, quitar, editar, guardarDatos, publicarNovedad, registrarUbicacion }
 }

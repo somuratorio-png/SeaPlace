@@ -1,7 +1,7 @@
-import { quitarAnimal } from '../../services/animales'
-import { aprobarRefugio } from '../../services/usuarios'
-import { useSesion } from '../../hooks/useSesion'
-import { sacarDe } from '../../utils/listas'
+import { useDispatch, useSelector } from 'react-redux'
+import { quitarAnimal } from '../../Redux/animalesSlice'
+import { aprobarRefugio } from '../../Redux/usuariosSlice'
+import { intentar } from '../../utils/intentar'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Buscador from '../comunes/Buscador'
@@ -16,42 +16,24 @@ const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 
 // Sección "Refugios" del administrador: los busca, los muestra de a una página y permite
 // aprobarlos, darlos de baja y ver sus animales.
-// "usuarios" los tiene el panel; las publicaciones (activas, pausadas y pendientes), SeccionesAdmin.
-// Cada acción llama al backend y, con lo que contesta, actualiza el estado.
-const SeccionRefugios = ({ usuarios, animales, setAnimales, cargando, error, onCambiarActivo, onGuardarUsuario, onError }) => {
-  const { token } = useSesion()
-
-  // Al dar de baja a un refugio, el backend pausa sus publicaciones: acá se reflejan pausadas
-  const cambiarActivo = (nombreUsuario) => {
-    onCambiarActivo(nombreUsuario).then((cambiado) => {
-      if (cambiado && !cambiado.activo && cambiado.idRefugio) {
-        setAnimales((actuales) => actuales.map((animal) => (animal.idRefugio === cambiado.idRefugio ? { ...animal, publicacion: 'PAUSADA' } : animal)))
-      }
-    })
-  }
+// Los usuarios y las publicaciones (activas, pausadas y pendientes) se leen del estado global.
+// Cada acción llama al backend y, con lo que contesta, se actualiza el estado global. Al dar de baja
+// a un refugio, el backend pausa sus publicaciones: animalesSlice también lo refleja.
+const SeccionRefugios = ({ onCambiarActivo, onError }) => {
+  const dispatch = useDispatch()
+  const { items: usuarios } = useSelector((state) => state.usuarios)
+  const { publicaciones: animales, loading: cargando, error } = useSelector((state) => state.animales)
 
   const aprobar = (nombreUsuario) => {
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     onError(null)
-    aprobarRefugio(token, elegido.idRefugio)
-      .then(() => {
-        onGuardarUsuario({ ...elegido, aprobado: true })
-      })
-      .catch((falla) => {
-        onError(falla.message)
-      })
+    intentar(dispatch(aprobarRefugio(elegido.idRefugio)), onError)
   }
 
   // No lo borra de la base: la publicación queda eliminada y deja de verse
   const quitar = (idAnimal) => {
     onError(null)
-    quitarAnimal(token, idAnimal)
-      .then(() => {
-        setAnimales((actuales) => sacarDe(actuales, idAnimal))
-      })
-      .catch((falla) => {
-        onError(falla.message)
-      })
+    intentar(dispatch(quitarAnimal(idAnimal)), onError)
   }
 
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
@@ -79,7 +61,7 @@ const SeccionRefugios = ({ usuarios, animales, setAnimales, cargando, error, onC
           key={refugio.id}
           refugio={refugio}
           animales={animales.filter((animal) => animal.idRefugio === refugio.idRefugio)}
-          onCambiarActivo={cambiarActivo}
+          onCambiarActivo={onCambiarActivo}
           onAprobar={aprobar}
           onQuitarAnimal={quitar}
         />

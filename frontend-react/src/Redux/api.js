@@ -1,13 +1,29 @@
 import axios from 'axios'
-import { mensajeDeError } from '../services/api'
 
-// Lo que comparten todos los slices para hablarle al backend con axios.
+// Lo que comparten todos los slices para hablarle al backend con axios. Es el único lugar del front
+// que sabe cómo hablarle: ningún componente pide nada por su cuenta.
 // /api no existe en el backend: es el prefijo que el proxy de Vite (vite.config.js) reenvía a Spring.
 export const URL_BASE = '/api'
 
-// Las opciones de axios con el token de quien inició sesión (o sin encabezado si no hay nadie).
-// Ejemplo: const { data } = await axios.get(`${URL_BASE}/apadrinamientos`, conToken(token))
-export const conToken = (token) => (token ? { headers: { Authorization: `Bearer ${token}` } } : {})
+// El backend manda sus errores como { mensaje: '...' }. Si la respuesta no trae uno
+// (por ejemplo, cuando falta iniciar sesión), se arma un texto según el código.
+const mensajeDeError = (estado, datos) => {
+  if (datos && datos.mensaje) return datos.mensaje
+  if (estado === 401 || estado === 403) return 'Necesitás iniciar sesión (o no tenés permiso) para hacer esto'
+  if (estado >= 500) return 'El servidor no responde. Revisá que el backend esté levantado'
+  return `El pedido falló (error ${estado})`
+}
+
+// Las opciones de axios con el token de quien inició sesión, que vive en el estado global (usuarioSlice).
+// Si no hay nadie, el pedido va sin encabezado. getState lo recibe cada thunk en su segundo parámetro.
+// Ejemplo: const { data } = await axios.get(`${URL_BASE}/apadrinamientos`, conToken(getState))
+export const conToken = (getState) => {
+  const { token } = getState().usuario
+  return token ? { headers: { Authorization: `Bearer ${token}` } } : {}
+}
+
+// Los planes que hacen falta para armar los ítems del muelle y los apadrinamientos (ver planesSlice)
+export const planesDe = (getState) => getState().planes.items
 
 // Si un pedido falla, axios rechaza la promesa con un mensaje genérico ("Request failed with status code 404").
 // Acá se lo reemplaza por el que manda el backend ({ mensaje: '...' }), así el "rejected" de cada slice

@@ -5,14 +5,20 @@ import Estadisticas from './Estadisticas'
 import Hero from './Hero'
 import KitProtector from './KitProtector'
 import Testimonios from './Testimonios'
-import { traerAnimales } from '../../services/animales'
+import { useEffect } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
-import { useConsulta } from '../../hooks/useConsulta'
+import { traerAnimales } from '../../Redux/animalesSlice'
 
 // Página de inicio. Pide el catálogo al backend cuando se monta y de ahí muestra los destacados.
 const PaginaInicio = () => {
   const navigate = useNavigate()
-  const { datos: animales, cargando, error } = useConsulta(traerAnimales, undefined, [])
+  const dispatch = useDispatch()
+  const { items: animales, loading: cargando, error } = useSelector((state) => state.animales)
+
+  useEffect(() => {
+    dispatch(traerAnimales())
+  }, [dispatch])
 
   const verCatalogo = () => {
     navigate('/catalogo')

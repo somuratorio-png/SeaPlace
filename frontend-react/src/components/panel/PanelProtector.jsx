@@ -1,22 +1,26 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate, useLocation } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import Portada from '../comunes/Portada'
 import SeccionApadrinados from './SeccionApadrinados'
 import SeccionFavoritos from './SeccionFavoritos'
-import { useApadrinamientos } from '../../hooks/useApadrinamientos'
-import { useFavoritos } from '../../hooks/useFavoritos'
-import { useSesion } from '../../hooks/useSesion'
+import { traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
 
-// Área del protector: muestra los animales que el usuario ya apadrinó y sus favoritos.
+// Área del protector: muestra los animales que el usuario ya apadrinó (los pide al montarse) y sus favoritos
+// (llegaron con la sesión).
 const PanelProtector = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { state } = useLocation()
-  const { usuario } = useSesion()
-  const { favoritos } = useFavoritos()
-
-  const { datos: apadrinamientos, cargando, error } = useApadrinamientos()
+  const { usuario } = useSelector((state) => state.usuario)
+  const { items: favoritos } = useSelector((state) => state.favoritos)
+  const { items: apadrinamientos, loading: cargando, error } = useSelector((state) => state.apadrinamientos)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+
+  useEffect(() => {
+    dispatch(traerApadrinamientos())
+  }, [dispatch])
 
   // Los favoritos que se muestran son los que siguen publicados
   const animalesFavoritos = favoritos.filter((animal) => animal.publicacion === 'ACTIVA')

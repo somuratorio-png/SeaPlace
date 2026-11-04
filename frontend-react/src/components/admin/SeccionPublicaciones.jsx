@@ -1,6 +1,6 @@
-import { aprobarAnimal, aprobarCambios, rechazarAnimal, rechazarCambios } from '../../services/animales'
-import { useSesion } from '../../hooks/useSesion'
-import { ponerEn, sacarDe } from '../../utils/listas'
+import { useDispatch, useSelector } from 'react-redux'
+import { aprobarAnimal, aprobarCambios, rechazarAnimal, rechazarCambios } from '../../Redux/animalesSlice'
+import { intentar } from '../../utils/intentar'
 import EstadoCarga from '../comunes/EstadoCarga'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TituloSeccion from '../comunes/TituloSeccion'
@@ -12,35 +12,18 @@ import TablaCambios from './TablaCambios'
 // - los cambios que pidieron sobre publicaciones ya aprobadas: al aprobarlos se aplican; al rechazarlos
 //   la publicación queda como estaba.
 // En todos los casos el refugio recibe una notificación (al rechazar, con el motivo si se escribió uno).
-// Las listas las pide SeccionesAdmin (así el menú puede mostrar cuántas hay): "pendientes" son las publicaciones
-// en estado PENDIENTE, así que cada acción actualiza las publicaciones y los cambios, sin volver a pedirlos.
-const SeccionPublicaciones = ({ pendientes, setPublicaciones, cambios, setCambios, cargando, error, onError }) => {
-  const { token } = useSesion()
-  // Con lo que contesta el backend se actualiza el estado (alTerminar); si falla, se muestra el mensaje
-  const resolver = (pedido, alTerminar) => {
+// Las listas las pide SeccionesAdmin y se leen del estado global: "pendientes" son las publicaciones en estado
+// PENDIENTE. Cada acción actualiza el estado global con lo que contesta el backend (ver animalesSlice).
+const SeccionPublicaciones = ({ onError }) => {
+  const dispatch = useDispatch()
+  const { publicaciones, cambiosPendientes: cambios, loading: cargando, error } = useSelector((state) => state.animales)
+  const pendientes = publicaciones.filter((animal) => animal.publicacion === 'PENDIENTE')
+
+  // Si la acción falla, se muestra el mensaje arriba de la página
+  const resolver = (accion) => {
     onError(null)
-    pedido.then(alTerminar).catch((falla) => {
-      onError(falla.message)
-    })
+    intentar(dispatch(accion), onError)
   }
-
-  // Aprobada, la publicación queda como la devuelve el backend (ACTIVA); rechazada, se quita
-  const aprobarNueva = (idAnimal) =>
-    resolver(aprobarAnimal(token, idAnimal), (aprobado) => {
-      setPublicaciones((actuales) => ponerEn(actuales, aprobado))
-    })
-
-  const rechazarNueva = (idAnimal, motivo) =>
-    resolver(rechazarAnimal(token, idAnimal, motivo), () => {
-      setPublicaciones((actuales) => sacarDe(actuales, idAnimal))
-    })
-
-  // Con los cambios aprobados o rechazados, el pedido sale de la lista y el animal queda como lo devuelve el backend
-  const resolverCambios = (pedido, idAnimal) =>
-    resolver(pedido, (animal) => {
-      setCambios((actuales) => actuales.filter((cambio) => cambio.animal.id !== idAnimal))
-      setPublicaciones((actuales) => ponerEn(actuales, animal))
-    })
 
   if (cargando || error) {
     return <EstadoCarga cargando={cargando} error={error} texto="Cargando las publicaciones…" />
@@ -57,8 +40,8 @@ const SeccionPublicaciones = ({ pendientes, setPublicaciones, cambios, setCambio
           <RevisionPublicacion
             key={animal.id}
             animal={animal}
-            onAprobar={() => aprobarNueva(animal.id)}
-            onRechazar={(motivo) => rechazarNueva(animal.id, motivo)}
+            onAprobar={() => resolver(aprobarAnimal(animal.id))}
+            onRechazar={(motivo) => resolver(rechazarAnimal({ idAnimal: animal.id, motivo }))}
           />
         ))}
       </div>
@@ -73,8 +56,8 @@ const SeccionPublicaciones = ({ pendientes, setPublicaciones, cambios, setCambio
             textoAprobar="Aprobar cambios"
             tituloRechazo={`¿Rechazar los cambios de ${animal.nombre}?`}
             mensajeRechazo="La publicación queda como está y el refugio recibe una notificación. Si querés, contale por qué."
-            onAprobar={() => resolverCambios(aprobarCambios(token, animal.id), animal.id)}
-            onRechazar={(motivo) => resolverCambios(rechazarCambios(token, animal.id, motivo), animal.id)}
+            onAprobar={() => resolver(aprobarCambios(animal.id))}
+            onRechazar={(motivo) => resolver(rechazarCambios({ idAnimal: animal.id, motivo }))}
           >
             <TablaCambios cambios={campos} />
           </RevisionPublicacion>

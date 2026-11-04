@@ -1,23 +1,24 @@
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import MenuLateral from '../comunes/MenuLateral'
 import FormularioAnimal from './FormularioAnimal'
 import SeccionAnimales from './SeccionAnimales'
 import SeccionNotificaciones from './SeccionNotificaciones'
 import SeccionPadrinos from './SeccionPadrinos'
-import { useNotificaciones } from '../../hooks/useNotificaciones'
 
 // Menú lateral del refugio y la sección elegida (una sola por vez): sus animales, sus padrinos,
 // el formulario para publicar uno nuevo o sus notificaciones. Todo lo que cambia datos sube por las funciones "on...".
 const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [seccion, setSeccion] = useState('animales')
-  // Se piden acá (y no al abrir la sección) para poder mostrar en el menú cuántas no leyó
-  const avisos = useNotificaciones()
+  // Las notificaciones las pide la campanita del header: acá se leen del estado global para mostrar en el menú cuántas no leyó
+  const { items: notificaciones } = useSelector((state) => state.notificaciones)
+  const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
 
   const secciones = [
     { id: 'animales', nombre: 'Mis animales', icono: 'pets' },
     { id: 'padrinos', nombre: 'Padrinos', icono: 'group' },
     { id: 'publicar', nombre: 'Sumar un rescatado', icono: 'add_circle' },
-    { id: 'notificaciones', nombre: 'Notificaciones', icono: 'notifications', aviso: avisos.sinLeer },
+    { id: 'notificaciones', nombre: 'Notificaciones', icono: 'notifications', aviso: sinLeer },
   ]
 
   // Si el animal se publicó bien, se muestra la lista para que lo vea
@@ -50,9 +51,7 @@ const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, o
         )}
         {seccion === 'padrinos' && <SeccionPadrinos apadrinamientos={apadrinamientos} />}
         {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={publicar} />}
-        {seccion === 'notificaciones' && (
-          <SeccionNotificaciones notificaciones={avisos.notificaciones} cargando={avisos.cargando} error={avisos.error} errorAlMarcar={avisos.errorAlMarcar} onMarcarLeidas={avisos.marcarLeidas} />
-        )}
+        {seccion === 'notificaciones' && <SeccionNotificaciones />}
       </div>
     </div>
   )

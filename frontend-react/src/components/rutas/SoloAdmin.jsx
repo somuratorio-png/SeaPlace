@@ -1,10 +1,11 @@
+import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
-import { useSesion } from '../../hooks/useSesion'
+import { esAdmin } from '../../utils/roles'
 
 const SoloAdmin = ({ children }) => {
-  const { esAdmin } = useSesion()
+  const { usuario } = useSelector((state) => state.usuario)
 
-  if (esAdmin) {
+  if (esAdmin(usuario)) {
     return children
   }
   return <Navigate to="/panel" replace />

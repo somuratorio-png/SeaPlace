@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aCategoria } from '../services/animales'
 import { comoLista, conToken, URL_BASE } from './api'
-import { alEmpezar, alFallar } from './casos'
+import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 
 // Espeja CategoriaService del backend. Cada categoría: { id, nombre, icono }
 
@@ -12,8 +12,8 @@ export const traerCategorias = createAsyncThunk('categorias/traerCategorias', as
 })
 
 // Solo la puede crear un administrador
-export const crearCategoria = createAsyncThunk('categorias/crearCategoria', async ({ token, nombreCategoria, descripcion }) => {
-  const { data } = await axios.post(`${URL_BASE}/categorias`, { nombreCategoria, descripcion }, conToken(token))
+export const crearCategoria = createAsyncThunk('categorias/crearCategoria', async ({ nombreCategoria, descripcion }, { getState }) => {
+  const { data } = await axios.post(`${URL_BASE}/categorias`, { nombreCategoria, descripcion }, conToken(getState))
   return aCategoria(data)
 })
 
@@ -21,6 +21,8 @@ const initialState = {
   items: [],
   loading: false,
   error: null,
+  enviando: false,
+  errorAccion: null,
 }
 
 const categoriasSlice = createSlice({
@@ -36,12 +38,12 @@ const categoriasSlice = createSlice({
       })
       .addCase(traerCategorias.rejected, alFallar)
 
-      .addCase(crearCategoria.pending, alEmpezar)
+      .addCase(crearCategoria.pending, alEnviar)
       .addCase(crearCategoria.fulfilled, (state, action) => {
-        state.loading = false
+        state.enviando = false
         state.items.push(action.payload)
       })
-      .addCase(crearCategoria.rejected, alFallar)
+      .addCase(crearCategoria.rejected, alFallarEnvio)
   },
 })
 

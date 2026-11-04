@@ -21,7 +21,7 @@ const conDescuento = (animal, precio) => {
 export const precioFinal = (animal) => conDescuento(animal, animal.precio)
 
 // Los niveles de apadrinamiento de un animal. "planes" es la lista que manda el backend
-// (ver contexto/Planes.js); a cada uno se le agrega su precio para este animal, que eligió el refugio
+// (ver planesSlice); a cada uno se le agrega su precio para este animal, que eligió el refugio
 // (con el descuento, si está en oferta). Si el backend no lo mandó, sale de la cuota y el multiplicador del plan.
 export const planesDe = (animal, planes) =>
   planes.map((plan) => ({ ...plan, precio: conDescuento(animal, animal.preciosPorPlan?.[plan.codigo] ?? redondear(animal.precio * plan.multiplicador)) }))

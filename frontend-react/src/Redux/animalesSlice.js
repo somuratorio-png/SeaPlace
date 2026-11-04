@@ -3,12 +3,14 @@ import axios from 'axios'
 import { aAnimal, aCuerpoAnimal, aDescuento, diferencias, urlDeFoto } from '../services/animales'
 import { hoy } from '../utils/fechas'
 import { comoLista, comoPagina, conToken, URL_BASE } from './api'
-import { alEmpezar, alFallar } from './casos'
+import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
+import { salir } from './usuarioSlice'
+import { darDeBaja } from './usuariosSlice'
 
 // Espeja AnimalService del backend (más fotos y descuentos, que cuelgan de /animales/{id}).
 // Los conversores (aAnimal, aCuerpoAnimal...) son los mismos de services/animales.js.
 
-// ---------- Acciones asíncronas ----------
+// ---------- GET ----------
 
 // El catálogo: las publicaciones activas, que son públicas
 export const traerAnimales = createAsyncThunk('animales/traerAnimales', async () => {
@@ -16,129 +18,132 @@ export const traerAnimales = createAsyncThunk('animales/traerAnimales', async ()
   return comoPagina(data).map(aAnimal)
 })
 
-// Un animal por su id (la pantalla de detalle). Si no existe el backend responde 404.
-export const traerAnimal = createAsyncThunk('animales/traerAnimal', async ({ token, idAnimal }) => {
-  const { data } = await axios.get(`${URL_BASE}/animales/${idAnimal}`, conToken(token))
+// Un animal por su id (la ficha). Va con el token: su refugio puede ver la publicación aunque no esté activa.
+export const traerAnimal = createAsyncThunk('animales/traerAnimal', async (idAnimal, { getState }) => {
+  const { data } = await axios.get(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
   return aAnimal(data)
 })
 
-// Las activas, pausadas y pendientes, para los paneles de gestión. Con idRefugio solo las de ese refugio.
-export const traerPublicaciones = createAsyncThunk('animales/traerPublicaciones', async ({ token, idRefugio }) => {
+// Las activas, pausadas y pendientes, para los paneles de gestión. Con idRefugio solo las de ese refugio;
+// sin idRefugio (el administrador), las de todos.
+export const traerPublicaciones = createAsyncThunk('animales/traerPublicaciones', async (idRefugio, { getState }) => {
   const filtro = idRefugio ? `&idRefugio=${idRefugio}` : ''
-  const { data } = await axios.get(`${URL_BASE}/animales?estado=ACTIVA,PAUSADA,PENDIENTE${filtro}`, conToken(token))
+  const { data } = await axios.get(`${URL_BASE}/animales?estado=ACTIVA,PAUSADA,PENDIENTE${filtro}`, conToken(getState))
   return comoPagina(data).map(aAnimal)
 })
 
-// datos = lo que carga el formulario del refugio
-export const crearAnimal = createAsyncThunk('animales/crearAnimal', async ({ token, datos }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales`, aCuerpoAnimal(datos), conToken(token))
-  return aAnimal(data)
-})
-
-// Si ya está publicado, los cambios quedan pendientes de aprobación (vuelve con cambioPendiente: true)
-export const editarAnimal = createAsyncThunk('animales/editarAnimal', async ({ token, idAnimal, datos }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, aCuerpoAnimal(datos), conToken(token))
-  return aAnimal(data)
-})
-
-// estado: 'ACTIVA' la muestra en el catálogo; 'PAUSADA' la oculta sin eliminarla
-export const cambiarPublicacion = createAsyncThunk('animales/cambiarPublicacion', async ({ token, idAnimal, estado }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, { estado }, conToken(token))
-  return aAnimal(data)
-})
-
-export const quitarAnimal = createAsyncThunk('animales/quitarAnimal', async ({ token, idAnimal }) => {
-  await axios.delete(`${URL_BASE}/animales/${idAnimal}`, conToken(token))
-  return idAnimal
-})
-
-// La aprueba un administrador: pasa a ACTIVA y aparece en el catálogo
-export const aprobarAnimal = createAsyncThunk('animales/aprobarAnimal', async ({ token, idAnimal }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/aprobar`, null, conToken(token))
-  return aAnimal(data)
-})
-
-// La rechaza un administrador: queda eliminada y el refugio recibe el motivo
-export const rechazarAnimal = createAsyncThunk('animales/rechazarAnimal', async ({ token, idAnimal, motivo }) => {
-  await axios.put(`${URL_BASE}/animales/${idAnimal}/rechazar`, { motivo }, conToken(token))
-  return idAnimal
-})
-
 // Los cambios que pidieron los refugios sobre publicaciones ya aprobadas: [{ animal, cambios }]
-export const traerCambiosPendientes = createAsyncThunk('animales/traerCambiosPendientes', async ({ token }) => {
-  const { data } = await axios.get(`${URL_BASE}/animales/cambios-pendientes`, conToken(token))
+export const traerCambiosPendientes = createAsyncThunk('animales/traerCambiosPendientes', async (_, { getState }) => {
+  const { data } = await axios.get(`${URL_BASE}/animales/cambios-pendientes`, conToken(getState))
   return comoLista(data).map((pendiente) => ({
     animal: aAnimal(pendiente.animal),
     cambios: diferencias(pendiente.animal, pendiente.cambio, pendiente.nombreCategoriaPropuesta),
   }))
 })
 
-export const aprobarCambios = createAsyncThunk('animales/aprobarCambios', async ({ token, idAnimal }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/aprobar`, null, conToken(token))
+// ---------- POST / PUT / DELETE ----------
+
+// datos = lo que carga el formulario del refugio
+export const crearAnimal = createAsyncThunk('animales/crearAnimal', async (datos, { getState }) => {
+  const { data } = await axios.post(`${URL_BASE}/animales`, aCuerpoAnimal(datos), conToken(getState))
   return aAnimal(data)
 })
 
-export const rechazarCambios = createAsyncThunk('animales/rechazarCambios', async ({ token, idAnimal, motivo }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/rechazar`, { motivo }, conToken(token))
+// Si ya está publicado, los cambios quedan pendientes de aprobación (vuelve con cambioPendiente: true)
+export const editarAnimal = createAsyncThunk('animales/editarAnimal', async ({ idAnimal, datos }, { getState }) => {
+  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, aCuerpoAnimal(datos), conToken(getState))
+  return aAnimal(data)
+})
+
+// estado: 'ACTIVA' la muestra en el catálogo; 'PAUSADA' la oculta sin eliminarla
+export const cambiarPublicacion = createAsyncThunk('animales/cambiarPublicacion', async ({ idAnimal, estado }, { getState }) => {
+  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, { estado }, conToken(getState))
+  return aAnimal(data)
+})
+
+// No lo borra de la base: la publicación queda eliminada y deja de verse
+export const quitarAnimal = createAsyncThunk('animales/quitarAnimal', async (idAnimal, { getState }) => {
+  await axios.delete(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
+  return idAnimal
+})
+
+// La aprueba un administrador: pasa a ACTIVA y aparece en el catálogo
+export const aprobarAnimal = createAsyncThunk('animales/aprobarAnimal', async (idAnimal, { getState }) => {
+  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/aprobar`, null, conToken(getState))
+  return aAnimal(data)
+})
+
+// La rechaza un administrador: queda eliminada y el refugio recibe el motivo
+export const rechazarAnimal = createAsyncThunk('animales/rechazarAnimal', async ({ idAnimal, motivo }, { getState }) => {
+  await axios.put(`${URL_BASE}/animales/${idAnimal}/rechazar`, { motivo }, conToken(getState))
+  return idAnimal
+})
+
+export const aprobarCambios = createAsyncThunk('animales/aprobarCambios', async (idAnimal, { getState }) => {
+  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/aprobar`, null, conToken(getState))
+  return aAnimal(data)
+})
+
+export const rechazarCambios = createAsyncThunk('animales/rechazarCambios', async ({ idAnimal, motivo }, { getState }) => {
+  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/rechazar`, { motivo }, conToken(getState))
   return aAnimal(data)
 })
 
 // "archivo" es el archivo elegido en un <input type="file">: viaja como formulario. Se agrega al final de la galería.
-export const subirFoto = createAsyncThunk('animales/subirFoto', async ({ token, animal, archivo }) => {
+// Devuelve el animal con la foto nueva.
+export const subirFoto = createAsyncThunk('animales/subirFoto', async ({ animal, archivo }, { getState }) => {
   const formulario = new FormData()
   formulario.append('archivo', archivo, 'foto.jpg')
-  const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/fotos/archivo`, formulario, conToken(token))
+  const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/fotos/archivo`, formulario, conToken(getState))
   const url = urlDeFoto(data.urlImagen)
   const fotos = animal.sinFotos ? [url] : [...animal.fotos, url]
   return { ...animal, fotos, imagen: fotos[0], sinFotos: false }
 })
 
 // La oferta rige desde hoy hasta la fecha elegida
-export const ponerOferta = createAsyncThunk('animales/ponerOferta', async ({ token, animal, porcentaje, hasta }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/descuentos`, { porcentaje, fechaInicio: hoy(), fechaFin: hasta }, conToken(token))
+export const ponerOferta = createAsyncThunk('animales/ponerOferta', async ({ animal, porcentaje, hasta }, { getState }) => {
+  const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/descuentos`, { porcentaje, fechaInicio: hoy(), fechaFin: hasta }, conToken(getState))
   return { ...animal, descuento: aDescuento(data) }
 })
 
-export const quitarOferta = createAsyncThunk('animales/quitarOferta', async ({ token, animal }) => {
-  await axios.delete(`${URL_BASE}/animales/${animal.id}/descuentos/${animal.descuento.id}`, conToken(token))
+export const quitarOferta = createAsyncThunk('animales/quitarOferta', async (animal, { getState }) => {
+  await axios.delete(`${URL_BASE}/animales/${animal.id}/descuentos/${animal.descuento.id}`, conToken(getState))
   return { ...animal, descuento: null }
 })
 
 // La bitácora y la ubicación las ve el padrino dentro de su apadrinamiento: acá solo se publican
-export const publicarNovedad = createAsyncThunk('animales/publicarNovedad', async ({ token, idAnimal, texto }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades`, { texto }, conToken(token))
+export const publicarNovedad = createAsyncThunk('animales/publicarNovedad', async ({ idAnimal, texto }, { getState }) => {
+  const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades`, { texto }, conToken(getState))
   return data
 })
 
-export const registrarUbicacion = createAsyncThunk('animales/registrarUbicacion', async ({ token, idAnimal, latitud, longitud }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/ubicaciones`, { latitud, longitud }, conToken(token))
+export const registrarUbicacion = createAsyncThunk('animales/registrarUbicacion', async ({ idAnimal, latitud, longitud }, { getState }) => {
+  const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/ubicaciones`, { latitud, longitud }, conToken(getState))
   return data
 })
 
 // ---------- Slice ----------
 
-// Los filtros del catálogo, con los mismos valores iniciales que usa la pantalla
-const SIN_FILTROS = { busqueda: '', categoria: 'todas', urgencia: 'todas', orden: 'recomendados', soloFavoritos: false, precioMin: '', precioMax: '' }
-
 const initialState = {
   items: [], // el catálogo (GET /animales)
-  animal: null, // el del detalle: separado, así no pisa el catálogo
+  animal: null, // el de la ficha: separado, así no pisa el catálogo
   publicaciones: [], // las de los paneles de gestión (refugio y administrador)
   cambiosPendientes: [], // [{ animal, cambios }]
-  filtros: SIN_FILTROS,
   loading: false,
   error: null,
+  enviando: false,
+  errorAccion: null,
 }
 
 // Los "fulfilled" que se repiten en varias acciones
 
-// Las que devuelven el animal ya modificado: se lo pone en cada lista donde esté (y en el detalle si es ese)
+// Las que devuelven el animal ya modificado: se lo pone en cada lista donde esté (y en la ficha si es ese)
 const conAnimalModificado = (state, action) => {
   const animal = action.payload
-  state.loading = false
+  state.enviando = false
   state.items = state.items.map((otro) => (otro.id === animal.id ? animal : otro))
   state.publicaciones = state.publicaciones.map((otro) => (otro.id === animal.id ? animal : otro))
-  if (state.animal?.id === animal.id) {
+  if (state.animal !== null && state.animal.id === animal.id) {
     state.animal = animal
   }
 }
@@ -146,7 +151,7 @@ const conAnimalModificado = (state, action) => {
 // Las que eliminan el animal (devuelven su id): se lo saca de todas las listas
 const conAnimalSacado = (state, action) => {
   const idAnimal = action.payload
-  state.loading = false
+  state.enviando = false
   state.items = state.items.filter((otro) => otro.id !== idAnimal)
   state.publicaciones = state.publicaciones.filter((otro) => otro.id !== idAnimal)
   state.cambiosPendientes = state.cambiosPendientes.filter((pendiente) => pendiente.animal.id !== idAnimal)
@@ -158,20 +163,18 @@ const conCambiosResueltos = (state, action) => {
   state.cambiosPendientes = state.cambiosPendientes.filter((pendiente) => pendiente.animal.id !== action.payload.id)
 }
 
+// Las que no cambian ninguna lista de este slice
+const terminado = (state) => {
+  state.enviando = false
+}
+
 const animalesSlice = createSlice({
   name: 'animales',
   initialState,
-  reducers: {
-    // action.payload = { campo: 'urgencia', valor: 'critico' }
-    cambiarFiltro: (state, action) => {
-      state.filtros[action.payload.campo] = action.payload.valor
-    },
-    limpiarFiltros: (state) => {
-      state.filtros = SIN_FILTROS
-    },
-  },
+  reducers: {},
   extraReducers: (builder) => {
     builder
+      // GET
       .addCase(traerAnimales.pending, alEmpezar)
       .addCase(traerAnimales.fulfilled, (state, action) => {
         state.loading = false
@@ -193,33 +196,6 @@ const animalesSlice = createSlice({
       })
       .addCase(traerPublicaciones.rejected, alFallar)
 
-      .addCase(crearAnimal.pending, alEmpezar)
-      .addCase(crearAnimal.fulfilled, (state, action) => {
-        state.loading = false
-        state.publicaciones.push(action.payload)
-      })
-      .addCase(crearAnimal.rejected, alFallar)
-
-      .addCase(editarAnimal.pending, alEmpezar)
-      .addCase(editarAnimal.fulfilled, conAnimalModificado)
-      .addCase(editarAnimal.rejected, alFallar)
-
-      .addCase(cambiarPublicacion.pending, alEmpezar)
-      .addCase(cambiarPublicacion.fulfilled, conAnimalModificado)
-      .addCase(cambiarPublicacion.rejected, alFallar)
-
-      .addCase(quitarAnimal.pending, alEmpezar)
-      .addCase(quitarAnimal.fulfilled, conAnimalSacado)
-      .addCase(quitarAnimal.rejected, alFallar)
-
-      .addCase(aprobarAnimal.pending, alEmpezar)
-      .addCase(aprobarAnimal.fulfilled, conAnimalModificado)
-      .addCase(aprobarAnimal.rejected, alFallar)
-
-      .addCase(rechazarAnimal.pending, alEmpezar)
-      .addCase(rechazarAnimal.fulfilled, conAnimalSacado)
-      .addCase(rechazarAnimal.rejected, alFallar)
-
       .addCase(traerCambiosPendientes.pending, alEmpezar)
       .addCase(traerCambiosPendientes.fulfilled, (state, action) => {
         state.loading = false
@@ -227,41 +203,76 @@ const animalesSlice = createSlice({
       })
       .addCase(traerCambiosPendientes.rejected, alFallar)
 
-      .addCase(aprobarCambios.pending, alEmpezar)
+      // POST / PUT / DELETE
+      .addCase(crearAnimal.pending, alEnviar)
+      .addCase(crearAnimal.fulfilled, (state, action) => {
+        state.enviando = false
+        state.publicaciones.push(action.payload)
+      })
+      .addCase(crearAnimal.rejected, alFallarEnvio)
+
+      .addCase(editarAnimal.pending, alEnviar)
+      .addCase(editarAnimal.fulfilled, conAnimalModificado)
+      .addCase(editarAnimal.rejected, alFallarEnvio)
+
+      .addCase(cambiarPublicacion.pending, alEnviar)
+      .addCase(cambiarPublicacion.fulfilled, conAnimalModificado)
+      .addCase(cambiarPublicacion.rejected, alFallarEnvio)
+
+      .addCase(quitarAnimal.pending, alEnviar)
+      .addCase(quitarAnimal.fulfilled, conAnimalSacado)
+      .addCase(quitarAnimal.rejected, alFallarEnvio)
+
+      .addCase(aprobarAnimal.pending, alEnviar)
+      .addCase(aprobarAnimal.fulfilled, conAnimalModificado)
+      .addCase(aprobarAnimal.rejected, alFallarEnvio)
+
+      .addCase(rechazarAnimal.pending, alEnviar)
+      .addCase(rechazarAnimal.fulfilled, conAnimalSacado)
+      .addCase(rechazarAnimal.rejected, alFallarEnvio)
+
+      .addCase(aprobarCambios.pending, alEnviar)
       .addCase(aprobarCambios.fulfilled, conCambiosResueltos)
-      .addCase(aprobarCambios.rejected, alFallar)
+      .addCase(aprobarCambios.rejected, alFallarEnvio)
 
-      .addCase(rechazarCambios.pending, alEmpezar)
+      .addCase(rechazarCambios.pending, alEnviar)
       .addCase(rechazarCambios.fulfilled, conCambiosResueltos)
-      .addCase(rechazarCambios.rejected, alFallar)
+      .addCase(rechazarCambios.rejected, alFallarEnvio)
 
-      .addCase(subirFoto.pending, alEmpezar)
+      .addCase(subirFoto.pending, alEnviar)
       .addCase(subirFoto.fulfilled, conAnimalModificado)
-      .addCase(subirFoto.rejected, alFallar)
+      .addCase(subirFoto.rejected, alFallarEnvio)
 
-      .addCase(ponerOferta.pending, alEmpezar)
+      .addCase(ponerOferta.pending, alEnviar)
       .addCase(ponerOferta.fulfilled, conAnimalModificado)
-      .addCase(ponerOferta.rejected, alFallar)
+      .addCase(ponerOferta.rejected, alFallarEnvio)
 
-      .addCase(quitarOferta.pending, alEmpezar)
+      .addCase(quitarOferta.pending, alEnviar)
       .addCase(quitarOferta.fulfilled, conAnimalModificado)
-      .addCase(quitarOferta.rejected, alFallar)
+      .addCase(quitarOferta.rejected, alFallarEnvio)
 
-      // Estas dos no cambian ninguna lista de este slice
-      .addCase(publicarNovedad.pending, alEmpezar)
-      .addCase(publicarNovedad.fulfilled, (state) => {
-        state.loading = false
-      })
-      .addCase(publicarNovedad.rejected, alFallar)
+      .addCase(publicarNovedad.pending, alEnviar)
+      .addCase(publicarNovedad.fulfilled, terminado)
+      .addCase(publicarNovedad.rejected, alFallarEnvio)
 
-      .addCase(registrarUbicacion.pending, alEmpezar)
-      .addCase(registrarUbicacion.fulfilled, (state) => {
-        state.loading = false
+      .addCase(registrarUbicacion.pending, alEnviar)
+      .addCase(registrarUbicacion.fulfilled, terminado)
+      .addCase(registrarUbicacion.rejected, alFallarEnvio)
+
+      // Acciones de otros slices que también cambian los animales:
+      // al dar de baja a un refugio, el backend pausa sus publicaciones
+      .addCase(darDeBaja.fulfilled, (state, action) => {
+        const { idRefugio } = action.payload
+        if (idRefugio) {
+          state.publicaciones = state.publicaciones.map((animal) => (animal.idRefugio === idRefugio ? { ...animal, publicacion: 'PAUSADA' } : animal))
+        }
       })
-      .addCase(registrarUbicacion.rejected, alFallar)
+      // Las publicaciones de gestión son de quien inició sesión: al salir se vacían
+      .addCase(salir, (state) => {
+        state.publicaciones = []
+        state.cambiosPendientes = []
+      })
   },
 })
-
-export const { cambiarFiltro, limpiarFiltros } = animalesSlice.actions
 
 export default animalesSlice.reducer

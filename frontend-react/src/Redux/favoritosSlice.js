@@ -2,30 +2,29 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aAnimal } from '../services/animales'
 import { conToken, URL_BASE } from './api'
-import { alEmpezar, alFallar } from './casos'
+import { alEnviar, alFallarEnvio } from './casos'
 import { ingresar, registrar, salir } from './usuarioSlice'
 
 // Espeja FavoritoService del backend. items = los animales que guardó quien inició sesión.
-// Se guardan en el backend, así que agregar y quitar son acciones asíncronas.
+// No hay un GET propio: llegan con la sesión, al ingresar o registrarse.
 
 // Devuelve el animal que quedó guardado
-export const agregarFavorito = createAsyncThunk('favoritos/agregarFavorito', async ({ token, idAnimal }) => {
-  const { data } = await axios.put(`${URL_BASE}/favoritos/${idAnimal}`, null, conToken(token))
+export const agregarFavorito = createAsyncThunk('favoritos/agregarFavorito', async (idAnimal, { getState }) => {
+  const { data } = await axios.put(`${URL_BASE}/favoritos/${idAnimal}`, null, conToken(getState))
   return aAnimal(data.animal)
 })
 
-export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async ({ token, idAnimal }) => {
-  await axios.delete(`${URL_BASE}/favoritos/${idAnimal}`, conToken(token))
+export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async (idAnimal, { getState }) => {
+  await axios.delete(`${URL_BASE}/favoritos/${idAnimal}`, conToken(getState))
   return idAnimal
 })
 
 const initialState = {
   items: [],
-  loading: false,
-  error: null,
+  enviando: false,
+  errorAccion: null,
 }
 
-// Los favoritos llegan con la sesión, al ingresar o registrarse
 const conSesion = (state, action) => {
   state.items = action.payload.sesion.favoritos
 }
@@ -36,19 +35,19 @@ const favoritosSlice = createSlice({
   reducers: {},
   extraReducers: (builder) => {
     builder
-      .addCase(agregarFavorito.pending, alEmpezar)
+      .addCase(agregarFavorito.pending, alEnviar)
       .addCase(agregarFavorito.fulfilled, (state, action) => {
-        state.loading = false
+        state.enviando = false
         state.items.push(action.payload)
       })
-      .addCase(agregarFavorito.rejected, alFallar)
+      .addCase(agregarFavorito.rejected, alFallarEnvio)
 
-      .addCase(quitarFavorito.pending, alEmpezar)
+      .addCase(quitarFavorito.pending, alEnviar)
       .addCase(quitarFavorito.fulfilled, (state, action) => {
-        state.loading = false
+        state.enviando = false
         state.items = state.items.filter((guardado) => guardado.id !== action.payload)
       })
-      .addCase(quitarFavorito.rejected, alFallar)
+      .addCase(quitarFavorito.rejected, alFallarEnvio)
 
       // Acciones de usuarioSlice que también cambian los favoritos
       .addCase(ingresar.fulfilled, conSesion)

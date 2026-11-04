@@ -1,10 +1,11 @@
-import { cambiarRol } from '../../services/usuarios'
+import { useDispatch, useSelector } from 'react-redux'
+import { cambiarRol } from '../../Redux/usuariosSlice'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
+import { intentar } from '../../utils/intentar'
 import Buscador from '../comunes/Buscador'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Paginacion from '../comunes/Paginacion'
 import EncabezadoLista from './EncabezadoLista'
-import { useSesion } from '../../hooks/useSesion'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TablaUsuarios from './TablaUsuarios'
 
@@ -12,10 +13,12 @@ const USUARIOS_POR_PAGINA = 5
 const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u.mail} ${u.rol}`
 
 // Sección "Usuarios" del administrador: tabla paginada para cambiarles el rol o darlos de baja.
-// "usuarios" los tiene el panel y el administrador logueado se lee con useSesion.
-// Los roles que existen los pide SeccionesAdmin.
-const SeccionUsuarios = ({ usuarios, roles, cargando, error, onCambiarActivo, onGuardarUsuario, onError }) => {
-  const { usuario, token } = useSesion()
+// Los usuarios, los roles (los pide SeccionesAdmin) y el administrador logueado se leen del estado global.
+const SeccionUsuarios = ({ onCambiarActivo, onError }) => {
+  const dispatch = useDispatch()
+  const { usuario } = useSelector((state) => state.usuario)
+  const { items: usuarios } = useSelector((state) => state.usuarios)
+  const { items: roles, loading: cargando, error } = useSelector((state) => state.roles)
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
   // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.
@@ -24,11 +27,7 @@ const SeccionUsuarios = ({ usuarios, roles, cargando, error, onCambiarActivo, on
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)
     const idRol = roles.find((r) => r.nombre === rol).id
     onError(null)
-    cambiarRol(token, elegido.id, idRol)
-      .then(onGuardarUsuario)
-      .catch((falla) => {
-        onError(falla.message)
-      })
+    intentar(dispatch(cambiarRol({ idUsuario: elegido.id, idRol })), onError)
   }
 
   if (cargando || error) {

@@ -1,4 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useParams, useNavigate } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import BotonVolver from '../comunes/BotonVolver'
@@ -8,26 +9,40 @@ import ElegirPlan from './ElegirPlan'
 import EncabezadoAnimal from './EncabezadoAnimal'
 import HistoriaAnimal from './HistoriaAnimal'
 import PreguntasFrecuentes from './PreguntasFrecuentes'
-import { traerAnimal } from '../../services/animales'
-import { useConsulta } from '../../hooks/useConsulta'
+import { traerAnimal } from '../../Redux/animalesSlice'
 
 // La ficha de un animal. Lo pide al backend cuando se monta, con el id que sale de la URL (/animal/:id).
+// Si no existe (o su publicación no está activa y no es de quien la pide) el backend responde 404 y se vuelve al catálogo.
 const DetalleAnimal = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { id } = useParams()
 
-  const { datos: animal, cargando, error, estadoError } = useConsulta(traerAnimal, id)
+  const { animal, loading, error } = useSelector((state) => state.animales)
+  // false hasta que termina el pedido de esta ficha: así no se muestra un rato el animal (o el error)
+  // que había quedado en el estado global de una ficha anterior
+  const [listo, setListo] = useState(false)
+  const [noExiste, setNoExiste] = useState(false)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+
+  // El id es parte de las dependencias: si cambia, se pide el otro animal.
+  // dispatch devuelve la action con la que terminó: axios marca los errores 4xx (como el 404) con code 'ERR_BAD_REQUEST'.
+  useEffect(() => {
+    dispatch(traerAnimal(id)).then((accion) => {
+      setNoExiste(accion.error !== undefined && accion.error.code === 'ERR_BAD_REQUEST')
+      setListo(true)
+    })
+  }, [dispatch, id])
 
   const volverAlCatalogo = () => {
     navigate('/catalogo')
   }
 
-  if (cargando) {
+  if (loading || !listo) {
     return <Cargando texto="Buscando al animal…" />
   }
 
-  if (estadoError === 404) {
+  if (noExiste) {
     return <Navigate to="/catalogo" replace />
   }
 

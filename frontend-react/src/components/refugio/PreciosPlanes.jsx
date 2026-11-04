@@ -1,5 +1,5 @@
 import CampoTexto from '../comunes/CampoTexto'
-import { usePlanes } from '../../hooks/usePlanes'
+import { useSelector } from 'react-redux'
 
 // Qué campo del formulario guarda el precio de cada plan. El de Guardián de la Bahía es "precio":
 // es la cuota que se muestra en el catálogo.
@@ -9,9 +9,9 @@ const CAMPO_DEL_PLAN = {
 }
 
 // Un precio por cada plan de apadrinamiento, de menor a mayor (Marea Profunda incluye todo lo de Guardián de la Bahía).
-// Los planes (nombre y qué incluye) vienen del backend; ver contexto/Planes.js.
+// Los planes (nombre y qué incluye) vienen del backend; ver planesSlice.
 const PreciosPlanes = ({ datos, onCambiar }) => {
-  const planes = usePlanes()
+  const { items: planes } = useSelector((state) => state.planes)
 
   return (
     <fieldset className="space-y-space-sm">

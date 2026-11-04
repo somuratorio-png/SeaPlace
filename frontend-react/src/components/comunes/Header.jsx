@@ -1,18 +1,26 @@
+import { useDispatch, useSelector } from 'react-redux'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { logo } from '../../data/imagenes'
 import AccionesUsuario from './AccionesUsuario'
 import MenuPrincipal from './MenuPrincipal'
 import { useMoneda } from '../../hooks/useMoneda'
-import { useMuelle } from '../../hooks/useMuelle'
-import { useSesion } from '../../hooks/useSesion'
+import { salir } from '../../Redux/usuarioSlice'
+import { esAdmin, esRefugio } from '../../utils/roles'
 
 // El menú son <Link>; los botones de la derecha navegan con useNavigate
 const Header = () => {
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { pathname } = useLocation()
-  const { usuario, esAdmin, esRefugio, salir } = useSesion()
-  const { items } = useMuelle()
+  const { usuario } = useSelector((state) => state.usuario)
+  const { items } = useSelector((state) => state.muelle)
   const { moneda, cambiarMoneda } = useMoneda()
+
+  // Al salir se vacían los datos de quien estaba logueado (sus favoritos, su muelle...) y se vuelve al inicio
+  const handleSalir = () => {
+    dispatch(salir())
+    navigate('/')
+  }
 
   return (
     // Barra flotante: queda pegada arriba, separada de los bordes y con fondo de vidrio esmerilado
@@ -23,17 +31,17 @@ const Header = () => {
           <span className="font-title-lg text-title-lg text-primary">SeaPlace</span>
         </Link>
 
-        <MenuPrincipal pathname={pathname} esAdmin={esAdmin} esRefugio={esRefugio} cantidadMuelle={items.length} />
+        <MenuPrincipal pathname={pathname} esAdmin={esAdmin(usuario)} esRefugio={esRefugio(usuario)} cantidadMuelle={items.length} />
 
         <AccionesUsuario
           usuario={usuario}
-          esAdmin={esAdmin}
+          esAdmin={esAdmin(usuario)}
           pathname={pathname}
           moneda={moneda}
           onCambiarMoneda={cambiarMoneda}
           onIngresar={() => navigate('/panel')}
           onCuenta={() => navigate('/cuenta')}
-          onSalir={salir}
+          onSalir={handleSalir}
         />
       </div>
     </header>

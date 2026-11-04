@@ -1,9 +1,10 @@
+import { useEffect, useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useNavigate, useParams } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import Cargando from '../comunes/Cargando'
 import Icono from '../comunes/Icono'
-import { useSesion } from '../../hooks/useSesion'
-import { useApadrinamientoDe } from '../../hooks/useApadrinamientoDe'
+import { traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
 import BotonVolver from '../comunes/BotonVolver'
 import CertificadoImprimible from './CertificadoImprimible'
 
@@ -13,12 +14,22 @@ import CertificadoImprimible from './CertificadoImprimible'
 const CertificadoApadrinamiento = () => {
   // El id sale de la URL (/panel/:id/certificado)
   const navigate = useNavigate()
-  const { usuario } = useSesion()
+  const dispatch = useDispatch()
   const { id } = useParams()
+  const { usuario } = useSelector((state) => state.usuario)
+  const { items: apadrinamientos, loading, error } = useSelector((state) => state.apadrinamientos)
+  // false hasta que termina el pedido de esta página (ver DetalleApadrinado)
+  const [listo, setListo] = useState(false)
 
-  const { item, cargando, error } = useApadrinamientoDe(id)
+  useEffect(() => {
+    dispatch(traerApadrinamientos()).then(() => {
+      setListo(true)
+    })
+  }, [dispatch])
 
-  if (cargando) {
+  const item = apadrinamientos.find((a) => a.activo && a.animal.id === Number(id))
+
+  if (loading || !listo) {
     return <Cargando texto="Preparando tu certificado…" />
   }
 

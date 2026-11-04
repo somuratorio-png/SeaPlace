@@ -1,13 +1,12 @@
 import { useState } from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import { Navigate, useLocation, useNavigate } from 'react-router-dom'
 import Portada from '../comunes/Portada'
 import FormularioTarjeta from './FormularioTarjeta'
 import ResumenPedido from './ResumenPedido'
-import { zarpar } from '../../services/apadrinar'
-import { useSesion } from '../../hooks/useSesion'
+import { vaciarMuelle, zarpar } from '../../Redux/muelleSlice'
 import { totalMuelle } from '../../utils/precios'
 import { limpiarCampoTarjeta, validarTarjeta } from '../../utils/tarjeta'
-import { useMuelle } from '../../hooks/useMuelle'
 
 const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 
@@ -18,10 +17,10 @@ const formularioVacio = { titular: '', numero: '', vencimiento: '', codigo: '' }
 // Los campos de la tarjeta no dejan escribir de más: solo números y hasta el largo justo.
 // Antes de confirmar se revisa que el número esté completo, que la tarjeta no esté vencida y el código.
 const FormularioZarpar = () => {
-  const { token } = useSesion()
   const navigate = useNavigate()
+  const dispatch = useDispatch()
   const { state } = useLocation()
-  const { idMuelle, items: muelle, vaciar } = useMuelle()
+  const { items: muelle } = useSelector((state) => state.muelle)
   const conBotiquin = state !== null && state.conBotiquin === true
 
   const [datos, setDatos] = useState(formularioVacio)
@@ -45,18 +44,19 @@ const FormularioZarpar = () => {
 
     // El backend vuelve a validar los cupos, convierte cada ítem en un apadrinamiento y cierra el muelle.
     // Si sale bien, se pasa a la página de gracias y este formulario desaparece
+    // dispatch devuelve la action con la que terminó: si es la "rejected" trae el mensaje en action.error
     setEnviando(true)
-    zarpar(token, idMuelle, conBotiquin)
-      .then((totalPagado) => {
-        const apadrinados = muelle.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan }))
-        setZarpado(true)
-        vaciar()
-        navigate('/gracias', { state: { zarpar: { apadrinados, total: totalPagado } } })
-      })
-      .catch((falla) => {
-        setError(falla.message)
+    dispatch(zarpar(conBotiquin)).then((accion) => {
+      if (accion.error) {
+        setError(accion.error.message)
         setEnviando(false)
-      })
+        return
+      }
+      const apadrinados = muelle.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan }))
+      setZarpado(true)
+      dispatch(vaciarMuelle())
+      navigate('/gracias', { state: { zarpar: { apadrinados, total: accion.payload } } })
+    })
   }
 
   // Con el muelle vacío no hay nada que pagar. Justo después de zarpar también queda vacío,

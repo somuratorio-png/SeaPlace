@@ -1,7 +1,6 @@
-import * as usuariosApi from '../../services/usuarios'
-import { useSesion } from '../../hooks/useSesion'
+import { useDispatch, useSelector } from 'react-redux'
+import { asignarPermisos, crearPermiso, crearRol } from '../../Redux/rolesSlice'
 import { intentar } from '../../utils/intentar'
-import { ponerEn } from '../../utils/listas'
 import EstadoCarga from '../comunes/EstadoCarga'
 import MensajeVacio from '../comunes/MensajeVacio'
 import TituloSeccion from '../comunes/TituloSeccion'
@@ -12,30 +11,20 @@ import TarjetaRol from './TarjetaRol'
 // Sección "Roles y permisos" del administrador: qué permisos tiene cada rol, y los formularios
 // para crear un rol o un permiso nuevo. Un permiso es lo que el backend exige para ciertas rutas
 // (por ejemplo GESTIONAR_USUARIOS); un rol es un conjunto de permisos.
-// Los roles y los permisos los pide SeccionesAdmin.
-// Cada acción llama al backend y, con lo que contesta, actualiza la lista. Si falla, onError muestra el mensaje.
-const SeccionRoles = ({ roles, setRoles, permisos, setPermisos, cargando, error, onError }) => {
-  const { token } = useSesion()
-
-  // Pone en la lista el rol como lo devolvió el backend (uno nuevo, o uno con sus permisos cambiados)
-  const guardarRol = (rol) => {
-    setRoles((actuales) => ponerEn(actuales, rol))
-  }
+// Los roles y los permisos los pide SeccionesAdmin y se leen del estado global.
+// Cada acción llama al backend y, con lo que contesta, se actualiza el estado global. Si falla, onError muestra el mensaje.
+const SeccionRoles = ({ onError }) => {
+  const dispatch = useDispatch()
+  const { items: roles, permisos, loading: cargando, error } = useSelector((state) => state.roles)
 
   // Reemplaza todos los permisos del rol por los elegidos.
   // Devuelve una promesa con el mensaje de error, o null si salió bien (lo usa la tarjeta del rol).
-  const asignar = (idRol, idsPermisos) => intentar(usuariosApi.asignarPermisos(token, idRol, idsPermisos).then(guardarRol), onError)
+  const asignar = (idRol, idsPermisos) => intentar(dispatch(asignarPermisos({ idRol, idPermisos: idsPermisos })), onError)
 
   // Las dos devuelven una promesa con el mensaje de error, o null si salió bien (lo usa el formulario)
-  const crearRol = (nombre) => intentar(usuariosApi.crearRol(token, nombre).then(guardarRol), onError)
+  const nuevoRol = (nombre) => intentar(dispatch(crearRol(nombre)), onError)
 
-  const crearPermiso = (nombre, descripcion) =>
-    intentar(
-      usuariosApi.crearPermiso(token, nombre, descripcion).then((nuevo) => {
-        setPermisos((actuales) => [...actuales, nuevo])
-      }),
-      onError,
-    )
+  const nuevoPermiso = (nombre, descripcion) => intentar(dispatch(crearPermiso({ nombrePermiso: nombre, descripcion })), onError)
 
   if (cargando || error) {
     return <EstadoCarga cargando={cargando} error={error} texto="Cargando los roles…" />
@@ -56,8 +45,8 @@ const SeccionRoles = ({ roles, setRoles, permisos, setPermisos, cargando, error,
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-space-md items-start">
-        <FormularioRol onCrear={crearRol} />
-        <FormularioPermiso onCrear={crearPermiso} />
+        <FormularioRol onCrear={nuevoRol} />
+        <FormularioPermiso onCrear={nuevoPermiso} />
       </div>
     </section>
   )

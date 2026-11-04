@@ -1,13 +1,13 @@
 import { useState } from 'react'
+import { useSelector } from 'react-redux'
 import { planesDe } from '../../utils/precios'
 import Modal from '../comunes/Modal'
 import Precio from '../comunes/Precio'
-import { usePlanes } from '../../hooks/usePlanes'
 
 // Permite pasar a otro plan o cancelar el apadrinamiento.
 // Cancelar pide una segunda confirmación (un modal) para que no pase por un clic de más.
 const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
-  const planesBase = usePlanes()
+  const { items: planesBase } = useSelector((state) => state.planes)
   const planes = planesDe(item.animal, planesBase)
   const [isVisible, setIsVisible] = useState(false)
 

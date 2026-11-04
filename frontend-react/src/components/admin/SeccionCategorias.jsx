@@ -1,5 +1,5 @@
-import { crearCategoria } from '../../services/animales'
-import { useSesion } from '../../hooks/useSesion'
+import { useDispatch, useSelector } from 'react-redux'
+import { crearCategoria } from '../../Redux/categoriasSlice'
 import { intentar } from '../../utils/intentar'
 import EstadoCarga from '../comunes/EstadoCarga'
 import MensajeVacio from '../comunes/MensajeVacio'
@@ -8,18 +8,20 @@ import FormularioCategoria from './FormularioCategoria'
 import TarjetaCategoria from './TarjetaCategoria'
 
 // Sección "Categorías" del administrador: las que existen (con cuántos animales publicados tiene cada una)
-// y el formulario para crear una nueva. Las categorías y los animales publicados los pide SeccionesAdmin.
-const SeccionCategorias = ({ categorias, setCategorias, publicados, cargando, error }) => {
-  const { token } = useSesion()
+// y el formulario para crear una nueva. Las categorías y los animales publicados los pide SeccionesAdmin
+// y se leen del estado global.
+const SeccionCategorias = () => {
+  const dispatch = useDispatch()
+  const { items: categorias, loading: cargandoCategorias, error: errorCategorias } = useSelector((state) => state.categorias)
+  const animales = useSelector((state) => state.animales)
+  const cargando = cargandoCategorias || animales.loading
+  const error = errorCategorias ?? animales.error
 
-  // La categoría nueva se agrega a la lista con lo que devuelve el backend.
+  const publicados = animales.publicaciones.filter((animal) => animal.publicacion === 'ACTIVA')
+
+  // La categoría nueva queda en el estado global con lo que devuelve el backend.
   // Devuelve una promesa con el mensaje de error (lo muestra el formulario), o null si salió bien.
-  const crear = (nombre, descripcion) =>
-    intentar(
-      crearCategoria(token, nombre, descripcion).then((nueva) => {
-        setCategorias((actuales) => [...actuales, nueva])
-      }),
-    )
+  const crear = (nombre, descripcion) => intentar(dispatch(crearCategoria({ nombreCategoria: nombre, descripcion })))
 
   if (cargando || error) {
     return <EstadoCarga cargando={cargando} error={error} texto="Cargando las categorías…" />
