@@ -5,7 +5,7 @@ import { pedir, pedirLista, pedirPagina, URL_BASE } from './api'
 
 // Una foto subida como archivo tiene una url de la API (empieza con /animales/): hay que pedirla
 // a través del proxy. Las demás son urls completas o imágenes que sirve el propio front.
-const urlDeFoto = (url) => (url.startsWith('/animales/') ? `${URL_BASE}${url}` : url)
+export const urlDeFoto = (url) => (url.startsWith('/animales/') ? `${URL_BASE}${url}` : url)
 
 // Pasa un animal del backend (AnimalResponse) al formato que usan los componentes.
 // precio: la cuota del plan Guardián de la Bahía (la del catálogo). preciosPorPlan: { GUARDIAN_DE_LA_BAHIA: 20, MAREA_PROFUNDA: 40 }, sin descuentos.
@@ -13,7 +13,7 @@ const urlDeFoto = (url) => (url.startsWith('/animales/') ? `${URL_BASE}${url}` :
 // publicacion: 'ACTIVA' | 'PAUSADA' | 'PENDIENTE' (espera que un administrador la apruebe). progreso: porcentaje de cupos ya tomados.
 // descuento: { id, porcentaje, hasta } si hoy está en oferta, o null.
 // sinFotos: true si el refugio todavía no le subió ninguna (se muestra una genérica).
-const aDescuento = (dato) => ({ id: dato.idDescuento, porcentaje: dato.porcentaje, hasta: dato.fechaFin })
+export const aDescuento = (dato) => ({ id: dato.idDescuento, porcentaje: dato.porcentaje, hasta: dato.fechaFin })
 
 export const aAnimal = (dato) => {
   const urgencia = (dato.urgencia ?? 'RECUPERACION').toLowerCase()
@@ -60,7 +60,7 @@ const iconoDe = (nombre) => {
   return 'pets'
 }
 
-const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
+export const aCategoria = (dato) => ({ id: dato.idCategoria, nombre: dato.nombreCategoria, icono: iconoDe(dato.nombreCategoria) })
 
 // [{ id, nombre, icono }]
 export const traerCategorias = (token) => pedirLista(token, '/categorias').then((categorias) => categorias.map(aCategoria))
@@ -89,28 +89,28 @@ export const aprobarAnimal = (token, idAnimal) => pedir(token, `/animales/${idAn
 // La rechaza un administrador: queda eliminada y el refugio recibe una notificación con el motivo (si se escribió)
 export const rechazarAnimal = (token, idAnimal, motivo) => pedir(token, `/animales/${idAnimal}/rechazar`, { metodo: 'PUT', cuerpo: { motivo } })
 
-// datos = lo que carga el formulario del refugio. El refugio no se manda: el backend usa el de la cuenta.
-export const crearAnimal = (token, datos) =>
-  pedir(token, '/animales', {
-    metodo: 'POST',
-    cuerpo: {
-      idCategoria: Number(datos.categoria),
-      nombreAnimal: datos.nombre,
-      especie: datos.especie,
-      edad: datos.edad,
-      ubicacion: datos.ubicacion,
-      urgencia: datos.urgencia.toUpperCase(),
-      condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
-      descripcion: datos.descripcion,
-      cuotaApadrinamiento: Number(datos.precio),
-      precioMareaProfunda: Number(datos.precioMarea),
-      cuposTotales: Number(datos.cuposTotales),
-    },
-  }).then(aAnimal)
+// Pasa lo que carga el formulario del refugio al cuerpo que espera el backend (para crear y para editar).
+// El refugio no se manda: el backend usa el de la cuenta.
+export const aCuerpoAnimal = (datos) => ({
+  idCategoria: Number(datos.categoria),
+  nombreAnimal: datos.nombre,
+  especie: datos.especie,
+  edad: datos.edad,
+  ubicacion: datos.ubicacion,
+  urgencia: datos.urgencia.toUpperCase(),
+  condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
+  descripcion: datos.descripcion,
+  cuotaApadrinamiento: Number(datos.precio),
+  precioMareaProfunda: Number(datos.precioMarea),
+  cuposTotales: Number(datos.cuposTotales),
+})
+
+// datos = lo que carga el formulario del refugio
+export const crearAnimal = (token, datos) => pedir(token, '/animales', { metodo: 'POST', cuerpo: aCuerpoAnimal(datos) }).then(aAnimal)
 
 // Lo que cambia entre el animal publicado (AnimalResponse) y lo que pidió su refugio (cambio), campo por campo:
 // [{ campo: 'Edad', antes: '2 años', despues: '3 años', esPrecio: false }]. Solo van los que de verdad cambian.
-const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
+export const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
   const campos = [
     { campo: 'Categoría', antes: actual.nombreCategoria, despues: cambio.idCategoria === actual.idCategoria ? null : nombreCategoriaPropuesta },
     { campo: 'Nombre', antes: actual.nombreAnimal, despues: cambio.nombreAnimal },
@@ -143,23 +143,7 @@ export const rechazarCambios = (token, idAnimal, motivo) => pedir(token, `/anima
 // Corrige los datos de un animal. "datos" tiene los mismos campos que al crearlo. Si todavía espera la aprobación,
 // se aplican enseguida; si ya está publicado, quedan como pedido de cambio hasta que los revise un administrador
 // (el animal vuelve igual, con cambioPendiente: true).
-export const editarAnimal = (token, idAnimal, datos) =>
-  pedir(token, `/animales/${idAnimal}`, {
-    metodo: 'PUT',
-    cuerpo: {
-      idCategoria: Number(datos.categoria),
-      nombreAnimal: datos.nombre,
-      especie: datos.especie,
-      edad: datos.edad,
-      ubicacion: datos.ubicacion,
-      urgencia: datos.urgencia.toUpperCase(),
-      condicion: urgencias.find((u) => u.id === datos.urgencia).estado,
-      descripcion: datos.descripcion,
-      cuotaApadrinamiento: Number(datos.precio),
-      precioMareaProfunda: Number(datos.precioMarea),
-      cuposTotales: Number(datos.cuposTotales),
-    },
-  }).then(aAnimal)
+export const editarAnimal = (token, idAnimal, datos) => pedir(token, `/animales/${idAnimal}`, { metodo: 'PUT', cuerpo: aCuerpoAnimal(datos) }).then(aAnimal)
 
 export const quitarAnimal = (token, idAnimal) => pedir(token, `/animales/${idAnimal}`, { metodo: 'DELETE' })
 

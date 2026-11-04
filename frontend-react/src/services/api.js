@@ -4,7 +4,7 @@ export const URL_BASE = '/api'
 
 // El backend manda sus errores como { mensaje: '...' }. Si la respuesta no trae uno
 // (por ejemplo, cuando falta iniciar sesión), se arma un texto según el código.
-const mensajeDeError = (estado, datos) => {
+export const mensajeDeError = (estado, datos) => {
   if (datos && datos.mensaje) return datos.mensaje
   if (estado === 401 || estado === 403) return 'Necesitás iniciar sesión (o no tenés permiso) para hacer esto'
   if (estado >= 500) return 'El servidor no responde. Revisá que el backend esté levantado'

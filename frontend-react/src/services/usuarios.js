@@ -7,7 +7,7 @@ const rolDelFront = (nombreRol) => (nombreRol === 'duenioRefugio' ? 'refugio' : 
 
 // Pasa un usuario del backend (UsuarioResponse) al formato que usan los componentes.
 // aprobado solo importa para los refugios: false = todavía espera que un administrador lo apruebe.
-const aUsuario = (dato) => ({
+export const aUsuario = (dato) => ({
   id: dato.idUsuario,
   nombre: dato.nombre,
   apellido: dato.apellido,
@@ -34,7 +34,7 @@ export const aSesion = (planes, dato) => ({
 
 // Los dos devuelven { token, sesion }: el token de quien queda logueado (ProveedorSesion lo guarda en su estado
 // para los pedidos siguientes) y su sesión. La respuesta del login ya trae la sesión: no hace falta pedir nada más.
-const entrarCon = (planes, respuesta) => ({ token: respuesta.access_token, sesion: aSesion(planes, respuesta.sesion) })
+export const entrarCon = (planes, respuesta) => ({ token: respuesta.access_token, sesion: aSesion(planes, respuesta.sesion) })
 
 export const ingresar = (planes, nombreUsuario, contrasenia) =>
   pedir(null, '/auth/authenticate', { metodo: 'POST', cuerpo: { nombreUsuario, contrasenia } }).then((respuesta) => entrarCon(planes, respuesta))
@@ -73,9 +73,9 @@ export const traerUsuarios = (token) => pedirPagina(token, '/usuarios').then((us
 
 // Un rol con el nombre que se usa en las pantallas. permisos = los nombres de los permisos
 // que tiene (el backend no manda el campo si no tiene ninguno)
-const aRol = (dato) => ({ id: dato.idRol, nombre: rolDelFront(dato.nombreRol), permisos: dato.permisos ?? [] })
+export const aRol = (dato) => ({ id: dato.idRol, nombre: rolDelFront(dato.nombreRol), permisos: dato.permisos ?? [] })
 
-const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, descripcion: dato.descripcion ?? '' })
+export const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, descripcion: dato.descripcion ?? '' })
 
 // Las que crean o modifican algo devuelven lo que contestó el backend (el rol, el permiso o el
 // usuario, ya en el formato de las pantallas): con eso se actualiza el estado sin volver a pedir la lista.

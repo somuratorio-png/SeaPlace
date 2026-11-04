@@ -6,7 +6,7 @@ import com.uade.tpo.SeaPlace.entity.Usuario;
 
 import lombok.Data;
 
-// Sin contrasenia a proposito: este DTO existe para que no viaje en las respuestas.
+// Sin contrasenia >;/
 @Data
 public class UsuarioResponse {
     private Long idUsuario;

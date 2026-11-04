@@ -64,7 +64,7 @@ export const zarpar = (token, idMuelle, conBotiquin) => pedir(token, '/zarpar', 
 // usuario = nombre de usuario del padrino. desde y las fechas de los pagos son texto 'AAAA-MM-DD'.
 // novedades = la bitácora del animal, de la más nueva a la más vieja. ultimaUbicacion = la última
 // posición que informó el refugio, o null si nunca informó una.
-const aApadrinamiento = (planes, dato) => {
+export const aApadrinamiento = (planes, dato) => {
   const animal = aAnimal(dato.animal)
   return {
     id: dato.idApadrinamiento,
