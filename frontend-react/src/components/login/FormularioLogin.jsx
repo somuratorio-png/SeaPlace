@@ -45,7 +45,7 @@ const FormularioLogin = () => {
     }
     dispatch(agregarAlMuelle({ idAnimal: state.pendiente.idAnimal, codigoPlan: state.pendiente.codigoPlan })).then((accion) => {
       if (accion.error) {
-        navigate('/panel', { replace: true, state: { error: accion.error.message } })
+        navigate('/panel', { replace: true, state: { error: accion.payload ? accion.payload.mensaje : accion.error.message } })
       } else {
         navigate('/muelle')
       }
@@ -53,11 +53,13 @@ const FormularioLogin = () => {
   }
 
   // dispatch devuelve una promesa con la action con la que terminó: la "fulfilled" trae la sesión en payload
-  // y la "rejected" el mensaje en error. Devuelve una promesa con el mensaje de error, o null si salió bien.
+  // y la "rejected" el mensaje del backend en action.payload.mensaje (ver rejectWithValue en los thunks),
+  // o el genérico de axios en action.error.message si el thunk no lo manda.
+  // Devuelve una promesa con el mensaje de error, o null si salió bien.
   const entrarCon = (despacho) =>
     despacho.then((accion) => {
       if (accion.error) {
-        return accion.error.message
+        return accion.payload ? accion.payload.mensaje : accion.error.message
       }
       llevarPendiente(accion.payload.sesion.usuario)
       return null

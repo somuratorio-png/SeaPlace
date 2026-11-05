@@ -7,9 +7,13 @@ import { alEmpezar, alFallar } from './casos'
 // Espeja PlanService del backend. Los 3 niveles de apadrinamiento: [{ codigo, nombre, multiplicador, texto, ubicacionEnVivo }]
 // Llegan con el pedido inicial (/inicio), que se hace una sola vez al abrir la página.
 
-export const traerPlanes = createAsyncThunk('planes/traerPlanes', async () => {
-  const { data } = await axios.get(`${URL_BASE}/inicio`)
-  return aPlanes(data.planes)
+export const traerPlanes = createAsyncThunk('planes/traerPlanes', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/inicio`)
+    return aPlanes(data.planes)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

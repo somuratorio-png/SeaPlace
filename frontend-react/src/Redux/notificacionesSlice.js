@@ -9,13 +9,21 @@ import { salir } from './usuarioSlice'
 // Las comparten la campanita del header y el panel del refugio: al leerlas en un lado, el número baja en los dos.
 
 // Las de quien está logueado, de la más nueva a la más vieja
-export const traerNotificaciones = createAsyncThunk('notificaciones/traerNotificaciones', async (_, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/notificaciones`, conToken(getState))
-  return comoLista(data).map(aNotificacion)
+export const traerNotificaciones = createAsyncThunk('notificaciones/traerNotificaciones', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/notificaciones`, conToken(getState))
+    return comoLista(data).map(aNotificacion)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const marcarLeidas = createAsyncThunk('notificaciones/marcarLeidas', async (_, { getState }) => {
-  await axios.put(`${URL_BASE}/notificaciones/leidas`, null, conToken(getState))
+export const marcarLeidas = createAsyncThunk('notificaciones/marcarLeidas', async (_, { getState, rejectWithValue }) => {
+  try {
+    await axios.put(`${URL_BASE}/notificaciones/leidas`, null, conToken(getState))
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

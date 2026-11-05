@@ -26,7 +26,7 @@ export const useGestionRefugio = (propios) => {
           return dispatch(animales.subirFoto({ animal: resultado.payload, archivo }))
         }),
       Promise.resolve({ payload: animal }),
-    ).then((resultado) => (resultado.error ? resultado.error.message : null))
+    ).then((resultado) => (resultado.error ? (resultado.payload ? resultado.payload.mensaje : resultado.error.message) : null))
 
   // Revisa lo básico, publica el animal y después le sube las fotos elegidas.
   // Devuelve una promesa con un mensaje de error (lo muestra el formulario), o null si salió bien.
@@ -38,7 +38,7 @@ export const useGestionRefugio = (propios) => {
 
     return dispatch(animales.crearAnimal(datos)).then((accion) => {
       if (accion.error) {
-        return accion.error.message
+        return accion.payload ? accion.payload.mensaje : accion.error.message
       }
       return subirFotos(accion.payload, fotos)
     })

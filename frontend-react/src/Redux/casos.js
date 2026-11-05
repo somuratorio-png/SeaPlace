@@ -12,10 +12,11 @@ export const alEmpezar = (state) => {
   state.error = null
 }
 
-// GET rejected: terminó mal; axios deja en action.error.message qué falló (por ejemplo "Request failed with status code 404")
+// GET rejected: terminó mal; el mensaje sale del backend (action.payload.mensaje, ver rejectWithValue en los thunks)
+// o, si el thunk no lo manda, del genérico de axios en action.error.message
 export const alFallar = (state, action) => {
   state.loading = false
-  state.error = action.error.message
+  state.error = action.payload ? action.payload.mensaje : action.error.message
 }
 
 // POST/PUT/DELETE pending
@@ -27,5 +28,5 @@ export const alEnviar = (state) => {
 // POST/PUT/DELETE rejected
 export const alFallarEnvio = (state, action) => {
   state.enviando = false
-  state.errorAccion = action.error.message
+  state.errorAccion = action.payload ? action.payload.mensaje : action.error.message
 }

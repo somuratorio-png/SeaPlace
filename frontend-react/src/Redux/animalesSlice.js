@@ -13,113 +13,181 @@ import { darDeBaja } from './usuariosSlice'
 // ---------- GET ----------
 
 // El catálogo: las publicaciones activas, que son públicas
-export const traerAnimales = createAsyncThunk('animales/traerAnimales', async () => {
-  const { data } = await axios.get(`${URL_BASE}/animales`)
-  return comoPagina(data).map(aAnimal)
+export const traerAnimales = createAsyncThunk('animales/traerAnimales', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/animales`)
+    return comoPagina(data).map(aAnimal)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Un animal por su id (la ficha). Va con el token: su refugio puede ver la publicación aunque no esté activa.
-export const traerAnimal = createAsyncThunk('animales/traerAnimal', async (idAnimal, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
-  return aAnimal(data)
+export const traerAnimal = createAsyncThunk('animales/traerAnimal', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Las activas, pausadas y pendientes, para los paneles de gestión. Con idRefugio solo las de ese refugio;
 // sin idRefugio (el administrador), las de todos.
-export const traerPublicaciones = createAsyncThunk('animales/traerPublicaciones', async (idRefugio, { getState }) => {
-  const filtro = idRefugio ? `&idRefugio=${idRefugio}` : ''
-  const { data } = await axios.get(`${URL_BASE}/animales?estado=ACTIVA,PAUSADA,PENDIENTE${filtro}`, conToken(getState))
-  return comoPagina(data).map(aAnimal)
+export const traerPublicaciones = createAsyncThunk('animales/traerPublicaciones', async (idRefugio, { getState, rejectWithValue }) => {
+  try {
+    const filtro = idRefugio ? `&idRefugio=${idRefugio}` : ''
+    const { data } = await axios.get(`${URL_BASE}/animales?estado=ACTIVA,PAUSADA,PENDIENTE${filtro}`, conToken(getState))
+    return comoPagina(data).map(aAnimal)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Los cambios que pidieron los refugios sobre publicaciones ya aprobadas: [{ animal, cambios }]
-export const traerCambiosPendientes = createAsyncThunk('animales/traerCambiosPendientes', async (_, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/animales/cambios-pendientes`, conToken(getState))
-  return comoLista(data).map((pendiente) => ({
-    animal: aAnimal(pendiente.animal),
-    cambios: diferencias(pendiente.animal, pendiente.cambio, pendiente.nombreCategoriaPropuesta),
-  }))
+export const traerCambiosPendientes = createAsyncThunk('animales/traerCambiosPendientes', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/animales/cambios-pendientes`, conToken(getState))
+    return comoLista(data).map((pendiente) => ({
+      animal: aAnimal(pendiente.animal),
+      cambios: diferencias(pendiente.animal, pendiente.cambio, pendiente.nombreCategoriaPropuesta),
+    }))
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // ---------- POST / PUT / DELETE ----------
 
 // datos = lo que carga el formulario del refugio
-export const crearAnimal = createAsyncThunk('animales/crearAnimal', async (datos, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales`, aCuerpoAnimal(datos), conToken(getState))
-  return aAnimal(data)
+export const crearAnimal = createAsyncThunk('animales/crearAnimal', async (datos, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/animales`, aCuerpoAnimal(datos), conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Si ya está publicado, los cambios quedan pendientes de aprobación (vuelve con cambioPendiente: true)
-export const editarAnimal = createAsyncThunk('animales/editarAnimal', async ({ idAnimal, datos }, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, aCuerpoAnimal(datos), conToken(getState))
-  return aAnimal(data)
+export const editarAnimal = createAsyncThunk('animales/editarAnimal', async ({ idAnimal, datos }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, aCuerpoAnimal(datos), conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // estado: 'ACTIVA' la muestra en el catálogo; 'PAUSADA' la oculta sin eliminarla
-export const cambiarPublicacion = createAsyncThunk('animales/cambiarPublicacion', async ({ idAnimal, estado }, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, { estado }, conToken(getState))
-  return aAnimal(data)
+export const cambiarPublicacion = createAsyncThunk('animales/cambiarPublicacion', async ({ idAnimal, estado }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, { estado }, conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // No lo borra de la base: la publicación queda eliminada y deja de verse
-export const quitarAnimal = createAsyncThunk('animales/quitarAnimal', async (idAnimal, { getState }) => {
-  await axios.delete(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
-  return idAnimal
+export const quitarAnimal = createAsyncThunk('animales/quitarAnimal', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    await axios.delete(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
+    return idAnimal
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // La aprueba un administrador: pasa a ACTIVA y aparece en el catálogo
-export const aprobarAnimal = createAsyncThunk('animales/aprobarAnimal', async (idAnimal, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/aprobar`, null, conToken(getState))
-  return aAnimal(data)
+export const aprobarAnimal = createAsyncThunk('animales/aprobarAnimal', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/aprobar`, null, conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // La rechaza un administrador: queda eliminada y el refugio recibe el motivo
-export const rechazarAnimal = createAsyncThunk('animales/rechazarAnimal', async ({ idAnimal, motivo }, { getState }) => {
-  await axios.put(`${URL_BASE}/animales/${idAnimal}/rechazar`, { motivo }, conToken(getState))
-  return idAnimal
+export const rechazarAnimal = createAsyncThunk('animales/rechazarAnimal', async ({ idAnimal, motivo }, { getState, rejectWithValue }) => {
+  try {
+    await axios.put(`${URL_BASE}/animales/${idAnimal}/rechazar`, { motivo }, conToken(getState))
+    return idAnimal
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const aprobarCambios = createAsyncThunk('animales/aprobarCambios', async (idAnimal, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/aprobar`, null, conToken(getState))
-  return aAnimal(data)
+export const aprobarCambios = createAsyncThunk('animales/aprobarCambios', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/aprobar`, null, conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const rechazarCambios = createAsyncThunk('animales/rechazarCambios', async ({ idAnimal, motivo }, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/rechazar`, { motivo }, conToken(getState))
-  return aAnimal(data)
+export const rechazarCambios = createAsyncThunk('animales/rechazarCambios', async ({ idAnimal, motivo }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/rechazar`, { motivo }, conToken(getState))
+    return aAnimal(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // "archivo" es el archivo elegido en un <input type="file">: viaja como formulario. Se agrega al final de la galería.
 // Devuelve el animal con la foto nueva.
-export const subirFoto = createAsyncThunk('animales/subirFoto', async ({ animal, archivo }, { getState }) => {
-  const formulario = new FormData()
-  formulario.append('archivo', archivo, 'foto.jpg')
-  const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/fotos/archivo`, formulario, conToken(getState))
-  const url = urlDeFoto(data.urlImagen)
-  const fotos = animal.sinFotos ? [url] : [...animal.fotos, url]
-  return { ...animal, fotos, imagen: fotos[0], sinFotos: false }
+export const subirFoto = createAsyncThunk('animales/subirFoto', async ({ animal, archivo }, { getState, rejectWithValue }) => {
+  try {
+    const formulario = new FormData()
+    formulario.append('archivo', archivo, 'foto.jpg')
+    const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/fotos/archivo`, formulario, conToken(getState))
+    const url = urlDeFoto(data.urlImagen)
+    const fotos = animal.sinFotos ? [url] : [...animal.fotos, url]
+    return { ...animal, fotos, imagen: fotos[0], sinFotos: false }
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // La oferta rige desde hoy hasta la fecha elegida
-export const ponerOferta = createAsyncThunk('animales/ponerOferta', async ({ animal, porcentaje, hasta }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/descuentos`, { porcentaje, fechaInicio: hoy(), fechaFin: hasta }, conToken(getState))
-  return { ...animal, descuento: aDescuento(data) }
+export const ponerOferta = createAsyncThunk('animales/ponerOferta', async ({ animal, porcentaje, hasta }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/descuentos`, { porcentaje, fechaInicio: hoy(), fechaFin: hasta }, conToken(getState))
+    return { ...animal, descuento: aDescuento(data) }
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const quitarOferta = createAsyncThunk('animales/quitarOferta', async (animal, { getState }) => {
-  await axios.delete(`${URL_BASE}/animales/${animal.id}/descuentos/${animal.descuento.id}`, conToken(getState))
-  return { ...animal, descuento: null }
+export const quitarOferta = createAsyncThunk('animales/quitarOferta', async (animal, { getState, rejectWithValue }) => {
+  try {
+    await axios.delete(`${URL_BASE}/animales/${animal.id}/descuentos/${animal.descuento.id}`, conToken(getState))
+    return { ...animal, descuento: null }
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // La bitácora y la ubicación las ve el padrino dentro de su apadrinamiento: acá solo se publican
-export const publicarNovedad = createAsyncThunk('animales/publicarNovedad', async ({ idAnimal, texto }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades`, { texto }, conToken(getState))
-  return data
+export const publicarNovedad = createAsyncThunk('animales/publicarNovedad', async ({ idAnimal, texto }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades`, { texto }, conToken(getState))
+    return data
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const registrarUbicacion = createAsyncThunk('animales/registrarUbicacion', async ({ idAnimal, latitud, longitud }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/ubicaciones`, { latitud, longitud }, conToken(getState))
-  return data
+export const registrarUbicacion = createAsyncThunk('animales/registrarUbicacion', async ({ idAnimal, latitud, longitud }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/ubicaciones`, { latitud, longitud }, conToken(getState))
+    return data
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // ---------- Slice ----------

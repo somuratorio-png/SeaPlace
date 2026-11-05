@@ -6,15 +6,23 @@ import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 
 // Espeja CategoriaService del backend. Cada categoría: { id, nombre, icono }
 
-export const traerCategorias = createAsyncThunk('categorias/traerCategorias', async () => {
-  const { data } = await axios.get(`${URL_BASE}/categorias`)
-  return comoLista(data).map(aCategoria)
+export const traerCategorias = createAsyncThunk('categorias/traerCategorias', async (_, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/categorias`)
+    return comoLista(data).map(aCategoria)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Solo la puede crear un administrador
-export const crearCategoria = createAsyncThunk('categorias/crearCategoria', async ({ nombreCategoria, descripcion }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/categorias`, { nombreCategoria, descripcion }, conToken(getState))
-  return aCategoria(data)
+export const crearCategoria = createAsyncThunk('categorias/crearCategoria', async ({ nombreCategoria, descripcion }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/categorias`, { nombreCategoria, descripcion }, conToken(getState))
+    return aCategoria(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

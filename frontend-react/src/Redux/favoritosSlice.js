@@ -9,14 +9,22 @@ import { ingresar, registrar, salir } from './usuarioSlice'
 // No hay un GET propio: llegan con la sesión, al ingresar o registrarse.
 
 // Devuelve el animal que quedó guardado
-export const agregarFavorito = createAsyncThunk('favoritos/agregarFavorito', async (idAnimal, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/favoritos/${idAnimal}`, null, conToken(getState))
-  return aAnimal(data.animal)
+export const agregarFavorito = createAsyncThunk('favoritos/agregarFavorito', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/favoritos/${idAnimal}`, null, conToken(getState))
+    return aAnimal(data.animal)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async (idAnimal, { getState }) => {
-  await axios.delete(`${URL_BASE}/favoritos/${idAnimal}`, conToken(getState))
-  return idAnimal
+export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    await axios.delete(`${URL_BASE}/favoritos/${idAnimal}`, conToken(getState))
+    return idAnimal
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

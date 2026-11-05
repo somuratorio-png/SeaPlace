@@ -12,39 +12,63 @@ import { alEnviar, alFallarEnvio } from './casos'
 // ---------- Acciones asíncronas ----------
 
 // Devuelve { token, sesion }. Los planes hacen falta para armar los ítems del muelle que trae la sesión.
-export const ingresar = createAsyncThunk('usuario/ingresar', async ({ nombreUsuario, contrasenia }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/auth/authenticate`, { nombreUsuario, contrasenia })
-  return entrarCon(planesDe(getState), data)
+export const ingresar = createAsyncThunk('usuario/ingresar', async ({ nombreUsuario, contrasenia }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/auth/authenticate`, { nombreUsuario, contrasenia })
+    return entrarCon(planesDe(getState), data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // datos = { nombre, apellido, mail, nombreUsuario, contrasenia }. Un refugio se registra por otra ruta,
 // que además crea el refugio: no tiene nombre y apellido, así que se manda "Refugio" + su nombre.
-export const registrar = createAsyncThunk('usuario/registrar', async ({ datos, esRefugio }, { getState }) => {
-  const { data } = esRefugio
-    ? await axios.post(`${URL_BASE}/auth/register-refugio`, { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido })
-    : await axios.post(`${URL_BASE}/auth/register`, datos)
-  return entrarCon(planesDe(getState), data)
+export const registrar = createAsyncThunk('usuario/registrar', async ({ datos, esRefugio }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = esRefugio
+      ? await axios.post(`${URL_BASE}/auth/register-refugio`, { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido })
+      : await axios.post(`${URL_BASE}/auth/register`, datos)
+    return entrarCon(planesDe(getState), data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const modificarMiPerfil = createAsyncThunk('usuario/modificarMiPerfil', async ({ nombre, apellido, mail }, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/usuarios/me`, { nombre, apellido, mail }, conToken(getState))
-  return aUsuario(data)
+export const modificarMiPerfil = createAsyncThunk('usuario/modificarMiPerfil', async ({ nombre, apellido, mail }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/usuarios/me`, { nombre, apellido, mail }, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Hay que mandar la contraseña actual: así nadie con la sesión abierta puede cambiarla
-export const cambiarMiContrasenia = createAsyncThunk('usuario/cambiarMiContrasenia', async ({ contraseniaActual, contraseniaNueva }, { getState }) => {
-  await axios.put(`${URL_BASE}/usuarios/me/contrasenia`, { contraseniaActual, contraseniaNueva }, conToken(getState))
+export const cambiarMiContrasenia = createAsyncThunk('usuario/cambiarMiContrasenia', async ({ contraseniaActual, contraseniaNueva }, { getState, rejectWithValue }) => {
+  try {
+    await axios.put(`${URL_BASE}/usuarios/me/contrasenia`, { contraseniaActual, contraseniaNueva }, conToken(getState))
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Olvidé mi contraseña: pide un código de un solo uso (sale impreso en la consola del servidor).
 // Devuelve el mensaje del backend, que es el mismo exista o no el mail.
-export const pedirCodigo = createAsyncThunk('usuario/pedirCodigo', async (mail) => {
-  const { data } = await axios.post(`${URL_BASE}/auth/olvide-contrasenia`, { mail })
-  return data.mensaje
+export const pedirCodigo = createAsyncThunk('usuario/pedirCodigo', async (mail, { rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/auth/olvide-contrasenia`, { mail })
+    return data.mensaje
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const restablecerContrasenia = createAsyncThunk('usuario/restablecerContrasenia', async ({ mail, codigo, contraseniaNueva }) => {
-  await axios.post(`${URL_BASE}/auth/restablecer-contrasenia`, { mail, codigo, contraseniaNueva })
+export const restablecerContrasenia = createAsyncThunk('usuario/restablecerContrasenia', async ({ mail, codigo, contraseniaNueva }, { rejectWithValue }) => {
+  try {
+    await axios.post(`${URL_BASE}/auth/restablecer-contrasenia`, { mail, codigo, contraseniaNueva })
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // ---------- Slice ----------

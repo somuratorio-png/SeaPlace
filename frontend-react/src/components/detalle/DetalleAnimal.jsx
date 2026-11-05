@@ -26,10 +26,11 @@ const DetalleAnimal = () => {
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // El id es parte de las dependencias: si cambia, se pide el otro animal.
-  // dispatch devuelve la action con la que terminó: axios marca los errores 4xx (como el 404) con code 'ERR_BAD_REQUEST'.
+  // dispatch devuelve la action con la que terminó: la "rejected" trae en action.payload el error del backend,
+  // cuyo status es 404 cuando ese animal no existe.
   useEffect(() => {
     dispatch(traerAnimal(id)).then((accion) => {
-      setNoExiste(accion.error !== undefined && accion.error.code === 'ERR_BAD_REQUEST')
+      setNoExiste(accion.payload !== undefined && accion.payload.status === 404)
       setListo(true)
     })
   }, [dispatch, id])

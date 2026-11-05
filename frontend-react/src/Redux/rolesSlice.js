@@ -8,30 +8,50 @@ import { salir } from './usuarioSlice'
 // Espeja RolService y PermisoService del backend (van juntos: un rol es su lista de permisos).
 // Solo los puede usar un administrador. Rol: { id, nombre, permisos }. Permiso: { id, nombre, descripcion }.
 
-export const traerRoles = createAsyncThunk('roles/traerRoles', async (_, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/roles`, conToken(getState))
-  return comoLista(data).map(aRol)
+export const traerRoles = createAsyncThunk('roles/traerRoles', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/roles`, conToken(getState))
+    return comoLista(data).map(aRol)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const traerPermisos = createAsyncThunk('roles/traerPermisos', async (_, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/permisos`, conToken(getState))
-  return comoLista(data).map(aPermiso)
+export const traerPermisos = createAsyncThunk('roles/traerPermisos', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/permisos`, conToken(getState))
+    return comoLista(data).map(aPermiso)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const crearRol = createAsyncThunk('roles/crearRol', async (nombreRol, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/roles`, { nombreRol }, conToken(getState))
-  return aRol(data)
+export const crearRol = createAsyncThunk('roles/crearRol', async (nombreRol, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/roles`, { nombreRol }, conToken(getState))
+    return aRol(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const crearPermiso = createAsyncThunk('roles/crearPermiso', async ({ nombrePermiso, descripcion }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/permisos`, { nombrePermiso, descripcion }, conToken(getState))
-  return aPermiso(data)
+export const crearPermiso = createAsyncThunk('roles/crearPermiso', async ({ nombrePermiso, descripcion }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/permisos`, { nombrePermiso, descripcion }, conToken(getState))
+    return aPermiso(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Reemplaza todos los permisos del rol por los de la lista (ids)
-export const asignarPermisos = createAsyncThunk('roles/asignarPermisos', async ({ idRol, idPermisos }, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/roles/${idRol}/permisos`, { idPermisos }, conToken(getState))
-  return aRol(data)
+export const asignarPermisos = createAsyncThunk('roles/asignarPermisos', async ({ idRol, idPermisos }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/roles/${idRol}/permisos`, { idPermisos }, conToken(getState))
+    return aRol(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

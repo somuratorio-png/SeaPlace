@@ -8,31 +8,51 @@ import { salir } from './usuarioSlice'
 // La administración de cuentas: espeja la parte de administrador de UsuarioService y RefugioService.
 // Solo las puede usar un administrador. (Quién inició sesión vive en usuarioSlice.)
 
-export const traerUsuarios = createAsyncThunk('usuarios/traerUsuarios', async (_, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/usuarios`, conToken(getState))
-  return comoPagina(data).map(aUsuario)
+export const traerUsuarios = createAsyncThunk('usuarios/traerUsuarios', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/usuarios`, conToken(getState))
+    return comoPagina(data).map(aUsuario)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado
-export const cambiarRol = createAsyncThunk('usuarios/cambiarRol', async ({ idUsuario, idRol }, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/rol`, { idRol }, conToken(getState))
-  return aUsuario(data)
+export const cambiarRol = createAsyncThunk('usuarios/cambiarRol', async ({ idUsuario, idRol }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/rol`, { idRol }, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // No borra al usuario: lo deja inactivo. Si es un refugio, el backend pausa sus publicaciones (ver animalesSlice).
-export const darDeBaja = createAsyncThunk('usuarios/darDeBaja', async (idUsuario, { getState }) => {
-  const { data } = await axios.delete(`${URL_BASE}/usuarios/${idUsuario}`, conToken(getState))
-  return aUsuario(data)
+export const darDeBaja = createAsyncThunk('usuarios/darDeBaja', async (idUsuario, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.delete(`${URL_BASE}/usuarios/${idUsuario}`, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const reactivar = createAsyncThunk('usuarios/reactivar', async (idUsuario, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/reactivar`, null, conToken(getState))
-  return aUsuario(data)
+export const reactivar = createAsyncThunk('usuarios/reactivar', async (idUsuario, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/reactivar`, null, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const aprobarRefugio = createAsyncThunk('usuarios/aprobarRefugio', async (idRefugio, { getState }) => {
-  await axios.put(`${URL_BASE}/refugios/${idRefugio}/aprobar`, null, conToken(getState))
-  return idRefugio
+export const aprobarRefugio = createAsyncThunk('usuarios/aprobarRefugio', async (idRefugio, { getState, rejectWithValue }) => {
+  try {
+    await axios.put(`${URL_BASE}/refugios/${idRefugio}/aprobar`, null, conToken(getState))
+    return idRefugio
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

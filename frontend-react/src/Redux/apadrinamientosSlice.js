@@ -10,20 +10,32 @@ import { salir } from './usuarioSlice'
 
 // Los que le corresponden a quien está logueado: un padrino recibe los suyos (también los cancelados,
 // para el historial), un refugio los de sus animales y un administrador todos
-export const traerApadrinamientos = createAsyncThunk('apadrinamientos/traerApadrinamientos', async (_, { getState }) => {
-  const { data } = await axios.get(`${URL_BASE}/apadrinamientos`, conToken(getState))
-  return comoLista(data).map((dato) => aApadrinamiento(planesDe(getState), dato))
+export const traerApadrinamientos = createAsyncThunk('apadrinamientos/traerApadrinamientos', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/apadrinamientos`, conToken(getState))
+    return comoLista(data).map((dato) => aApadrinamiento(planesDe(getState), dato))
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const cambiarPlan = createAsyncThunk('apadrinamientos/cambiarPlan', async ({ idApadrinamiento, codigoPlan }, { getState }) => {
-  const { data } = await axios.put(`${URL_BASE}/apadrinamientos/${idApadrinamiento}/plan`, { plan: codigoPlan }, conToken(getState))
-  return aApadrinamiento(planesDe(getState), data)
+export const cambiarPlan = createAsyncThunk('apadrinamientos/cambiarPlan', async ({ idApadrinamiento, codigoPlan }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/apadrinamientos/${idApadrinamiento}/plan`, { plan: codigoPlan }, conToken(getState))
+    return aApadrinamiento(planesDe(getState), data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // No lo borra: queda inactivo y sus cupos vuelven a estar disponibles
-export const cancelarApadrinamiento = createAsyncThunk('apadrinamientos/cancelarApadrinamiento', async (idApadrinamiento, { getState }) => {
-  const { data } = await axios.delete(`${URL_BASE}/apadrinamientos/${idApadrinamiento}`, conToken(getState))
-  return aApadrinamiento(planesDe(getState), data)
+export const cancelarApadrinamiento = createAsyncThunk('apadrinamientos/cancelarApadrinamiento', async (idApadrinamiento, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.delete(`${URL_BASE}/apadrinamientos/${idApadrinamiento}`, conToken(getState))
+    return aApadrinamiento(planesDe(getState), data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 const initialState = {

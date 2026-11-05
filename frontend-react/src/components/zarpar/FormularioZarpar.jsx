@@ -48,7 +48,7 @@ const FormularioZarpar = () => {
     setEnviando(true)
     dispatch(zarpar(conBotiquin)).then((accion) => {
       if (accion.error) {
-        setError(accion.error.message)
+        setError(accion.payload ? accion.payload.mensaje : accion.error.message)
         setEnviando(false)
         return
       }

@@ -14,32 +14,48 @@ import { ingresar, registrar, salir } from './usuarioSlice'
 
 // Pone el animal en el muelle. Si ya estaba, solo le cambia el plan (conserva los cupos elegidos).
 // Con id en null (después de zarpar) el backend abre un muelle nuevo: el ítem que devuelve trae su id.
-export const agregarAlMuelle = createAsyncThunk('muelle/agregarAlMuelle', async ({ idAnimal, codigoPlan }, { getState }) => {
-  const muelle = getState().muelle
-  const yaEstaba = muelle.items.find((item) => item.animal.id === idAnimal)
-  const { data } = yaEstaba
-    ? await axios.put(`${URL_BASE}/muelles/${muelle.id}/items/${idAnimal}`, { cantidad: yaEstaba.cantidad, plan: codigoPlan }, conToken(getState))
-    : await axios.post(`${URL_BASE}/muelles/items`, { idMuelle: muelle.id, idAnimal, cantidad: 1, plan: codigoPlan }, conToken(getState))
-  return aItem(planesDe(getState), data)
+export const agregarAlMuelle = createAsyncThunk('muelle/agregarAlMuelle', async ({ idAnimal, codigoPlan }, { getState, rejectWithValue }) => {
+  try {
+    const muelle = getState().muelle
+    const yaEstaba = muelle.items.find((item) => item.animal.id === idAnimal)
+    const { data } = yaEstaba
+      ? await axios.put(`${URL_BASE}/muelles/${muelle.id}/items/${idAnimal}`, { cantidad: yaEstaba.cantidad, plan: codigoPlan }, conToken(getState))
+      : await axios.post(`${URL_BASE}/muelles/items`, { idMuelle: muelle.id, idAnimal, cantidad: 1, plan: codigoPlan }, conToken(getState))
+    return aItem(planesDe(getState), data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // La cantidad va de 1 hasta los cupos que le quedan al animal (igual que valida el backend)
-export const cambiarCantidad = createAsyncThunk('muelle/cambiarCantidad', async ({ item, cantidad }, { getState }) => {
-  const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
-  const { data } = await axios.put(`${URL_BASE}/muelles/${getState().muelle.id}/items/${item.animal.id}`, { cantidad: acotada }, conToken(getState))
-  return aItem(planesDe(getState), data)
+export const cambiarCantidad = createAsyncThunk('muelle/cambiarCantidad', async ({ item, cantidad }, { getState, rejectWithValue }) => {
+  try {
+    const acotada = Math.min(item.animal.cuposDisponibles, Math.max(1, cantidad))
+    const { data } = await axios.put(`${URL_BASE}/muelles/${getState().muelle.id}/items/${item.animal.id}`, { cantidad: acotada }, conToken(getState))
+    return aItem(planesDe(getState), data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
-export const quitarDelMuelle = createAsyncThunk('muelle/quitarDelMuelle', async (idAnimal, { getState }) => {
-  await axios.delete(`${URL_BASE}/muelles/${getState().muelle.id}/items/${idAnimal}`, conToken(getState))
-  return idAnimal
+export const quitarDelMuelle = createAsyncThunk('muelle/quitarDelMuelle', async (idAnimal, { getState, rejectWithValue }) => {
+  try {
+    await axios.delete(`${URL_BASE}/muelles/${getState().muelle.id}/items/${idAnimal}`, conToken(getState))
+    return idAnimal
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // Confirma el muelle: el backend valida los cupos, cobra y crea los apadrinamientos. Devuelve el total pagado.
 // El muelle pagado queda cerrado: quien zarpa lo vacía con vaciarMuelle cuando ya se fue a la página de gracias.
-export const zarpar = createAsyncThunk('muelle/zarpar', async (conBotiquin, { getState }) => {
-  const { data } = await axios.post(`${URL_BASE}/zarpar`, { idMuelle: getState().muelle.id, conBotiquin }, conToken(getState))
-  return data.total
+export const zarpar = createAsyncThunk('muelle/zarpar', async (conBotiquin, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/zarpar`, { idMuelle: getState().muelle.id, conBotiquin }, conToken(getState))
+    return data.total
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
 })
 
 // ---------- Slice ----------
