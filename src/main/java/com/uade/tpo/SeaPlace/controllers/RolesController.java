@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.tpo.SeaPlace.entity.Rol;
 import com.uade.tpo.SeaPlace.entity.dto.RolRequest;
 import com.uade.tpo.SeaPlace.entity.dto.RolResponse;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.RolService;
 
 @RestController
@@ -33,7 +34,8 @@ public class RolesController {
     @GetMapping("/{rolId}")
     public ResponseEntity<RolResponse> getRolById(@PathVariable Long rolId) {
         Optional<Rol> result = rolService.getRolById(rolId);
-        return result.map(r -> ResponseEntity.ok(RolResponse.fromEntity(r))).orElse(ResponseEntity.notFound().build());
+        return result.map(r -> ResponseEntity.ok(RolResponse.fromEntity(r)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el rol con id " + rolId));
     }
 
     @PostMapping

@@ -14,6 +14,7 @@ import com.uade.tpo.SeaPlace.entity.dto.PermisoResponse;
 import com.uade.tpo.SeaPlace.entity.dto.RolResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AsignarPermisosRequest;
 import com.uade.tpo.SeaPlace.entity.Rol;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.PermisoService;
 import com.uade.tpo.SeaPlace.service.RolService;
 
@@ -39,7 +40,8 @@ public class PermisosController {
     @GetMapping("permisos/{permisoId}")
     public ResponseEntity<PermisoResponse> getPermisoById(@PathVariable Long permisoId) {
         Optional<Permiso> result = permisoService.getPermisoById(permisoId);
-        return result.map(p -> ResponseEntity.ok(PermisoResponse.fromEntity(p))).orElse(ResponseEntity.notFound().build());
+        return result.map(p -> ResponseEntity.ok(PermisoResponse.fromEntity(p)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el permiso con id " + permisoId));
     }
 
     @PostMapping("permisos")

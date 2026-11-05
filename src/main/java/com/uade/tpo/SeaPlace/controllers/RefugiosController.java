@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.dto.RefugioRequest;
 import com.uade.tpo.SeaPlace.entity.dto.RefugioResponse;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.RefugioService;
 
 @RestController
@@ -33,7 +34,8 @@ public class RefugiosController {
     @GetMapping("/{refugioId}")
     public ResponseEntity<RefugioResponse> getRefugioById(@PathVariable Long refugioId) {
         Optional<Refugio> result = refugioService.getRefugioById(refugioId);
-        return result.map(r -> ResponseEntity.ok(RefugioResponse.fromEntity(r))).orElse(ResponseEntity.notFound().build());
+        return result.map(r -> ResponseEntity.ok(RefugioResponse.fromEntity(r)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el refugio con id " + refugioId));
     }
 
     @PostMapping

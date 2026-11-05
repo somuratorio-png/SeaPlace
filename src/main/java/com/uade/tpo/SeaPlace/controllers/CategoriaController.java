@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.dto.CategoriaRequest;
 import com.uade.tpo.SeaPlace.entity.dto.CategoriaResponse;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.CategoriaService;
 
 @RestController
@@ -33,7 +34,8 @@ public class CategoriaController {
     @GetMapping("/{categoriaId}")
     public ResponseEntity<CategoriaResponse> getCategoriaById(@PathVariable Long categoriaId) {
         Optional<Categoria> result = categoriaService.getCategoriaById(categoriaId);
-        return result.map(c -> ResponseEntity.ok(CategoriaResponse.fromEntity(c))).orElse(ResponseEntity.notFound().build());
+        return result.map(c -> ResponseEntity.ok(CategoriaResponse.fromEntity(c)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe la categoria con id " + categoriaId));
     }
 
     @PostMapping

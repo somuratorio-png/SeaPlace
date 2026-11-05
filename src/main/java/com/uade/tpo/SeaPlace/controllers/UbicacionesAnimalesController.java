@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.tpo.SeaPlace.entity.UbicacionAnimal;
 import com.uade.tpo.SeaPlace.entity.dto.UbicacionAnimalRequest;
 import com.uade.tpo.SeaPlace.entity.dto.UbicacionAnimalResponse;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.UbicacionAnimalService;
 
 @RestController
@@ -32,7 +33,7 @@ public class UbicacionesAnimalesController {
     public ResponseEntity<UbicacionAnimalResponse> getUltimaUbicacion(@PathVariable Long animalId) {
         return ubicacionAnimalService.getUltimaUbicacion(animalId)
                 .map(u -> ResponseEntity.ok(UbicacionAnimalResponse.fromEntity(u)))
-                .orElse(ResponseEntity.notFound().build());
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe una ubicacion registrada para el animal con id " + animalId));
     }
 
     @PostMapping

@@ -15,6 +15,7 @@ import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
 import com.uade.tpo.SeaPlace.service.UsuarioService;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioPerfilRequest;
 import com.uade.tpo.SeaPlace.entity.dto.CambiarContraseniaRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 
 @RestController
 @RequestMapping("usuarios")
@@ -38,7 +39,8 @@ public class UsuariosController {
     @GetMapping("/{usuarioId}")
     public ResponseEntity<UsuarioResponse> getUsuarioById(@PathVariable Long usuarioId) {
         Optional<Usuario> result = usuarioService.getUsuarioById(usuarioId);
-        return result.map(u -> ResponseEntity.ok(UsuarioResponse.fromEntity(u))).orElse(ResponseEntity.notFound().build());
+        return result.map(u -> ResponseEntity.ok(UsuarioResponse.fromEntity(u)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el usuario con id " + usuarioId));
     }
 
     @PostMapping

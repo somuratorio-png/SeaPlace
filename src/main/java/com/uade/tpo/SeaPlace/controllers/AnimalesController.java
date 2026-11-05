@@ -16,6 +16,7 @@ import com.uade.tpo.SeaPlace.entity.dto.AnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.AnimalUpdateRequest;
 import com.uade.tpo.SeaPlace.entity.dto.CambioPendienteResponse;
 import com.uade.tpo.SeaPlace.entity.dto.RechazoRequest;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.AnimalService;
 
 @RestController
@@ -58,7 +59,8 @@ public class AnimalesController {
     @GetMapping("/{animalId}")
     public ResponseEntity<AnimalResponse> getAnimalById(@PathVariable Long animalId) {
         Optional<Animal> result = animalService.getAnimalById(animalId);
-        return result.map(a -> ResponseEntity.ok(AnimalResponse.fromEntity(a))).orElse(ResponseEntity.notFound().build());
+        return result.map(a -> ResponseEntity.ok(AnimalResponse.fromEntity(a)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el animal con id " + animalId));
     }
 
     @PostMapping

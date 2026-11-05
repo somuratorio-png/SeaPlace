@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import com.uade.tpo.SeaPlace.entity.Zarpar;
 import com.uade.tpo.SeaPlace.entity.dto.ZarparRequest;
 import com.uade.tpo.SeaPlace.entity.dto.ZarparResponse;
+import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.service.ZarparService;
 import com.uade.tpo.SeaPlace.service.AutorizacionService;
 
@@ -43,7 +44,8 @@ public class ZarparsController {
     @GetMapping("/{zarparId}")
     public ResponseEntity<ZarparResponse> getZaparById(@PathVariable Long zarparId) {
         Optional<Zarpar> result = zarparService.getZarparById(zarparId);
-        return result.map(c -> ResponseEntity.ok(ZarparResponse.fromEntity(c))).orElse(ResponseEntity.notFound().build());
+        return result.map(c -> ResponseEntity.ok(ZarparResponse.fromEntity(c)))
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe el zarpar con id " + zarparId));
     }
 
     // confirma la compra a partir del carrito (acá vive la lógica: valida disponibilidad, aplica descuentos, arma el detalle)
