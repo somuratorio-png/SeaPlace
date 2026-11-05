@@ -20,7 +20,7 @@ const ElegirPlan = ({ animal, onError }) => {
   const planes = planesDe(animal, planesBase)
 
   const [planElegido, setPlanElegido] = useState('') // '' = todavía no eligió: vale el primero de la lista
-  const codigoElegido = planElegido === '' ? planes[0]?.codigo : planElegido
+  const codigoElegido = planElegido === '' && planes.length > 0 ? planes[0].codigo : planElegido
 
   const sinCupos = animal.cuposDisponibles === 0
 

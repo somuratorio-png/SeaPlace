@@ -24,7 +24,7 @@ export const precioFinal = (animal) => conDescuento(animal, animal.precio)
 // (ver planesSlice); a cada uno se le agrega su precio para este animal, que eligió el refugio
 // (con el descuento, si está en oferta). Si el backend no lo mandó, sale de la cuota y el multiplicador del plan.
 export const planesDe = (animal, planes) =>
-  planes.map((plan) => ({ ...plan, precio: conDescuento(animal, animal.preciosPorPlan?.[plan.codigo] ?? redondear(animal.precio * plan.multiplicador)) }))
+  planes.map((plan) => ({ ...plan, precio: conDescuento(animal, animal.preciosPorPlan && animal.preciosPorPlan[plan.codigo] ? animal.preciosPorPlan[plan.codigo] : redondear(animal.precio * plan.multiplicador)) }))
 
 // Un solo plan, buscado por su código (por ejemplo 'MAREA_PROFUNDA')
 export const planDe = (animal, planes, codigo) => planesDe(animal, planes).find((plan) => plan.codigo === codigo)

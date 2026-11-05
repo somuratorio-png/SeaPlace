@@ -20,7 +20,7 @@ const PanelRefugio = () => {
   const { publicaciones, loading: cargando, error: errorAnimales } = useSelector((state) => state.animales)
   const { items: todos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
   const { items: categorias, error: errorCategorias } = useSelector((state) => state.categorias)
-  const error = errorAnimales ?? errorApadrinamientos ?? errorCategorias
+  const error = errorAnimales || errorApadrinamientos || errorCategorias
 
   const propios = publicaciones.filter((animal) => animal.idRefugio === usuario.idRefugio)
   // Apadrinamientos activos de los animales de este refugio

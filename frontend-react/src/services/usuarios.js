@@ -18,7 +18,7 @@ export const aUsuario = (dato) => ({
   rol: rolDelFront(dato.nombreRol),
   activo: dato.activo,
   idRefugio: dato.idRefugio,
-  aprobado: dato.refugioAprobado ?? true,
+  aprobado: dato.refugioAprobado !== false,
 })
 
 // Pasa la sesión del backend (SesionResponse) al formato de los slices: quién entró, sus favoritos
@@ -27,8 +27,8 @@ export const aUsuario = (dato) => ({
 // "planes" hacen falta para armar los ítems del muelle (ver aItem).
 export const aSesion = (planes, dato) => ({
   usuario: aUsuario(dato.usuario),
-  favoritos: (dato.favoritos ?? []).map((favorito) => aAnimal(favorito.animal)),
-  muelle: { id: dato.idMuelle ?? null, items: (dato.itemsMuelle ?? []).map((detalle) => aItem(planes, detalle)) },
+  favoritos: (dato.favoritos || []).map((favorito) => aAnimal(favorito.animal)),
+  muelle: { id: dato.idMuelle || null, items: (dato.itemsMuelle || []).map((detalle) => aItem(planes, detalle)) },
 })
 
 // La respuesta del login y del registro: { token, sesion }. El token lo guarda usuarioSlice
@@ -37,6 +37,6 @@ export const entrarCon = (planes, respuesta) => ({ token: respuesta.access_token
 
 // Un rol con el nombre que se usa en las pantallas. permisos = los nombres de los permisos
 // que tiene (el backend no manda el campo si no tiene ninguno)
-export const aRol = (dato) => ({ id: dato.idRol, nombre: rolDelFront(dato.nombreRol), permisos: dato.permisos ?? [] })
+export const aRol = (dato) => ({ id: dato.idRol, nombre: rolDelFront(dato.nombreRol), permisos: dato.permisos || [] })
 
-export const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, descripcion: dato.descripcion ?? '' })
+export const aPermiso = (dato) => ({ id: dato.idPermiso, nombre: dato.nombrePermiso, descripcion: dato.descripcion || '' })

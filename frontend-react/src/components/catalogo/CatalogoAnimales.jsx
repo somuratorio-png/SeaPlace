@@ -34,7 +34,7 @@ const CatalogoAnimales = () => {
   const maximo = errorPrecio || precioMax === '' ? null : aDolares(Number(precioMax), moneda)
   const { items: animales, loading: cargando, error: errorAnimales } = useSelector((state) => state.animales)
   const { items: categorias, error: errorCategorias } = useSelector((state) => state.categorias)
-  const error = errorAnimales ?? errorCategorias
+  const error = errorAnimales || errorCategorias
   const [categoria, setCategoria] = useState('todas')
   const [urgencia, setUrgencia] = useState('todas')
   const [orden, setOrden] = useState('recomendados')

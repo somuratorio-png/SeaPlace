@@ -15,7 +15,7 @@ const SeccionCategorias = () => {
   const { items: categorias, loading: cargandoCategorias, error: errorCategorias } = useSelector((state) => state.categorias)
   const animales = useSelector((state) => state.animales)
   const cargando = cargandoCategorias || animales.loading
-  const error = errorCategorias ?? animales.error
+  const error = errorCategorias || animales.error
 
   const publicados = animales.publicaciones.filter((animal) => animal.publicacion === 'ACTIVA')
 

@@ -18,16 +18,16 @@ export const urlDeFoto = (url) => (url.startsWith('/animales/') ? `${URL_BASE}${
 export const aDescuento = (dato) => ({ id: dato.idDescuento, porcentaje: dato.porcentaje, hasta: dato.fechaFin })
 
 export const aAnimal = (dato) => {
-  const urgencia = (dato.urgencia ?? 'RECUPERACION').toLowerCase()
+  const urgencia = (dato.urgencia || 'RECUPERACION').toLowerCase()
   // Si el animal no tiene fotos, se usa una genérica
   const fotos = dato.fotos.length > 0 ? dato.fotos.map(urlDeFoto) : [heroFoca]
 
   return {
     id: dato.idAnimal,
     nombre: dato.nombreAnimal,
-    descripcion: dato.descripcion ?? '',
+    descripcion: dato.descripcion || '',
     precio: dato.cuotaApadrinamiento,
-    preciosPorPlan: dato.preciosPorPlan ?? {},
+    preciosPorPlan: dato.preciosPorPlan || {},
     cuposTotales: dato.cuposTotales,
     cuposDisponibles: dato.cuposDisponibles,
     publicacion: dato.estado,
@@ -35,16 +35,16 @@ export const aAnimal = (dato) => {
     nombreCategoria: dato.nombreCategoria,
     idRefugio: dato.idRefugio,
     // Los datos de la ficha son opcionales en el backend: si faltan se muestra algo razonable
-    especie: dato.especie ?? dato.nombreCategoria,
-    edad: dato.edad ?? 'Sin datos',
-    ubicacion: dato.ubicacion ?? dato.nombreRefugio,
+    especie: dato.especie || dato.nombreCategoria,
+    edad: dato.edad || 'Sin datos',
+    ubicacion: dato.ubicacion || dato.nombreRefugio,
     urgencia,
-    estado: dato.condicion ?? urgencias.find((u) => u.id === urgencia).estado,
+    estado: dato.condicion || urgencias.find((u) => u.id === urgencia).estado,
     destacado: dato.destacado,
     // true si el refugio pidió cambios sobre la publicación ya aprobada y un administrador todavía no los revisó
-    cambioPendiente: dato.tieneCambioPendiente ?? false,
+    cambioPendiente: dato.tieneCambioPendiente || false,
     // Los datos de la ficha tal como los cargó el refugio (vacíos si no los tiene), para editarlos
-    ficha: { especie: dato.especie ?? '', edad: dato.edad ?? '', ubicacion: dato.ubicacion ?? '' },
+    ficha: { especie: dato.especie || '', edad: dato.edad || '', ubicacion: dato.ubicacion || '' },
     progreso: dato.progreso,
     imagen: fotos[0],
     fotos,
@@ -93,12 +93,12 @@ export const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
     { campo: 'Ubicación', antes: actual.ubicacion, despues: cambio.ubicacion },
     { campo: 'Cupos', antes: actual.cuposTotales, despues: cambio.cuposTotales },
     { campo: 'Guardián de la Bahía', antes: actual.cuotaApadrinamiento, despues: cambio.cuotaApadrinamiento, esPrecio: true },
-    { campo: 'Marea Profunda', antes: actual.preciosPorPlan?.MAREA_PROFUNDA, despues: cambio.precioMareaProfunda, esPrecio: true },
+    { campo: 'Marea Profunda', antes: actual.preciosPorPlan && actual.preciosPorPlan.MAREA_PROFUNDA, despues: cambio.precioMareaProfunda, esPrecio: true },
     { campo: 'Historia', antes: actual.descripcion, despues: cambio.descripcion },
   ]
   return campos
     .filter((c) => c.despues !== null && c.despues !== undefined && c.despues !== c.antes)
-    .map((c) => ({ ...c, antes: c.antes ?? '—', esPrecio: c.esPrecio ?? false }))
+    .map((c) => ({ ...c, antes: c.antes === null || c.antes === undefined ? '—' : c.antes, esPrecio: c.esPrecio || false }))
 }
 
 // La bitácora y la última ubicación de un animal llegan dentro de cada apadrinamiento (ver apadrinar.js)

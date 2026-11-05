@@ -12,7 +12,7 @@ export const alEmpezar = (state) => {
   state.error = null
 }
 
-// GET rejected: terminó mal; el mensaje ya viene armado con el del backend (ver api.js)
+// GET rejected: terminó mal; axios deja en action.error.message qué falló (por ejemplo "Request failed with status code 404")
 export const alFallar = (state, action) => {
   state.loading = false
   state.error = action.error.message

@@ -11,7 +11,7 @@ const coloresPorRol = {
 }
 
 // Si en el backend hay un rol que el front no conoce, se muestra con el color de padrino
-export const colorDelRol = (rol) => coloresPorRol[rol] ?? coloresPorRol.padrino
+export const colorDelRol = (rol) => coloresPorRol[rol] || coloresPorRol.padrino
 
 // Para mostrar el nombre de un rol o permiso: "GESTIONAR_USUARIOS" se ve "GESTIONAR USUARIOS"
 export const sinGuiones = (nombre) => nombre.replaceAll('_', ' ')

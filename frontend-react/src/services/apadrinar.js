@@ -37,7 +37,7 @@ export const aApadrinamiento = (planes, dato) => {
     desde: dato.fechaInicio.slice(0, 10),
     activo: dato.activo,
     pagos: dato.pagos.map((pago) => ({ id: pago.idPago, fecha: pago.fecha.slice(0, 10), monto: pago.monto })),
-    novedades: (dato.novedades ?? []).map(aNovedad),
+    novedades: (dato.novedades || []).map(aNovedad),
     ultimaUbicacion: dato.ultimaUbicacion ? aUbicacion(dato.ultimaUbicacion) : null,
   }
 }

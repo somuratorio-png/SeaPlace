@@ -18,7 +18,7 @@ const datosDe = (animal) => ({
   edad: animal.ficha.edad,
   ubicacion: animal.ficha.ubicacion,
   precio: String(animal.precio),
-  precioMarea: String(animal.preciosPorPlan.MAREA_PROFUNDA ?? ''),
+  precioMarea: String(animal.preciosPorPlan.MAREA_PROFUNDA || ''),
   cuposTotales: String(animal.cuposTotales),
   descripcion: animal.descripcion,
 })
