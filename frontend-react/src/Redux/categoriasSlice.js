@@ -41,7 +41,7 @@ const categoriasSlice = createSlice({
       .addCase(crearCategoria.pending, alEnviar)
       .addCase(crearCategoria.fulfilled, (state, action) => {
         state.enviando = false
-        state.items.push(action.payload)
+        state.items = [...state.items, action.payload]
       })
       .addCase(crearCategoria.rejected, alFallarEnvio)
   },

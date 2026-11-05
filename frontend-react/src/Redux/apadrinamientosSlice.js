@@ -37,7 +37,10 @@ const initialState = {
 // Las que devuelven el apadrinamiento como quedó: se lo reemplaza en la lista
 const conApadrinamientoModificado = (state, action) => {
   state.enviando = false
-  state.items = state.items.map((otro) => (otro.id === action.payload.id ? action.payload : otro))
+  const index = state.items.findIndex((otro) => otro.id === action.payload.id)
+  if (index !== -1) {
+    state.items[index] = action.payload
+  }
 }
 
 const apadrinamientosSlice = createSlice({

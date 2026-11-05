@@ -57,10 +57,10 @@ const conItem = (state, action) => {
   state.enviando = false
   state.id = item.idMuelle
   const posicion = state.items.findIndex((otro) => otro.animal.id === item.animal.id)
-  if (posicion === -1) {
-    state.items.push(item)
-  } else {
+  if (posicion !== -1) {
     state.items[posicion] = item
+  } else {
+    state.items = [...state.items, item]
   }
 }
 

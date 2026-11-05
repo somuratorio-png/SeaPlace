@@ -66,21 +66,24 @@ const rolesSlice = createSlice({
       .addCase(crearRol.pending, alEnviar)
       .addCase(crearRol.fulfilled, (state, action) => {
         state.enviando = false
-        state.items.push(action.payload)
+        state.items = [...state.items, action.payload]
       })
       .addCase(crearRol.rejected, alFallarEnvio)
 
       .addCase(crearPermiso.pending, alEnviar)
       .addCase(crearPermiso.fulfilled, (state, action) => {
         state.enviando = false
-        state.permisos.push(action.payload)
+        state.permisos = [...state.permisos, action.payload]
       })
       .addCase(crearPermiso.rejected, alFallarEnvio)
 
       .addCase(asignarPermisos.pending, alEnviar)
       .addCase(asignarPermisos.fulfilled, (state, action) => {
         state.enviando = false
-        state.items = state.items.map((otro) => (otro.id === action.payload.id ? action.payload : otro))
+        const index = state.items.findIndex((otro) => otro.id === action.payload.id)
+        if (index !== -1) {
+          state.items[index] = action.payload
+        }
       })
       .addCase(asignarPermisos.rejected, alFallarEnvio)
 

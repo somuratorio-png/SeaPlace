@@ -46,7 +46,10 @@ const initialState = {
 // Las que devuelven el usuario modificado: se lo reemplaza en la lista
 const conUsuarioModificado = (state, action) => {
   state.enviando = false
-  state.items = state.items.map((otro) => (otro.id === action.payload.id ? action.payload : otro))
+  const index = state.items.findIndex((otro) => otro.id === action.payload.id)
+  if (index !== -1) {
+    state.items[index] = action.payload
+  }
 }
 
 const usuariosSlice = createSlice({
@@ -78,7 +81,10 @@ const usuariosSlice = createSlice({
       .addCase(aprobarRefugio.pending, alEnviar)
       .addCase(aprobarRefugio.fulfilled, (state, action) => {
         state.enviando = false
-        state.items = state.items.map((usuario) => (usuario.idRefugio === action.payload ? { ...usuario, aprobado: true } : usuario))
+        const index = state.items.findIndex((usuario) => usuario.idRefugio === action.payload)
+        if (index !== -1) {
+          state.items[index] = { ...state.items[index], aprobado: true }
+        }
       })
       .addCase(aprobarRefugio.rejected, alFallarEnvio)
 

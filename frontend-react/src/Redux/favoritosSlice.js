@@ -38,7 +38,7 @@ const favoritosSlice = createSlice({
       .addCase(agregarFavorito.pending, alEnviar)
       .addCase(agregarFavorito.fulfilled, (state, action) => {
         state.enviando = false
-        state.items.push(action.payload)
+        state.items = [...state.items, action.payload]
       })
       .addCase(agregarFavorito.rejected, alFallarEnvio)
 

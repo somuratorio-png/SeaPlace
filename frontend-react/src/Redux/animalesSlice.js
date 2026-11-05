@@ -141,8 +141,14 @@ const initialState = {
 const conAnimalModificado = (state, action) => {
   const animal = action.payload
   state.enviando = false
-  state.items = state.items.map((otro) => (otro.id === animal.id ? animal : otro))
-  state.publicaciones = state.publicaciones.map((otro) => (otro.id === animal.id ? animal : otro))
+  const index = state.items.findIndex((otro) => otro.id === animal.id)
+  if (index !== -1) {
+    state.items[index] = animal
+  }
+  const indexPublicacion = state.publicaciones.findIndex((otro) => otro.id === animal.id)
+  if (indexPublicacion !== -1) {
+    state.publicaciones[indexPublicacion] = animal
+  }
   if (state.animal !== null && state.animal.id === animal.id) {
     state.animal = animal
   }
@@ -207,7 +213,7 @@ const animalesSlice = createSlice({
       .addCase(crearAnimal.pending, alEnviar)
       .addCase(crearAnimal.fulfilled, (state, action) => {
         state.enviando = false
-        state.publicaciones.push(action.payload)
+        state.publicaciones = [...state.publicaciones, action.payload]
       })
       .addCase(crearAnimal.rejected, alFallarEnvio)
 
