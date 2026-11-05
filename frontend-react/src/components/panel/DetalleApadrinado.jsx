@@ -9,7 +9,7 @@ import HistoriaApadrinado from './HistoriaApadrinado'
 import Rastreo from './Rastreo'
 import RastreoBloqueado from './RastreoBloqueado'
 import ResumenApadrinado from './ResumenApadrinado'
-import { cambiarPlan, cancelarApadrinamiento, traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
+import { cambiarPlan, cancelarApadrinamiento, limpiarError, traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
 import { intentar } from '../../utils/intentar'
 
 // Detalle de un animal que el usuario ya apadrinó.
@@ -22,13 +22,13 @@ const DetalleApadrinado = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
 
-  const { items: apadrinamientos, loading, error } = useSelector((state) => state.apadrinamientos)
+  const { items: apadrinamientos, loading, error, errorAccion } = useSelector((state) => state.apadrinamientos)
   // false hasta que termina el pedido de esta página: con la lista vieja del estado global
   // podría parecer que el animal no está apadrinado y mandar al usuario al panel
   const [listo, setListo] = useState(false)
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   useEffect(() => {
+    dispatch(limpiarError())
     dispatch(traerApadrinamientos()).then(() => {
       setListo(true)
     })
@@ -38,15 +38,13 @@ const DetalleApadrinado = () => {
 
   // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
   const elegirPlan = (idApadrinamiento, planNuevo) => {
-    setErrorAccion(null)
-    intentar(dispatch(cambiarPlan({ idApadrinamiento, codigoPlan: planNuevo.codigo })), setErrorAccion)
+    intentar(dispatch(cambiarPlan({ idApadrinamiento, codigoPlan: planNuevo.codigo })))
   }
 
   // No se borra: queda inactivo, así el historial no se pierde.
   // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
   const cancelar = (idApadrinamiento) => {
-    setErrorAccion(null)
-    intentar(dispatch(cancelarApadrinamiento(idApadrinamiento)), setErrorAccion).then((mensaje) => {
+    intentar(dispatch(cancelarApadrinamiento(idApadrinamiento))).then((mensaje) => {
       if (mensaje === null) {
         navigate('/panel')
       }
@@ -70,7 +68,7 @@ const DetalleApadrinado = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin py-space-lg space-y-space-xl">
-      {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />}
+      {errorAccion && <AvisoError mensaje={errorAccion} onCerrar={() => dispatch(limpiarError())} />}
       <BotonVolver texto="Volver a mis apadrinados" onVolver={() => navigate('/panel')} />
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-space-xl items-start">

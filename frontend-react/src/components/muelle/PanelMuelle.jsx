@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation, useNavigate } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
@@ -6,7 +6,7 @@ import Portada from '../comunes/Portada'
 import ListaMuelle from './ListaMuelle'
 import MuelleVacio from './MuelleVacio'
 import ResumenMuelle from './ResumenMuelle'
-import { cambiarCantidad, quitarDelMuelle } from '../../Redux/muelleSlice'
+import { cambiarCantidad, limpiarError, quitarDelMuelle } from '../../Redux/muelleSlice'
 import { intentar } from '../../utils/intentar'
 
 // El muelle del usuario: los animales que eligió, con cuántos cupos toma de cada uno.
@@ -16,24 +16,25 @@ const PanelMuelle = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { state } = useLocation()
-  const { items: muelle } = useSelector((state) => state.muelle)
+  const { items: muelle, errorAccion } = useSelector((state) => state.muelle)
 
   // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
   const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
-  const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
+
+  useEffect(() => {
+    dispatch(limpiarError())
+  }, [dispatch])
 
   const verCatalogo = () => {
     navigate('/catalogo')
   }
 
   const handleCantidad = (item, cantidad) => {
-    setErrorAccion(null)
-    intentar(dispatch(cambiarCantidad({ item, cantidad })), setErrorAccion)
+    intentar(dispatch(cambiarCantidad({ item, cantidad })))
   }
 
   const handleQuitar = (item) => {
-    setErrorAccion(null)
-    intentar(dispatch(quitarDelMuelle(item.animal.id)), setErrorAccion)
+    intentar(dispatch(quitarDelMuelle(item.animal.id)))
   }
 
   if (muelle.length === 0) {
@@ -51,7 +52,7 @@ const PanelMuelle = () => {
 
       {errorAccion && (
         <div className="max-w-7xl mx-auto px-margin-mobile lg:px-margin pt-space-lg">
-          <AvisoError mensaje={errorAccion} onCerrar={() => setErrorAccion(null)} />
+          <AvisoError mensaje={errorAccion} onCerrar={() => dispatch(limpiarError())} />
         </div>
       )}
 

@@ -42,13 +42,11 @@ const initialState = {
   items: [],
   loading: false,
   error: null,
-  enviando: false,
   errorAccion: null,
 }
 
 // Las que devuelven el apadrinamiento como quedó: se lo reemplaza en la lista
 const conApadrinamientoModificado = (state, action) => {
-  state.enviando = false
   const index = state.items.findIndex((otro) => otro.id === action.payload.id)
   if (index !== -1) {
     state.items[index] = action.payload
@@ -58,7 +56,11 @@ const conApadrinamientoModificado = (state, action) => {
 const apadrinamientosSlice = createSlice({
   name: 'apadrinamientos',
   initialState,
-  reducers: {},
+  reducers: {
+    limpiarError: (state) => {
+      state.errorAccion = null
+    },
+  },
   extraReducers: (builder) => {
     builder
       .addCase(traerApadrinamientos.pending, alEmpezar)
@@ -79,5 +81,7 @@ const apadrinamientosSlice = createSlice({
       .addCase(salir, () => initialState)
   },
 })
+
+export const { limpiarError } = apadrinamientosSlice.actions
 
 export default apadrinamientosSlice.reducer

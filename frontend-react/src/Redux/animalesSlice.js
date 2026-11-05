@@ -199,7 +199,6 @@ const initialState = {
   cambiosPendientes: [], // [{ animal, cambios }]
   loading: false,
   error: null,
-  enviando: false,
   errorAccion: null,
 }
 
@@ -208,7 +207,6 @@ const initialState = {
 // Las que devuelven el animal ya modificado: se lo pone en cada lista donde esté (y en la ficha si es ese)
 const conAnimalModificado = (state, action) => {
   const animal = action.payload
-  state.enviando = false
   const index = state.items.findIndex((otro) => otro.id === animal.id)
   if (index !== -1) {
     state.items[index] = animal
@@ -225,7 +223,6 @@ const conAnimalModificado = (state, action) => {
 // Las que eliminan el animal (devuelven su id): se lo saca de todas las listas
 const conAnimalSacado = (state, action) => {
   const idAnimal = action.payload
-  state.enviando = false
   state.items = state.items.filter((otro) => otro.id !== idAnimal)
   state.publicaciones = state.publicaciones.filter((otro) => otro.id !== idAnimal)
   state.cambiosPendientes = state.cambiosPendientes.filter((pendiente) => pendiente.animal.id !== idAnimal)
@@ -238,9 +235,7 @@ const conCambiosResueltos = (state, action) => {
 }
 
 // Las que no cambian ninguna lista de este slice
-const terminado = (state) => {
-  state.enviando = false
-}
+const terminado = () => {}
 
 const animalesSlice = createSlice({
   name: 'animales',
@@ -280,7 +275,6 @@ const animalesSlice = createSlice({
       // POST / PUT / DELETE
       .addCase(crearAnimal.pending, alEnviar)
       .addCase(crearAnimal.fulfilled, (state, action) => {
-        state.enviando = false
         state.publicaciones = [...state.publicaciones, action.payload]
       })
       .addCase(crearAnimal.rejected, alFallarEnvio)

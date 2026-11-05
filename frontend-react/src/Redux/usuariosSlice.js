@@ -59,13 +59,11 @@ const initialState = {
   items: [],
   loading: false,
   error: null,
-  enviando: false,
   errorAccion: null,
 }
 
 // Las que devuelven el usuario modificado: se lo reemplaza en la lista
 const conUsuarioModificado = (state, action) => {
-  state.enviando = false
   const index = state.items.findIndex((otro) => otro.id === action.payload.id)
   if (index !== -1) {
     state.items[index] = action.payload
@@ -100,7 +98,6 @@ const usuariosSlice = createSlice({
       // El dueño de ese refugio deja de estar pendiente
       .addCase(aprobarRefugio.pending, alEnviar)
       .addCase(aprobarRefugio.fulfilled, (state, action) => {
-        state.enviando = false
         const index = state.items.findIndex((usuario) => usuario.idRefugio === action.payload)
         if (index !== -1) {
           state.items[index] = { ...state.items[index], aprobado: true }

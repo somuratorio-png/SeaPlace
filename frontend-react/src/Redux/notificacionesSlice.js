@@ -30,7 +30,6 @@ const initialState = {
   items: [],
   loading: false,
   error: null,
-  enviando: false,
   errorAccion: null,
 }
 
@@ -50,7 +49,6 @@ const notificacionesSlice = createSlice({
       // Las que recién se marcaron quedan con nueva: true, para seguir resaltándolas mientras se miran
       .addCase(marcarLeidas.pending, alEnviar)
       .addCase(marcarLeidas.fulfilled, (state) => {
-        state.enviando = false
         state.items = state.items.map((notificacion) => ({ ...notificacion, nueva: !notificacion.leida, leida: true }))
       })
       .addCase(marcarLeidas.rejected, alFallarEnvio)

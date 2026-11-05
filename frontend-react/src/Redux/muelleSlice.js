@@ -63,14 +63,12 @@ export const zarpar = createAsyncThunk('muelle/zarpar', async (conBotiquin, { ge
 const initialState = {
   id: null, // null = todavía no tiene muelle abierto
   items: [],
-  enviando: false,
   errorAccion: null,
 }
 
 // Pone el ítem en el muelle: si el animal ya estaba lo reemplaza; si no, lo agrega
 const conItem = (state, action) => {
   const item = action.payload
-  state.enviando = false
   state.id = item.idMuelle
   const posicion = state.items.findIndex((otro) => otro.animal.id === item.animal.id)
   if (posicion !== -1) {
@@ -91,6 +89,9 @@ const muelleSlice = createSlice({
   reducers: {
     // Deja el muelle vacío sin pedir nada al backend (después de zarpar)
     vaciarMuelle: () => initialState,
+    limpiarError: (state) => {
+      state.errorAccion = null
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -104,15 +105,12 @@ const muelleSlice = createSlice({
 
       .addCase(quitarDelMuelle.pending, alEnviar)
       .addCase(quitarDelMuelle.fulfilled, (state, action) => {
-        state.enviando = false
         state.items = state.items.filter((item) => item.animal.id !== action.payload)
       })
       .addCase(quitarDelMuelle.rejected, alFallarEnvio)
 
       .addCase(zarpar.pending, alEnviar)
-      .addCase(zarpar.fulfilled, (state) => {
-        state.enviando = false
-      })
+      .addCase(zarpar.fulfilled, () => {})
       .addCase(zarpar.rejected, alFallarEnvio)
 
       // Acciones de usuarioSlice que también cambian el muelle
@@ -122,6 +120,6 @@ const muelleSlice = createSlice({
   },
 })
 
-export const { vaciarMuelle } = muelleSlice.actions
+export const { limpiarError, vaciarMuelle } = muelleSlice.actions
 
 export default muelleSlice.reducer

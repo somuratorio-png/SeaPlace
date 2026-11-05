@@ -3,8 +3,8 @@
 //
 // Hay dos juegos de estados, para no pisarse:
 // - loading / error: los GET que llenan la pantalla (mientras cargan se muestra "Cargando…").
-// - enviando / errorAccion: los POST, PUT y DELETE. Si usaran loading, la pantalla entera pasaría a
-//   "Cargando…" en cada clic y se cerrarían los formularios que estaban abiertos.
+// - errorAccion: los POST, PUT y DELETE. Si usaran error, un fallo al guardar borraría de la pantalla
+//   lo que ya se había cargado. Mientras el pedido viaja, el botón lo deshabilita cada formulario.
 
 // GET pending: arranca el pedido y se limpia el error viejo
 export const alEmpezar = (state) => {
@@ -21,12 +21,10 @@ export const alFallar = (state, action) => {
 
 // POST/PUT/DELETE pending
 export const alEnviar = (state) => {
-  state.enviando = true
   state.errorAccion = null
 }
 
 // POST/PUT/DELETE rejected
 export const alFallarEnvio = (state, action) => {
-  state.enviando = false
   state.errorAccion = action.payload ? action.payload.mensaje : action.error.message
 }

@@ -29,7 +29,6 @@ export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async
 
 const initialState = {
   items: [],
-  enviando: false,
   errorAccion: null,
 }
 
@@ -45,14 +44,12 @@ const favoritosSlice = createSlice({
     builder
       .addCase(agregarFavorito.pending, alEnviar)
       .addCase(agregarFavorito.fulfilled, (state, action) => {
-        state.enviando = false
         state.items = [...state.items, action.payload]
       })
       .addCase(agregarFavorito.rejected, alFallarEnvio)
 
       .addCase(quitarFavorito.pending, alEnviar)
       .addCase(quitarFavorito.fulfilled, (state, action) => {
-        state.enviando = false
         state.items = state.items.filter((guardado) => guardado.id !== action.payload)
       })
       .addCase(quitarFavorito.rejected, alFallarEnvio)

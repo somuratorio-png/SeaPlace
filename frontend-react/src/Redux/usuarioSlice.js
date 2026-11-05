@@ -7,7 +7,7 @@ import { alEnviar, alFallarEnvio } from './casos'
 // Espeja AuthenticationService, SesionService y la parte "mi cuenta" de UsuarioService:
 // quién inició sesión y su token. El token lo leen todos los slices para mandarlo en cada pedido (ver conToken).
 // Los favoritos y el muelle que llegan con la sesión los guardan sus propios slices (escuchan ingresar y registrar).
-// Todas sus acciones mandan datos (no hay GET que llene una pantalla): usan enviando / errorAccion.
+// Todas sus acciones mandan datos (no hay GET que llene una pantalla): usan errorAccion.
 
 // ---------- Acciones asíncronas ----------
 
@@ -77,21 +77,17 @@ const initialState = {
   usuario: null, // null = nadie inició sesión
   token: null, // vive solo en memoria: al recargar la página se pierde y hay que volver a entrar
   mensaje: null, // el que devuelve "pedir código"
-  enviando: false,
   errorAccion: null,
 }
 
 // Al ingresar o registrarse queda logueado
 const conSesion = (state, action) => {
-  state.enviando = false
   state.token = action.payload.token
   state.usuario = action.payload.sesion.usuario
 }
 
 // Las que no cambian nada guardado
-const terminado = (state) => {
-  state.enviando = false
-}
+const terminado = () => {}
 
 const usuarioSlice = createSlice({
   name: 'usuario',
@@ -112,7 +108,6 @@ const usuarioSlice = createSlice({
 
       .addCase(modificarMiPerfil.pending, alEnviar)
       .addCase(modificarMiPerfil.fulfilled, (state, action) => {
-        state.enviando = false
         state.usuario = action.payload
       })
       .addCase(modificarMiPerfil.rejected, alFallarEnvio)
@@ -123,7 +118,6 @@ const usuarioSlice = createSlice({
 
       .addCase(pedirCodigo.pending, alEnviar)
       .addCase(pedirCodigo.fulfilled, (state, action) => {
-        state.enviando = false
         state.mensaje = action.payload
       })
       .addCase(pedirCodigo.rejected, alFallarEnvio)
