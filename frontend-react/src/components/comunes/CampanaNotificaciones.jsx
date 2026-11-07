@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { formatearFecha } from '../../utils/fechas'
 import { marcarLeidas, traerNotificaciones } from '../../Redux/notificacionesSlice'
+import { temaDe } from '../../services/notificaciones'
+import FiltroTemas from './FiltroTemas'
 import Icono from './Icono'
 
 // Campanita del header con el número de notificaciones sin leer. Al tocarla se despliegan
@@ -12,12 +14,14 @@ const CampanaNotificaciones = () => {
   const dispatch = useDispatch()
   const { items: notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
   const [abierta, setAbierta] = useState(false)
+  const [tema, setTema] = useState(null) // el tema elegido para filtrar, o null para todas
 
   useEffect(() => {
     dispatch(traerNotificaciones())
   }, [dispatch])
 
   const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
+  const visibles = tema === null ? notificaciones : notificaciones.filter((notificacion) => notificacion.tema === tema)
 
   // Al abrirla se marcan como leídas
   const alternar = () => {
@@ -60,7 +64,10 @@ const CampanaNotificaciones = () => {
       {/* tabIndex={-1}: tocar adentro del panel le pasa el foco a él, así no cuenta como tocar afuera */}
       {abierta && (
         <div tabIndex={-1} className="absolute right-0 top-12 z-50 w-[min(22rem,calc(100vw-2rem))] bg-surface-container-lowest rounded-2xl shadow-lg ring-1 ring-primary-fixed overflow-hidden outline-none">
-          <p className="px-space-md py-space-sm font-label-lg text-label-lg text-on-surface border-b border-primary-fixed">Notificaciones</p>
+          <div className="px-space-md py-space-sm border-b border-primary-fixed space-y-space-xs">
+            <p className="font-label-lg text-label-lg text-on-surface">Notificaciones</p>
+            <FiltroTemas notificaciones={notificaciones} elegido={tema} onElegir={setTema} compacto />
+          </div>
           {errorAlMarcar && <p className="px-space-md pt-space-sm font-body-sm text-body-sm text-error">{errorAlMarcar}</p>}
           <div className="max-h-96 overflow-y-auto">
             {cargando && <p className="px-space-md py-space-md font-body-sm text-body-sm text-on-surface-variant">Cargando…</p>}
@@ -70,12 +77,18 @@ const CampanaNotificaciones = () => {
             )}
             {!cargando &&
               !error &&
-              notificaciones.map((notificacion) => {
+              visibles.map((notificacion) => {
                 const esNueva = notificacion.nueva || !notificacion.leida
+                const suTema = temaDe(notificacion.tema)
                 return (
-                  <div key={notificacion.id} className={`px-space-md py-space-sm border-l-4 ${esNueva ? 'border-tertiary bg-tertiary-fixed/30' : 'border-transparent'}`}>
-                    <p className="font-body-sm text-body-sm text-on-surface">{notificacion.texto}</p>
-                    <p className="font-label-md text-label-md text-on-surface-variant">{formatearFecha(notificacion.fecha)}</p>
+                  <div key={notificacion.id} className={`px-space-md py-space-sm border-l-4 flex gap-space-sm ${esNueva ? 'border-tertiary bg-tertiary-fixed/30' : 'border-transparent'}`}>
+                    <Icono nombre={suTema.icono} clase="text-[18px] text-secondary mt-0.5" />
+                    <div>
+                      <p className="font-body-sm text-body-sm text-on-surface">{notificacion.texto}</p>
+                      <p className="font-label-md text-label-md text-on-surface-variant">
+                        {suTema.nombre} · {formatearFecha(notificacion.fecha)}
+                      </p>
+                    </div>
                   </div>
                 )
               })}

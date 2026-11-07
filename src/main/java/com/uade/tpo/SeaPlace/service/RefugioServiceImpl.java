@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.uade.tpo.SeaPlace.entity.TemaNotificacion;
 import com.uade.tpo.SeaPlace.entity.Refugio;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.RefugioRequest;
@@ -91,7 +92,7 @@ public class RefugioServiceImpl implements RefugioService {
         refugio.setAprobado(true);
         Refugio aprobado = refugioRepository.save(refugio);
         if (refugio.getUsuario() != null) {
-            notificacionService.notificar(refugio.getUsuario(), "¡Bienvenido a SeaPlace! Aprobamos tu refugio: ya podés publicar animales.");
+            notificacionService.notificar(refugio.getUsuario(), TemaNotificacion.PUBLICACIONES, "¡Bienvenido a SeaPlace! Aprobamos tu refugio: ya podés publicar animales.");
         }
         return aprobado;
     }

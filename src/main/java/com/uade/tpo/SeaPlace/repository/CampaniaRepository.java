@@ -16,6 +16,9 @@ public interface CampaniaRepository extends JpaRepository<Campania, Long> {
     // todas las de un patrocinador (para calcular su nivel y su impacto)
     List<Campania> findByPatrocinador_IdPatrocinador(Long idPatrocinador);
 
+    // las de los animales de un refugio, de la mas nueva a la mas vieja
+    List<Campania> findByAnimal_Refugio_IdRefugioOrderByIdCampaniaDesc(Long idRefugio);
+
     // las que siguen activas para un animal (de ahi sale la vigente, si hay)
     List<Campania> findByAnimal_IdAnimalAndActivaTrue(Long idAnimal);
 }

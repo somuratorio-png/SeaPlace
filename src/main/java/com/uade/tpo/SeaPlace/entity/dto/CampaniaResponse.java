@@ -17,11 +17,23 @@ public class CampaniaResponse {
     private LocalDate fechaInicio;
     private LocalDate fechaFin;
     private boolean activa;
-    // true si hoy esta duplicando aportes (activa, en fecha, con tope y con el animal publicado)
+    // true si hoy esta duplicando aportes (aceptada, activa, en fecha, con tope y con el animal publicado)
     private boolean vigente;
+    // PENDIENTE (espera al refugio), ACEPTADA o RECHAZADA, y lo que escribio el refugio si la rechazo
+    private String estado;
+    private String motivoRechazo;
+    // Quien la propone: para que el refugio sepa con quien acepta trabajar
+    private String nombreEmpresa;
+    private String iconoEmpresa;
+    private String descripcionEmpresa;
 
     public static CampaniaResponse fromEntity(Campania campania) {
         CampaniaResponse r = new CampaniaResponse();
+        r.setEstado(campania.getEstado());
+        r.setMotivoRechazo(campania.getMotivoRechazo());
+        r.setNombreEmpresa(campania.getPatrocinador().getNombreEmpresa());
+        r.setIconoEmpresa(campania.getPatrocinador().getIcono());
+        r.setDescripcionEmpresa(campania.getPatrocinador().getDescripcion());
         r.setIdCampania(campania.getIdCampania());
         r.setIdAnimal(campania.getAnimal().getIdAnimal());
         r.setNombreAnimal(campania.getAnimal().getNombreAnimal());

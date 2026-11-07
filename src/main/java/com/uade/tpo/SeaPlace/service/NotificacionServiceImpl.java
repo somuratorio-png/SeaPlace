@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.SeaPlace.entity.TemaNotificacion;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.Notificacion;
@@ -28,9 +29,10 @@ public class NotificacionServiceImpl implements NotificacionService {
     private ApadrinamientoRepository apadrinamientoRepository;
 
     @Override
-    public Notificacion notificar(Usuario destinatario, String texto) {
+    public Notificacion notificar(Usuario destinatario, TemaNotificacion tema, String texto) {
         Notificacion notificacion = new Notificacion();
         notificacion.setUsuario(destinatario);
+        notificacion.setTema(tema);
         // El texto lo arma el sistema, pero puede llevar el motivo que escribio un administrador: se corta si no entra
         notificacion.setTexto(texto.length() > LARGO_MAXIMO ? texto.substring(0, LARGO_MAXIMO) : texto);
         notificacion.setFecha(LocalDateTime.now());
@@ -38,10 +40,10 @@ public class NotificacionServiceImpl implements NotificacionService {
     }
 
     @Override
-    public void notificarPadrinos(Animal animal, String texto) {
+    public void notificarPadrinos(Animal animal, TemaNotificacion tema, String texto) {
         // Un padrino tiene a lo sumo un apadrinamiento activo por animal, asi que a cada uno le llega uno solo
         for (Apadrinamiento apadrinamiento : apadrinamientoRepository.findByAnimal_IdAnimalAndActivoTrue(animal.getIdAnimal())) {
-            notificar(apadrinamiento.getUsuario(), texto);
+            notificar(apadrinamiento.getUsuario(), tema, texto);
         }
     }
 

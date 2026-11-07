@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.SeaPlace.entity.TemaNotificacion;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Novedad;
 import com.uade.tpo.SeaPlace.entity.dto.NovedadRequest;
@@ -68,7 +69,7 @@ public class NovedadServiceImpl implements NovedadService {
         Novedad guardada = novedadRepository.save(novedad);
 
         String adelanto = texto.length() > LARGO_ADELANTO ? texto.substring(0, LARGO_ADELANTO).trim() + "…" : texto;
-        notificacionService.notificarPadrinos(animal, "Hay una novedad de " + animal.getNombreAnimal() + ": \"" + adelanto + "\"");
+        notificacionService.notificarPadrinos(animal, TemaNotificacion.NOVEDADES, "Hay una novedad de " + animal.getNombreAnimal() + ": \"" + adelanto + "\"");
         return guardada;
     }
 }

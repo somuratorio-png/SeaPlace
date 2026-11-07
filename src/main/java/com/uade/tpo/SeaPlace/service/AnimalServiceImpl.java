@@ -13,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.SeaPlace.entity.TemaNotificacion;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Categoria;
 import com.uade.tpo.SeaPlace.entity.Plan;
@@ -282,10 +283,10 @@ public class AnimalServiceImpl implements AnimalService {
             animal.setEstado(request.getEstado());
             // A los padrinos se les avisa si la publicacion se pausa o vuelve al catalogo
             if (ESTADO_PUBLICACION_ACTIVA.equals(estadoAnterior) && ESTADO_PUBLICACION_PAUSADA.equals(request.getEstado())) {
-                notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal()
+                notificacionService.notificarPadrinos(animal, TemaNotificacion.APADRINADOS, "La publicación de " + animal.getNombreAnimal()
                         + " se pausó por un tiempo y no se ve en el catálogo. Tu apadrinamiento sigue igual.");
             } else if (ESTADO_PUBLICACION_PAUSADA.equals(estadoAnterior) && ESTADO_PUBLICACION_ACTIVA.equals(request.getEstado())) {
-                notificacionService.notificarPadrinos(animal, animal.getNombreAnimal() + " volvió a estar publicado en el catálogo.");
+                notificacionService.notificarPadrinos(animal, TemaNotificacion.APADRINADOS, animal.getNombreAnimal() + " volvió a estar publicado en el catálogo.");
             }
         }
 
@@ -512,7 +513,7 @@ public class AnimalServiceImpl implements AnimalService {
     private void avisarAlRefugio(Animal animal, String texto) {
         Usuario dueno = animal.getRefugio().getUsuario();
         if (dueno != null) {
-            notificacionService.notificar(dueno, texto);
+            notificacionService.notificar(dueno, TemaNotificacion.PUBLICACIONES, texto);
         }
     }
 
@@ -531,7 +532,7 @@ public class AnimalServiceImpl implements AnimalService {
         animal.setEstado(ESTADO_PUBLICACION_ELIMINADA);
         animalRepository.save(animal);
 
-        notificacionService.notificarPadrinos(animal, "La publicación de " + animal.getNombreAnimal() + " fue dada de baja y ya no está en el catálogo.");
+        notificacionService.notificarPadrinos(animal, TemaNotificacion.APADRINADOS, "La publicación de " + animal.getNombreAnimal() + " fue dada de baja y ya no está en el catálogo.");
 
         // Si la quito un administrador (y no el propio refugio), se le avisa al refugio
         Refugio refugioPropio = autorizacionService.usuarioActual().getRefugio();

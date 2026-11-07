@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 import animalesReducer from './animalesSlice'
 import apadrinamientosReducer from './apadrinamientosSlice'
+import campaniasReducer from './campaniasSlice'
 import categoriasReducer from './categoriasSlice'
 import comentariosReducer from './comentariosSlice'
 import favoritosReducer from './favoritosSlice'
@@ -29,6 +30,7 @@ export const store = configureStore({
     patrocinadores: patrocinadoresReducer,
     patrocinio: patrocinioReducer,
     metricas: metricasReducer,
+    campanias: campaniasReducer,
     usuario: usuarioReducer,
     usuarios: usuariosReducer,
     roles: rolesReducer,

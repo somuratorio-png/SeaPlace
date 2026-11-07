@@ -12,6 +12,8 @@ public class NotificacionResponse {
     private String texto;
     private LocalDateTime fecha;
     private boolean leida;
+    // PUBLICACIONES, COMENTARIOS, PATROCINIOS, NOVEDADES, APADRINADOS o GENERAL (ver TemaNotificacion)
+    private String tema;
 
     public static NotificacionResponse fromEntity(Notificacion notificacion) {
         NotificacionResponse r = new NotificacionResponse();
@@ -19,6 +21,7 @@ public class NotificacionResponse {
         r.setTexto(notificacion.getTexto());
         r.setFecha(notificacion.getFecha());
         r.setLeida(notificacion.isLeida());
+        r.setTema(notificacion.getTema() == null ? "GENERAL" : notificacion.getTema().name());
         return r;
     }
 }

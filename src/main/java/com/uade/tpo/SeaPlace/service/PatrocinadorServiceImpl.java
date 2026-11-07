@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Campania;
 import com.uade.tpo.SeaPlace.entity.Patrocinador;
+import com.uade.tpo.SeaPlace.entity.Refugio;
+import com.uade.tpo.SeaPlace.entity.TemaNotificacion;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.ZarparDetalle;
 import com.uade.tpo.SeaPlace.entity.dto.BeneficioResponse;
@@ -129,11 +131,14 @@ public class PatrocinadorServiceImpl implements PatrocinadorService {
             throw new ReglaDeNegocioException("Una campaña puede durar hasta " + MESES_MAXIMOS + " meses");
         }
 
-        // Un animal tiene a lo sumo una campaña vigente: si no, no se sabria quien duplica
-        campaniaVigente(animal).ifPresent(otra -> {
-            throw new RecursoDuplicadoException(animal.getNombreAnimal() + " ya tiene una campaña de duplicacion vigente de "
-                    + otra.getPatrocinador().getNombreEmpresa());
-        });
+        // Un animal tiene a lo sumo una campaña en curso (pendiente o aceptada): si no, no se sabria quien duplica
+        campaniaRepository.findByAnimal_IdAnimalAndActivaTrue(animal.getIdAnimal()).stream()
+                .filter(otra -> otra.ocupaAnimal(hoy))
+                .findFirst()
+                .ifPresent(otra -> {
+                    throw new RecursoDuplicadoException(animal.getNombreAnimal() + " ya tiene una campaña de duplicacion en curso de "
+                            + otra.getPatrocinador().getNombreEmpresa());
+                });
 
         Campania campania = new Campania();
         campania.setPatrocinador(patrocinador);
@@ -143,15 +148,78 @@ public class PatrocinadorServiceImpl implements PatrocinadorService {
         campania.setFechaInicio(hoy);
         campania.setFechaFin(fechaFin);
         campania.setActiva(true);
+        // No duplica hasta que el refugio la acepte
+        campania.setEstado(Campania.PENDIENTE);
         campaniaRepository.save(campania);
 
-        // Se le avisa al refugio: es plata extra para su animal
         Usuario dueno = animal.getRefugio().getUsuario();
         if (dueno != null) {
-            notificacionService.notificar(dueno, patrocinador.getNombreEmpresa() + " va a duplicar los aportes para "
-                    + animal.getNombreAnimal() + " hasta US$ " + campania.getTope() + ".");
+            notificacionService.notificar(dueno, TemaNotificacion.PATROCINIOS, patrocinador.getNombreEmpresa()
+                    + " quiere duplicar los aportes para " + animal.getNombreAnimal() + " hasta US$ " + campania.getTope()
+                    + ". Aceptala o rechazala en la sección Patrocinios.");
         }
         return armarMiPatrocinio(patrocinador);
+    }
+
+    @Override
+    public List<CampaniaResponse> getCampaniasDeMiRefugio() {
+        if (autorizacionService.esAdmin()) {
+            return campaniaRepository.findAll().stream()
+                    .sorted(Comparator.comparing(Campania::getIdCampania).reversed())
+                    .map(CampaniaResponse::fromEntity).toList();
+        }
+        Refugio refugio = autorizacionService.usuarioActual().getRefugio();
+        if (refugio == null) {
+            throw new AccessDeniedException("Solo un refugio ve las campañas de sus animales");
+        }
+        return campaniaRepository.findByAnimal_Refugio_IdRefugioOrderByIdCampaniaDesc(refugio.getIdRefugio()).stream()
+                .map(CampaniaResponse::fromEntity).toList();
+    }
+
+    @Override
+    public CampaniaResponse aceptarCampania(Long campaniaId) {
+        Campania campania = pendienteDeMiRefugio(campaniaId);
+        LocalDate hoy = LocalDate.now();
+        if (hoy.isAfter(campania.getFechaFin())) {
+            throw new ReglaDeNegocioException("La campaña ya vencio: no se puede aceptar");
+        }
+        // Empieza a duplicar desde hoy
+        campania.setEstado(Campania.ACEPTADA);
+        campania.setFechaInicio(hoy);
+        campaniaRepository.save(campania);
+
+        notificacionService.notificar(campania.getPatrocinador().getUsuario(), TemaNotificacion.PATROCINIOS,
+                campania.getAnimal().getRefugio().getNombreRefugio() + " aceptó tu campaña para " + campania.getAnimal().getNombreAnimal()
+                        + ": desde hoy se duplican los aportes de sus padrinos.");
+        return CampaniaResponse.fromEntity(campania);
+    }
+
+    @Override
+    public CampaniaResponse rechazarCampania(Long campaniaId, String motivoCrudo) {
+        Campania campania = pendienteDeMiRefugio(campaniaId);
+        String motivo = opcional(motivoCrudo, 300, "El motivo");
+        campania.setEstado(Campania.RECHAZADA);
+        campania.setMotivoRechazo(motivo);
+        campania.setActiva(false);
+        campaniaRepository.save(campania);
+
+        String texto = campania.getAnimal().getRefugio().getNombreRefugio() + " rechazó tu campaña para " + campania.getAnimal().getNombreAnimal() + ".";
+        if (motivo != null) {
+            texto += " Motivo: " + motivo;
+        }
+        notificacionService.notificar(campania.getPatrocinador().getUsuario(), TemaNotificacion.PATROCINIOS, texto);
+        return CampaniaResponse.fromEntity(campania);
+    }
+
+    // Una campaña que espera respuesta, sobre un animal del refugio logueado (o cualquiera, si es admin)
+    private Campania pendienteDeMiRefugio(Long campaniaId) {
+        Campania campania = campaniaRepository.findById(campaniaId)
+                .orElseThrow(() -> new RecursoNoEncontradoException("No existe la campaña con id " + campaniaId));
+        autorizacionService.validarPermisoSobreRefugio(campania.getAnimal().getRefugio().getIdRefugio());
+        if (!campania.isActiva() || !Campania.PENDIENTE.equals(campania.getEstado())) {
+            throw new ReglaDeNegocioException("La campaña ya fue respondida o el patrocinador la retiró");
+        }
+        return campania;
     }
 
     @Override

@@ -8,6 +8,7 @@ import RefugioPendiente from './RefugioPendiente'
 import ResumenRefugio from './ResumenRefugio'
 import { traerPublicaciones } from '../../Redux/animalesSlice'
 import { traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
+import { limpiarError as limpiarErrorCampanias, traerCampanias } from '../../Redux/campaniasSlice'
 import { traerCategorias } from '../../Redux/categoriasSlice'
 import { useGestionRefugio } from '../../hooks/useGestionRefugio'
 
@@ -21,6 +22,8 @@ const PanelRefugio = () => {
   const { items: todos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
   const { items: categorias, error: errorCategorias } = useSelector((state) => state.categorias)
   const error = errorAnimales || errorApadrinamientos || errorCategorias
+  // Si aceptar o rechazar una campaña falla, el mensaje se muestra arriba (ver SeccionPatrocinios)
+  const { errorAccion: errorPatrocinio } = useSelector((state) => state.campanias)
 
   const propios = publicaciones.filter((animal) => animal.idRefugio === usuario.idRefugio)
   // Apadrinamientos activos de los animales de este refugio
@@ -34,6 +37,7 @@ const PanelRefugio = () => {
       dispatch(traerPublicaciones(usuario.idRefugio))
       dispatch(traerApadrinamientos())
       dispatch(traerCategorias())
+      dispatch(traerCampanias())
     }
   }, [dispatch, usuario.aprobado, usuario.idRefugio])
 
@@ -62,6 +66,7 @@ const PanelRefugio = () => {
         {/* Si alguna lista no llegó, se avisa y el resto del panel sigue funcionando */}
         {error && <AvisoError mensaje={error} />}
         {gestion.errorAccion && <AvisoError mensaje={gestion.errorAccion} onCerrar={gestion.cerrarErrorAccion} />}
+        {errorPatrocinio && <AvisoError mensaje={errorPatrocinio} onCerrar={() => dispatch(limpiarErrorCampanias())} />}
 
         <ResumenRefugio cantidadAnimales={enCatalogo} apadrinamientos={apadrinamientos} />
 

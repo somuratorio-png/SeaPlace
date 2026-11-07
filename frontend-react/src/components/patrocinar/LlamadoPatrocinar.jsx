@@ -13,7 +13,7 @@ const LlamadoPatrocinar = ({ usuario, onPatrocinar }) => {
         <p className="font-body-md text-body-md">
           {otraCuenta
             ? 'Tu empresa necesita su propia cuenta de patrocinador: cerrá sesión y registrala desde acá.'
-            : 'Creá la cuenta de tu empresa y armá tu primera campaña hoy mismo. Sin intermediarios ni aprobaciones.'}
+            : 'Creá la cuenta de tu empresa y proponé tu primera campaña hoy mismo: el refugio del animal la confirma y empezás a duplicar.'}
         </p>
       </div>
       {!otraCuenta && (

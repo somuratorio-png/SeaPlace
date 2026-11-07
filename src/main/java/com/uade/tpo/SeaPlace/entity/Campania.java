@@ -14,7 +14,8 @@ import lombok.Data;
 
 // Una campaña de duplicacion: mientras esta vigente, por cada dolar que un padrino aporta para el animal,
 // el patrocinador pone otro, hasta llegar al tope. "aportado" es lo que el patrocinador ya puso.
-// Un animal tiene a lo sumo una campaña activa a la vez.
+// Nace PENDIENTE: el refugio del animal la tiene que ACEPTAR (recien ahi duplica) o puede RECHAZARLA.
+// Un animal tiene a lo sumo una campaña en curso (pendiente o aceptada) a la vez.
 @Data
 @Entity
 @Table(name = "campania")
@@ -46,18 +47,37 @@ public class Campania {
     @Column(nullable = false)
     private LocalDate fechaFin;
 
-    // false cuando el patrocinador la da por terminada antes de tiempo
+    // false cuando el patrocinador la da por terminada antes de tiempo (o el refugio la rechaza)
     @Column(nullable = false)
     private boolean activa = true;
+
+    // PENDIENTE (espera la respuesta del refugio), ACEPTADA o RECHAZADA.
+    // Las campañas anteriores a este campo ya estaban duplicando: quedan ACEPTADA.
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'ACEPTADA'")
+    private String estado = ACEPTADA;
+
+    // Lo que escribio el refugio al rechazarla (opcional)
+    @Column(length = 300)
+    private String motivoRechazo;
+
+    public static final String PENDIENTE = "PENDIENTE";
+    public static final String ACEPTADA = "ACEPTADA";
+    public static final String RECHAZADA = "RECHAZADA";
 
     // Lo que todavia puede duplicar
     public double restante() {
         return Math.max(0, Math.round((tope - aportado) * 100.0) / 100.0);
     }
 
-    // Duplica aportes hoy: esta activa, dentro de sus fechas, le queda tope y el animal sigue publicado
+    // Ocupa al animal (no se le puede armar otra): esta activa, no fue rechazada, no vencio y le queda tope
+    public boolean ocupaAnimal(LocalDate hoy) {
+        return activa && !RECHAZADA.equals(estado) && !hoy.isAfter(fechaFin) && restante() > 0;
+    }
+
+    // Duplica aportes hoy: el refugio la acepto, esta activa, dentro de sus fechas, le queda tope y el animal sigue publicado
     public boolean estaVigente(LocalDate hoy) {
         return activa
+                && ACEPTADA.equals(estado)
                 && !hoy.isBefore(fechaInicio)
                 && !hoy.isAfter(fechaFin)
                 && restante() > 0

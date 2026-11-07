@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 
+import com.uade.tpo.SeaPlace.entity.TemaNotificacion;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Comentario;
 import com.uade.tpo.SeaPlace.entity.Novedad;
@@ -76,7 +77,7 @@ public class ComentarioServiceImpl implements ComentarioService {
         if (dueno != null && !dueno.getIdUsuario().equals(autor.getIdUsuario())) {
             String texto = guardado.getTexto();
             String adelanto = texto.length() > LARGO_ADELANTO ? texto.substring(0, LARGO_ADELANTO).trim() + "…" : texto;
-            notificacionService.notificar(dueno, autor.getNombre() + " " + autor.getApellido() + " comentó una novedad de "
+            notificacionService.notificar(dueno, TemaNotificacion.COMENTARIOS, autor.getNombre() + " " + autor.getApellido() + " comentó una novedad de "
                     + animal.getNombreAnimal() + ": \"" + adelanto + "\"");
         }
         return guardado;

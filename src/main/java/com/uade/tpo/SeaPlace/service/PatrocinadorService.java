@@ -7,6 +7,7 @@ import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.ZarparDetalle;
 import com.uade.tpo.SeaPlace.entity.dto.BeneficioResponse;
 import com.uade.tpo.SeaPlace.entity.dto.CampaniaRequest;
+import com.uade.tpo.SeaPlace.entity.dto.CampaniaResponse;
 import com.uade.tpo.SeaPlace.entity.dto.MiPatrocinioResponse;
 import com.uade.tpo.SeaPlace.entity.dto.PatrocinadorPerfilRequest;
 import com.uade.tpo.SeaPlace.entity.dto.PatrocinadorResponse;
@@ -27,6 +28,15 @@ public interface PatrocinadorService {
     MiPatrocinioResponse crearCampania(CampaniaRequest request);
 
     MiPatrocinioResponse finalizarCampania(Long campaniaId);
+
+    // Las campañas sobre los animales del refugio logueado (todas, de la mas nueva a la mas vieja); un admin ve todas
+    List<CampaniaResponse> getCampaniasDeMiRefugio();
+
+    // El refugio del animal acepta una campaña pendiente: desde hoy duplica
+    CampaniaResponse aceptarCampania(Long campaniaId);
+
+    // El refugio del animal la rechaza (con un motivo opcional): no duplica nunca
+    CampaniaResponse rechazarCampania(Long campaniaId, String motivo);
 
     // Lo usa el registro: crea el patrocinador de una cuenta nueva
     Patrocinador crearPatrocinador(Usuario usuario, String nombreEmpresa);

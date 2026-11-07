@@ -3,7 +3,7 @@ import TituloSeccion from '../comunes/TituloSeccion'
 
 const pasos = [
   { icono: 'badge', titulo: 'Creás la cuenta de tu empresa', texto: 'En un minuto, sin esperar aprobación. Elegís el símbolo de tu marca y, si querés, un beneficio para los padrinos.' },
-  { icono: 'target', titulo: 'Armás una campaña', texto: 'Elegís el animal que querés acompañar, hasta cuánto duplicar y hasta cuándo. El sello aparece al instante.' },
+  { icono: 'target', titulo: 'Proponés una campaña', texto: 'Elegís el animal que querés acompañar, hasta cuánto duplicar y hasta cuándo. Su refugio la acepta y aparece tu sello.' },
   { icono: 'trending_up', titulo: 'Duplicás y medís', texto: 'Cada aporte de un padrino para ese animal se duplica con tu campaña, y en tu panel ves el impacto crecer.' },
 ]
 

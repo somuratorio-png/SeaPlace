@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -34,4 +36,9 @@ public class Notificacion {
 
     @Column(nullable = false)
     private boolean leida = false;
+
+    // De que se trata, para agruparlas (ver TemaNotificacion). Las anteriores a este campo quedan en GENERAL.
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'GENERAL'")
+    private TemaNotificacion tema = TemaNotificacion.GENERAL;
 }

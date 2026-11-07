@@ -57,8 +57,13 @@ export const aBeneficio = (dato) => ({
 })
 
 // Una campaña: { id, idAnimal, animal, tope, aportado, restante, desde, hasta, activa, vigente } (fechas 'AAAA-MM-DD')
-// porcentaje = cuánto del tope ya se usó (0 a 100)
+// porcentaje = cuánto del tope ya se usó (0 a 100). estado = 'PENDIENTE' (espera al refugio) | 'ACEPTADA' | 'RECHAZADA'.
+// pendiente = todavía espera la respuesta del refugio. empresa = quién la propone { nombre, icono, descripcion }.
 export const aCampania = (dato) => ({
+  estado: dato.estado,
+  motivoRechazo: dato.motivoRechazo || '',
+  pendiente: dato.activa && dato.estado === 'PENDIENTE',
+  empresa: { nombre: dato.nombreEmpresa, icono: dato.iconoEmpresa || 'storefront', descripcion: dato.descripcionEmpresa || '' },
   id: dato.idCampania,
   idAnimal: dato.idAnimal,
   animal: dato.nombreAnimal,

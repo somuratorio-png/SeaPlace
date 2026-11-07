@@ -5,18 +5,23 @@ import FormularioAnimal from './FormularioAnimal'
 import SeccionAnimales from './SeccionAnimales'
 import SeccionNotificaciones from './SeccionNotificaciones'
 import SeccionPadrinos from './SeccionPadrinos'
+import SeccionPatrocinios from './SeccionPatrocinios'
 
-// Menú lateral del refugio y la sección elegida (una sola por vez): sus animales, sus padrinos,
-// el formulario para publicar uno nuevo o sus notificaciones. Todo lo que cambia datos sube por las funciones "on...".
+// Menú lateral del refugio y la sección elegida (una sola por vez): sus animales, sus padrinos, los patrocinios
+// que le proponen, el formulario para publicar uno nuevo o sus notificaciones. Todo lo que cambia datos sube por las funciones "on...".
 const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [seccion, setSeccion] = useState('animales')
   // Las notificaciones las pide la campanita del header: acá se leen del estado global para mostrar en el menú cuántas no leyó
   const { items: notificaciones } = useSelector((state) => state.notificaciones)
   const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
+  // Las campañas las pidió PanelRefugio: en el menú se avisa cuántas esperan respuesta
+  const { items: campanias } = useSelector((state) => state.campanias)
+  const propuestas = campanias.filter((campania) => campania.pendiente).length
 
   const secciones = [
     { id: 'animales', nombre: 'Mis animales', icono: 'pets' },
     { id: 'padrinos', nombre: 'Padrinos', icono: 'group' },
+    { id: 'patrocinios', nombre: 'Patrocinios', icono: 'handshake', aviso: propuestas },
     { id: 'publicar', nombre: 'Sumar un rescatado', icono: 'add_circle' },
     { id: 'notificaciones', nombre: 'Notificaciones', icono: 'notifications', aviso: sinLeer },
   ]
@@ -50,6 +55,7 @@ const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, o
           />
         )}
         {seccion === 'padrinos' && <SeccionPadrinos apadrinamientos={apadrinamientos} />}
+        {seccion === 'patrocinios' && <SeccionPatrocinios />}
         {seccion === 'publicar' && <FormularioAnimal categorias={categorias} onGuardar={publicar} />}
         {seccion === 'notificaciones' && <SeccionNotificaciones />}
       </div>

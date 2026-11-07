@@ -9,6 +9,12 @@ import { formatearFecha } from '../../utils/fechas'
 
 // Cómo se ve el estado de una campaña
 const estadoDe = (campania) => {
+  if (campania.pendiente) {
+    return { texto: 'Esperando al refugio', clase: 'bg-tertiary-fixed text-on-tertiary-fixed' }
+  }
+  if (campania.estado === 'RECHAZADA') {
+    return { texto: 'Rechazada por el refugio', clase: 'bg-error-container text-on-error-container' }
+  }
   if (campania.vigente) {
     return { texto: 'Duplicando', clase: 'bg-secondary text-on-secondary' }
   }
@@ -44,14 +50,32 @@ const ListaCampanias = ({ campanias }) => {
             <p className="font-body-sm text-body-sm text-on-surface-variant">
               Del {formatearFecha(campania.desde)} al {formatearFecha(campania.hasta)}
             </p>
-            <BarraProgreso porcentaje={campania.porcentaje} />
+            {campania.pendiente && (
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                El refugio tiene que aceptarla: hasta entonces no se duplica nada. Te avisamos por notificación.
+              </p>
+            )}
+            {campania.estado === 'RECHAZADA' && (
+              <p className="font-body-sm text-body-sm text-on-surface-variant">
+                {campania.motivoRechazo ? `Motivo del refugio: ${campania.motivoRechazo}` : 'El refugio no dejó un motivo.'}
+              </p>
+            )}
+            {campania.estado === 'ACEPTADA' && <BarraProgreso porcentaje={campania.porcentaje} />}
             <div className="flex flex-wrap justify-between gap-space-sm font-label-md text-label-md">
               <span className="text-on-surface">
-                Duplicaste <Precio valor={campania.aportado} /> de <Precio valor={campania.tope} />
+                {campania.estado === 'ACEPTADA' ? (
+                  <>
+                    Duplicaste <Precio valor={campania.aportado} /> de <Precio valor={campania.tope} />
+                  </>
+                ) : (
+                  <>
+                    Tope propuesto: <Precio valor={campania.tope} />
+                  </>
+                )}
               </span>
               {campania.activa && (
                 <button onClick={() => setATerminar(campania)} className="text-error hover:underline print:hidden">
-                  Terminar campaña
+                  {campania.pendiente ? 'Retirar propuesta' : 'Terminar campaña'}
                 </button>
               )}
             </div>
@@ -61,9 +85,9 @@ const ListaCampanias = ({ campanias }) => {
 
       {aTerminar !== null && (
         <Modal
-          titulo={`¿Terminar la campaña de ${aTerminar.animal}?`}
-          mensaje="Desde ahora los aportes para este animal no se duplican más. Lo que ya duplicaste sigue contando en tu impacto."
-          textoConfirmar="Sí, terminar"
+          titulo={aTerminar.pendiente ? `¿Retirar la propuesta para ${aTerminar.animal}?` : `¿Terminar la campaña de ${aTerminar.animal}?`}
+          mensaje={aTerminar.pendiente ? 'El refugio ya no la va a ver para aceptarla.' : 'Desde ahora los aportes para este animal no se duplican más. Lo que ya duplicaste sigue contando en tu impacto.'}
+          textoConfirmar={aTerminar.pendiente ? 'Sí, retirar' : 'Sí, terminar'}
           textoCancelar="No, seguir"
           peligro={true}
           onConfirmar={() => {
