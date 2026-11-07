@@ -68,19 +68,6 @@ public class ApadrinamientoServiceImpl implements ApadrinamientoService {
     }
 
     @Override
-    public Apadrinamiento cambiarPlan(Long apadrinamientoId, String plan) {
-        Apadrinamiento apadrinamiento = buscarVigente(apadrinamientoId);
-
-        if (plan == null || plan.isBlank()) {
-            throw new ReglaDeNegocioException("El campo 'plan' es obligatorio");
-        }
-
-        // El cambio rige desde el proximo pago: lo ya pagado no se toca.
-        apadrinamiento.setPlan(Plan.desde(plan));
-        return apadrinamientoRepository.save(apadrinamiento);
-    }
-
-    @Override
     @Transactional
     public Apadrinamiento cancelar(Long apadrinamientoId) {
         Apadrinamiento apadrinamiento = buscarVigente(apadrinamientoId);

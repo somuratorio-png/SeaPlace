@@ -15,8 +15,6 @@ public interface ApadrinamientoService {
 
     List<ZarparDetalle> getPagos(Apadrinamiento apadrinamiento);
 
-    Apadrinamiento cambiarPlan(Long apadrinamientoId, String plan);
-
     Apadrinamiento cancelar(Long apadrinamientoId);
 
     Apadrinamiento registrar(Usuario usuario, Animal animal, Plan plan, int cupos, LocalDateTime fecha);

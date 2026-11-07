@@ -84,7 +84,7 @@ npm run dev      # http://localhost:5173
 Entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_Animal`, `Archivo_Foto`, `Ubicacion_Animal`, `Descuento`, `Novedad`, `Favorito`, `Notificacion`, `Muelle`, `Muelle_Detalle`, `Zarpar`, `Zarpar_Detalle` y `Apadrinamiento` (`Rol_Permiso` está modelado como relación `@ManyToMany`, no como entidad aparte).
 
 - **Planes.** Hay dos niveles de apadrinamiento fijos (enum `Plan`): `GUARDIAN_DE_LA_BAHIA` (×1, el que se usa si el pedido no indica plan) y `MAREA_PROFUNDA` (×2). El precio de un cupo es la cuota del animal, con su descuento vigente, por el multiplicador del plan. El plan se elige al agregar al muelle.
-- **Apadrinamiento.** Un zarpar es un pago; lo que queda después es el apadrinamiento (padrino, animal, plan, cupos, desde cuándo). Se crea al confirmar el zarpar (o suma cupos si el padrino ya apadrinaba a ese animal), se le puede cambiar el plan y se puede cancelar: no se borra, queda inactivo y devuelve sus cupos al animal.
+- **Apadrinamiento.** Un zarpar es un pago; lo que queda después es el apadrinamiento (padrino, animal, plan, cupos, desde cuándo). Se crea al confirmar el zarpar (o suma cupos si el padrino ya apadrinaba a ese animal). El plan se elige al apadrinar y no se puede cambiar; sí se puede cancelar: no se borra, queda inactivo y devuelve sus cupos al animal.
 - **Botiquín.** El zarpar acepta `conBotiquin`: suma un adicional fijo de 2 (dólares) al total.
 - **Ficha del animal.** Además de nombre, cuota y cupos, un animal tiene `especie`, `edad`, `ubicacion`, `urgencia` (`CRITICO`, `RECUPERACION` o `LISTO`), `condicion` y `destacado` (lo cambia solo un administrador). La respuesta incluye sus fotos ordenadas, el descuento que rige hoy y `progreso` (porcentaje de cupos tomados).
 - **Aprobación de refugios.** Un refugio que se registra solo queda pendiente (`aprobado = false`) y no puede presentar animales hasta que un administrador lo aprueba. Los que da de alta un administrador nacen aprobados.
@@ -160,7 +160,7 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Notificaciones | `/notificaciones` | `GET` lista las del usuario logueado (de la más nueva a la más vieja; 204 si no tiene), `PUT /leidas` las marca todas como leídas |
 | Muelle | `/muelles` | agregar/editar/quitar items; cada item lleva su `plan` |
 | Zarpar | `/zarpar` | genera el zarpar a partir del muelle (acepta `conBotiquin`) y crea los apadrinamientos |
-| Apadrinamientos | `/apadrinamientos` | listar (con sus pagos), cambiar de plan (`PUT /{id}/plan`), cancelar (`DELETE /{id}`) |
+| Apadrinamientos | `/apadrinamientos` | listar (con sus pagos), cancelar (`DELETE /{id}`) |
 | Favoritos | `/favoritos` | listar, guardar (`PUT /{animalId}`) y quitar (`DELETE /{animalId}`) los del usuario logueado |
 | Usuarios | `/usuarios` | alta (admin), baja (`DELETE`), reactivar (admin), cambio de rol (admin), ver y modificar el propio perfil (`GET` y `PUT /usuarios/me`), cambiar la propia contraseña (`PUT /usuarios/me/contrasenia`) |
 | Roles | `/roles` | solo admin |

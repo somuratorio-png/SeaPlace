@@ -1,44 +1,14 @@
 import { useState } from 'react'
-import { useSelector } from 'react-redux'
-import { planesDe } from '../../utils/precios'
 import Modal from '../comunes/Modal'
-import Precio from '../comunes/Precio'
 
-// Permite pasar a otro plan o cancelar el apadrinamiento.
+// Permite cancelar el apadrinamiento. El plan no se puede cambiar: se elige al apadrinar.
 // Cancelar pide una segunda confirmación (un modal) para que no pase por un clic de más.
-const GestionPlan = ({ item, onCambiarPlan, onCancelar }) => {
-  const { items: planesBase } = useSelector((state) => state.planes)
-  const planes = planesDe(item.animal, planesBase)
+const GestionPlan = ({ item, onCancelar }) => {
   const [isVisible, setIsVisible] = useState(false)
-
-  const elegir = (evento) => {
-    const plan = planes.find((p) => p.codigo === evento.target.value)
-    onCambiarPlan(item.id, plan)
-  }
 
   return (
     <div className="bg-surface-container-lowest rounded-2xl p-space-lg shadow-sm space-y-space-md">
       <h2 className="font-title-lg text-title-lg text-on-surface">Gestionar apadrinamiento</h2>
-
-      <label htmlFor="cambiarPlan" className="flex flex-col gap-1.5">
-        <span className="font-label-lg text-label-lg text-on-surface">Cambiar de plan</span>
-        <select
-          id="cambiarPlan"
-          name="plan"
-          value={item.plan.codigo}
-          onChange={elegir}
-          className="w-full bg-surface-container-low rounded-lg px-space-md py-3 font-body-md text-body-md focus:outline-none focus:ring-2 focus:ring-secondary/40"
-        >
-          {planes.map((plan) => (
-            <option key={plan.codigo} value={plan.codigo}>
-              {plan.nombre}
-            </option>
-          ))}
-        </select>
-      </label>
-      <p className="font-body-sm text-body-sm text-on-surface-variant">
-        Tu próxima cuota: <Precio valor={item.plan.precio * item.cupos} />. El cambio rige desde el próximo pago.
-      </p>
 
       <button onClick={() => setIsVisible(true)} className="font-label-lg text-label-lg text-error hover:underline">
         Cancelar apadrinamiento

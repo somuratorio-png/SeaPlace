@@ -8,7 +8,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.dto.ApadrinamientoResponse;
-import com.uade.tpo.SeaPlace.entity.dto.CambiarPlanRequest;
 import com.uade.tpo.SeaPlace.service.ApadrinamientoService;
 import com.uade.tpo.SeaPlace.service.SesionService;
 
@@ -32,11 +31,6 @@ public class ApadrinamientosController {
             return ResponseEntity.noContent().build();
         }
         return ResponseEntity.ok(resultado);
-    }
-
-    @PutMapping("/{apadrinamientoId}/plan")
-    public ResponseEntity<ApadrinamientoResponse> cambiarPlan(@PathVariable Long apadrinamientoId, @RequestBody CambiarPlanRequest request) {
-        return ResponseEntity.ok(aRespuesta(apadrinamientoService.cambiarPlan(apadrinamientoId, request.getPlan())));
     }
 
     // cancelar no borra el apadrinamiento: lo deja inactivo y libera sus cupos

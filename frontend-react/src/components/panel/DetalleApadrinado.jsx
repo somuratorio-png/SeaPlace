@@ -9,7 +9,7 @@ import HistoriaApadrinado from './HistoriaApadrinado'
 import Rastreo from './Rastreo'
 import RastreoBloqueado from './RastreoBloqueado'
 import ResumenApadrinado from './ResumenApadrinado'
-import { cambiarPlan, cancelarApadrinamiento, limpiarError, traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
+import { cancelarApadrinamiento, limpiarError, traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
 import { intentar } from '../../utils/intentar'
 
 // Detalle de un animal que el usuario ya apadrinó.
@@ -35,11 +35,6 @@ const DetalleApadrinado = () => {
   }, [dispatch])
 
   const item = apadrinamientos.find((a) => a.activo && a.animal.id === Number(id))
-
-  // El cambio se ve con lo que contesta el backend: el apadrinamiento con su plan nuevo
-  const elegirPlan = (idApadrinamiento, planNuevo) => {
-    intentar(dispatch(cambiarPlan({ idApadrinamiento, codigoPlan: planNuevo.codigo })))
-  }
 
   // No se borra: queda inactivo, así el historial no se pierde.
   // Al cancelar, los cupos que tenía tomados vuelven a quedar disponibles para ese animal.
@@ -76,7 +71,6 @@ const DetalleApadrinado = () => {
         <ResumenApadrinado
           item={item}
           onVerCertificado={() => navigate(`/panel/${animal.id}/certificado`)}
-          onCambiarPlan={elegirPlan}
           onCancelar={cancelar}
         />
       </div>

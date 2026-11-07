@@ -20,15 +20,6 @@ export const traerApadrinamientos = createAsyncThunk('apadrinamientos/traerApadr
   }
 })
 
-export const cambiarPlan = createAsyncThunk('apadrinamientos/cambiarPlan', async ({ idApadrinamiento, codigoPlan }, { getState, rejectWithValue }) => {
-  try {
-    const { data } = await axios.put(`${URL_BASE}/apadrinamientos/${idApadrinamiento}/plan`, { plan: codigoPlan }, conToken(getState))
-    return aApadrinamiento(planesDe(getState), data)
-  } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
-  }
-})
-
 // No lo borra: queda inactivo y sus cupos vuelven a estar disponibles
 export const cancelarApadrinamiento = createAsyncThunk('apadrinamientos/cancelarApadrinamiento', async (idApadrinamiento, { getState, rejectWithValue }) => {
   try {
@@ -99,10 +90,6 @@ const apadrinamientosSlice = createSlice({
         state.items = action.payload
       })
       .addCase(traerApadrinamientos.rejected, alFallar)
-
-      .addCase(cambiarPlan.pending, alEnviar)
-      .addCase(cambiarPlan.fulfilled, conApadrinamientoModificado)
-      .addCase(cambiarPlan.rejected, alFallarEnvio)
 
       .addCase(cancelarApadrinamiento.pending, alEnviar)
       .addCase(cancelarApadrinamiento.fulfilled, conApadrinamientoModificado)

@@ -7,8 +7,8 @@ import ProgresoMeta from './ProgresoMeta'
 import { formatearFecha } from '../../utils/fechas'
 
 // Columna de la derecha del detalle de un apadrinado: el nombre, el certificado, la meta, la ficha,
-// el plan, los pagos y la gestión del plan. "item" es el apadrinamiento.
-const ResumenApadrinado = ({ item, onVerCertificado, onCambiarPlan, onCancelar }) => {
+// el plan, los pagos y la opción de cancelar. "item" es el apadrinamiento.
+const ResumenApadrinado = ({ item, onVerCertificado, onCancelar }) => {
   const { animal, plan } = item
 
   return (
@@ -31,7 +31,7 @@ const ResumenApadrinado = ({ item, onVerCertificado, onCambiarPlan, onCancelar }
       <FichaAnimal animal={animal} />
       <MiPlan plan={plan} cupos={item.cupos} />
       <HistorialPagos pagos={item.pagos} />
-      <GestionPlan item={item} onCambiarPlan={onCambiarPlan} onCancelar={onCancelar} />
+      <GestionPlan item={item} onCancelar={onCancelar} />
     </div>
   )
 }
