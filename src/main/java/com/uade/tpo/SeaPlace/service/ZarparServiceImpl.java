@@ -41,7 +41,7 @@ public class ZarparServiceImpl implements ZarparService {
     private static final String ESTADO_PUBLICACION_ACTIVA = "ACTIVA";
 
     // Adicional opcional de precio fijo (en dolares, como las cuotas) que se suma al total.
-    private static final double PRECIO_BOTIQUIN = 5.0;
+    private static final double PRECIO_BOTIQUIN = 2.0;
 
     @Autowired
     private ZarparRepository zarparRepository;

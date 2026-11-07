@@ -1,6 +1,6 @@
 import { hoy } from './fechas'
 
-export const PRECIO_BOTIQUIN = 5 // en dólares, como el resto de los precios (el backend suma lo mismo al total)
+export const PRECIO_BOTIQUIN = 2 // en dólares, como el resto de los precios (el backend suma lo mismo al total)
 
 // Los precios se redondean a dos decimales, igual que hace el backend al cobrar
 const redondear = (valor) => Math.round(valor * 100) / 100

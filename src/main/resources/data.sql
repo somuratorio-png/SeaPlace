@@ -83,7 +83,7 @@ WHERE NOT EXISTS (SELECT 1 FROM categoria WHERE nombre_categoria = 'Tortugas Mar
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Jacinta', 'Foca Común', '4 meses', 'Ensenada Salina', 'RECUPERACION', 'En Recuperación',
        'Rescatada tras una tormenta en la Ensenada Salina. Requiere alimentación con papilla rica en salmón y vitaminas.',
-       24, 8, 6, true, 'ACTIVA', '2026-06-01 09:00:00'
+       6, 8, 6, true, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Ensenada Salina'
 WHERE c.nombre_categoria = 'Focas y Leones Marinos'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Jacinta');
@@ -91,7 +91,7 @@ WHERE c.nombre_categoria = 'Focas y Leones Marinos'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Kelp', 'Nutria de Mar', '1 año', 'Bosque de Quelpos', 'LISTO', 'Monitoreo GPS',
        'Huérfana adoptiva criada en el bosque de quelpos. Excelente buceadora que monitorea los arrecifes rocosos.',
-       20, 5, 4, true, 'ACTIVA', '2026-06-01 09:00:00'
+       5, 5, 4, true, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Pacífico Abierto'
 WHERE c.nombre_categoria = 'Nutrias del Pacífico'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Kelp');
@@ -99,7 +99,7 @@ WHERE c.nombre_categoria = 'Nutrias del Pacífico'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Coral', 'León Marino', '2 años', 'Costa de Granito', 'LISTO', 'Rehabilitado',
        'Tratado por enredo de redes de pesca fantasma. Ya recuperó toda su fuerza muscular y nada en aguas abiertas.',
-       18, 6, 6, true, 'ACTIVA', '2026-06-01 09:00:00'
+       5, 6, 6, true, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Ensenada Salina'
 WHERE c.nombre_categoria = 'Focas y Leones Marinos'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Coral');
@@ -107,7 +107,7 @@ WHERE c.nombre_categoria = 'Focas y Leones Marinos'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Mar', 'Tortuga Laúd', '8 años', 'Pacífico Abierto', 'LISTO', 'Ruta Migratoria',
        'Custodiada durante su cruce transoceánico de anidación. Su rastreador satelital previene colisiones con barcos.',
-       25, 4, 3, true, 'ACTIVA', '2026-06-01 09:00:00'
+       7, 4, 3, true, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Pacífico Abierto'
 WHERE c.nombre_categoria = 'Tortugas Marinas'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Mar');
@@ -115,7 +115,7 @@ WHERE c.nombre_categoria = 'Tortugas Marinas'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Luna', 'Foca Monje', '14 meses', 'Bahía Moloka''i', 'CRITICO', 'Peligro Crítico',
        'Rescatada con desnutrición severa y enredo en redes de deriva. Requiere antibioterapia salina y nutrición continua.',
-       18, 6, 5, false, 'ACTIVA', '2026-06-01 09:00:00'
+       5, 6, 5, false, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Ensenada Salina'
 WHERE c.nombre_categoria = 'Focas y Leones Marinos'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Luna');
@@ -123,7 +123,7 @@ WHERE c.nombre_categoria = 'Focas y Leones Marinos'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Barnaby', 'Nutria Marina', '10 meses', 'Monterey Bay', 'RECUPERACION', 'En Rehabilitación',
        'Recuperado de hipotermia tras contaminación de pelaje. Hoy sigue una dieta rica en erizos y almejas.',
-       22, 5, 5, false, 'ACTIVA', '2026-06-01 09:00:00'
+       6, 5, 5, false, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Pacífico Abierto'
 WHERE c.nombre_categoria = 'Nutrias del Pacífico'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Barnaby');
@@ -131,7 +131,7 @@ WHERE c.nombre_categoria = 'Nutrias del Pacífico'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Océano', 'Foca Moteada', '2 meses', 'Unidad Neonatal', 'RECUPERACION', 'Cría Huérfana',
        'Separada de su madre tras fuertes marejadas invernales. Recibe papilla de arenque fortificada y electrolitos.',
-       15, 10, 10, false, 'ACTIVA', '2026-06-01 09:00:00'
+       4, 10, 10, false, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Ensenada Salina'
 WHERE c.nombre_categoria = 'Focas y Leones Marinos'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Océano');
@@ -139,7 +139,7 @@ WHERE c.nombre_categoria = 'Focas y Leones Marinos'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Kailani', 'Delfín Mular', '5 años', 'Canal de Santa Bárbara', 'LISTO', 'Monitoreo Satelital',
        'Marcaje acústico no invasivo para registrar sus rutas y prevenir colisiones con embarcaciones comerciales.',
-       25, 4, 4, false, 'ACTIVA', '2026-06-01 09:00:00'
+       7, 4, 4, false, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Pacífico Abierto'
 WHERE c.nombre_categoria = 'Cetáceos y Ballenas'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Kailani');
@@ -147,7 +147,7 @@ WHERE c.nombre_categoria = 'Cetáceos y Ballenas'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Arenita', 'Tortuga Golfina', '3 años', 'Costa Oaxaqueña', 'LISTO', 'Nido Protegido',
        'Patrullaje nocturno de desove y viveros de temperatura controlada para el nacimiento seguro de 98 crías.',
-       15, 3, 0, false, 'ACTIVA', '2026-06-01 09:00:00'
+       4, 3, 0, false, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Pacífico Abierto'
 WHERE c.nombre_categoria = 'Tortugas Marinas'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Arenita');
@@ -155,7 +155,7 @@ WHERE c.nombre_categoria = 'Tortugas Marinas'
 INSERT INTO animal (id_categoria, id_refugio, nombre_animal, especie, edad, ubicacion, urgencia, condicion, descripcion, cuota_apadrinamiento, cupos_totales, cupos_disponibles, destacado, estado, fecha_publicacion)
 SELECT c.id_categoria, r.id_refugio, 'Sammy', 'León Marino', '2 años', 'San Francisco Bay', 'RECUPERACION', 'Aleta en Cicatrización',
        'Curación de una herida dorsal por anzuelo de palangre. Ya realiza nados cortos en piscinas de rehabilitación.',
-       20, 6, 6, false, 'ACTIVA', '2026-06-01 09:00:00'
+       5, 6, 6, false, 'ACTIVA', '2026-06-01 09:00:00'
 FROM categoria c JOIN refugio r ON r.nombre_refugio = 'Ensenada Salina'
 WHERE c.nombre_categoria = 'Focas y Leones Marinos'
   AND NOT EXISTS (SELECT 1 FROM animal WHERE nombre_animal = 'Sammy');
@@ -183,18 +183,18 @@ INSERT INTO foto_animal (id_animal, url_imagen, orden) SELECT a.id_animal, '/img
 INSERT INTO descuento (id_animal, porcentaje, fecha_inicio, fecha_fin, activo) SELECT a.id_animal, 20, '2026-09-01', '2026-12-31', true FROM animal a WHERE a.nombre_animal = 'Océano' AND NOT EXISTS (SELECT 1 FROM descuento d WHERE d.id_animal = a.id_animal);
 
 -- Zarpar (pagos) de demo, con su detalle. Precio de un cupo = cuota del animal x multiplicador
--- del plan (0.5, 1 o 2). El total del zarpar es la suma de sus renglones.
-INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-07-10 10:00:00', 48.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'marina' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-07-10 10:00:00');
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'MAREA_PROFUNDA', 1, 48.0, 48.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Jacinta' WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-07-10 10:00:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
-INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-08-22 18:30:00', 27.5, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'marina' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-08-22 18:30:00');
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 20.0, 20.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Kelp' WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 7.5, 7.5 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Arenita' WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
-INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-06-15 09:15:00', 68.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'tomas' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-06-15 09:15:00');
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 18.0, 18.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Luna' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'MAREA_PROFUNDA', 1, 50.0, 50.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Mar' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
-INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-09-03 21:05:00', 42.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'tomas' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-09-03 21:05:00');
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 12.0, 12.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Jacinta' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
-INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 2, 15.0, 30.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Arenita' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+-- del plan (1 o 2). El total del zarpar es la suma de sus renglones.
+INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-07-10 10:00:00', 12.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'marina' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-07-10 10:00:00');
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'MAREA_PROFUNDA', 1, 12.0, 12.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Jacinta' WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-07-10 10:00:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-08-22 18:30:00', 9.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'marina' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-08-22 18:30:00');
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 5.0, 5.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Kelp' WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 4.0, 4.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Arenita' WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-06-15 09:15:00', 19.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'tomas' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-06-15 09:15:00');
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 5.0, 5.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Luna' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'MAREA_PROFUNDA', 1, 14.0, 14.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Mar' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+INSERT INTO zarpar (id_usuario, fecha_zarpar, total, estado, con_botiquin) SELECT u.id_usuario, '2026-09-03 21:05:00', 14.0, 'CONFIRMADA', false FROM usuario u WHERE u.nombre_usuario = 'tomas' AND NOT EXISTS (SELECT 1 FROM zarpar z WHERE z.id_usuario = u.id_usuario AND z.fecha_zarpar = '2026-09-03 21:05:00');
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 1, 6.0, 6.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Jacinta' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
+INSERT INTO zarpar_detalle (id_zarpar, id_animal, plan, cantidad, precio_unitario, subtotal) SELECT z.id_zarpar, a.id_animal, 'GUARDIAN_DE_LA_BAHIA', 2, 4.0, 8.0 FROM zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.nombre_animal = 'Arenita' WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND NOT EXISTS (SELECT 1 FROM zarpar_detalle d WHERE d.id_zarpar = z.id_zarpar AND d.id_animal = a.id_animal);
 
 -- El apadrinamiento que dejo cada uno de esos pagos. Si el padrino ya tuvo (o cancelo) uno
 -- de ese animal, no se vuelve a crear.
@@ -213,6 +213,14 @@ INSERT INTO novedad (id_animal, texto, fecha) SELECT a.id_animal, 'El rastreador
 INSERT INTO novedad (id_animal, texto, fecha) SELECT a.id_animal, 'Terminó el tratamiento con antibióticos. La herida del cuello cerró bien.', '2026-09-25 12:00:00' FROM animal a WHERE a.nombre_animal = 'Luna' AND NOT EXISTS (SELECT 1 FROM novedad x WHERE x.id_animal = a.id_animal AND x.fecha = '2026-09-25 12:00:00');
 INSERT INTO novedad (id_animal, texto, fecha) SELECT a.id_animal, 'Cruzó sin problemas una ruta de barcos comerciales. Sigue rumbo al sur.', '2026-09-18 12:00:00' FROM animal a WHERE a.nombre_animal = 'Mar' AND NOT EXISTS (SELECT 1 FROM novedad x WHERE x.id_animal = a.id_animal AND x.fecha = '2026-09-18 12:00:00');
 
+-- Comentarios de demo sobre la pagina (los que se ven en el inicio)
+INSERT INTO comentario (id_usuario, id_novedad, texto, fecha) SELECT u.id_usuario, NULL, 'Ver cada semana dónde anda Jacinta se volvió un ritual con mis hijos. Es la lección de biología marina más linda que tuvimos.', '2026-10-01 20:00:00' FROM usuario u WHERE u.nombre_usuario = 'marina' AND NOT EXISTS (SELECT 1 FROM comentario x WHERE x.id_usuario = u.id_usuario AND x.fecha = '2026-10-01 20:00:00');
+INSERT INTO comentario (id_usuario, id_novedad, texto, fecha) SELECT u.id_usuario, NULL, 'El cuidado con el que tratan a cada animal me conmovió. El certificado quedó colgado en mi escritorio.', '2026-10-03 18:30:00' FROM usuario u WHERE u.nombre_usuario = 'tomas' AND NOT EXISTS (SELECT 1 FROM comentario x WHERE x.id_usuario = u.id_usuario AND x.fecha = '2026-10-03 18:30:00');
+
+-- Una conversacion de demo en la bitacora de Jacinta: comenta una madrina y le responde el refugio
+INSERT INTO comentario (id_usuario, id_novedad, texto, fecha) SELECT u.id_usuario, n.id_novedad, '¡Qué alegría! ¿Ya tiene fecha para volver al mar?', '2026-09-28 19:00:00' FROM usuario u JOIN novedad n ON n.fecha = '2026-09-28 12:00:00' JOIN animal a ON a.id_animal = n.id_animal AND a.nombre_animal = 'Jacinta' WHERE u.nombre_usuario = 'marina' AND NOT EXISTS (SELECT 1 FROM comentario x WHERE x.id_usuario = u.id_usuario AND x.fecha = '2026-09-28 19:00:00');
+INSERT INTO comentario (id_usuario, id_novedad, texto, fecha) SELECT r.id_usuario, n.id_novedad, 'Todavía no: primero tiene que llegar a los 30 kg. ¡Les vamos contando por acá!', '2026-09-29 10:00:00' FROM novedad n JOIN animal a ON a.id_animal = n.id_animal AND a.nombre_animal = 'Jacinta' JOIN refugio r ON r.id_refugio = a.id_refugio WHERE n.fecha = '2026-09-28 12:00:00' AND NOT EXISTS (SELECT 1 FROM comentario x WHERE x.id_usuario = r.id_usuario AND x.fecha = '2026-09-29 10:00:00');
+
 -- Posiciones informadas por el refugio para algunos animales (frente a la costa del Pacifico)
 INSERT INTO ubicacion_animal (id_animal, latitud, longitud, fecha_hora) SELECT a.id_animal, -33.142, -72.05, '2026-10-06 08:00:00' FROM animal a WHERE a.nombre_animal = 'Jacinta' AND NOT EXISTS (SELECT 1 FROM ubicacion_animal x WHERE x.id_animal = a.id_animal AND x.fecha_hora = '2026-10-06 08:00:00');
 INSERT INTO ubicacion_animal (id_animal, latitud, longitud, fecha_hora) SELECT a.id_animal, -33.16, -71.993, '2026-10-07 08:00:00' FROM animal a WHERE a.nombre_animal = 'Jacinta' AND NOT EXISTS (SELECT 1 FROM ubicacion_animal x WHERE x.id_animal = a.id_animal AND x.fecha_hora = '2026-10-07 08:00:00');
@@ -224,3 +232,29 @@ INSERT INTO ubicacion_animal (id_animal, latitud, longitud, fecha_hora) SELECT a
 UPDATE apadrinamiento SET plan = 'GUARDIAN_DE_LA_BAHIA' WHERE plan = 'BRISA_MARINA';
 UPDATE muelle_detalle SET plan = 'GUARDIAN_DE_LA_BAHIA' WHERE plan = 'BRISA_MARINA';
 UPDATE zarpar_detalle SET plan = 'GUARDIAN_DE_LA_BAHIA' WHERE plan = 'BRISA_MARINA';
+
+-- Precios mas realistas (noviembre 2026): las cuotas de demo bajan a US$ 4-7 por mes (unos $ 6.000-10.500).
+-- Solo cambia las que siguen con el valor viejo: si un refugio ya edito su cuota, se respeta.
+UPDATE animal SET cuota_apadrinamiento = 6 WHERE nombre_animal = 'Jacinta' AND cuota_apadrinamiento = 24;
+UPDATE animal SET cuota_apadrinamiento = 5 WHERE nombre_animal = 'Kelp' AND cuota_apadrinamiento = 20;
+UPDATE animal SET cuota_apadrinamiento = 5 WHERE nombre_animal = 'Coral' AND cuota_apadrinamiento = 18;
+UPDATE animal SET cuota_apadrinamiento = 7 WHERE nombre_animal = 'Mar' AND cuota_apadrinamiento = 25;
+UPDATE animal SET cuota_apadrinamiento = 5 WHERE nombre_animal = 'Luna' AND cuota_apadrinamiento = 18;
+UPDATE animal SET cuota_apadrinamiento = 6 WHERE nombre_animal = 'Barnaby' AND cuota_apadrinamiento = 22;
+UPDATE animal SET cuota_apadrinamiento = 4 WHERE nombre_animal = 'Océano' AND cuota_apadrinamiento = 15;
+UPDATE animal SET cuota_apadrinamiento = 7 WHERE nombre_animal = 'Kailani' AND cuota_apadrinamiento = 25;
+UPDATE animal SET cuota_apadrinamiento = 4 WHERE nombre_animal = 'Arenita' AND cuota_apadrinamiento = 15;
+UPDATE animal SET cuota_apadrinamiento = 5 WHERE nombre_animal = 'Sammy' AND cuota_apadrinamiento = 20;
+
+-- Los pagos de demo, con los precios nuevos (asi el historial coincide con las cuotas)
+UPDATE zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario SET z.total = 12.0 WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-07-10 10:00:00' AND z.total = 48.0;
+UPDATE zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario SET z.total = 9.0 WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND z.total = 27.5;
+UPDATE zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario SET z.total = 19.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND z.total = 68.0;
+UPDATE zarpar z JOIN usuario u ON u.id_usuario = z.id_usuario SET z.total = 14.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND z.total = 42.0;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 12.0, d.subtotal = 12.0 WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-07-10 10:00:00' AND a.nombre_animal = 'Jacinta' AND d.precio_unitario = 48.0;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 5.0, d.subtotal = 5.0 WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND a.nombre_animal = 'Kelp' AND d.precio_unitario = 20.0;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 4.0, d.subtotal = 4.0 WHERE u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00' AND a.nombre_animal = 'Arenita' AND d.precio_unitario = 7.5;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 5.0, d.subtotal = 5.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND a.nombre_animal = 'Luna' AND d.precio_unitario = 18.0;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 14.0, d.subtotal = 14.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND a.nombre_animal = 'Mar' AND d.precio_unitario = 50.0;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 6.0, d.subtotal = 6.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND a.nombre_animal = 'Jacinta' AND d.precio_unitario = 12.0;
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 4.0, d.subtotal = 8.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND a.nombre_animal = 'Arenita' AND d.precio_unitario = 15.0;

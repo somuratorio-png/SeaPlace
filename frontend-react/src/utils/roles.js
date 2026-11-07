@@ -1,4 +1,16 @@
-export const esAdmin = (usuario) => usuario !== null && usuario.rol === 'administrador'
+// El backend llama 'duenioRefugio' al rol que en las pantallas es simplemente 'refugio'
+export const rolDelFront = (nombreRol) => (nombreRol === 'duenioRefugio' ? 'refugio' : nombreRol)
+
+// Cómo se presenta quien escribe un comentario, según su rol
+const presentacionPorRol = {
+  padrino: 'Protector del océano',
+  refugio: 'Refugio',
+  administrador: 'Equipo SeaPlace',
+}
+
+export const presentacionDelRol = (rol) => presentacionPorRol[rol] || presentacionPorRol.padrino
+
+export const esAdmin =(usuario) => usuario !== null && usuario.rol === 'administrador'
 export const esRefugio = (usuario) => usuario !== null && usuario.rol === 'refugio'
 // Solo apadrinan los padrinos (y quien todavía no entró)
 export const puedeApadrinar = (usuario) => !esAdmin(usuario) && !esRefugio(usuario)

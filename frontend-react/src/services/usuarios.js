@@ -1,11 +1,9 @@
+import { rolDelFront } from '../utils/roles'
 import { aAnimal } from './animales'
 import { aItem } from './apadrinar'
 
 // Conversores de usuarios, sesión, roles y permisos.
 // No le hablan al backend: los pedidos los hacen los slices de src/Redux con axios.
-
-// El backend llama 'duenioRefugio' al rol que en las pantallas es simplemente 'refugio'
-const rolDelFront = (nombreRol) => (nombreRol === 'duenioRefugio' ? 'refugio' : nombreRol)
 
 // Pasa un usuario del backend (UsuarioResponse) al formato que usan los componentes.
 // aprobado solo importa para los refugios: false = todavía espera que un administrador lo apruebe.

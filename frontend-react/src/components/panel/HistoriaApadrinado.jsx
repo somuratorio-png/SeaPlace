@@ -12,7 +12,7 @@ const HistoriaApadrinado = ({ animal, novedades }) => {
         <p className="font-body-md text-body-md text-on-surface-variant">{animal.descripcion}</p>
       </div>
 
-      <Bitacora nombre={animal.nombre} novedades={novedades} />
+      <Bitacora idAnimal={animal.id} nombre={animal.nombre} novedades={novedades} />
     </div>
   )
 }

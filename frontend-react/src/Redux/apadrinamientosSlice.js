@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aApadrinamiento } from '../services/apadrinar'
+import { aComentario } from '../services/comentarios'
 import { comoLista, conToken, planesDe, URL_BASE } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
@@ -38,6 +39,26 @@ export const cancelarApadrinamiento = createAsyncThunk('apadrinamientos/cancelar
   }
 })
 
+// Comentar una novedad de la bitácora: solo sus padrinos de hoy y su refugio. Devuelve el comentario nuevo.
+export const comentarNovedad = createAsyncThunk('apadrinamientos/comentarNovedad', async ({ idAnimal, idNovedad, texto }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades/${idNovedad}/comentarios`, { texto }, conToken(getState))
+    return aComentario(data)
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
+})
+
+// Solo quien lo escribió o un administrador. Devuelve dónde estaba, para sacarlo de su novedad.
+export const borrarComentarioNovedad = createAsyncThunk('apadrinamientos/borrarComentarioNovedad', async ({ idNovedad, idComentario }, { getState, rejectWithValue }) => {
+  try {
+    await axios.delete(`${URL_BASE}/comentarios/${idComentario}`, conToken(getState))
+    return { idNovedad, idComentario }
+  } catch (error) {
+    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+  }
+})
+
 const initialState = {
   items: [],
   loading: false,
@@ -51,6 +72,15 @@ const conApadrinamientoModificado = (state, action) => {
   if (index !== -1) {
     state.items[index] = action.payload
   }
+}
+
+// Cambia los comentarios de una novedad en todos los apadrinamientos que la traen
+// (la misma novedad aparece en cada apadrinamiento de ese animal, también en los cancelados)
+const cambiarComentarios = (state, idNovedad, cambiar) => {
+  state.items = state.items.map((item) => ({
+    ...item,
+    novedades: item.novedades.map((novedad) => (novedad.id === idNovedad ? { ...novedad, comentarios: cambiar(novedad.comentarios) } : novedad)),
+  }))
 }
 
 const apadrinamientosSlice = createSlice({
@@ -77,6 +107,20 @@ const apadrinamientosSlice = createSlice({
       .addCase(cancelarApadrinamiento.pending, alEnviar)
       .addCase(cancelarApadrinamiento.fulfilled, conApadrinamientoModificado)
       .addCase(cancelarApadrinamiento.rejected, alFallarEnvio)
+
+      // La conversación va de la más vieja a la más nueva: el comentario nuevo queda al final
+      .addCase(comentarNovedad.pending, alEnviar)
+      .addCase(comentarNovedad.fulfilled, (state, action) => {
+        cambiarComentarios(state, action.payload.idNovedad, (comentarios) => [...comentarios, action.payload])
+      })
+      .addCase(comentarNovedad.rejected, alFallarEnvio)
+
+      .addCase(borrarComentarioNovedad.pending, alEnviar)
+      .addCase(borrarComentarioNovedad.fulfilled, (state, action) => {
+        const { idNovedad, idComentario } = action.payload
+        cambiarComentarios(state, idNovedad, (comentarios) => comentarios.filter((comentario) => comentario.id !== idComentario))
+      })
+      .addCase(borrarComentarioNovedad.rejected, alFallarEnvio)
 
       .addCase(salir, () => initialState)
   },

@@ -2,6 +2,7 @@ import { configureStore } from '@reduxjs/toolkit'
 import animalesReducer from './animalesSlice'
 import apadrinamientosReducer from './apadrinamientosSlice'
 import categoriasReducer from './categoriasSlice'
+import comentariosReducer from './comentariosSlice'
 import favoritosReducer from './favoritosSlice'
 import muelleReducer from './muelleSlice'
 import notificacionesReducer from './notificacionesSlice'
@@ -21,6 +22,7 @@ export const store = configureStore({
     apadrinamientos: apadrinamientosReducer,
     favoritos: favoritosReducer,
     notificaciones: notificacionesReducer,
+    comentarios: comentariosReducer,
     usuario: usuarioReducer,
     usuarios: usuariosReducer,
     roles: rolesReducer,

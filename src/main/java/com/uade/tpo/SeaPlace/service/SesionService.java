@@ -8,14 +8,17 @@ import org.springframework.stereotype.Service;
 import com.uade.tpo.SeaPlace.entity.Animal;
 import com.uade.tpo.SeaPlace.entity.Apadrinamiento;
 import com.uade.tpo.SeaPlace.entity.Muelle;
+import com.uade.tpo.SeaPlace.entity.Novedad;
 import com.uade.tpo.SeaPlace.entity.Usuario;
 import com.uade.tpo.SeaPlace.entity.dto.ApadrinamientoResponse;
+import com.uade.tpo.SeaPlace.entity.dto.ComentarioResponse;
 import com.uade.tpo.SeaPlace.entity.dto.FavoritoResponse;
 import com.uade.tpo.SeaPlace.entity.dto.MuelleDetalleResponse;
 import com.uade.tpo.SeaPlace.entity.dto.NovedadResponse;
 import com.uade.tpo.SeaPlace.entity.dto.SesionResponse;
 import com.uade.tpo.SeaPlace.entity.dto.UbicacionAnimalResponse;
 import com.uade.tpo.SeaPlace.entity.dto.UsuarioResponse;
+import com.uade.tpo.SeaPlace.repository.ComentarioRepository;
 import com.uade.tpo.SeaPlace.repository.NovedadRepository;
 import com.uade.tpo.SeaPlace.repository.UbicacionAnimalRepository;
 
@@ -48,6 +51,9 @@ public class SesionService {
     @Autowired
     private UbicacionAnimalRepository ubicacionAnimalRepository;
 
+    @Autowired
+    private ComentarioRepository comentarioRepository;
+
     public SesionResponse armarSesion() {
         Usuario actual = autorizacionService.usuarioActual();
         boolean esRefugio = actual.getRol().getNombreRol().equalsIgnoreCase(ROL_REFUGIO);
@@ -79,10 +85,18 @@ public class SesionService {
         // La misma regla que /animales/{id}/novedades y /ubicaciones: solo si puede ver la publicacion.
         if (animal != null && autorizacionService.puedeVerAnimal(animal)) {
             r.setNovedades(novedadRepository.findByAnimal_IdAnimalOrderByFechaDesc(animal.getIdAnimal())
-                    .stream().map(NovedadResponse::fromEntity).toList());
+                    .stream().map(this::conComentarios).toList());
             r.setUltimaUbicacion(ubicacionAnimalRepository.findTopByAnimal_IdAnimalOrderByFechaHoraDesc(animal.getIdAnimal())
                     .map(UbicacionAnimalResponse::fromEntity).orElse(null));
         }
+        return r;
+    }
+
+    // Una novedad de la bitacora con su conversacion, en el orden en que se escribio
+    private NovedadResponse conComentarios(Novedad novedad) {
+        NovedadResponse r = NovedadResponse.fromEntity(novedad);
+        r.setComentarios(comentarioRepository.findByNovedad_IdNovedadOrderByFechaAsc(novedad.getIdNovedad())
+                .stream().map(ComentarioResponse::fromEntity).toList());
         return r;
     }
 }

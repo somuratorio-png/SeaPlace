@@ -1,6 +1,7 @@
 import { urgencias } from '../data/animales'
 import { heroFoca } from '../data/imagenes'
 import { URL_BASE } from '../Redux/api'
+import { aComentario } from './comentarios'
 
 // Conversores: pasan lo que manda el backend al formato que usan los componentes (y al revés).
 // No le hablan al backend: los pedidos los hacen los slices de src/Redux con axios.
@@ -103,8 +104,14 @@ export const diferencias = (actual, cambio, nombreCategoriaPropuesta) => {
 
 // La bitácora y la última ubicación de un animal llegan dentro de cada apadrinamiento (ver apadrinar.js)
 
-// Una novedad de la bitácora: { id, fecha: 'AAAA-MM-DD', texto }
-export const aNovedad = (novedad) => ({ id: novedad.idNovedad, fecha: novedad.fecha.slice(0, 10), texto: novedad.texto })
+// Una novedad de la bitácora: { id, fecha: 'AAAA-MM-DD', texto, comentarios }.
+// comentarios = la conversación de sus padrinos y su refugio, de la más vieja a la más nueva (ver aComentario).
+export const aNovedad = (novedad) => ({
+  id: novedad.idNovedad,
+  fecha: novedad.fecha.slice(0, 10),
+  texto: novedad.texto,
+  comentarios: (novedad.comentarios || []).map(aComentario),
+})
 
 // La última posición que informó el refugio: { latitud, longitud, fecha: 'AAAA-MM-DD' }
 export const aUbicacion = (ubicacion) => ({ latitud: ubicacion.latitud, longitud: ubicacion.longitud, fecha: ubicacion.fechaHora.slice(0, 10) })
