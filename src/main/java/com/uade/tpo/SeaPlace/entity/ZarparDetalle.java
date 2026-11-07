@@ -42,6 +42,15 @@ public class ZarparDetalle {
     @Column
     private Plan plan;
 
+    // Si el animal tenia una campaña de duplicacion vigente: la campaña y lo que puso el patrocinador
+    // por este renglon (igual al subtotal, o menos si se termino el tope). null = no se duplico.
+    @ManyToOne
+    @JoinColumn(name = "id_campania")
+    private Campania campania;
+
+    @Column
+    private Double aportePatrocinador;
+
     public Plan getPlan() {
         return plan == null ? Plan.POR_DEFECTO : plan;
     }

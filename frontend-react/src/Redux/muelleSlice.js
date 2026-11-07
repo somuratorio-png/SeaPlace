@@ -52,7 +52,13 @@ export const quitarDelMuelle = createAsyncThunk('muelle/quitarDelMuelle', async 
 export const zarpar = createAsyncThunk('muelle/zarpar', async (conBotiquin, { getState, rejectWithValue }) => {
   try {
     const { data } = await axios.post(`${URL_BASE}/zarpar`, { idMuelle: getState().muelle.id, conBotiquin }, conToken(getState))
-    return data.total
+    // Lo que pusieron los patrocinadores (no se le cobra al padrino) y quiénes, para agradecerles en la página de gracias
+    const duplicados = (data.detalles || []).filter((detalle) => detalle.aportePatrocinador)
+    return {
+      total: data.total,
+      aportePatrocinadores: duplicados.reduce((suma, detalle) => suma + detalle.aportePatrocinador, 0),
+      patrocinadores: [...new Set(duplicados.map((detalle) => detalle.nombrePatrocinador))],
+    }
   } catch (error) {
     return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
   }

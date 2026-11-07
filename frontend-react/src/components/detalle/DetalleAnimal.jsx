@@ -5,6 +5,7 @@ import AvisoError from '../comunes/AvisoError'
 import BotonVolver from '../comunes/BotonVolver'
 import Cargando from '../comunes/Cargando'
 import ErrorConVolver from '../comunes/ErrorConVolver'
+import SelloPatrocinio from '../comunes/SelloPatrocinio'
 import ElegirPlan from './ElegirPlan'
 import EncabezadoAnimal from './EncabezadoAnimal'
 import HistoriaAnimal from './HistoriaAnimal'
@@ -61,6 +62,7 @@ const DetalleAnimal = () => {
 
         <div className="lg:col-span-5 space-y-space-md">
           <EncabezadoAnimal animal={animal} onError={setErrorAccion} />
+          {animal.patrocinio && <SelloPatrocinio patrocinio={animal.patrocinio} detallado />}
           <ElegirPlan animal={animal} onError={setErrorAccion} />
         </div>
       </div>

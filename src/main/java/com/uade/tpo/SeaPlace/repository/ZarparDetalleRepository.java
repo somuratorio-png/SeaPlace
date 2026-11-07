@@ -17,4 +17,7 @@ public interface ZarparDetalleRepository extends JpaRepository<ZarparDetalle, Lo
 
     // los pagos de un padrino por un animal, del mas viejo al mas nuevo
     List<ZarparDetalle> findByZarpar_Usuario_IdUsuarioAndAnimal_IdAnimalOrderByZarpar_FechaZarparAsc(Long idUsuario, Long idAnimal);
+
+    // los pagos que duplico un patrocinador con sus campañas (para medir su impacto)
+    List<ZarparDetalle> findByCampania_Patrocinador_IdPatrocinador(Long idPatrocinador);
 }

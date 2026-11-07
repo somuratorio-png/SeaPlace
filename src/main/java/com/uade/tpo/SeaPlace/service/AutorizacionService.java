@@ -16,6 +16,7 @@ public class AutorizacionService {
 
     private static final String ROL_ADMINISTRADOR = "administrador";
     private static final String ROL_REFUGIO = "duenioRefugio";
+    private static final String ROL_PATROCINADOR = "patrocinador";
 
     public Usuario usuarioActual() {
         return (Usuario) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -85,9 +86,17 @@ public class AutorizacionService {
     }
 
     // Una cuenta de refugio administra animales, no los apadrina.
+    // Una de patrocinador ayuda con campañas de duplicacion, no con apadrinamientos.
     public void validarPuedeApadrinar(Usuario usuario) {
         if (usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_REFUGIO)) {
             throw new AccessDeniedException("Una cuenta de refugio no puede apadrinar animales");
         }
+        if (esPatrocinador(usuario)) {
+            throw new AccessDeniedException("Una cuenta de patrocinador ayuda con campañas, no apadrinando animales");
+        }
+    }
+
+    public boolean esPatrocinador(Usuario usuario) {
+        return usuario.getRol().getNombreRol().equalsIgnoreCase(ROL_PATROCINADOR);
     }
 }

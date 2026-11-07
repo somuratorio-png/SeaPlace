@@ -5,7 +5,7 @@ import AccionesUsuario from './AccionesUsuario'
 import MenuPrincipal from './MenuPrincipal'
 import { useMoneda } from '../../hooks/useMoneda'
 import { salir } from '../../Redux/usuarioSlice'
-import { esAdmin, esRefugio } from '../../utils/roles'
+import { esAdmin, esPatrocinador, esRefugio } from '../../utils/roles'
 
 // El menú son <Link>; los botones de la derecha navegan con useNavigate
 const Header = () => {
@@ -31,7 +31,7 @@ const Header = () => {
           <span className="font-title-lg text-title-lg text-primary">SeaPlace</span>
         </Link>
 
-        <MenuPrincipal pathname={pathname} esAdmin={esAdmin(usuario)} esRefugio={esRefugio(usuario)} cantidadMuelle={items.length} />
+        <MenuPrincipal pathname={pathname} logueado={usuario !== null} esAdmin={esAdmin(usuario)} esRefugio={esRefugio(usuario)} esPatrocinador={esPatrocinador(usuario)} cantidadMuelle={items.length} />
 
         <AccionesUsuario
           usuario={usuario}

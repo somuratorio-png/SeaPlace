@@ -34,7 +34,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(req -> req
                         .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/inicio", "/animales/**", "/refugios/**", "/categorias/**", "/planes/**", "/comentarios").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/inicio", "/animales/**", "/refugios/**", "/categorias/**", "/planes/**", "/comentarios", "/patrocinadores").permitAll()
                         .requestMatchers("/permisos/**", "/roles/**").hasAuthority("GESTIONAR_ROLES")
                         .requestMatchers(HttpMethod.POST, "/refugios/**").hasAuthority("GESTIONAR_REFUGIOS")
                         .requestMatchers(HttpMethod.PUT, "/refugios/**").hasAuthority("GESTIONAR_REFUGIOS")

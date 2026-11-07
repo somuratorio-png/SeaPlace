@@ -1,6 +1,7 @@
 import { precioFinal } from '../../utils/precios'
 import BarraProgreso from '../comunes/BarraProgreso'
 import Precio from '../comunes/Precio'
+import SelloPatrocinio from '../comunes/SelloPatrocinio'
 
 // Tarjeta de un animal destacado en el inicio
 const TarjetaDestacada = ({ animal, onVer }) => {
@@ -16,6 +17,7 @@ const TarjetaDestacada = ({ animal, onVer }) => {
           <span className="font-label-md text-label-md text-on-surface-variant">{animal.especie}</span>
         </div>
         <p className="font-body-sm text-body-sm text-on-surface-variant flex-1">{animal.descripcion}</p>
+        {animal.patrocinio && <SelloPatrocinio patrocinio={animal.patrocinio} />}
         <div className="flex justify-between font-label-md text-label-md">
           <span className="text-on-surface-variant">Meta mensual</span>
           <span className="text-secondary">{animal.progreso}%</span>

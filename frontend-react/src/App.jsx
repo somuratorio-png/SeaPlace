@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom'
 import ConSesion from './components/rutas/ConSesion'
 import SoloAdmin from './components/rutas/SoloAdmin'
 import SoloPadrinos from './components/rutas/SoloPadrinos'
+import SoloPatrocinador from './components/rutas/SoloPatrocinador'
 import SoloRefugio from './components/rutas/SoloRefugio'
 import Layout from './components/layout/Layout'
 import ProveedorMoneda from './components/proveedores/ProveedorMoneda'
@@ -16,6 +17,8 @@ import Inicio from './views/Inicio'
 import Muelle from './views/Muelle'
 import NoEncontrada from './views/NoEncontrada'
 import Panel from './views/Panel'
+import Patrocinador from './views/Patrocinador'
+import Patrocinar from './views/Patrocinar'
 import Refugio from './views/Refugio'
 import Zarpar from './views/Zarpar'
 
@@ -35,6 +38,8 @@ const App = () => (
         <Route path="/cuenta" element={<ConSesion><Cuenta /></ConSesion>} />
         <Route path="/admin" element={<SoloAdmin><Admin /></SoloAdmin>} />
         <Route path="/refugio" element={<SoloRefugio><Refugio /></SoloRefugio>} />
+        <Route path="/patrocinar" element={<Patrocinar />} />
+        <Route path="/patrocinador" element={<SoloPatrocinador><Patrocinador /></SoloPatrocinador>} />
         <Route path="*" element={<NoEncontrada />} />
       </Routes>
     </Layout>

@@ -46,6 +46,13 @@ const AgradecimientoZarpar = () => {
             </b>
             . Tus certificados ya están listos.
           </p>
+          {/* Si un patrocinador duplicó parte del pago, se le cuenta al padrino cuánto rindió su aporte */}
+          {zarpar.aportePatrocinadores > 0 && (
+            <p className="inline-flex flex-wrap items-center justify-center gap-1 bg-tertiary-fixed text-on-tertiary-fixed rounded-full px-space-md py-space-xs font-label-lg text-label-lg">
+              <Icono nombre="volunteer_activism" clase="text-[20px]" />
+              ¡Tu aporte se duplicó! {zarpar.patrocinadores.join(' y ')} sumó <Precio valor={zarpar.aportePatrocinadores} /> más.
+            </p>
+          )}
         </div>
 
         <div className="bg-surface-container-lowest rounded-2xl shadow-md p-space-lg space-y-space-md">

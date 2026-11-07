@@ -101,6 +101,10 @@ public class Animal {
     @OneToMany(mappedBy = "animal")
     private List<ZarparDetalle> zarparDetalles;
 
+    // Las campañas de duplicacion de patrocinadores (a lo sumo una activa a la vez)
+    @OneToMany(mappedBy = "animal")
+    private List<Campania> campanias;
+
     // Lo que cuesta por mes un cupo con ese plan, sin descuentos.
     public double precioDelPlan(Plan plan) {
         Double elegido = switch (plan) {

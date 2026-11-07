@@ -5,7 +5,10 @@ import categoriasReducer from './categoriasSlice'
 import comentariosReducer from './comentariosSlice'
 import favoritosReducer from './favoritosSlice'
 import muelleReducer from './muelleSlice'
+import metricasReducer from './metricasSlice'
 import notificacionesReducer from './notificacionesSlice'
+import patrocinadoresReducer from './patrocinadoresSlice'
+import patrocinioReducer from './patrocinioSlice'
 import planesReducer from './planesSlice'
 import rolesReducer from './rolesSlice'
 import usuarioReducer from './usuarioSlice'
@@ -23,6 +26,9 @@ export const store = configureStore({
     favoritos: favoritosReducer,
     notificaciones: notificacionesReducer,
     comentarios: comentariosReducer,
+    patrocinadores: patrocinadoresReducer,
+    patrocinio: patrocinioReducer,
+    metricas: metricasReducer,
     usuario: usuarioReducer,
     usuarios: usuariosReducer,
     roles: rolesReducer,

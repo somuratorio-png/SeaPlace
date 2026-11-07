@@ -23,11 +23,20 @@ export const ingresar = createAsyncThunk('usuario/ingresar', async ({ nombreUsua
 
 // datos = { nombre, apellido, mail, nombreUsuario, contrasenia }. Un refugio se registra por otra ruta,
 // que además crea el refugio: no tiene nombre y apellido, así que se manda "Refugio" + su nombre.
-export const registrar = createAsyncThunk('usuario/registrar', async ({ datos, esRefugio }, { getState, rejectWithValue }) => {
+// tipo = 'padrino' | 'refugio' | 'patrocinador'. Un patrocinador manda además el nombre de su empresa (datos.empresa).
+const pedirRegistro = (datos, tipo) => {
+  if (tipo === 'refugio') {
+    return axios.post(`${URL_BASE}/auth/register-refugio`, { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido })
+  }
+  if (tipo === 'patrocinador') {
+    return axios.post(`${URL_BASE}/auth/register-patrocinador`, { ...datos, nombreEmpresa: datos.empresa })
+  }
+  return axios.post(`${URL_BASE}/auth/register`, datos)
+}
+
+export const registrar = createAsyncThunk('usuario/registrar', async ({ datos, tipo }, { getState, rejectWithValue }) => {
   try {
-    const { data } = esRefugio
-      ? await axios.post(`${URL_BASE}/auth/register-refugio`, { ...datos, nombre: 'Refugio', nombreRefugio: datos.apellido })
-      : await axios.post(`${URL_BASE}/auth/register`, datos)
+    const { data } = await pedirRegistro(datos, tipo)
     return entrarCon(planesDe(getState), data)
   } catch (error) {
     return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })

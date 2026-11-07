@@ -70,6 +70,9 @@ public class ZarparServiceImpl implements ZarparService {
     @Autowired
     private AutorizacionService autorizacionService;
 
+    @Autowired
+    private PatrocinadorService patrocinadorService;
+
     @Override
     public Page<Zarpar> getZarparsByUsuario(Long idUsuario, PageRequest pageRequest) {
         // Un usuario solo puede ver sus propias compras (o un admin, cualquiera).
@@ -166,6 +169,9 @@ public class ZarparServiceImpl implements ZarparService {
             detalleZarpar.setPrecioUnitario(precioFinal);
             detalleZarpar.setSubtotal(subtotal);
             detalleZarpar.setPlan(plan);
+            // Si un patrocinador tiene una campaña vigente para este animal, duplica el renglon.
+            // Lo que pone el patrocinador no se le cobra al padrino: el total del zarpar no cambia.
+            patrocinadorService.duplicar(detalleZarpar);
             detallesCreados.add(zarparDetalleRepository.save(detalleZarpar));
 
             // El pago deja al usuario como padrino del animal (o le suma cupos, si ya lo era).

@@ -1,8 +1,8 @@
 import { useSelector } from 'react-redux'
 import { Navigate } from 'react-router-dom'
-import { esAdmin, esRefugio } from '../../utils/roles'
+import { esAdmin, esPatrocinador, esRefugio } from '../../utils/roles'
 
-// Admin y refugio no apadrinan: van directo a su panel
+// Admin, refugio y patrocinador no apadrinan: van directo a su panel
 const SoloPadrinos = ({ children }) => {
   const { usuario } = useSelector((state) => state.usuario)
 
@@ -11,6 +11,9 @@ const SoloPadrinos = ({ children }) => {
   }
   if (esRefugio(usuario)) {
     return <Navigate to="/refugio" replace />
+  }
+  if (esPatrocinador(usuario)) {
+    return <Navigate to="/patrocinador" replace />
   }
   return children
 }

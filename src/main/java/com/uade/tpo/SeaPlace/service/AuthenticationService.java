@@ -21,6 +21,7 @@ import com.uade.tpo.SeaPlace.exceptions.RecursoNoEncontradoException;
 import com.uade.tpo.SeaPlace.exceptions.ReglaDeNegocioException;
 import com.uade.tpo.SeaPlace.repository.RolRepository;
 import com.uade.tpo.SeaPlace.repository.UsuarioRepository;
+import com.uade.tpo.SeaPlace.controllers.auth.RegisterPatrocinadorRequest;
 import com.uade.tpo.SeaPlace.controllers.auth.RegisterRefugioRequest;
 import com.uade.tpo.SeaPlace.entity.dto.RefugioRequest;
 
@@ -32,6 +33,7 @@ public class AuthenticationService {
 
     private static final String ROL_POR_DEFECTO = "padrino";
     private static final String ROL_REFUGIO = "duenioRefugio";
+    private static final String ROL_PATROCINADOR = "patrocinador";
 
     private final UsuarioRepository usuarioRepository;
     private final RolRepository rolRepository;
@@ -41,6 +43,7 @@ public class AuthenticationService {
     private final CuentaBajaService cuentaBajaService;
     private final RefugioService refugioService;
     private final SesionService sesionService;
+    private final PatrocinadorService patrocinadorService;
 
     public AuthenticationResponse register(RegisterRequest request) {
         Usuario usuario = crearUsuario(request.getNombre(), request.getApellido(), request.getMail(),
@@ -75,6 +78,16 @@ public class AuthenticationService {
         // Para que la sesion que se responde ya muestre su refugio (pendiente de aprobacion).
         usuario.setRefugio(refugio);
 
+        return responder(usuario);
+    }
+
+    // Crea la cuenta de una empresa patrocinadora y su patrocinador en un solo paso (si el nombre de la
+    // empresa esta repetido, la cuenta tampoco se guarda). No necesita aprobacion: puede armar campañas ya.
+    @Transactional
+    public AuthenticationResponse registerPatrocinador(RegisterPatrocinadorRequest request) {
+        Usuario usuario = crearUsuario(request.getNombre(), request.getApellido(), request.getMail(),
+                request.getNombreUsuario(), request.getContrasenia(), ROL_PATROCINADOR);
+        patrocinadorService.crearPatrocinador(usuario, request.getNombreEmpresa());
         return responder(usuario);
     }
 

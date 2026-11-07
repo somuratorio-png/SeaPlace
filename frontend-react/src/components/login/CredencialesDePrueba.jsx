@@ -7,6 +7,8 @@ const CredencialesDePrueba = () => {
       Administrador: usuario <b>admin</b>, contraseña <b>admin1234</b>
       <br />
       Refugio: usuario <b>ensenada</b>, contraseña <b>refugio123</b>
+      <br />
+      Patrocinador: usuario <b>azulprofundo</b>, contraseña <b>patrocinio123</b>
     </p>
   )
 }

@@ -62,8 +62,8 @@ public class SesionService {
         sesion.setUsuario(UsuarioResponse.fromEntity(usuarioService.getMiPerfil()));
         sesion.setFavoritos(favoritoService.getFavoritos().stream().map(FavoritoResponse::fromEntity).toList());
 
-        // Admin y refugio no apadrinan: no tienen muelle.
-        if (!autorizacionService.esAdmin() && !esRefugio) {
+        // Admin, refugio y patrocinador no apadrinan: no tienen muelle.
+        if (!autorizacionService.esAdmin() && !esRefugio && !autorizacionService.esPatrocinador(actual)) {
             Muelle muelle = muelleService.getOrCreateMuelleActivo(actual.getIdUsuario());
             sesion.setIdMuelle(muelle.getIdMuelle());
             sesion.setItemsMuelle(muelleService.getItems(muelle.getIdMuelle()).stream().map(MuelleDetalleResponse::fromEntity).toList());

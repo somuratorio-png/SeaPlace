@@ -64,6 +64,7 @@ Usuarios de demo (las contraseñas están guardadas con BCrypt):
 | `marina`, `tomas` | `foquita123`, `nutria123` | padrino |
 | `ensenada`, `pacifico` | `refugio123` | duenioRefugio (refugios aprobados) |
 | `costabrava` | `refugio123` | duenioRefugio (refugio pendiente de aprobación) |
+| `azulprofundo`, `mareascafe`, `brisaoutdoor` | `patrocinio123` | patrocinador (niveles Océano, Arrecife y Coral) |
 
 ## Frontend (React + Vite)
 
@@ -87,6 +88,7 @@ Entidades: `Usuario`, `Rol`, `Permiso`, `Refugio`, `Categoria`, `Animal`, `Foto_
 - **Apadrinamiento.** Un zarpar es un pago; lo que queda después es el apadrinamiento (padrino, animal, plan, cupos, desde cuándo). Se crea al confirmar el zarpar (o suma cupos si el padrino ya apadrinaba a ese animal). El plan se elige al apadrinar y no se puede cambiar; sí se puede cancelar: no se borra, queda inactivo y devuelve sus cupos al animal.
 - **Botiquín.** El zarpar acepta `conBotiquin`: suma un adicional fijo de 2 (dólares) al total.
 - **Ficha del animal.** Además de nombre, cuota y cupos, un animal tiene `especie`, `edad`, `ubicacion`, `urgencia` (`CRITICO`, `RECUPERACION` o `LISTO`), `condicion` y `destacado` (lo cambia solo un administrador). La respuesta incluye sus fotos ordenadas, el descuento que rige hoy y `progreso` (porcentaje de cupos tomados).
+- **Patrocinadores.** Una empresa se registra con `POST /auth/register-patrocinador` (rol `patrocinador`, sin aprobación) y arma **campañas de duplicación**: elige un animal publicado, un tope en dólares (de 50 a 100.000) y una fecha de fin (hasta 12 meses). Mientras la campaña está vigente, cada renglón de un zarpar para ese animal se duplica: el patrocinador pone lo mismo que el padrino (o lo que le quede de tope), sin cambiar lo que se le cobra al padrino; queda anotado en el `ZarparDetalle` (`aportePatrocinador`). Un animal tiene a lo sumo una campaña vigente, que viaja en su respuesta (`patrocinio`) para mostrar el sello. El nivel del patrocinador (`CORAL`, `ARRECIFE` desde US$ 300, `OCEANO` desde US$ 1.000) sale de la suma de los topes de sus campañas. Puede ofrecer un beneficio con un cupón, que solo ve quien apadrina hoy algún animal. Un patrocinador no apadrina ni tiene muelle.
 - **Aprobación de refugios.** Un refugio que se registra solo queda pendiente (`aprobado = false`) y no puede presentar animales hasta que un administrador lo aprueba. Los que da de alta un administrador nacen aprobados.
 - **Aprobación de animales.** Un animal que presenta un refugio nace `PENDIENTE` y no se ve en el catálogo hasta que un administrador lo aprueba (`PUT /animales/{animalId}/aprobar`) o lo rechaza (`/rechazar`, con un motivo). Los que crea un administrador nacen `ACTIVA`. Cuando un refugio edita un animal ya aprobado, los cambios quedan en revisión: el administrador los ve en `GET /animales/cambios-pendientes` y los aprueba o rechaza con `PUT /animales/{animalId}/cambios/aprobar` o `/cambios/rechazar`. Mientras tanto la publicación se sigue viendo como estaba.
 - **Notificaciones.** El dueño del refugio recibe una notificación cuando un administrador aprueba o rechaza un animal o sus cambios, y los padrinos cuando un animal que apadrinan se pausa, vuelve al catálogo o se da de baja. Cada usuario ve las suyas y las marca como leídas.
@@ -127,7 +129,11 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | `/animales/cambios-pendientes` | GET | Solo administrador (se valida en el service) |
 | `/refugios/**` | POST / PUT | `GESTIONAR_REFUGIOS` (administrador) |
 | `/apadrinamientos` | GET | Autenticado: el administrador ve todos, el dueño de un refugio los de sus animales y un padrino los suyos |
-| `/apadrinamientos/{id}/plan`, `/apadrinamientos/{id}` | PUT / DELETE | El padrino dueño del apadrinamiento (o un administrador) |
+| `/apadrinamientos/{id}` | DELETE | El padrino dueño del apadrinamiento (o un administrador) |
+| `/metricas` | GET | Solo administrador (se valida en el service) |
+| `/patrocinadores` | GET | Público |
+| `/patrocinadores/beneficios` | GET | Autenticado, con algún apadrinamiento activo (o administrador) |
+| `/patrocinadores/me/**` | Todos | Autenticado con una cuenta de patrocinador (se valida en el service) |
 | `/favoritos/**` | Todos | Autenticado; cada usuario solo ve y modifica los suyos |
 | `/notificaciones/**` | GET / PUT | Autenticado; cada usuario solo ve y marca las suyas |
 | `/usuarios/{usuarioId}/reactivar` | PUT | `GESTIONAR_USUARIOS` (administrador) |
@@ -140,14 +146,14 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | `/usuarios/me` | GET | Autenticado: devuelve los datos del propio usuario |
 | `/usuarios/me` | PUT | Autenticado: modifica nombre, apellido y mail del propio usuario (no el nombre de usuario, el rol ni el estado de la cuenta) |
 | `/usuarios/me/contrasenia` | PUT | Autenticado: cambia la contraseña del propio usuario (requiere la actual) |
-| `/muelles/**`, `/zarpar/**` | Todos | Autenticado; cada usuario solo accede a lo suyo y los usuarios con rol `duenioRefugio` no pueden usarlos |
+| `/muelles/**`, `/zarpar/**` | Todos | Autenticado; cada usuario solo accede a lo suyo y los usuarios con rol `duenioRefugio` o `patrocinador` no pueden usarlos |
 | Cualquier otro endpoint | — | Requiere estar autenticado |
 
 ## Endpoints principales
 
 | Recurso | Base path | Notas |
 |---|---|---|
-| Auth | `/auth` | `register`, `register-refugio`, `authenticate`, `olvide-contrasenia`, `restablecer-contrasenia` |
+| Auth | `/auth` | `register`, `register-refugio`, `register-patrocinador`, `authenticate`, `olvide-contrasenia`, `restablecer-contrasenia` |
 | Inicio | `/inicio` | GET público: los planes y, si el pedido trae un token, la sesión del usuario (el front lo pide al abrir la página) |
 | Animales | `/animales` | CRUD, GET público; `PUT /{id}/aprobar` y `/rechazar`, `GET /cambios-pendientes`, `PUT /{id}/cambios/aprobar` y `/cambios/rechazar` (administrador) |
 | Refugios | `/refugios` | GET público, POST admin, `PUT /{refugioId}/aprobar` (admin) |
@@ -161,6 +167,8 @@ Regla clave: cada `Animal` tiene una cantidad limitada de padrinos — se modela
 | Muelle | `/muelles` | agregar/editar/quitar items; cada item lleva su `plan` |
 | Zarpar | `/zarpar` | genera el zarpar a partir del muelle (acepta `conBotiquin`) y crea los apadrinamientos |
 | Apadrinamientos | `/apadrinamientos` | listar (con sus pagos), cancelar (`DELETE /{id}`) |
+| Patrocinadores | `/patrocinadores` | `GET` público (con nivel, comprometido y aportado), `GET /beneficios` (con cupón, para padrinos), `GET` y `PUT /me` (panel y perfil del patrocinador), `POST /me/campanias` y `DELETE /me/campanias/{id}` (crear y terminar campañas; devuelven el panel completo) |
+| Métricas | `/metricas` | `GET` (admin): ingreso mensual recurrente, padrinos activos, ticket promedio, conversión del muelle, bajas de los últimos 30 días, plata de padrinos y de patrocinadores, e ingresos de los últimos 6 meses |
 | Favoritos | `/favoritos` | listar, guardar (`PUT /{animalId}`) y quitar (`DELETE /{animalId}`) los del usuario logueado |
 | Usuarios | `/usuarios` | alta (admin), baja (`DELETE`), reactivar (admin), cambio de rol (admin), ver y modificar el propio perfil (`GET` y `PUT /usuarios/me`), cambiar la propia contraseña (`PUT /usuarios/me/contrasenia`) |
 | Roles | `/roles` | solo admin |

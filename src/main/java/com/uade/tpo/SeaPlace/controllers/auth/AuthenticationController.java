@@ -30,6 +30,11 @@ public class AuthenticationController {
         return ResponseEntity.ok(service.registerRefugio(request));
     }
 
+    @PostMapping("/register-patrocinador")
+    public ResponseEntity<AuthenticationResponse> registerPatrocinador(@RequestBody RegisterPatrocinadorRequest request) {
+        return ResponseEntity.ok(service.registerPatrocinador(request));
+    }
+
     @PostMapping("/authenticate")
     public ResponseEntity<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
         return ResponseEntity.ok(service.authenticate(request));

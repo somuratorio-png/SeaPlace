@@ -55,7 +55,7 @@ const FormularioZarpar = () => {
       const apadrinados = muelle.map((item) => ({ id: item.animal.id, animal: item.animal, plan: item.plan }))
       setZarpado(true)
       dispatch(vaciarMuelle())
-      navigate('/gracias', { state: { zarpar: { apadrinados, total: accion.payload } } })
+      navigate('/gracias', { state: { zarpar: { apadrinados, ...accion.payload } } })
     })
   }
 

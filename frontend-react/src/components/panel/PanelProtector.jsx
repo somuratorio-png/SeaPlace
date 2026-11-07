@@ -4,8 +4,10 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import AvisoError from '../comunes/AvisoError'
 import Portada from '../comunes/Portada'
 import SeccionApadrinados from './SeccionApadrinados'
+import SeccionBeneficios from './SeccionBeneficios'
 import SeccionFavoritos from './SeccionFavoritos'
 import { traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
+import { traerBeneficios } from '../../Redux/patrocinadoresSlice'
 
 // Área del protector: muestra los animales que el usuario ya apadrinó (los pide al montarse) y sus favoritos
 // (llegaron con la sesión).
@@ -18,8 +20,17 @@ const PanelProtector = () => {
   const { items: apadrinamientos, loading: cargando, error } = useSelector((state) => state.apadrinamientos)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
+  // null hasta saber si apadrina algún animal: recién ahí se piden los beneficios (solo son para quien apadrina)
+  const [apadrina, setApadrina] = useState(null)
+
   useEffect(() => {
-    dispatch(traerApadrinamientos())
+    dispatch(traerApadrinamientos()).then((accion) => {
+      const hayActivos = !accion.error && accion.payload.some((a) => a.activo)
+      setApadrina(hayActivos)
+      if (hayActivos) {
+        dispatch(traerBeneficios())
+      }
+    })
   }, [dispatch])
 
   // Los favoritos que se muestran son los que siguen publicados
@@ -49,6 +60,7 @@ const PanelProtector = () => {
           onVer={(item) => navigate(`/panel/${item.animal.id}`)}
           onElegir={() => navigate('/catalogo')}
         />
+        <SeccionBeneficios apadrina={apadrina} />
         <SeccionFavoritos animales={animalesFavoritos} onError={setErrorAccion} onVer={(id) => navigate(`/animal/${id}`)} />
       </div>
     </>

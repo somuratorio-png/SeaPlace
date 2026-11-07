@@ -45,6 +45,8 @@ public class AnimalResponse {
     private List<String> fotos;
     // El descuento que rige hoy (el mayor, si hay varios), o null si no esta en oferta.
     private DescuentoResponse descuento;
+    // La campaña de un patrocinador que hoy duplica los aportes para este animal, o null si no hay.
+    private PatrocinioAnimalResponse patrocinio;
 
     public static AnimalResponse fromEntity(Animal animal) {
         AnimalResponse r = new AnimalResponse();
@@ -75,6 +77,7 @@ public class AnimalResponse {
         r.setProgreso(calcularProgreso(animal));
         r.setFotos(urlsDeFotos(animal));
         r.setDescuento(descuentoVigente(animal));
+        r.setPatrocinio(patrocinioVigente(animal));
         return r;
     }
 
@@ -106,6 +109,19 @@ public class AnimalResponse {
                 .sorted(Comparator.comparing(FotoAnimal::getOrden, Comparator.nullsLast(Comparator.naturalOrder())))
                 .map(FotoAnimal::getUrlImagen)
                 .toList();
+    }
+
+    // La misma regla que usa el zarpar para duplicar (ver Campania.estaVigente)
+    private static PatrocinioAnimalResponse patrocinioVigente(Animal animal) {
+        if (animal.getCampanias() == null) {
+            return null;
+        }
+        LocalDate hoy = LocalDate.now();
+        return animal.getCampanias().stream()
+                .filter(campania -> campania.estaVigente(hoy))
+                .findFirst()
+                .map(PatrocinioAnimalResponse::fromEntity)
+                .orElse(null);
     }
 
     // Misma regla que usa el zarpar para cobrar: de los descuentos activos cuya vigencia

@@ -14,7 +14,7 @@ import { validarContrasenia } from '../../utils/validaciones'
 import { useFormulario } from '../../hooks/useFormulario'
 import BotonFormulario from '../comunes/BotonFormulario'
 
-const formularioVacio = { nombre: '', apellido: '', mail: '', nombreUsuario: '', contrasenia: '' }
+const formularioVacio = { nombre: '', apellido: '', empresa: '', mail: '', nombreUsuario: '', contrasenia: '' }
 
 const claseDosColumnas = 'max-w-6xl mx-auto px-margin-mobile lg:px-margin py-space-xl grid grid-cols-1 lg:grid-cols-2 gap-space-lg'
 
@@ -25,8 +25,10 @@ const FormularioLogin = () => {
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const { state } = useLocation()
-  const [esRegistro, setEsRegistro] = useState(false)
-  const [esRefugio, setEsRefugio] = useState(false) // en el registro: ¿la cuenta es de un refugio?
+  // Si se llegó desde "Quiero patrocinar", la navegación trae { registro: 'patrocinador' }: arranca en el registro de empresa
+  const registroPedido = state !== null && state.registro ? state.registro : null
+  const [esRegistro, setEsRegistro] = useState(registroPedido !== null)
+  const [tipoCuenta, setTipoCuenta] = useState(registroPedido || 'padrino') // en el registro: 'padrino' | 'refugio' | 'patrocinador'
   const { datos, cambiar } = useFormulario(formularioVacio)
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false) // true mientras se espera la respuesta del backend
@@ -73,14 +75,15 @@ const FormularioLogin = () => {
     }
     // Que el usuario o el correo no estén repetidos lo controla el backend
     const limpios = { ...datos, nombre: datos.nombre.trim(), apellido: datos.apellido.trim(), mail: datos.mail.trim(), nombreUsuario: datos.nombreUsuario.trim() }
-    return entrarCon(dispatch(registrar({ datos: limpios, esRefugio })))
+    return entrarCon(dispatch(registrar({ datos: { ...limpios, empresa: datos.empresa.trim() }, tipo: tipoCuenta })))
   }
 
   // Si todo sale bien no hay nada más que hacer acá: con el usuario en el estado global se muestra otra página
   const enviar = (evento) => {
     evento.preventDefault() // evita que el formulario recargue la página
     const faltan = esRegistro
-      ? !datos.apellido.trim() || !datos.mail.trim() || !datos.nombreUsuario.trim() || !datos.contrasenia.trim() || (!esRefugio && !datos.nombre.trim())
+      ? !datos.apellido.trim() || !datos.mail.trim() || !datos.nombreUsuario.trim() || !datos.contrasenia.trim() ||
+        (tipoCuenta !== 'refugio' && !datos.nombre.trim()) || (tipoCuenta === 'patrocinador' && !datos.empresa.trim())
       : !datos.nombreUsuario.trim() || !datos.contrasenia.trim()
     if (faltan) {
       setError('Completá todos los campos')
@@ -113,7 +116,7 @@ const FormularioLogin = () => {
           {esRegistro ? 'Creá tu cuenta' : '¡Hola de nuevo, guardián del mar!'}
         </h1>
 
-        {esRegistro && <CamposRegistro datos={datos} esRefugio={esRefugio} onCambiar={cambiar} onCambiarTipo={setEsRefugio} />}
+        {esRegistro && <CamposRegistro datos={datos} tipoCuenta={tipoCuenta} onCambiar={cambiar} onCambiarTipo={setTipoCuenta} />}
         <CampoTexto etiqueta="Nombre de usuario" nombre="nombreUsuario" valor={datos.nombreUsuario} onCambiar={cambiar} />
         <CampoTexto etiqueta="Contraseña" nombre="contrasenia" tipo="password" valor={datos.contrasenia} onCambiar={cambiar} />
 

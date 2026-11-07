@@ -2,6 +2,7 @@ import { urgencias } from '../data/animales'
 import { heroFoca } from '../data/imagenes'
 import { URL_BASE } from '../Redux/api'
 import { aComentario } from './comentarios'
+import { aPatrocinio } from './patrocinadores'
 
 // Conversores: pasan lo que manda el backend al formato que usan los componentes (y al revés).
 // No le hablan al backend: los pedidos los hacen los slices de src/Redux con axios.
@@ -51,6 +52,8 @@ export const aAnimal = (dato) => {
     fotos,
     sinFotos: dato.fotos.length === 0,
     descuento: dato.descuento ? aDescuento(dato.descuento) : null,
+    // La campaña de un patrocinador que hoy duplica los aportes para este animal, o null
+    patrocinio: aPatrocinio(dato.patrocinio),
   }
 }
 

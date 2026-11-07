@@ -1,6 +1,7 @@
 INSERT IGNORE INTO rol (nombre_rol) VALUES ('padrino');
 INSERT IGNORE INTO rol (nombre_rol) VALUES ('administrador');
 INSERT IGNORE INTO rol (nombre_rol) VALUES ('duenioRefugio');
+INSERT IGNORE INTO rol (nombre_rol) VALUES ('patrocinador');
 
 INSERT IGNORE INTO permiso (nombre_permiso, descripcion) VALUES ('GESTIONAR_ROLES', 'Crear roles y permisos, y asignar permisos a un rol');
 INSERT IGNORE INTO permiso (nombre_permiso, descripcion) VALUES ('GESTIONAR_REFUGIOS', 'Dar de alta un refugio nuevo');
@@ -258,3 +259,43 @@ UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario 
 UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 14.0, d.subtotal = 14.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00' AND a.nombre_animal = 'Mar' AND d.precio_unitario = 50.0;
 UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 6.0, d.subtotal = 6.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND a.nombre_animal = 'Jacinta' AND d.precio_unitario = 12.0;
 UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal SET d.precio_unitario = 4.0, d.subtotal = 8.0 WHERE u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00' AND a.nombre_animal = 'Arenita' AND d.precio_unitario = 15.0;
+
+-- =====================================================================================
+-- PATROCINADORES DE DEMO (empresas ficticias). Uno por nivel, segun lo que se comprometieron a duplicar:
+--   azulprofundo (Oceano, US$ 1.100), mareascafe (Arrecife, US$ 400), brisaoutdoor (Coral, US$ 150).
+--   Contrasenia de los tres: patrocinio123
+-- =====================================================================================
+INSERT IGNORE INTO usuario (id_rol, nombre, apellido, mail, nombre_usuario, contrasenia, fecha_registro, activo)
+SELECT id_rol, 'Valeria', 'Costa', 'valeria@azulprofundo.example', 'azulprofundo', '$2a$10$ZZPDfwabpGCXjpfrBCAoxOWJj0.A.tGnCgfOUIv4/jNp6ukFFb5fG', '2026-05-20 09:00:00', true
+FROM rol WHERE nombre_rol = 'patrocinador';
+
+INSERT IGNORE INTO usuario (id_rol, nombre, apellido, mail, nombre_usuario, contrasenia, fecha_registro, activo)
+SELECT id_rol, 'Joaquín', 'Ferrer', 'joaquin@mareascafe.example', 'mareascafe', '$2a$10$ZZPDfwabpGCXjpfrBCAoxOWJj0.A.tGnCgfOUIv4/jNp6ukFFb5fG', '2026-05-25 09:00:00', true
+FROM rol WHERE nombre_rol = 'patrocinador';
+
+INSERT IGNORE INTO usuario (id_rol, nombre, apellido, mail, nombre_usuario, contrasenia, fecha_registro, activo)
+SELECT id_rol, 'Lucía', 'Benítez', 'lucia@brisaoutdoor.example', 'brisaoutdoor', '$2a$10$ZZPDfwabpGCXjpfrBCAoxOWJj0.A.tGnCgfOUIv4/jNp6ukFFb5fG', '2026-06-01 09:00:00', true
+FROM rol WHERE nombre_rol = 'patrocinador';
+
+INSERT IGNORE INTO patrocinador (id_usuario, nombre_empresa, descripcion, sitio_web, icono, beneficio, cupon)
+SELECT id_usuario, 'Azul Profundo Seguros', 'Seguros para quienes viven el mar: buceo, navegación y deportes acuáticos.', 'azulprofundo.example', 'shield', '25% off el primer año en tu seguro de buceo.', 'AZUL25'
+FROM usuario WHERE nombre_usuario = 'azulprofundo';
+
+INSERT IGNORE INTO patrocinador (id_usuario, nombre_empresa, descripcion, sitio_web, icono, beneficio, cupon)
+SELECT id_usuario, 'Mareas Café', 'Tostadores de café de especialidad en la costa. Cada bolsa ayuda a un rescate.', 'mareascafe.example', 'local_cafe', '15% off en cafés de especialidad.', 'SEAPLACE15'
+FROM usuario WHERE nombre_usuario = 'mareascafe';
+
+INSERT IGNORE INTO patrocinador (id_usuario, nombre_empresa, descripcion, sitio_web, icono, beneficio, cupon)
+SELECT id_usuario, 'Brisa Outdoor', 'Equipamiento de snorkel y kayak para explorar el mar con respeto.', 'brisaoutdoor.example', 'kayaking', '10% off en equipos de snorkel.', 'BRISA10'
+FROM usuario WHERE nombre_usuario = 'brisaoutdoor';
+
+-- Campañas de duplicacion. "aportado" coincide con los pagos de demo que duplicaron (ver abajo).
+INSERT INTO campania (id_patrocinador, id_animal, tope, aportado, fecha_inicio, fecha_fin, activa) SELECT p.id_patrocinador, a.id_animal, 600, 5, '2026-06-01', '2027-03-31', true FROM patrocinador p JOIN animal a ON a.nombre_animal = 'Kelp' WHERE p.nombre_empresa = 'Azul Profundo Seguros' AND NOT EXISTS (SELECT 1 FROM campania c WHERE c.id_patrocinador = p.id_patrocinador AND c.id_animal = a.id_animal);
+INSERT INTO campania (id_patrocinador, id_animal, tope, aportado, fecha_inicio, fecha_fin, activa) SELECT p.id_patrocinador, a.id_animal, 500, 14, '2026-06-01', '2027-03-31', true FROM patrocinador p JOIN animal a ON a.nombre_animal = 'Mar' WHERE p.nombre_empresa = 'Azul Profundo Seguros' AND NOT EXISTS (SELECT 1 FROM campania c WHERE c.id_patrocinador = p.id_patrocinador AND c.id_animal = a.id_animal);
+INSERT INTO campania (id_patrocinador, id_animal, tope, aportado, fecha_inicio, fecha_fin, activa) SELECT p.id_patrocinador, a.id_animal, 400, 18, '2026-06-01', '2027-03-31', true FROM patrocinador p JOIN animal a ON a.nombre_animal = 'Jacinta' WHERE p.nombre_empresa = 'Mareas Café' AND NOT EXISTS (SELECT 1 FROM campania c WHERE c.id_patrocinador = p.id_patrocinador AND c.id_animal = a.id_animal);
+INSERT INTO campania (id_patrocinador, id_animal, tope, aportado, fecha_inicio, fecha_fin, activa) SELECT p.id_patrocinador, a.id_animal, 150, 0, '2026-10-01', '2027-03-31', true FROM patrocinador p JOIN animal a ON a.nombre_animal = 'Coral' WHERE p.nombre_empresa = 'Brisa Outdoor' AND NOT EXISTS (SELECT 1 FROM campania c WHERE c.id_patrocinador = p.id_patrocinador AND c.id_animal = a.id_animal);
+
+-- Los pagos de demo que esas campañas duplicaron (el patrocinador puso lo mismo que el padrino)
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal JOIN campania c ON c.id_animal = a.id_animal JOIN patrocinador p ON p.id_patrocinador = c.id_patrocinador SET d.id_campania = c.id_campania, d.aporte_patrocinador = d.subtotal WHERE d.id_campania IS NULL AND p.nombre_empresa = 'Mareas Café' AND a.nombre_animal = 'Jacinta' AND ((u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-07-10 10:00:00') OR (u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-09-03 21:05:00'));
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal JOIN campania c ON c.id_animal = a.id_animal JOIN patrocinador p ON p.id_patrocinador = c.id_patrocinador SET d.id_campania = c.id_campania, d.aporte_patrocinador = d.subtotal WHERE d.id_campania IS NULL AND p.nombre_empresa = 'Azul Profundo Seguros' AND a.nombre_animal = 'Kelp' AND u.nombre_usuario = 'marina' AND z.fecha_zarpar = '2026-08-22 18:30:00';
+UPDATE zarpar_detalle d JOIN zarpar z ON z.id_zarpar = d.id_zarpar JOIN usuario u ON u.id_usuario = z.id_usuario JOIN animal a ON a.id_animal = d.id_animal JOIN campania c ON c.id_animal = a.id_animal JOIN patrocinador p ON p.id_patrocinador = c.id_patrocinador SET d.id_campania = c.id_campania, d.aporte_patrocinador = d.subtotal WHERE d.id_campania IS NULL AND p.nombre_empresa = 'Azul Profundo Seguros' AND a.nombre_animal = 'Mar' AND u.nombre_usuario = 'tomas' AND z.fecha_zarpar = '2026-06-15 09:15:00';

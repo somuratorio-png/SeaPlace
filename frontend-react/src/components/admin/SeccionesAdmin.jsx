@@ -3,8 +3,10 @@ import { useDispatch, useSelector } from 'react-redux'
 import { traerCambiosPendientes, traerPublicaciones } from '../../Redux/animalesSlice'
 import { traerApadrinamientos } from '../../Redux/apadrinamientosSlice'
 import { traerCategorias } from '../../Redux/categoriasSlice'
+import { traerMetricas } from '../../Redux/metricasSlice'
 import { traerPermisos, traerRoles } from '../../Redux/rolesSlice'
 import SeccionCategorias from './SeccionCategorias'
+import SeccionMetricas from './SeccionMetricas'
 import SeccionPublicaciones from './SeccionPublicaciones'
 import SeccionRefugios from './SeccionRefugios'
 import SeccionResumen from './SeccionResumen'
@@ -33,6 +35,7 @@ const SeccionesAdmin = ({ onCambiarActivo, onError }) => {
     dispatch(traerCategorias())
     dispatch(traerRoles())
     dispatch(traerPermisos())
+    dispatch(traerMetricas())
   }, [dispatch])
 
   // Los refugios que esperan aprobación se avisan con un número en el menú, y lo mismo con lo que mandaron
@@ -42,6 +45,7 @@ const SeccionesAdmin = ({ onCambiarActivo, onError }) => {
 
   const secciones = [
     { id: 'resumen', nombre: 'Resumen', icono: 'dashboard' },
+    { id: 'metricas', nombre: 'Métricas comerciales', icono: 'monitoring' },
     { id: 'refugios', nombre: 'Refugios', icono: 'home_health', aviso: pendientes.length },
     { id: 'publicaciones', nombre: 'Publicaciones', icono: 'pending_actions', aviso: nuevas.length + cambiosPendientes.length },
     { id: 'usuarios', nombre: 'Usuarios', icono: 'group' },
@@ -57,6 +61,7 @@ const SeccionesAdmin = ({ onCambiarActivo, onError }) => {
 
       <div className="lg:col-span-9">
         {seccion === 'resumen' && <SeccionResumen />}
+        {seccion === 'metricas' && <SeccionMetricas />}
         {seccion === 'refugios' && <SeccionRefugios onCambiarActivo={onCambiarActivo} onError={onError} />}
         {seccion === 'publicaciones' && <SeccionPublicaciones onError={onError} />}
         {seccion === 'usuarios' && <SeccionUsuarios onCambiarActivo={onCambiarActivo} onError={onError} />}

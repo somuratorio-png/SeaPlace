@@ -1,6 +1,7 @@
 import BarraProgreso from '../comunes/BarraProgreso'
 import FavoritoAnimal from '../comunes/FavoritoAnimal'
 import PrecioAnimal from '../comunes/PrecioAnimal'
+import SelloPatrocinio from '../comunes/SelloPatrocinio'
 
 // Color del cartelito de estado según la urgencia del animal
 const coloresUrgencia = {
@@ -29,6 +30,7 @@ const TarjetaAnimal = ({ animal, onError, onVer }) => {
           <span className="font-label-md text-label-md text-tertiary">{animal.especie}</span>
         </div>
         <p className="font-body-sm text-body-sm text-on-surface-variant flex-1">{animal.descripcion}</p>
+        {animal.patrocinio && <SelloPatrocinio patrocinio={animal.patrocinio} />}
         <PrecioAnimal animal={animal} />
         <p className={`font-label-md text-label-md ${sinCupos ? 'text-error' : 'text-secondary'}`}>
           {sinCupos ? 'Sin cupos disponibles' : `Quedan ${animal.cuposDisponibles} de ${animal.cuposTotales} cupos`}

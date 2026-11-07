@@ -4,6 +4,7 @@ import AnimalesDestacados from './AnimalesDestacados'
 import Estadisticas from './Estadisticas'
 import Hero from './Hero'
 import KitProtector from './KitProtector'
+import NosAcompanian from './NosAcompanian'
 import Testimonios from './Testimonios'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
@@ -51,6 +52,7 @@ const PaginaInicio = () => {
       <Estadisticas />
       {elegirDestacados()}
       <KitProtector />
+      <NosAcompanian />
       <Testimonios />
     </>
   )
