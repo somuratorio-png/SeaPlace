@@ -1,7 +1,5 @@
-import CredencialesDePrueba from './CredencialesDePrueba'
-
 // Lo que va debajo del botón de enviar en el login: cambiar entre ingresar y registrarse y, solo al ingresar,
-// "olvidé mi contraseña" y los usuarios de prueba.
+// "olvidé mi contraseña".
 const EnlacesLogin = ({ esRegistro, onCambiarModo, onRecuperar }) => {
   return (
     <>
@@ -14,8 +12,6 @@ const EnlacesLogin = ({ esRegistro, onCambiarModo, onRecuperar }) => {
           ¿Olvidaste tu contraseña?
         </button>
       )}
-
-      {!esRegistro && <CredencialesDePrueba />}
     </>
   )
 }
