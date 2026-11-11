@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aNotificacion } from '../services/notificaciones'
-import { comoLista, conToken, URL_BASE } from './api'
+import { comoLista, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -14,7 +14,7 @@ export const traerNotificaciones = createAsyncThunk('notificaciones/traerNotific
     const { data } = await axios.get(`${URL_BASE}/notificaciones`, conToken(getState))
     return comoLista(data).map(aNotificacion)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -22,7 +22,7 @@ export const marcarLeidas = createAsyncThunk('notificaciones/marcarLeidas', asyn
   try {
     await axios.put(`${URL_BASE}/notificaciones/leidas`, null, conToken(getState))
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

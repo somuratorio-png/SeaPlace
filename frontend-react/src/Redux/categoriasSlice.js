@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aCategoria } from '../services/animales'
-import { comoLista, conToken, URL_BASE } from './api'
+import { comoLista, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 
 // Espeja CategoriaService del backend. Cada categoría: { id, nombre, icono }
@@ -11,7 +11,7 @@ export const traerCategorias = createAsyncThunk('categorias/traerCategorias', as
     const { data } = await axios.get(`${URL_BASE}/categorias`)
     return comoLista(data).map(aCategoria)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -21,7 +21,7 @@ export const crearCategoria = createAsyncThunk('categorias/crearCategoria', asyn
     const { data } = await axios.post(`${URL_BASE}/categorias`, { nombreCategoria, descripcion }, conToken(getState))
     return aCategoria(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

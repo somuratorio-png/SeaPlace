@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aUsuario } from '../services/usuarios'
-import { comoPagina, conToken, URL_BASE } from './api'
+import { comoPagina, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -13,7 +13,7 @@ export const traerUsuarios = createAsyncThunk('usuarios/traerUsuarios', async (_
     const { data } = await axios.get(`${URL_BASE}/usuarios`, conToken(getState))
     return comoPagina(data).map(aUsuario)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -23,7 +23,7 @@ export const cambiarRol = createAsyncThunk('usuarios/cambiarRol', async ({ idUsu
     const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/rol`, { idRol }, conToken(getState))
     return aUsuario(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -33,7 +33,7 @@ export const darDeBaja = createAsyncThunk('usuarios/darDeBaja', async (idUsuario
     const { data } = await axios.delete(`${URL_BASE}/usuarios/${idUsuario}`, conToken(getState))
     return aUsuario(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -42,7 +42,7 @@ export const reactivar = createAsyncThunk('usuarios/reactivar', async (idUsuario
     const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/reactivar`, null, conToken(getState))
     return aUsuario(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -51,7 +51,7 @@ export const aprobarRefugio = createAsyncThunk('usuarios/aprobarRefugio', async 
     await axios.put(`${URL_BASE}/refugios/${idRefugio}/aprobar`, null, conToken(getState))
     return idRefugio
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

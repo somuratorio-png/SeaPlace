@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aPlanes } from '../services/apadrinar'
-import { URL_BASE } from './api'
+import { URL_BASE, conError } from './api'
 import { alEmpezar, alFallar } from './casos'
 
 // Espeja PlanService del backend. Los 3 niveles de apadrinamiento: [{ codigo, nombre, multiplicador, texto, ubicacionEnVivo }]
@@ -12,7 +12,7 @@ export const traerPlanes = createAsyncThunk('planes/traerPlanes', async (_, { re
     const { data } = await axios.get(`${URL_BASE}/inicio`)
     return aPlanes(data.planes)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

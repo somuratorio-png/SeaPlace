@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aAnimal, aCuerpoAnimal, aDescuento, diferencias, urlDeFoto } from '../services/animales'
 import { hoy } from '../utils/fechas'
-import { comoLista, comoPagina, conToken, URL_BASE } from './api'
+import { comoLista, comoPagina, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 import { darDeBaja } from './usuariosSlice'
@@ -18,7 +18,7 @@ export const traerAnimales = createAsyncThunk('animales/traerAnimales', async (_
     const { data } = await axios.get(`${URL_BASE}/animales`)
     return comoPagina(data).map(aAnimal)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -28,7 +28,7 @@ export const traerAnimal = createAsyncThunk('animales/traerAnimal', async (idAni
     const { data } = await axios.get(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -40,7 +40,7 @@ export const traerPublicaciones = createAsyncThunk('animales/traerPublicaciones'
     const { data } = await axios.get(`${URL_BASE}/animales?estado=ACTIVA,PAUSADA,PENDIENTE${filtro}`, conToken(getState))
     return comoPagina(data).map(aAnimal)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -53,7 +53,7 @@ export const traerCambiosPendientes = createAsyncThunk('animales/traerCambiosPen
       cambios: diferencias(pendiente.animal, pendiente.cambio, pendiente.nombreCategoriaPropuesta),
     }))
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -65,7 +65,7 @@ export const crearAnimal = createAsyncThunk('animales/crearAnimal', async (datos
     const { data } = await axios.post(`${URL_BASE}/animales`, aCuerpoAnimal(datos), conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -75,7 +75,7 @@ export const editarAnimal = createAsyncThunk('animales/editarAnimal', async ({ i
     const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, aCuerpoAnimal(datos), conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -85,7 +85,7 @@ export const cambiarPublicacion = createAsyncThunk('animales/cambiarPublicacion'
     const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}`, { estado }, conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -95,7 +95,7 @@ export const quitarAnimal = createAsyncThunk('animales/quitarAnimal', async (idA
     await axios.delete(`${URL_BASE}/animales/${idAnimal}`, conToken(getState))
     return idAnimal
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -105,7 +105,7 @@ export const aprobarAnimal = createAsyncThunk('animales/aprobarAnimal', async (i
     const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/aprobar`, null, conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -115,7 +115,7 @@ export const rechazarAnimal = createAsyncThunk('animales/rechazarAnimal', async 
     await axios.put(`${URL_BASE}/animales/${idAnimal}/rechazar`, { motivo }, conToken(getState))
     return idAnimal
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -124,7 +124,7 @@ export const aprobarCambios = createAsyncThunk('animales/aprobarCambios', async 
     const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/aprobar`, null, conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -133,7 +133,7 @@ export const rechazarCambios = createAsyncThunk('animales/rechazarCambios', asyn
     const { data } = await axios.put(`${URL_BASE}/animales/${idAnimal}/cambios/rechazar`, { motivo }, conToken(getState))
     return aAnimal(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -148,7 +148,7 @@ export const subirFoto = createAsyncThunk('animales/subirFoto', async ({ animal,
     const fotos = animal.sinFotos ? [url] : [...animal.fotos, url]
     return { ...animal, fotos, imagen: fotos[0], sinFotos: false }
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -158,7 +158,7 @@ export const ponerOferta = createAsyncThunk('animales/ponerOferta', async ({ ani
     const { data } = await axios.post(`${URL_BASE}/animales/${animal.id}/descuentos`, { porcentaje, fechaInicio: hoy(), fechaFin: hasta }, conToken(getState))
     return { ...animal, descuento: aDescuento(data) }
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -167,7 +167,7 @@ export const quitarOferta = createAsyncThunk('animales/quitarOferta', async (ani
     await axios.delete(`${URL_BASE}/animales/${animal.id}/descuentos/${animal.descuento.id}`, conToken(getState))
     return { ...animal, descuento: null }
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -177,7 +177,7 @@ export const publicarNovedad = createAsyncThunk('animales/publicarNovedad', asyn
     const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades`, { texto }, conToken(getState))
     return data
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -186,7 +186,7 @@ export const registrarUbicacion = createAsyncThunk('animales/registrarUbicacion'
     const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/ubicaciones`, { latitud, longitud }, conToken(getState))
     return data
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

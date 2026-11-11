@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aCampania } from '../services/patrocinadores'
-import { comoLista, conToken, URL_BASE } from './api'
+import { comoLista, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -9,7 +9,6 @@ import { salir } from './usuarioSlice'
 // animales. Las pendientes las acepta (desde ese día se duplican los aportes) o las rechaza.
 // (Las del patrocinador, desde su lado, están en patrocinioSlice.)
 
-const conError = (error) => (error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
 
 // Las de los animales del refugio logueado, de la más nueva a la más vieja
 export const traerCampanias = createAsyncThunk('campanias/traerCampanias', async (_, { getState, rejectWithValue }) => {

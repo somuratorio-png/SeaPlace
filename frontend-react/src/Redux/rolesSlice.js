@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aPermiso, aRol } from '../services/usuarios'
-import { comoLista, conToken, URL_BASE } from './api'
+import { comoLista, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -13,7 +13,7 @@ export const traerRoles = createAsyncThunk('roles/traerRoles', async (_, { getSt
     const { data } = await axios.get(`${URL_BASE}/roles`, conToken(getState))
     return comoLista(data).map(aRol)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -22,7 +22,7 @@ export const traerPermisos = createAsyncThunk('roles/traerPermisos', async (_, {
     const { data } = await axios.get(`${URL_BASE}/permisos`, conToken(getState))
     return comoLista(data).map(aPermiso)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -31,7 +31,7 @@ export const crearRol = createAsyncThunk('roles/crearRol', async (nombreRol, { g
     const { data } = await axios.post(`${URL_BASE}/roles`, { nombreRol }, conToken(getState))
     return aRol(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -40,7 +40,7 @@ export const crearPermiso = createAsyncThunk('roles/crearPermiso', async ({ nomb
     const { data } = await axios.post(`${URL_BASE}/permisos`, { nombrePermiso, descripcion }, conToken(getState))
     return aPermiso(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -50,7 +50,7 @@ export const asignarPermisos = createAsyncThunk('roles/asignarPermisos', async (
     const { data } = await axios.post(`${URL_BASE}/roles/${idRol}/permisos`, { idPermisos }, conToken(getState))
     return aRol(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

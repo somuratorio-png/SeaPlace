@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aBeneficio, aPatrocinador } from '../services/patrocinadores'
-import { comoLista, conToken, URL_BASE } from './api'
+import { comoLista, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alFallar } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -15,7 +15,7 @@ export const traerPatrocinadores = createAsyncThunk('patrocinadores/traerPatroci
     const { data } = await axios.get(`${URL_BASE}/patrocinadores`)
     return comoLista(data).map(aPatrocinador)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -25,7 +25,7 @@ export const traerBeneficios = createAsyncThunk('patrocinadores/traerBeneficios'
     const { data } = await axios.get(`${URL_BASE}/patrocinadores/beneficios`, conToken(getState))
     return comoLista(data).map(aBeneficio)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

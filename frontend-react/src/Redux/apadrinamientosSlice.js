@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aApadrinamiento } from '../services/apadrinar'
 import { aComentario } from '../services/comentarios'
-import { comoLista, conToken, planesDe, URL_BASE } from './api'
+import { comoLista, conToken, planesDe, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -16,7 +16,7 @@ export const traerApadrinamientos = createAsyncThunk('apadrinamientos/traerApadr
     const { data } = await axios.get(`${URL_BASE}/apadrinamientos`, conToken(getState))
     return comoLista(data).map((dato) => aApadrinamiento(planesDe(getState), dato))
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -26,7 +26,7 @@ export const cancelarApadrinamiento = createAsyncThunk('apadrinamientos/cancelar
     const { data } = await axios.delete(`${URL_BASE}/apadrinamientos/${idApadrinamiento}`, conToken(getState))
     return aApadrinamiento(planesDe(getState), data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -36,7 +36,7 @@ export const comentarNovedad = createAsyncThunk('apadrinamientos/comentarNovedad
     const { data } = await axios.post(`${URL_BASE}/animales/${idAnimal}/novedades/${idNovedad}/comentarios`, { texto }, conToken(getState))
     return aComentario(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -46,7 +46,7 @@ export const borrarComentarioNovedad = createAsyncThunk('apadrinamientos/borrarC
     await axios.delete(`${URL_BASE}/comentarios/${idComentario}`, conToken(getState))
     return { idNovedad, idComentario }
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

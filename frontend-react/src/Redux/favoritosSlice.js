@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aAnimal } from '../services/animales'
-import { conToken, URL_BASE } from './api'
+import { conToken, URL_BASE, conError } from './api'
 import { alEnviar, alFallarEnvio } from './casos'
 import { ingresar, registrar, salir } from './usuarioSlice'
 
@@ -14,7 +14,7 @@ export const agregarFavorito = createAsyncThunk('favoritos/agregarFavorito', asy
     const { data } = await axios.put(`${URL_BASE}/favoritos/${idAnimal}`, null, conToken(getState))
     return aAnimal(data.animal)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -23,7 +23,7 @@ export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async
     await axios.delete(`${URL_BASE}/favoritos/${idAnimal}`, conToken(getState))
     return idAnimal
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

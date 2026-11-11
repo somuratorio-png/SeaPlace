@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aMiPatrocinio } from '../services/patrocinadores'
-import { conToken, URL_BASE } from './api'
+import { conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -9,7 +9,6 @@ import { salir } from './usuarioSlice'
 // Todas las acciones devuelven el panel completo (perfil, campañas e impacto), porque crear o terminar
 // una campaña también cambia su nivel: el estado se reemplaza con lo que contesta el backend.
 
-const conError = (error) => (error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
 
 export const traerMiPatrocinio = createAsyncThunk('patrocinio/traerMiPatrocinio', async (_, { getState, rejectWithValue }) => {
   try {

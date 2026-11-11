@@ -1,7 +1,7 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aItem } from '../services/apadrinar'
-import { conToken, planesDe, URL_BASE } from './api'
+import { conToken, planesDe, URL_BASE, conError } from './api'
 import { alEnviar, alFallarEnvio } from './casos'
 import { ingresar, registrar, salir } from './usuarioSlice'
 
@@ -23,7 +23,7 @@ export const agregarAlMuelle = createAsyncThunk('muelle/agregarAlMuelle', async 
       : await axios.post(`${URL_BASE}/muelles/items`, { idMuelle: muelle.id, idAnimal, cantidad: 1, plan: codigoPlan }, conToken(getState))
     return aItem(planesDe(getState), data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -34,7 +34,7 @@ export const cambiarCantidad = createAsyncThunk('muelle/cambiarCantidad', async 
     const { data } = await axios.put(`${URL_BASE}/muelles/${getState().muelle.id}/items/${item.animal.id}`, { cantidad: acotada }, conToken(getState))
     return aItem(planesDe(getState), data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -43,7 +43,7 @@ export const quitarDelMuelle = createAsyncThunk('muelle/quitarDelMuelle', async 
     await axios.delete(`${URL_BASE}/muelles/${getState().muelle.id}/items/${idAnimal}`, conToken(getState))
     return idAnimal
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
@@ -60,7 +60,7 @@ export const zarpar = createAsyncThunk('muelle/zarpar', async (conBotiquin, { ge
       patrocinadores: [...new Set(duplicados.map((detalle) => detalle.nombrePatrocinador))],
     }
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 

@@ -1,6 +1,6 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
-import { conToken, URL_BASE } from './api'
+import { conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alFallar } from './casos'
 import { salir } from './usuarioSlice'
 
@@ -30,7 +30,7 @@ export const traerMetricas = createAsyncThunk('metricas/traerMetricas', async (_
     const { data } = await axios.get(`${URL_BASE}/metricas`, conToken(getState))
     return aMetricas(data)
   } catch (error) {
-    return rejectWithValue(error.response ? error.response.data : { mensaje: 'No se pudo conectar con el servidor' })
+    return rejectWithValue(conError(error))
   }
 })
 
