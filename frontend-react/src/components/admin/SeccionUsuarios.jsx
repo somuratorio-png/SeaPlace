@@ -18,7 +18,7 @@ const SeccionUsuarios = ({ onCambiarActivo, onError }) => {
   const dispatch = useDispatch()
   const { usuario, usuarios } = useSelector((state) => state.usuario)
   const { roles, loading: cargando, error } = useSelector((state) => state.roles)
-  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
+  const { busqueda, buscar, encontrados, visibles, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
   // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.
   // El cambio se ve con el usuario que devuelve el backend.
@@ -35,13 +35,13 @@ const SeccionUsuarios = ({ onCambiarActivo, onError }) => {
 
   return (
     <section className="space-y-space-md">
-      <EncabezadoLista titulo="Usuarios" nombre="usuarios" mostrando={items.length} total={encontrados.length} />
+      <EncabezadoLista titulo="Usuarios" nombre="usuarios" mostrando={visibles.length} total={encontrados.length} />
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar usuario por nombre, correo o rol..." />
 
       {encontrados.length === 0 ? (
         <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Ningún usuario coincide con esa búsqueda.</MensajeVacio>
       ) : (
-        <TablaUsuarios usuarios={items} roles={roles} nombreLogueado={usuario.nombreUsuario} onCambiarRol={elegirRol} onCambiarActivo={onCambiarActivo} />
+        <TablaUsuarios usuarios={visibles} roles={roles} nombreLogueado={usuario.nombreUsuario} onCambiarRol={elegirRol} onCambiarActivo={onCambiarActivo} />
       )}
       <Paginacion pagina={paginaActual} totalPaginas={totalPaginas} onCambiar={setPagina} />
     </section>

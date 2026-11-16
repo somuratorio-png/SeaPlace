@@ -11,12 +11,12 @@ export const useBusquedaPaginada = (lista, textoDe, tamanio) => {
 
   const texto = paraBuscar(busqueda)
   const encontrados = lista.filter((elemento) => paraBuscar(textoDe(elemento)).includes(texto))
-  const { items, paginaActual, totalPaginas } = paginar(encontrados, pagina, tamanio)
+  const { visibles, paginaActual, totalPaginas } = paginar(encontrados, pagina, tamanio)
 
   const buscar = (valor) => {
     setBusqueda(valor)
     setPagina(0)
   }
 
-  return { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina }
+  return { busqueda, buscar, encontrados, visibles, paginaActual, totalPaginas, setPagina }
 }

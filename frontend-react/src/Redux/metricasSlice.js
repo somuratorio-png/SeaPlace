@@ -35,7 +35,7 @@ export const traerMetricas = createAsyncThunk('metricas/traerMetricas', async (_
 })
 
 const initialState = {
-  datos: null, // null hasta que llegan del backend
+  metricas: null, // null hasta que llegan del backend
   loading: false,
   error: null,
 }
@@ -49,7 +49,7 @@ const metricasSlice = createSlice({
       .addCase(traerMetricas.pending, alEmpezar)
       .addCase(traerMetricas.fulfilled, (state, action) => {
         state.loading = false
-        state.datos = action.payload
+        state.metricas = action.payload
       })
       .addCase(traerMetricas.rejected, alFallar)
 

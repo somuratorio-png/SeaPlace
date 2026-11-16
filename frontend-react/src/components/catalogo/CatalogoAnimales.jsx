@@ -54,7 +54,7 @@ const CatalogoAnimales = () => {
     .filter((animal) => !soloFavoritos || favoritos.some((guardado) => guardado.id === animal.id))
   const ordenados = orden === 'recomendados' ? filtrados : [...filtrados].sort(comparadores[orden])
 
-  const { busqueda, buscar, encontrados, items: visibles, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenados, textoDelAnimal, ANIMALES_POR_PAGINA)
+  const { busqueda, buscar, encontrados, visibles, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenados, textoDelAnimal, ANIMALES_POR_PAGINA)
 
   const alFiltrar = (guardar) => (valor) => {
     guardar(valor)

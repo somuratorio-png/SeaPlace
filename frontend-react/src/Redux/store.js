@@ -9,7 +9,6 @@ import muelleReducer from './muelleSlice'
 import metricasReducer from './metricasSlice'
 import notificacionesReducer from './notificacionesSlice'
 import patrocinadoresReducer from './patrocinadoresSlice'
-import patrocinioReducer from './patrocinioSlice'
 import planesReducer from './planesSlice'
 import rolesReducer from './rolesSlice'
 import usuarioReducer from './usuarioSlice'
@@ -27,7 +26,6 @@ export const store = configureStore({
     notificaciones: notificacionesReducer,
     comentarios: comentariosReducer,
     patrocinadores: patrocinadoresReducer,
-    patrocinio: patrocinioReducer,
     metricas: metricasReducer,
     campanias: campaniasReducer,
     usuario: usuarioReducer,

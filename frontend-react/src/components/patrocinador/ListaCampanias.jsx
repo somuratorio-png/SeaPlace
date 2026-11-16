@@ -4,7 +4,7 @@ import BarraProgreso from '../comunes/BarraProgreso'
 import MensajeVacio from '../comunes/MensajeVacio'
 import Modal from '../comunes/Modal'
 import Precio from '../comunes/Precio'
-import { finalizarCampania } from '../../Redux/patrocinioSlice'
+import { finalizarCampania } from '../../Redux/patrocinadoresSlice'
 import { formatearFecha } from '../../utils/fechas'
 
 // Cómo se ve el estado de una campaña

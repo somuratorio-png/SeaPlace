@@ -9,7 +9,7 @@ import FormularioPerfilPatrocinador from './FormularioPerfilPatrocinador'
 import ImpactoPatrocinio from './ImpactoPatrocinio'
 import ListaCampanias from './ListaCampanias'
 import { traerAnimales } from '../../Redux/animalesSlice'
-import { limpiarError, traerMiPatrocinio } from '../../Redux/patrocinioSlice'
+import { limpiarError, traerMiPatrocinio } from '../../Redux/patrocinadoresSlice'
 import { nivelDe } from '../../services/patrocinadores'
 
 // Panel de una empresa patrocinadora: su nivel, el impacto que lograron sus campañas, las campañas
@@ -18,7 +18,7 @@ import { nivelDe } from '../../services/patrocinadores'
 // Si una acción falla, el mensaje se muestra arriba de la página.
 const PanelPatrocinador = () => {
   const dispatch = useDispatch()
-  const { perfil, campanias, impacto, loading, error, errorAccion } = useSelector((state) => state.patrocinio)
+  const { miPerfil: perfil, misCampanias: campanias, miImpacto: impacto, cargandoPanel: loading, errorPanel: error, errorAccion } = useSelector((state) => state.patrocinadores)
 
   useEffect(() => {
     dispatch(limpiarError())

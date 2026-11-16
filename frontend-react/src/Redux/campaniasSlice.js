@@ -7,7 +7,7 @@ import { salir } from './usuarioSlice'
 
 // Las campañas de duplicación vistas desde el refugio: las que le proponen los patrocinadores para sus
 // animales. Las pendientes las acepta (desde ese día se duplican los aportes) o las rechaza.
-// (Las del patrocinador, desde su lado, están en patrocinioSlice.)
+// (Las del patrocinador, desde su lado, están en patrocinadoresSlice: misCampanias.)
 
 
 // Las de los animales del refugio logueado, de la más nueva a la más vieja

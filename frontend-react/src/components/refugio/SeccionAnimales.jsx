@@ -23,14 +23,14 @@ const ordenar = (animales) =>
 // Sección "Mis animales" del refugio: los busca y los muestra de a una página (ver "ordenar").
 // "animales" son solo los de este refugio y "apadrinamientos" los activos de esos animales.
 const SeccionAnimales = ({ animales, apadrinamientos, categorias, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
-  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenar(animales), textoDelAnimal, ANIMALES_POR_PAGINA)
+  const { busqueda, buscar, encontrados, visibles, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(ordenar(animales), textoDelAnimal, ANIMALES_POR_PAGINA)
 
   return (
     <section className="space-y-space-md">
       <div className="flex flex-wrap items-end justify-between gap-space-sm">
         <TituloSeccion>Mis animales</TituloSeccion>
         <p className="font-body-sm text-body-sm text-on-surface-variant">
-          Mostrando {items.length} de {encontrados.length}
+          Mostrando {visibles.length} de {encontrados.length}
         </p>
       </div>
       <Buscador valor={busqueda} onCambiar={buscar} textoAyuda="Buscar por nombre, especie o estado..." />
@@ -41,7 +41,7 @@ const SeccionAnimales = ({ animales, apadrinamientos, categorias, onQuitar, onEd
       {animales.length > 0 && encontrados.length === 0 && (
         <MensajeVacio clase="bg-surface-container-lowest rounded-2xl shadow-sm p-space-lg">Ningún animal coincide con esa búsqueda.</MensajeVacio>
       )}
-      {items.map((animal) => (
+      {visibles.map((animal) => (
         <TarjetaMiAnimal
           key={animal.id}
           animal={animal}

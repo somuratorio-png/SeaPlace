@@ -7,5 +7,5 @@ export const paginar = (lista, pagina, tamanio) => {
   const paginaActual = Math.min(pagina, totalPaginas - 1)
   const inicio = paginaActual * tamanio
 
-  return { items: lista.slice(inicio, inicio + tamanio), paginaActual, totalPaginas, total: lista.length }
+  return { visibles: lista.slice(inicio, inicio + tamanio), paginaActual, totalPaginas, total: lista.length }
 }

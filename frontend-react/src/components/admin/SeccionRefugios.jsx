@@ -39,7 +39,7 @@ const SeccionRefugios = ({ onCambiarActivo, onError }) => {
   const pendientes = usuarios.filter((u) => u.rol === 'refugio' && !u.aprobado)
   // Los que esperan aprobación van primero en la lista
   const refugios = [...pendientes, ...usuarios.filter((u) => u.rol === 'refugio' && u.aprobado)]
-  const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(refugios, textoDelRefugio, REFUGIOS_POR_PAGINA)
+  const { busqueda, buscar, encontrados, visibles, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(refugios, textoDelRefugio, REFUGIOS_POR_PAGINA)
 
   if (cargando || error) {
     return <EstadoCarga cargando={cargando} error={error} texto="Cargando los refugios…" />
@@ -47,7 +47,7 @@ const SeccionRefugios = ({ onCambiarActivo, onError }) => {
 
   return (
     <section className="space-y-space-md">
-      <EncabezadoLista titulo="Refugios" nombre="refugios" mostrando={items.length} total={encontrados.length} />
+      <EncabezadoLista titulo="Refugios" nombre="refugios" mostrando={visibles.length} total={encontrados.length} />
 
       {pendientes.length > 0 && <AvisoRefugiosPendientes cantidad={pendientes.length} />}
 
@@ -56,7 +56,7 @@ const SeccionRefugios = ({ onCambiarActivo, onError }) => {
       {encontrados.length === 0 && (
         <MensajeVacio clase="bg-surface-container rounded-2xl p-space-lg">Ningún refugio coincide con esa búsqueda.</MensajeVacio>
       )}
-      {items.map((refugio) => (
+      {visibles.map((refugio) => (
         <TarjetaRefugio
           key={refugio.id}
           refugio={refugio}
