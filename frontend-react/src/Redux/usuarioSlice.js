@@ -1,13 +1,14 @@
 import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aUsuario, entrarCon } from '../services/usuarios'
-import { conToken, planesDe, URL_BASE, conError } from './api'
-import { alEnviar, alFallarEnvio } from './casos'
+import { comoPagina, conToken, planesDe, URL_BASE, conError } from './api'
+import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 
-// Espeja AuthenticationService, SesionService y la parte "mi cuenta" de UsuarioService:
-// quién inició sesión y su token. El token lo leen todos los slices para mandarlo en cada pedido (ver conToken).
-// Los favoritos y el muelle que llegan con la sesión los guardan sus propios slices (escuchan ingresar y registrar).
-// Todas sus acciones mandan datos (no hay GET que llene una pantalla): usan errorAccion.
+// Espeja AuthenticationService, SesionService, UsuarioService y la parte de administrador de RefugioService.
+// Guarda dos cosas:
+// - quién inició sesión y su token. El token lo leen todos los slices para mandarlo en cada pedido (ver conToken).
+//   Los favoritos y el muelle que llegan con la sesión los guardan sus propios slices (escuchan ingresar y registrar).
+// - la lista de usuarios que administra el administrador (traerUsuarios y las acciones sobre cada cuenta).
 
 // ---------- Acciones asíncronas ----------
 
@@ -80,12 +81,64 @@ export const restablecerContrasenia = createAsyncThunk('usuario/restablecerContr
   }
 })
 
+// ---------- Administración de cuentas (solo el administrador) ----------
+
+export const traerUsuarios = createAsyncThunk('usuario/traerUsuarios', async (_, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.get(`${URL_BASE}/usuarios`, conToken(getState))
+    return comoPagina(data).map(aUsuario)
+  } catch (error) {
+    return rejectWithValue(conError(error))
+  }
+})
+
+// Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado
+export const cambiarRol = createAsyncThunk('usuario/cambiarRol', async ({ idUsuario, idRol }, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/rol`, { idRol }, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(conError(error))
+  }
+})
+
+// No borra al usuario: lo deja inactivo. Si es un refugio, el backend pausa sus publicaciones (ver animalesSlice).
+export const darDeBaja = createAsyncThunk('usuario/darDeBaja', async (idUsuario, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.delete(`${URL_BASE}/usuarios/${idUsuario}`, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(conError(error))
+  }
+})
+
+export const reactivar = createAsyncThunk('usuario/reactivar', async (idUsuario, { getState, rejectWithValue }) => {
+  try {
+    const { data } = await axios.put(`${URL_BASE}/usuarios/${idUsuario}/reactivar`, null, conToken(getState))
+    return aUsuario(data)
+  } catch (error) {
+    return rejectWithValue(conError(error))
+  }
+})
+
+export const aprobarRefugio = createAsyncThunk('usuario/aprobarRefugio', async (idRefugio, { getState, rejectWithValue }) => {
+  try {
+    await axios.put(`${URL_BASE}/refugios/${idRefugio}/aprobar`, null, conToken(getState))
+    return idRefugio
+  } catch (error) {
+    return rejectWithValue(conError(error))
+  }
+})
+
 // ---------- Slice ----------
 
 const initialState = {
   usuario: null, // null = nadie inició sesión
   token: null, // vive solo en memoria: al recargar la página se pierde y hay que volver a entrar
   mensaje: null, // el que devuelve "pedir código"
+  usuarios: [], // los que ve el administrador (GET /usuarios)
+  loading: false,
+  error: null,
   errorAccion: null,
 }
 
@@ -93,6 +146,14 @@ const initialState = {
 const conSesion = (state, action) => {
   state.token = action.payload.token
   state.usuario = action.payload.sesion.usuario
+}
+
+// Las que devuelven el usuario modificado: se lo reemplaza en la lista
+const conUsuarioModificado = (state, action) => {
+  const index = state.usuarios.findIndex((otro) => otro.id === action.payload.id)
+  if (index !== -1) {
+    state.usuarios[index] = action.payload
+  }
 }
 
 // Las que no cambian nada guardado
@@ -134,6 +195,35 @@ const usuarioSlice = createSlice({
       .addCase(restablecerContrasenia.pending, alEnviar)
       .addCase(restablecerContrasenia.fulfilled, terminado)
       .addCase(restablecerContrasenia.rejected, alFallarEnvio)
+
+      .addCase(traerUsuarios.pending, alEmpezar)
+      .addCase(traerUsuarios.fulfilled, (state, action) => {
+        state.loading = false
+        state.usuarios = action.payload
+      })
+      .addCase(traerUsuarios.rejected, alFallar)
+
+      .addCase(cambiarRol.pending, alEnviar)
+      .addCase(cambiarRol.fulfilled, conUsuarioModificado)
+      .addCase(cambiarRol.rejected, alFallarEnvio)
+
+      .addCase(darDeBaja.pending, alEnviar)
+      .addCase(darDeBaja.fulfilled, conUsuarioModificado)
+      .addCase(darDeBaja.rejected, alFallarEnvio)
+
+      .addCase(reactivar.pending, alEnviar)
+      .addCase(reactivar.fulfilled, conUsuarioModificado)
+      .addCase(reactivar.rejected, alFallarEnvio)
+
+      // El dueño de ese refugio deja de estar pendiente
+      .addCase(aprobarRefugio.pending, alEnviar)
+      .addCase(aprobarRefugio.fulfilled, (state, action) => {
+        const index = state.usuarios.findIndex((usuario) => usuario.idRefugio === action.payload)
+        if (index !== -1) {
+          state.usuarios[index] = { ...state.usuarios[index], aprobado: true }
+        }
+      })
+      .addCase(aprobarRefugio.rejected, alFallarEnvio)
   },
 })
 

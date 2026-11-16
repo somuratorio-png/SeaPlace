@@ -17,7 +17,7 @@ import { ingresar, registrar, salir } from './usuarioSlice'
 export const agregarAlMuelle = createAsyncThunk('muelle/agregarAlMuelle', async ({ idAnimal, codigoPlan }, { getState, rejectWithValue }) => {
   try {
     const muelle = getState().muelle
-    const yaEstaba = muelle.items.find((item) => item.animal.id === idAnimal)
+    const yaEstaba = muelle.itemsMuelle.find((item) => item.animal.id === idAnimal)
     const { data } = yaEstaba
       ? await axios.put(`${URL_BASE}/muelles/${muelle.id}/items/${idAnimal}`, { cantidad: yaEstaba.cantidad, plan: codigoPlan }, conToken(getState))
       : await axios.post(`${URL_BASE}/muelles/items`, { idMuelle: muelle.id, idAnimal, cantidad: 1, plan: codigoPlan }, conToken(getState))
@@ -68,7 +68,7 @@ export const zarpar = createAsyncThunk('muelle/zarpar', async (conBotiquin, { ge
 
 const initialState = {
   id: null, // null = todavía no tiene muelle abierto
-  items: [],
+  itemsMuelle: [],
   errorAccion: null,
 }
 
@@ -76,17 +76,17 @@ const initialState = {
 const conItem = (state, action) => {
   const item = action.payload
   state.id = item.idMuelle
-  const posicion = state.items.findIndex((otro) => otro.animal.id === item.animal.id)
+  const posicion = state.itemsMuelle.findIndex((otro) => otro.animal.id === item.animal.id)
   if (posicion !== -1) {
-    state.items[posicion] = item
+    state.itemsMuelle[posicion] = item
   } else {
-    state.items = [...state.items, item]
+    state.itemsMuelle = [...state.itemsMuelle, item]
   }
 }
 
 const conSesion = (state, action) => {
   state.id = action.payload.sesion.muelle.id
-  state.items = action.payload.sesion.muelle.items
+  state.itemsMuelle = action.payload.sesion.muelle.items
 }
 
 const muelleSlice = createSlice({
@@ -111,7 +111,7 @@ const muelleSlice = createSlice({
 
       .addCase(quitarDelMuelle.pending, alEnviar)
       .addCase(quitarDelMuelle.fulfilled, (state, action) => {
-        state.items = state.items.filter((item) => item.animal.id !== action.payload)
+        state.itemsMuelle = state.itemsMuelle.filter((item) => item.animal.id !== action.payload)
       })
       .addCase(quitarDelMuelle.rejected, alFallarEnvio)
 

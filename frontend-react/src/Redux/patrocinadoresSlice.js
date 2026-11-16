@@ -30,7 +30,7 @@ export const traerBeneficios = createAsyncThunk('patrocinadores/traerBeneficios'
 })
 
 const initialState = {
-  items: [],
+  patrocinadores: [],
   loading: false,
   error: null,
   beneficios: [],
@@ -47,7 +47,7 @@ const patrocinadoresSlice = createSlice({
       .addCase(traerPatrocinadores.pending, alEmpezar)
       .addCase(traerPatrocinadores.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.patrocinadores = action.payload
       })
       .addCase(traerPatrocinadores.rejected, alFallar)
 

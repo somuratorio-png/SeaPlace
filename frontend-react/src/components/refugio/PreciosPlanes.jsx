@@ -11,7 +11,7 @@ const CAMPO_DEL_PLAN = {
 // Un precio por cada plan de apadrinamiento, de menor a mayor (Marea Profunda incluye todo lo de Guardián de la Bahía).
 // Los planes (nombre y qué incluye) vienen del backend; ver planesSlice.
 const PreciosPlanes = ({ datos, onCambiar }) => {
-  const { items: planes } = useSelector((state) => state.planes)
+  const { planes } = useSelector((state) => state.planes)
 
   return (
     <fieldset className="space-y-space-sm">

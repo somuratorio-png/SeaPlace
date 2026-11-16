@@ -15,7 +15,7 @@ import TituloSeccion from '../comunes/TituloSeccion'
 // ver notificacionesSlice) se siguen resaltando. Las pide la campanita del header y se leen del estado global.
 const SeccionNotificaciones = () => {
   const dispatch = useDispatch()
-  const { items: notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
+  const { notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
   const [tema, setTema] = useState(null) // el tema elegido para filtrar, o null para todas
   const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
   const visibles = tema === null ? notificaciones : notificaciones.filter((notificacion) => notificacion.tema === tema)

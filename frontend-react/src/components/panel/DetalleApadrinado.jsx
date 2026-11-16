@@ -22,7 +22,7 @@ const DetalleApadrinado = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
 
-  const { items: apadrinamientos, loading, error, errorAccion } = useSelector((state) => state.apadrinamientos)
+  const { apadrinamientos, loading, error, errorAccion } = useSelector((state) => state.apadrinamientos)
   // false hasta que termina el pedido de esta página: con la lista vieja del estado global
   // podría parecer que el animal no está apadrinado y mandar al usuario al panel
   const [listo, setListo] = useState(false)

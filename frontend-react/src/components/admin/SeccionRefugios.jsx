@@ -1,6 +1,6 @@
 import { useDispatch, useSelector } from 'react-redux'
 import { quitarAnimal } from '../../Redux/animalesSlice'
-import { aprobarRefugio } from '../../Redux/usuariosSlice'
+import { aprobarRefugio } from '../../Redux/usuarioSlice'
 import { intentar } from '../../utils/intentar'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import EstadoCarga from '../comunes/EstadoCarga'
@@ -21,7 +21,7 @@ const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 // a un refugio, el backend pausa sus publicaciones: animalesSlice también lo refleja.
 const SeccionRefugios = ({ onCambiarActivo, onError }) => {
   const dispatch = useDispatch()
-  const { items: usuarios } = useSelector((state) => state.usuarios)
+  const { usuarios } = useSelector((state) => state.usuario)
   const { publicaciones: animales, loading: cargando, error } = useSelector((state) => state.animales)
 
   const aprobar = (nombreUsuario) => {

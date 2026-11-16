@@ -5,7 +5,7 @@ import { conToken, URL_BASE, conError } from './api'
 import { alEnviar, alFallarEnvio } from './casos'
 import { ingresar, registrar, salir } from './usuarioSlice'
 
-// Espeja FavoritoService del backend. items = los animales que guardó quien inició sesión.
+// Espeja FavoritoService del backend. favoritos = los animales que guardó quien inició sesión.
 // No hay un GET propio: llegan con la sesión, al ingresar o registrarse.
 
 // Devuelve el animal que quedó guardado
@@ -28,12 +28,12 @@ export const quitarFavorito = createAsyncThunk('favoritos/quitarFavorito', async
 })
 
 const initialState = {
-  items: [],
+  favoritos: [],
   errorAccion: null,
 }
 
 const conSesion = (state, action) => {
-  state.items = action.payload.sesion.favoritos
+  state.favoritos = action.payload.sesion.favoritos
 }
 
 const favoritosSlice = createSlice({
@@ -44,13 +44,13 @@ const favoritosSlice = createSlice({
     builder
       .addCase(agregarFavorito.pending, alEnviar)
       .addCase(agregarFavorito.fulfilled, (state, action) => {
-        state.items = [...state.items, action.payload]
+        state.favoritos = [...state.favoritos, action.payload]
       })
       .addCase(agregarFavorito.rejected, alFallarEnvio)
 
       .addCase(quitarFavorito.pending, alEnviar)
       .addCase(quitarFavorito.fulfilled, (state, action) => {
-        state.items = state.items.filter((guardado) => guardado.id !== action.payload)
+        state.favoritos = state.favoritos.filter((guardado) => guardado.id !== action.payload)
       })
       .addCase(quitarFavorito.rejected, alFallarEnvio)
 

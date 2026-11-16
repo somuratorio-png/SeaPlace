@@ -15,7 +15,7 @@ import { traerAnimales } from '../../Redux/animalesSlice'
 const PaginaInicio = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { items: animales, loading: cargando, error } = useSelector((state) => state.animales)
+  const { animales, loading: cargando, error } = useSelector((state) => state.animales)
 
   useEffect(() => {
     dispatch(traerAnimales())

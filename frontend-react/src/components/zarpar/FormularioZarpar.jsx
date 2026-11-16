@@ -20,7 +20,7 @@ const FormularioZarpar = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { state } = useLocation()
-  const { items: muelle } = useSelector((state) => state.muelle)
+  const { itemsMuelle: muelle } = useSelector((state) => state.muelle)
   const conBotiquin = state !== null && state.conBotiquin === true
 
   const [datos, setDatos] = useState(formularioVacio)

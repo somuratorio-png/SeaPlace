@@ -12,7 +12,7 @@ import TarjetaCategoria from './TarjetaCategoria'
 // y se leen del estado global.
 const SeccionCategorias = () => {
   const dispatch = useDispatch()
-  const { items: categorias, loading: cargandoCategorias, error: errorCategorias } = useSelector((state) => state.categorias)
+  const { categorias, loading: cargandoCategorias, error: errorCategorias } = useSelector((state) => state.categorias)
   const animales = useSelector((state) => state.animales)
   const cargando = cargandoCategorias || animales.loading
   const error = errorCategorias || animales.error

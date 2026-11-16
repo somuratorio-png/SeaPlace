@@ -1,5 +1,5 @@
 import { useDispatch, useSelector } from 'react-redux'
-import { cambiarRol } from '../../Redux/usuariosSlice'
+import { cambiarRol } from '../../Redux/usuarioSlice'
 import { useBusquedaPaginada } from '../../hooks/useBusquedaPaginada'
 import { intentar } from '../../utils/intentar'
 import Buscador from '../comunes/Buscador'
@@ -16,9 +16,8 @@ const textoDelUsuario = (u) => `${u.nombre} ${u.apellido} ${u.nombreUsuario} ${u
 // Los usuarios, los roles (los pide SeccionesAdmin) y el administrador logueado se leen del estado global.
 const SeccionUsuarios = ({ onCambiarActivo, onError }) => {
   const dispatch = useDispatch()
-  const { usuario } = useSelector((state) => state.usuario)
-  const { items: usuarios } = useSelector((state) => state.usuarios)
-  const { items: roles, loading: cargando, error } = useSelector((state) => state.roles)
+  const { usuario, usuarios } = useSelector((state) => state.usuario)
+  const { roles, loading: cargando, error } = useSelector((state) => state.roles)
   const { busqueda, buscar, encontrados, items, paginaActual, totalPaginas, setPagina } = useBusquedaPaginada(usuarios, textoDelUsuario, USUARIOS_POR_PAGINA)
 
   // Si el administrador convierte a alguien en refugio, el backend le crea el refugio ya aprobado.

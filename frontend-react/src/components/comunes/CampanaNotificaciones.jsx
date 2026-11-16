@@ -12,7 +12,7 @@ import Icono from './Icono'
 // Se muestra solo con alguien logueado: al aparecer (cuando alguien entra) pide sus notificaciones.
 const CampanaNotificaciones = () => {
   const dispatch = useDispatch()
-  const { items: notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
+  const { notificaciones, loading: cargando, error, errorAccion: errorAlMarcar } = useSelector((state) => state.notificaciones)
   const [abierta, setAbierta] = useState(false)
   const [tema, setTema] = useState(null) // el tema elegido para filtrar, o null para todas
 

@@ -10,7 +10,7 @@ const MAXIMO = 3000
 // "¿Cuánto rinde tu aporte?": la empresa mueve el tope y ve cuánto moviliza, cuántas cuotas de padrinos
 // acompaña (con la cuota promedio del catálogo) y en qué nivel quedaría. Todo se calcula acá, sin pedir nada.
 const SimuladorImpacto = () => {
-  const { items: animales } = useSelector((state) => state.animales)
+  const { animales } = useSelector((state) => state.animales)
   const [tope, setTope] = useState(500)
 
   const cuotaPromedio = animales.length > 0 ? animales.reduce((suma, animal) => suma + animal.precio, 0) / animales.length : 5

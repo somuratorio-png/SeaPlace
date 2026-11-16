@@ -24,7 +24,7 @@ const ANIMALES_POR_PAGINA = 6
 const CatalogoAnimales = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
-  const { items: favoritos } = useSelector((state) => state.favoritos)
+  const { favoritos } = useSelector((state) => state.favoritos)
   const { moneda } = useMoneda()
   const [precioMin, setPrecioMin] = useState('')
   const [precioMax, setPrecioMax] = useState('')
@@ -32,8 +32,8 @@ const CatalogoAnimales = () => {
   // El rango se escribe en la moneda elegida y los precios llegan en dólares. Si el rango está mal escrito, no se filtra por precio.
   const minimo = errorPrecio || precioMin === '' ? null : aDolares(Number(precioMin), moneda)
   const maximo = errorPrecio || precioMax === '' ? null : aDolares(Number(precioMax), moneda)
-  const { items: animales, loading: cargando, error: errorAnimales } = useSelector((state) => state.animales)
-  const { items: categorias, error: errorCategorias } = useSelector((state) => state.categorias)
+  const { animales, loading: cargando, error: errorAnimales } = useSelector((state) => state.animales)
+  const { categorias, error: errorCategorias } = useSelector((state) => state.categorias)
   const error = errorAnimales || errorCategorias
   const [categoria, setCategoria] = useState('todas')
   const [urgencia, setUrgencia] = useState('todas')

@@ -5,7 +5,7 @@ import { hoy } from '../utils/fechas'
 import { comoLista, comoPagina, conToken, URL_BASE, conError } from './api'
 import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
 import { salir } from './usuarioSlice'
-import { darDeBaja } from './usuariosSlice'
+import { darDeBaja } from './usuarioSlice'
 
 // Espeja AnimalService del backend (más fotos y descuentos, que cuelgan de /animales/{id}).
 // Los conversores (aAnimal, aCuerpoAnimal...) son los mismos de services/animales.js.
@@ -193,7 +193,7 @@ export const registrarUbicacion = createAsyncThunk('animales/registrarUbicacion'
 // ---------- Slice ----------
 
 const initialState = {
-  items: [], // el catálogo (GET /animales)
+  animales: [], // el catálogo (GET /animales)
   animal: null, // el de la ficha: separado, así no pisa el catálogo
   publicaciones: [], // las de los paneles de gestión (refugio y administrador)
   cambiosPendientes: [], // [{ animal, cambios }]
@@ -207,9 +207,9 @@ const initialState = {
 // Las que devuelven el animal ya modificado: se lo pone en cada lista donde esté (y en la ficha si es ese)
 const conAnimalModificado = (state, action) => {
   const animal = action.payload
-  const index = state.items.findIndex((otro) => otro.id === animal.id)
+  const index = state.animales.findIndex((otro) => otro.id === animal.id)
   if (index !== -1) {
-    state.items[index] = animal
+    state.animales[index] = animal
   }
   const indexPublicacion = state.publicaciones.findIndex((otro) => otro.id === animal.id)
   if (indexPublicacion !== -1) {
@@ -223,7 +223,7 @@ const conAnimalModificado = (state, action) => {
 // Las que eliminan el animal (devuelven su id): se lo saca de todas las listas
 const conAnimalSacado = (state, action) => {
   const idAnimal = action.payload
-  state.items = state.items.filter((otro) => otro.id !== idAnimal)
+  state.animales = state.animales.filter((otro) => otro.id !== idAnimal)
   state.publicaciones = state.publicaciones.filter((otro) => otro.id !== idAnimal)
   state.cambiosPendientes = state.cambiosPendientes.filter((pendiente) => pendiente.animal.id !== idAnimal)
 }
@@ -247,7 +247,7 @@ const animalesSlice = createSlice({
       .addCase(traerAnimales.pending, alEmpezar)
       .addCase(traerAnimales.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.animales = action.payload
       })
       .addCase(traerAnimales.rejected, alFallar)
 

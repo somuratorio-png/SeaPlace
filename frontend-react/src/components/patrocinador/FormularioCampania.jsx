@@ -17,7 +17,7 @@ const vacio = { idAnimal: '', tope: '', hasta: '' }
 // El error del backend lo muestra la página (errorAccion); acá solo el de validar.
 const FormularioCampania = ({ campanias }) => {
   const dispatch = useDispatch()
-  const { items: animales } = useSelector((state) => state.animales)
+  const { animales } = useSelector((state) => state.animales)
   const { datos, cambiar, reiniciar } = useFormulario(vacio)
   const [error, setError] = useState(null)
   const [enviando, setEnviando] = useState(false)

@@ -17,7 +17,7 @@ const CertificadoApadrinamiento = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
   const { usuario } = useSelector((state) => state.usuario)
-  const { items: apadrinamientos, loading, error } = useSelector((state) => state.apadrinamientos)
+  const { apadrinamientos, loading, error } = useSelector((state) => state.apadrinamientos)
   // false hasta que termina el pedido de esta página (ver DetalleApadrinado)
   const [listo, setListo] = useState(false)
 

@@ -26,7 +26,7 @@ export const crearCategoria = createAsyncThunk('categorias/crearCategoria', asyn
 })
 
 const initialState = {
-  items: [],
+  categorias: [],
   loading: false,
   error: null,
   errorAccion: null,
@@ -41,13 +41,13 @@ const categoriasSlice = createSlice({
       .addCase(traerCategorias.pending, alEmpezar)
       .addCase(traerCategorias.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.categorias = action.payload
       })
       .addCase(traerCategorias.rejected, alFallar)
 
       .addCase(crearCategoria.pending, alEnviar)
       .addCase(crearCategoria.fulfilled, (state, action) => {
-        state.items = [...state.items, action.payload]
+        state.categorias = [...state.categorias, action.payload]
       })
       .addCase(crearCategoria.rejected, alFallarEnvio)
   },

@@ -16,8 +16,8 @@ const PanelProtector = () => {
   const dispatch = useDispatch()
   const { state } = useLocation()
   const { usuario } = useSelector((state) => state.usuario)
-  const { items: favoritos } = useSelector((state) => state.favoritos)
-  const { items: apadrinamientos, loading: cargando, error } = useSelector((state) => state.apadrinamientos)
+  const { favoritos } = useSelector((state) => state.favoritos)
+  const { apadrinamientos, loading: cargando, error } = useSelector((state) => state.apadrinamientos)
   const [errorAccion, setErrorAccion] = useState(null) // mensaje de una acción que falló
 
   // null hasta saber si apadrina algún animal: recién ahí se piden los beneficios (solo son para quien apadrina)

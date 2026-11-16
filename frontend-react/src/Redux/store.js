@@ -13,7 +13,6 @@ import patrocinioReducer from './patrocinioSlice'
 import planesReducer from './planesSlice'
 import rolesReducer from './rolesSlice'
 import usuarioReducer from './usuarioSlice'
-import usuariosReducer from './usuariosSlice'
 
 // El estado global de la app. Cada clave tiene el mismo nombre que el "name" de su slice,
 // así lo que se ve en Redux DevTools coincide con lo que se lee con useSelector((state) => state.animales).
@@ -32,7 +31,6 @@ export const store = configureStore({
     metricas: metricasReducer,
     campanias: campaniasReducer,
     usuario: usuarioReducer,
-    usuarios: usuariosReducer,
     roles: rolesReducer,
   },
 })

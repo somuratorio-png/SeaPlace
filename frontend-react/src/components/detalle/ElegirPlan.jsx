@@ -16,7 +16,7 @@ const ElegirPlan = ({ animal, onError }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { usuario } = useSelector((state) => state.usuario)
-  const { items: planesBase } = useSelector((state) => state.planes)
+  const { planes: planesBase } = useSelector((state) => state.planes)
   const planes = planesDe(animal, planesBase)
 
   const [planElegido, setPlanElegido] = useState('') // '' = todavía no eligió: vale el primero de la lista

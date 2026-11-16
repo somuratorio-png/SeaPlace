@@ -40,7 +40,7 @@ export const rechazarCampania = createAsyncThunk('campanias/rechazarCampania', a
 })
 
 const initialState = {
-  items: [],
+  campanias: [],
   loading: false,
   error: null,
   errorAccion: null,
@@ -48,9 +48,9 @@ const initialState = {
 
 // Aceptar y rechazar devuelven la campaña como quedó: se la reemplaza en la lista
 const conCampaniaModificada = (state, action) => {
-  const index = state.items.findIndex((campania) => campania.id === action.payload.id)
+  const index = state.campanias.findIndex((campania) => campania.id === action.payload.id)
   if (index !== -1) {
-    state.items[index] = action.payload
+    state.campanias[index] = action.payload
   }
 }
 
@@ -67,7 +67,7 @@ const campaniasSlice = createSlice({
       .addCase(traerCampanias.pending, alEmpezar)
       .addCase(traerCampanias.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.campanias = action.payload
       })
       .addCase(traerCampanias.rejected, alFallar)
 

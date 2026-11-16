@@ -12,7 +12,7 @@ export const conToken = (getState) => {
 }
 
 // Los planes que hacen falta para armar los ítems del muelle y los apadrinamientos (ver planesSlice)
-export const planesDe = (getState) => getState().planes.items
+export const planesDe = (getState) => getState().planes.planes
 
 // Sin elementos el backend responde 204 sin cuerpo (axios deja data en ''): acá queda como []
 export const comoLista = (data) => data || []

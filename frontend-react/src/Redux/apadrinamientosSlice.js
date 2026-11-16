@@ -51,7 +51,7 @@ export const borrarComentarioNovedad = createAsyncThunk('apadrinamientos/borrarC
 })
 
 const initialState = {
-  items: [],
+  apadrinamientos: [],
   loading: false,
   error: null,
   errorAccion: null,
@@ -59,16 +59,16 @@ const initialState = {
 
 // Las que devuelven el apadrinamiento como quedó: se lo reemplaza en la lista
 const conApadrinamientoModificado = (state, action) => {
-  const index = state.items.findIndex((otro) => otro.id === action.payload.id)
+  const index = state.apadrinamientos.findIndex((otro) => otro.id === action.payload.id)
   if (index !== -1) {
-    state.items[index] = action.payload
+    state.apadrinamientos[index] = action.payload
   }
 }
 
 // Cambia los comentarios de una novedad en todos los apadrinamientos que la traen
 // (la misma novedad aparece en cada apadrinamiento de ese animal, también en los cancelados)
 const cambiarComentarios = (state, idNovedad, cambiar) => {
-  state.items = state.items.map((item) => ({
+  state.apadrinamientos = state.apadrinamientos.map((item) => ({
     ...item,
     novedades: item.novedades.map((novedad) => (novedad.id === idNovedad ? { ...novedad, comentarios: cambiar(novedad.comentarios) } : novedad)),
   }))
@@ -87,7 +87,7 @@ const apadrinamientosSlice = createSlice({
       .addCase(traerApadrinamientos.pending, alEmpezar)
       .addCase(traerApadrinamientos.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.apadrinamientos = action.payload
       })
       .addCase(traerApadrinamientos.rejected, alFallar)
 

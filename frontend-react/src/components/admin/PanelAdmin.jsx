@@ -4,7 +4,7 @@ import SeccionesAdmin from './SeccionesAdmin'
 import AvisoError from '../comunes/AvisoError'
 import EstadoCarga from '../comunes/EstadoCarga'
 import Portada from '../comunes/Portada'
-import { darDeBaja, reactivar, traerUsuarios } from '../../Redux/usuariosSlice'
+import { darDeBaja, reactivar, traerUsuarios } from '../../Redux/usuarioSlice'
 import { intentar } from '../../utils/intentar'
 
 // Panel del administrador. Esta página pide al montarse los usuarios, que usan el menú (el aviso de
@@ -13,8 +13,7 @@ import { intentar } from '../../utils/intentar'
 // Si una acción falla, el mensaje se muestra arriba de la página.
 const PanelAdmin = () => {
   const dispatch = useDispatch()
-  const { usuario } = useSelector((state) => state.usuario)
-  const { items: usuarios, loading, error } = useSelector((state) => state.usuarios)
+  const { usuario, usuarios, loading, error } = useSelector((state) => state.usuario)
   // false hasta que termina el pedido de los usuarios. Sin esto, en el primer render (antes del "pending")
   // se montarían las secciones, despacharían sus pedidos, se desmontarían al pasar a "cargando" y los
   // volverían a despachar al terminar.

@@ -10,7 +10,7 @@ const FavoritoAnimal = ({ animal, onError, clase }) => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { usuario } = useSelector((state) => state.usuario)
-  const { items: favoritos } = useSelector((state) => state.favoritos)
+  const { favoritos } = useSelector((state) => state.favoritos)
 
   const esFavorito = favoritos.some((guardado) => guardado.id === animal.id)
 

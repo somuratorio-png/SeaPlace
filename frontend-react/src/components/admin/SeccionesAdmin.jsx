@@ -23,7 +23,7 @@ import MenuLateral from '../comunes/MenuLateral'
 const SeccionesAdmin = ({ onCambiarActivo, onError }) => {
   const dispatch = useDispatch()
   const [seccion, setSeccion] = useState('resumen')
-  const { items: usuarios } = useSelector((state) => state.usuarios)
+  const { usuarios } = useSelector((state) => state.usuario)
   const { publicaciones, cambiosPendientes } = useSelector((state) => state.animales)
 
   // Las publicaciones son las de todos los refugios (activas, pausadas y pendientes): de ahí salen los animales

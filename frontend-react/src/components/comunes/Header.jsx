@@ -13,7 +13,7 @@ const Header = () => {
   const dispatch = useDispatch()
   const { pathname } = useLocation()
   const { usuario } = useSelector((state) => state.usuario)
-  const { items } = useSelector((state) => state.muelle)
+  const { itemsMuelle } = useSelector((state) => state.muelle)
   const { moneda, cambiarMoneda } = useMoneda()
 
   // Al salir se vacían los datos de quien estaba logueado (sus favoritos, su muelle...) y se vuelve al inicio
@@ -31,7 +31,7 @@ const Header = () => {
           <span className="font-title-lg text-title-lg text-primary">SeaPlace</span>
         </Link>
 
-        <MenuPrincipal pathname={pathname} logueado={usuario !== null} esAdmin={esAdmin(usuario)} esRefugio={esRefugio(usuario)} esPatrocinador={esPatrocinador(usuario)} cantidadMuelle={items.length} />
+        <MenuPrincipal pathname={pathname} logueado={usuario !== null} esAdmin={esAdmin(usuario)} esRefugio={esRefugio(usuario)} esPatrocinador={esPatrocinador(usuario)} cantidadMuelle={itemsMuelle.length} />
 
         <AccionesUsuario
           usuario={usuario}

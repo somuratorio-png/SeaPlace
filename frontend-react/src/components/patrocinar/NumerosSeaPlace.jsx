@@ -6,8 +6,8 @@ import TarjetaDato from '../comunes/TarjetaDato'
 
 // SeaPlace en números, con los datos reales del catálogo y de los patrocinadores (los pide PaginaPatrocinar)
 const NumerosSeaPlace = () => {
-  const { items: animales, loading: cargandoAnimales, error: errorAnimales } = useSelector((state) => state.animales)
-  const { items: patrocinadores, loading: cargandoPatrocinadores, error: errorPatrocinadores } = useSelector((state) => state.patrocinadores)
+  const { animales, loading: cargandoAnimales, error: errorAnimales } = useSelector((state) => state.animales)
+  const { patrocinadores, loading: cargandoPatrocinadores, error: errorPatrocinadores } = useSelector((state) => state.patrocinadores)
 
   if (cargandoAnimales || cargandoPatrocinadores) {
     return <Cargando texto="Contando nuestro impacto…" />

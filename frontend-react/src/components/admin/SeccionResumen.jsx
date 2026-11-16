@@ -7,9 +7,9 @@ import TarjetaDato from '../comunes/TarjetaDato'
 // Sección "Resumen" del administrador: los números generales y el gráfico de recaudación.
 // Las listas las pidieron PanelAdmin y SeccionesAdmin: acá se leen del estado global.
 const SeccionResumen = () => {
-  const { items: usuarios } = useSelector((state) => state.usuarios)
+  const { usuarios } = useSelector((state) => state.usuario)
   const animales = useSelector((state) => state.animales)
-  const { items: apadrinamientos, loading: cargandoApadrinamientos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
+  const { apadrinamientos, loading: cargandoApadrinamientos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
   const cargando = animales.loading || cargandoApadrinamientos
   const error = animales.error || errorApadrinamientos
 

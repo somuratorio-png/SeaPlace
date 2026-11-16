@@ -16,7 +16,7 @@ import { intentar } from '../../utils/intentar'
 const Testimonios = () => {
   const dispatch = useDispatch()
   const { usuario } = useSelector((state) => state.usuario)
-  const { items: comentarios, loading: cargando, error, errorAccion } = useSelector((state) => state.comentarios)
+  const { comentarios, loading: cargando, error, errorAccion } = useSelector((state) => state.comentarios)
 
   useEffect(() => {
     dispatch(limpiarError())

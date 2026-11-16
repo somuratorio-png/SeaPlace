@@ -37,7 +37,7 @@ export const borrarComentario = createAsyncThunk('comentarios/borrarComentario',
 })
 
 const initialState = {
-  items: [],
+  comentarios: [],
   loading: false,
   error: null,
   errorAccion: null,
@@ -56,20 +56,20 @@ const comentariosSlice = createSlice({
       .addCase(traerComentarios.pending, alEmpezar)
       .addCase(traerComentarios.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.comentarios = action.payload
       })
       .addCase(traerComentarios.rejected, alFallar)
 
       // El nuevo va primero: la lista está ordenada del más nuevo al más viejo
       .addCase(comentar.pending, alEnviar)
       .addCase(comentar.fulfilled, (state, action) => {
-        state.items = [action.payload, ...state.items]
+        state.comentarios = [action.payload, ...state.comentarios]
       })
       .addCase(comentar.rejected, alFallarEnvio)
 
       .addCase(borrarComentario.pending, alEnviar)
       .addCase(borrarComentario.fulfilled, (state, action) => {
-        state.items = state.items.filter((comentario) => comentario.id !== action.payload)
+        state.comentarios = state.comentarios.filter((comentario) => comentario.id !== action.payload)
       })
       .addCase(borrarComentario.rejected, alFallarEnvio)
   },

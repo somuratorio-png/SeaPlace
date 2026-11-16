@@ -8,7 +8,7 @@ import TarjetaPropuesta from './TarjetaPropuesta'
 // Primero las que esperan respuesta (se aceptan o se rechazan), después el historial.
 // Las pidió PanelRefugio al montarse: acá se leen del estado global.
 const SeccionPatrocinios = () => {
-  const { items: campanias, loading: cargando, error } = useSelector((state) => state.campanias)
+  const { campanias, loading: cargando, error } = useSelector((state) => state.campanias)
 
   if (cargando || error) {
     return <EstadoCarga cargando={cargando} error={error} texto="Cargando los patrocinios…" />

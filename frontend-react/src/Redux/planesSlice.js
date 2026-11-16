@@ -17,7 +17,7 @@ export const traerPlanes = createAsyncThunk('planes/traerPlanes', async (_, { re
 })
 
 const initialState = {
-  items: [],
+  planes: [],
   loading: false,
   error: null,
 }
@@ -31,7 +31,7 @@ const planesSlice = createSlice({
       .addCase(traerPlanes.pending, alEmpezar)
       .addCase(traerPlanes.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.planes = action.payload
       })
       .addCase(traerPlanes.rejected, alFallar)
   },

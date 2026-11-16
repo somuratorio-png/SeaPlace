@@ -12,10 +12,10 @@ import SeccionPatrocinios from './SeccionPatrocinios'
 const ContenidoRefugio = ({ animales, apadrinamientos, categorias, onPublicar, onQuitar, onEditar, onGuardarDatos, onPublicarNovedad, onRegistrarUbicacion }) => {
   const [seccion, setSeccion] = useState('animales')
   // Las notificaciones las pide la campanita del header: acá se leen del estado global para mostrar en el menú cuántas no leyó
-  const { items: notificaciones } = useSelector((state) => state.notificaciones)
+  const { notificaciones } = useSelector((state) => state.notificaciones)
   const sinLeer = notificaciones.filter((notificacion) => !notificacion.leida).length
   // Las campañas las pidió PanelRefugio: en el menú se avisa cuántas esperan respuesta
-  const { items: campanias } = useSelector((state) => state.campanias)
+  const { campanias } = useSelector((state) => state.campanias)
   const propuestas = campanias.filter((campania) => campania.pendiente).length
 
   const secciones = [

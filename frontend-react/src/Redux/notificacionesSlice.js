@@ -27,7 +27,7 @@ export const marcarLeidas = createAsyncThunk('notificaciones/marcarLeidas', asyn
 })
 
 const initialState = {
-  items: [],
+  notificaciones: [],
   loading: false,
   error: null,
   errorAccion: null,
@@ -42,14 +42,14 @@ const notificacionesSlice = createSlice({
       .addCase(traerNotificaciones.pending, alEmpezar)
       .addCase(traerNotificaciones.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.notificaciones = action.payload
       })
       .addCase(traerNotificaciones.rejected, alFallar)
 
       // Las que recién se marcaron quedan con nueva: true, para seguir resaltándolas mientras se miran
       .addCase(marcarLeidas.pending, alEnviar)
       .addCase(marcarLeidas.fulfilled, (state) => {
-        state.items = state.items.map((notificacion) => ({ ...notificacion, nueva: !notificacion.leida, leida: true }))
+        state.notificaciones = state.notificaciones.map((notificacion) => ({ ...notificacion, nueva: !notificacion.leida, leida: true }))
       })
       .addCase(marcarLeidas.rejected, alFallarEnvio)
 

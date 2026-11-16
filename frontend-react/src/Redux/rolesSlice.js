@@ -55,7 +55,7 @@ export const asignarPermisos = createAsyncThunk('roles/asignarPermisos', async (
 })
 
 const initialState = {
-  items: [], // los roles
+  roles: [], // los roles
   permisos: [],
   loading: false,
   error: null,
@@ -71,7 +71,7 @@ const rolesSlice = createSlice({
       .addCase(traerRoles.pending, alEmpezar)
       .addCase(traerRoles.fulfilled, (state, action) => {
         state.loading = false
-        state.items = action.payload
+        state.roles = action.payload
       })
       .addCase(traerRoles.rejected, alFallar)
 
@@ -84,7 +84,7 @@ const rolesSlice = createSlice({
 
       .addCase(crearRol.pending, alEnviar)
       .addCase(crearRol.fulfilled, (state, action) => {
-        state.items = [...state.items, action.payload]
+        state.roles = [...state.roles, action.payload]
       })
       .addCase(crearRol.rejected, alFallarEnvio)
 
@@ -96,9 +96,9 @@ const rolesSlice = createSlice({
 
       .addCase(asignarPermisos.pending, alEnviar)
       .addCase(asignarPermisos.fulfilled, (state, action) => {
-        const index = state.items.findIndex((otro) => otro.id === action.payload.id)
+        const index = state.roles.findIndex((otro) => otro.id === action.payload.id)
         if (index !== -1) {
-          state.items[index] = action.payload
+          state.roles[index] = action.payload
         }
       })
       .addCase(asignarPermisos.rejected, alFallarEnvio)

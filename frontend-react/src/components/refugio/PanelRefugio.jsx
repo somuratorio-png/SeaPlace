@@ -19,8 +19,8 @@ const PanelRefugio = () => {
   const dispatch = useDispatch()
   const { usuario } = useSelector((state) => state.usuario)
   const { publicaciones, loading: cargando, error: errorAnimales } = useSelector((state) => state.animales)
-  const { items: todos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
-  const { items: categorias, error: errorCategorias } = useSelector((state) => state.categorias)
+  const { apadrinamientos: todos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
+  const { categorias, error: errorCategorias } = useSelector((state) => state.categorias)
   const error = errorAnimales || errorApadrinamientos || errorCategorias
   // Si aceptar o rechazar una campaña falla, el mensaje se muestra arriba (ver SeccionPatrocinios)
   const { errorAccion: errorPatrocinio } = useSelector((state) => state.campanias)

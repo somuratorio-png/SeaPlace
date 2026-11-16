@@ -16,7 +16,7 @@ const tamanioPorNivel = { OCEANO: 'grande', ARRECIFE: 'mediano', CORAL: 'chico' 
 // Se piden al backend una vez, al montarse. Si todavía no hay ninguna, solo queda la invitación a sumarse.
 const NosAcompanian = () => {
   const dispatch = useDispatch()
-  const { items: patrocinadores, loading: cargando, error } = useSelector((state) => state.patrocinadores)
+  const { patrocinadores, loading: cargando, error } = useSelector((state) => state.patrocinadores)
 
   useEffect(() => {
     dispatch(traerPatrocinadores())

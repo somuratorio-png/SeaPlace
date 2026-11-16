@@ -8,7 +8,7 @@ import SinConexion from '../comunes/SinConexion'
 // así que no hay sesión que recuperar.
 const PantallaArranque = ({ children }) => {
   const dispatch = useDispatch()
-  const { items: planes, loading, error } = useSelector((state) => state.planes)
+  const { planes, loading, error } = useSelector((state) => state.planes)
 
   // Antes del primer pedido todavía no hay planes (y loading sigue en false): también es "cargando"
   if (loading || (planes.length === 0 && error === null)) {

@@ -16,7 +16,7 @@ const PanelMuelle = () => {
   const navigate = useNavigate()
   const dispatch = useDispatch()
   const { state } = useLocation()
-  const { items: muelle, errorAccion } = useSelector((state) => state.muelle)
+  const { itemsMuelle: muelle, errorAccion } = useSelector((state) => state.muelle)
 
   // El botiquín viaja con la navegación: si se vuelve desde zarpar, queda como estaba
   const [conBotiquin, setConBotiquin] = useState(state !== null && state.conBotiquin === true)
