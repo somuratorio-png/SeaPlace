@@ -3,7 +3,7 @@ import axios from 'axios'
 import { aAnimal, aCuerpoAnimal, aDescuento, diferencias, urlDeFoto } from '../services/animales'
 import { hoy } from '../utils/fechas'
 import { comoLista, comoPagina, conToken, URL_BASE, conError } from './api'
-import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
+import { alEmpezar, alEmpezarListado, alEnviar, alFallar, alFallarEnvio, alFallarListado } from './casos'
 import { salir } from './usuarioSlice'
 import { darDeBaja } from './usuarioSlice'
 
@@ -197,8 +197,15 @@ const initialState = {
   animal: null, // el de la ficha: separado, así no pisa el catálogo
   publicaciones: [], // las de los paneles de gestión (refugio y administrador)
   cambiosPendientes: [], // [{ animal, cambios }]
-  loading: false,
+  // Cada GET con su espera y su error (ver alEmpezarListado): el panel del administrador pide dos a la vez
+  loading: false, // el catálogo
   error: null,
+  cargandoAnimal: false, // la ficha
+  errorAnimal: null,
+  cargandoPublicaciones: false,
+  errorPublicaciones: null,
+  cargandoCambios: false,
+  errorCambios: null,
   errorAccion: null,
 }
 
@@ -251,26 +258,26 @@ const animalesSlice = createSlice({
       })
       .addCase(traerAnimales.rejected, alFallar)
 
-      .addCase(traerAnimal.pending, alEmpezar)
+      .addCase(traerAnimal.pending, alEmpezarListado('cargandoAnimal', 'errorAnimal'))
       .addCase(traerAnimal.fulfilled, (state, action) => {
-        state.loading = false
+        state.cargandoAnimal = false
         state.animal = action.payload
       })
-      .addCase(traerAnimal.rejected, alFallar)
+      .addCase(traerAnimal.rejected, alFallarListado('cargandoAnimal', 'errorAnimal'))
 
-      .addCase(traerPublicaciones.pending, alEmpezar)
+      .addCase(traerPublicaciones.pending, alEmpezarListado('cargandoPublicaciones', 'errorPublicaciones'))
       .addCase(traerPublicaciones.fulfilled, (state, action) => {
-        state.loading = false
+        state.cargandoPublicaciones = false
         state.publicaciones = action.payload
       })
-      .addCase(traerPublicaciones.rejected, alFallar)
+      .addCase(traerPublicaciones.rejected, alFallarListado('cargandoPublicaciones', 'errorPublicaciones'))
 
-      .addCase(traerCambiosPendientes.pending, alEmpezar)
+      .addCase(traerCambiosPendientes.pending, alEmpezarListado('cargandoCambios', 'errorCambios'))
       .addCase(traerCambiosPendientes.fulfilled, (state, action) => {
-        state.loading = false
+        state.cargandoCambios = false
         state.cambiosPendientes = action.payload
       })
-      .addCase(traerCambiosPendientes.rejected, alFallar)
+      .addCase(traerCambiosPendientes.rejected, alFallarListado('cargandoCambios', 'errorCambios'))
 
       // POST / PUT / DELETE
       .addCase(crearAnimal.pending, alEnviar)

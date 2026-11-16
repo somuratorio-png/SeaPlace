@@ -15,7 +15,9 @@ import TarjetaRol from './TarjetaRol'
 // Cada acción llama al backend y, con lo que contesta, se actualiza el estado global. Si falla, onError muestra el mensaje.
 const SeccionRoles = ({ onError }) => {
   const dispatch = useDispatch()
-  const { roles, permisos, loading: cargando, error } = useSelector((state) => state.roles)
+  const { roles, permisos, loading: cargandoRoles, error: errorRoles, cargandoPermisos, errorPermisos } = useSelector((state) => state.roles)
+  const cargando = cargandoRoles || cargandoPermisos
+  const error = errorRoles || errorPermisos
 
   // Reemplaza todos los permisos del rol por los elegidos.
   // Devuelve una promesa con el mensaje de error, o null si salió bien (lo usa la tarjeta del rol).

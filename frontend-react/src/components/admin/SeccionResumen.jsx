@@ -10,8 +10,8 @@ const SeccionResumen = () => {
   const { usuarios } = useSelector((state) => state.usuario)
   const animales = useSelector((state) => state.animales)
   const { apadrinamientos, loading: cargandoApadrinamientos, error: errorApadrinamientos } = useSelector((state) => state.apadrinamientos)
-  const cargando = animales.loading || cargandoApadrinamientos
-  const error = animales.error || errorApadrinamientos
+  const cargando = animales.cargandoPublicaciones || cargandoApadrinamientos
+  const error = animales.errorPublicaciones || errorApadrinamientos
 
   const publicados = animales.publicaciones.filter((animal) => animal.publicacion === 'ACTIVA')
   const refugios = usuarios.filter((u) => u.rol === 'refugio')

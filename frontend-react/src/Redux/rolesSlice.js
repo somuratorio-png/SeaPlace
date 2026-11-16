@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aPermiso, aRol } from '../services/usuarios'
 import { comoLista, conToken, URL_BASE, conError } from './api'
-import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
+import { alEmpezar, alEmpezarListado, alEnviar, alFallar, alFallarEnvio, alFallarListado } from './casos'
 import { salir } from './usuarioSlice'
 
 // Espeja RolService y PermisoService del backend (van juntos: un rol es su lista de permisos).
@@ -57,8 +57,10 @@ export const asignarPermisos = createAsyncThunk('roles/asignarPermisos', async (
 const initialState = {
   roles: [], // los roles
   permisos: [],
-  loading: false,
+  loading: false, // los roles
   error: null,
+  cargandoPermisos: false, // se piden junto con los roles: cada uno con su espera y su error
+  errorPermisos: null,
   errorAccion: null,
 }
 
@@ -75,12 +77,12 @@ const rolesSlice = createSlice({
       })
       .addCase(traerRoles.rejected, alFallar)
 
-      .addCase(traerPermisos.pending, alEmpezar)
+      .addCase(traerPermisos.pending, alEmpezarListado('cargandoPermisos', 'errorPermisos'))
       .addCase(traerPermisos.fulfilled, (state, action) => {
-        state.loading = false
+        state.cargandoPermisos = false
         state.permisos = action.payload
       })
-      .addCase(traerPermisos.rejected, alFallar)
+      .addCase(traerPermisos.rejected, alFallarListado('cargandoPermisos', 'errorPermisos'))
 
       .addCase(crearRol.pending, alEnviar)
       .addCase(crearRol.fulfilled, (state, action) => {

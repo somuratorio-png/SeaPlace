@@ -19,6 +19,20 @@ export const alFallar = (state, action) => {
   state.error = action.payload ? action.payload.mensaje : action.error.message
 }
 
+// Cuando un slice tiene más de un GET, cada listado lleva su propio "cargando" y su propio error:
+// si compartieran loading, el primero en terminar sacaría el "Cargando…" del otro, y el error de uno
+// aparecería en la pantalla del otro. Se les pasa el nombre de los dos campos.
+// Ejemplo: .addCase(traerPermisos.pending, alEmpezarListado('cargandoPermisos', 'errorPermisos'))
+export const alEmpezarListado = (cargando, error) => (state) => {
+  state[cargando] = true
+  state[error] = null
+}
+
+export const alFallarListado = (cargando, error) => (state, action) => {
+  state[cargando] = false
+  state[error] = action.payload ? action.payload.mensaje : action.error.message
+}
+
 // POST/PUT/DELETE pending
 export const alEnviar = (state) => {
   state.errorAccion = null

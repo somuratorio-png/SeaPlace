@@ -22,7 +22,7 @@ const textoDelRefugio = (r) => `${r.nombre} ${r.apellido} ${r.mail}`
 const SeccionRefugios = ({ onCambiarActivo, onError }) => {
   const dispatch = useDispatch()
   const { usuarios } = useSelector((state) => state.usuario)
-  const { publicaciones: animales, loading: cargando, error } = useSelector((state) => state.animales)
+  const { publicaciones: animales, cargandoPublicaciones: cargando, errorPublicaciones: error } = useSelector((state) => state.animales)
 
   const aprobar = (nombreUsuario) => {
     const elegido = usuarios.find((u) => u.nombreUsuario === nombreUsuario)

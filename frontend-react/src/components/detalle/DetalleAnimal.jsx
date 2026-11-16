@@ -19,7 +19,7 @@ const DetalleAnimal = () => {
   const dispatch = useDispatch()
   const { id } = useParams()
 
-  const { animal, loading, error } = useSelector((state) => state.animales)
+  const { animal, cargandoAnimal: loading, errorAnimal: error } = useSelector((state) => state.animales)
   // false hasta que termina el pedido de esta ficha: así no se muestra un rato el animal (o el error)
   // que había quedado en el estado global de una ficha anterior
   const [listo, setListo] = useState(false)

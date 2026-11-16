@@ -16,7 +16,9 @@ import TablaCambios from './TablaCambios'
 // PENDIENTE. Cada acción actualiza el estado global con lo que contesta el backend (ver animalesSlice).
 const SeccionPublicaciones = ({ onError }) => {
   const dispatch = useDispatch()
-  const { publicaciones, cambiosPendientes: cambios, loading: cargando, error } = useSelector((state) => state.animales)
+  const { publicaciones, cambiosPendientes: cambios, cargandoPublicaciones, errorPublicaciones, cargandoCambios, errorCambios } = useSelector((state) => state.animales)
+  const cargando = cargandoPublicaciones || cargandoCambios
+  const error = errorPublicaciones || errorCambios
   const pendientes = publicaciones.filter((animal) => animal.publicacion === 'PENDIENTE')
 
   // Si la acción falla, se muestra el mensaje arriba de la página

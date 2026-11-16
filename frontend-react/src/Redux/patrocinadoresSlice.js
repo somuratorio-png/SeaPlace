@@ -2,7 +2,7 @@ import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 import axios from 'axios'
 import { aBeneficio, aMiPatrocinio, aPatrocinador } from '../services/patrocinadores'
 import { comoLista, conToken, URL_BASE, conError } from './api'
-import { alEmpezar, alEnviar, alFallar, alFallarEnvio } from './casos'
+import { alEmpezar, alEmpezarListado, alEnviar, alFallar, alFallarEnvio, alFallarListado } from './casos'
 import { salir } from './usuarioSlice'
 
 // Espeja PatrocinadorService del backend. Guarda tres cosas, cada una con su GET, su espera y su error:
@@ -117,28 +117,16 @@ const patrocinadoresSlice = createSlice({
       })
       .addCase(traerPatrocinadores.rejected, alFallar)
 
-      .addCase(traerBeneficios.pending, (state) => {
-        state.cargandoBeneficios = true
-        state.errorBeneficios = null
-      })
+      .addCase(traerBeneficios.pending, alEmpezarListado('cargandoBeneficios', 'errorBeneficios'))
       .addCase(traerBeneficios.fulfilled, (state, action) => {
         state.cargandoBeneficios = false
         state.beneficios = action.payload
       })
-      .addCase(traerBeneficios.rejected, (state, action) => {
-        state.cargandoBeneficios = false
-        state.errorBeneficios = action.payload ? action.payload.mensaje : action.error.message
-      })
+      .addCase(traerBeneficios.rejected, alFallarListado('cargandoBeneficios', 'errorBeneficios'))
 
-      .addCase(traerMiPatrocinio.pending, (state) => {
-        state.cargandoPanel = true
-        state.errorPanel = null
-      })
+      .addCase(traerMiPatrocinio.pending, alEmpezarListado('cargandoPanel', 'errorPanel'))
       .addCase(traerMiPatrocinio.fulfilled, conPanel)
-      .addCase(traerMiPatrocinio.rejected, (state, action) => {
-        state.cargandoPanel = false
-        state.errorPanel = action.payload ? action.payload.mensaje : action.error.message
-      })
+      .addCase(traerMiPatrocinio.rejected, alFallarListado('cargandoPanel', 'errorPanel'))
 
       .addCase(modificarMiPatrocinio.pending, alEnviar)
       .addCase(modificarMiPatrocinio.fulfilled, conPanel)
