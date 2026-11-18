@@ -77,7 +77,7 @@ npm run dev      # http://localhost:5173
 ```
 
 - El navegador le pide todo a `localhost:5173` y el **proxy de Vite** (`vite.config.js`) reenvía lo que empieza con `/api` a `http://localhost:8080`, sin el prefijo. Por eso en desarrollo no hace falta CORS (igual el backend lo tiene habilitado para `http://localhost:5173` en `SecurityConfig`). El backend tiene que estar levantado.
-- Todos los pedidos pasan por `src/services/api.js` (agrega el token JWT y convierte los errores del backend en mensajes); el resto de `src/services/` tiene una función por endpoint.
+- Todos los pedidos los hacen los slices de Redux (`src/Redux/`) con `axios`: `src/Redux/api.js` agrega el token JWT y convierte los errores del backend en mensajes. `src/services/` tiene solo los conversores de datos entre el backend y los componentes.(agrega el token JWT y convierte los errores del backend en mensajes); el resto de `src/services/` tiene una función por endpoint.
 - Las fotos de los animales de demo las sirve el front (`frontend-react/public/img/animales`); las que sube un refugio se guardan en la base y las sirve la API.
 
 ## Modelo de dominio
